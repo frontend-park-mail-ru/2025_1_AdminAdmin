@@ -1,2 +1,2 @@
-# 2025_2_AdminAdmin
+# 2025_1_AdminAdmin
 Репозиторий команды "admin admin". Проект: Delivery Club
