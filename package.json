@@ -1,0 +1,28 @@
+{
+  "name": "2025_1_adminadmin",
+  "version": "1.0.0",
+  "description": "Репозиторий команды \"admin admin\". Проект: Delivery Club",
+  "main": "index.js",
+  "scripts": {
+    "devStart": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JERR4/2025_1_AdminAdmin.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/JERR4/2025_1_AdminAdmin/issues"
+  },
+  "homepage": "https://github.com/JERR4/2025_1_AdminAdmin#readme",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
