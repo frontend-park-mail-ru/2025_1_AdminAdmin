@@ -1,18 +1,14 @@
-const express = require('express');
+import express from "express";
+import restaurantRouter from './routers/restaurants.js';
 const app = express();
 
 app.use(express.static("public"));
-
-app.set("view engine", "ejs");
 app.use(logger)
+app.use('/restaurants', restaurantRouter);
 
 app.get("/", (req, res) => {
     res.render("index");
 });
-
-const restaurantRouter = require('./routers/restaurants');
-
-app.use('/restaurants', restaurantRouter);
 
 function logger(req, res, next) {
     console.log(req.originalUrl);

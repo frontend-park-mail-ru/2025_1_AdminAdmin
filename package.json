@@ -13,14 +13,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/JERR4/2025_1_AdminAdmin/issues"
   },
   "homepage": "https://github.com/JERR4/2025_1_AdminAdmin#readme",
   "dependencies": {
-    "ejs": "^3.1.10",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "handlebars": "^4.7.8"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

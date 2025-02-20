@@ -6,8 +6,8 @@
 <body>
 <h1>Restaurant List</h1>
 <ul>
-    <% restaurants.forEach(function(restaurant) { %>
-        <li><%= restaurant.name %></li>
+    {{each restaurantList}}
+        <li>{{this.name}}</li>
     <% }); %>
 </ul>
 </body>
