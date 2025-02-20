@@ -1,3 +1,6 @@
+import "./build/restaurantList.js";
+import "./build/restaurantDetail.js";
+
 const rootElement = document.getElementById('root');
 const pageElement = document.createElement('main');
 

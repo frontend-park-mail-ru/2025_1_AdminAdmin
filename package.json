@@ -9,16 +9,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JERR4/2025_1_AdminAdmin.git"
+    "url": "git+https://github.com/frontend-park-mail-ru/2025_1_AdminAdmin.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/JERR4/2025_1_AdminAdmin/issues"
+    "url": "https://github.com/frontend-park-mail-ru/2025_1_AdminAdmin/issues"
   },
-  "homepage": "https://github.com/JERR4/2025_1_AdminAdmin#readme",
+  "homepage": "https://github.com/frontend-park-mail-ru/2025_1_AdminAdmin#readme",
   "dependencies": {
     "express": "^4.21.2",
     "handlebars": "^4.7.8"
