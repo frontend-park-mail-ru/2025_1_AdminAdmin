@@ -2,7 +2,7 @@ import "./build/restaurantList.js";
 import "./build/restaurantPage.js";
 import "./build/header.js";
 import "./build/restaurantCard.js"
-import * as requests from "./requests.js"
+import * as requests from "./src/modules/requests.js"
 
 const rootElement = document.getElementById("root");
 const pageElement = document.createElement("main");
