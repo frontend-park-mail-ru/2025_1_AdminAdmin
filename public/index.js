@@ -17,7 +17,7 @@ function renderHeader() {
 
     document.getElementsByClassName("logo")[0].addEventListener("click", () => {
         renderRestaurantList();
-        window.location.pathname = "/";
+        history.pushState({}, "", "/");
     })
 }
 
