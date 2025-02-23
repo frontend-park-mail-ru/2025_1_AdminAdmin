@@ -14,6 +14,11 @@ Handlebars.registerPartial("restaurantCard", Handlebars.templates["restaurantCar
 function renderHeader() {
     const template = Handlebars.templates["header.hbs"];
     rootElement.insertAdjacentHTML("afterbegin", template());
+
+    document.getElementsByClassName("logo")[0].addEventListener("click", () => {
+        renderRestaurantList();
+        window.location.pathname = "/";
+    })
 }
 
 async function renderRestaurantList() {
