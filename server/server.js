@@ -38,6 +38,10 @@ app.get('/restaurants/:id', (req, res) => {
     res.json({ ...restaurant, menu });
 });
 
+app.get("*", (req, res) => {
+    res.sendFile(path.resolve("public", "index.html"));
+});
+
 app.listen(3000, () => {
     console.log("Server is running on http://localhost:3000");
 });
