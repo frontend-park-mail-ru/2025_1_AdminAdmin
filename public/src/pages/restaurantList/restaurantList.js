@@ -1,5 +1,5 @@
-import * as requests from "../../modules/requests.js";
 import goToPage from "../../modules/routing.js";
+import {AppRestaurantRequests} from "../../modules/ajax.js";
 
 export default class RestaurantList {
     constructor(parent) {
@@ -11,7 +11,7 @@ export default class RestaurantList {
 
     async render() {
         try {
-            this.restaurantList = await requests.getRestaurantList();
+            this.restaurantList = await AppRestaurantRequests.GetAll();
             if (!this.restaurantList) throw new Error("Empty restaurant list");
             this.page = this.template({ restaurantList: this.restaurantList });
             this._addEventListeners();

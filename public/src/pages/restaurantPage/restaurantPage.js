@@ -1,4 +1,5 @@
 import * as requests from "../../modules/requests.js";
+import {AppRestaurantRequests} from "../../modules/ajax.js";
 
 export default class RestaurantPage {
     constructor(parent, id) {
@@ -10,7 +11,7 @@ export default class RestaurantPage {
 
     async render() {
         try {
-            this.restaurantDetail = await requests.getRestaurantById(this.id);
+            this.restaurantDetail = await AppRestaurantRequests.Get(this.id);
             if (!this.restaurantDetail) throw new Error("Empty restaurant detail");
 
             const template = Handlebars.templates["restaurantPage.hbs"];
