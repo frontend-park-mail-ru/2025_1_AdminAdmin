@@ -14,11 +14,11 @@ function logger(req, res, next) {
     next();
 }
 
-app.get('/restaurants', (req, res) => {
+app.get('/api/restaurants', (req, res) => {
     res.json(mocks.restaurantList);
 });
 
-app.get('/restaurants/:id', (req, res) => {
+app.get('/api/restaurants/:id', (req, res) => {
     const restaurant = mocks.restaurantList.find(r => r.id === parseInt(req.params.id));
 
     if (!restaurant) {
