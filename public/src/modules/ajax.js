@@ -92,7 +92,7 @@ class RestaurantsRequests {
         );
 
         if (status === 200) {
-            return body.json;
+            return body;
         } else {
             throw Error(body.message);
         }
@@ -112,7 +112,7 @@ class RestaurantsRequests {
         );
 
         if (status === 200) {
-            return body.json;
+            return body;
         } else {
             throw Error(body.message);
         }
