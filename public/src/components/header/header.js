@@ -7,7 +7,7 @@ export default class Header {
     }
 
     render() {
-        this.parent.insertAdjacentHTML("afterbegin", this.template());
+        this.parent.innerHTML = this.template();
         this._addEventListeners();
     }
 
