@@ -1,4 +1,5 @@
 import goToPage from "../../modules/routing.js";
+import {userStore} from "../../store/userStore.js";
 
 export default class LoginPage {
     constructor(parent) {
@@ -18,6 +19,11 @@ export default class LoginPage {
             const signupLink = event.target.closest(".signup-link");
             if (signupLink) {
                 goToPage('registerPage');
+            }
+
+            const loginButton = event.target.closest(".login-form__login-button");
+            if (loginButton) {
+                userStore.login("bob")
             }
         });
     }
