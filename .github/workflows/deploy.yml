@@ -1,0 +1,32 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout репозитория
+        uses: actions/checkout@v3
+
+      - name: Установка Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 23
+
+      - name: Установка зависимостей
+        run: npm install
+
+      - name: Сборка проекта
+        run: npm run build
+
+      - name: Деплой на сервер
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "public/*"
+          target: "/opt/public"
