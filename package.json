@@ -4,9 +4,10 @@
   "description": "Репозиторий команды \"admin admin\". Проект: Delivery Club",
   "main": "index.js",
   "scripts": {
-    "build": "build.sh",
+    "build": "node build.js",
     "start": "npm run build && nodemon server/server.js"
   },
+
   "repository": {
     "type": "git",
     "url": "git+https://github.com/frontend-park-mail-ru/2025_1_AdminAdmin.git"
