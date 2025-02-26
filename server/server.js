@@ -5,7 +5,6 @@ import * as mocks from "./mocks.js";
 const app = express();
 
 app.use(express.static("public"));
-app.use("/handlebars", express.static(path.join('node_modules', 'handlebars', 'dist')));
 
 app.use(logger);
 
