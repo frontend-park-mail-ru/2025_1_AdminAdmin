@@ -1,6 +1,6 @@
 import {decode, timeout} from "./utils.js";
 
-/** @typedef {Promise<{create_time: string, image_path: string, id: string, username: string}>} UserData **/
+/** @typedef {Promise<{create_time: string, image_path: string, id: string, login: string}>} UserData **/
 
 
 const isDebug = false;
@@ -33,7 +33,6 @@ const baseRequest = async (method, url, data = null, params=null) => {
         method: method,
         mode: "cors",
         credentials: "include",
-        signal: timeout(REQUEST_TIMEOUT),
         headers: {
             "Content-Type": "application/json",
             "Accept": "application/json",
@@ -54,14 +53,20 @@ const baseRequest = async (method, url, data = null, params=null) => {
     }
 
     try{
-        const response = await fetch(query_url.toString(), options).catch(() => {
-            //toasts.error("Ошибка", "Что-то пошло не так");
+        const response = await fetch(query_url.toString(), options).catch((err) => {
+            console.log(err);
         });
-        let body = null;
+        let body;
         try {
-            body = await response.json();
-        } catch (err) {
-            console.log("no body");
+            body = await response.clone().json();
+        } catch (jsonErr) {
+            console.log("Response is not JSON, trying as text...");
+            try {
+                body = await response.text();
+            } catch (textErr) {
+                console.error("Failed to parse response as text:", textErr);
+                body = null;
+            }
         }
         if (response.headers.get("Authorization") !== null) {
             JWT = response.headers.get("Authorization");
@@ -74,6 +79,88 @@ const baseRequest = async (method, url, data = null, params=null) => {
     }
 };
 
+class UserRequests {
+    #baseUrl = "/auth";
+
+    /**
+     * Запрос на логин пользователя
+     * @param login {string}
+     * @param password {string}
+     * @returns UserDataResponse
+     */
+    Login = async (login, password) => {
+        const {status, body} = await baseRequest(
+            methods.POST,this.#baseUrl + "/signin",
+            {login, password}
+        );
+
+        if (status === 200) {
+            return;
+        }
+
+        throw body;
+    };
+
+    /**
+     * Запрос на регистрацию нового пользователя
+     * @param login{string}
+     * @param password{string}
+     * @returns UserDataResponse
+     */
+    SignUp = async (login, password) => {
+        const {status, body} = await baseRequest(
+            methods.POST,
+            this.#baseUrl + "/signup",
+            {login, password}
+        );
+
+
+        if (status === 201) {
+            return;
+        }
+
+        throw body;
+    };
+
+    /**
+     * Запрос на логаут пользователя
+     * @returns {Promise<{message: string}>}
+     */
+    Logout = async () => {
+        const {status, body} = await baseRequest(
+            methods.DELETE,
+            this.#baseUrl + "/logout"
+        );
+
+        if (status === 204){
+            console.log("logged out");
+            JWT = null;
+            return {
+                message: "ok"
+            };
+        } else {
+            throw Error(body.message);
+        }
+    };
+
+    /**
+     * Запрос на проверку пользователя
+     * @returns {Promise<{message}|null>}
+     * @throws Error - not authorized
+     */
+    CheckUser = async () => {
+        const {status, body} = await baseRequest(
+            methods.GET,
+            this.#baseUrl + "/check_user"
+        );
+
+        if (status === 200) {
+            return body;
+        } else {
+            throw Error("not authorized");
+        }
+    };
+}
 
 class RestaurantsRequests {
     #baseUrl = "/restaurants";
@@ -120,3 +207,4 @@ class RestaurantsRequests {
 }
 
 export const AppRestaurantRequests = new RestaurantsRequests();
+export const AppUserRequests = new UserRequests();

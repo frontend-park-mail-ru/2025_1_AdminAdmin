@@ -11,11 +11,13 @@ const initialUserState = {
 const userReducer = (state = initialUserState, action) => {
     switch (action.type) {
         case UserActions.LOGIN_SUCCESS:
+        case UserActions.REGISTER_SUCCESS:
             return {
                 ...state,
                 isAuth: true,
                 username: action.payload.username,
             };
+
 
         case UserActions.LOGOUT_SUCCESS:
             return {
@@ -23,7 +25,6 @@ const userReducer = (state = initialUserState, action) => {
                 isAuth: false,
                 username: "",
             };
-
         default:
             return state;
     }
@@ -31,6 +32,7 @@ const userReducer = (state = initialUserState, action) => {
 
 export const UserActions = {
     LOGIN_SUCCESS: "LOGIN_SUCCESS",
+    REGISTER_SUCCESS: "REGISTER_SUCCESS",
     LOGOUT_SUCCESS: "LOGOUT_SUCCESS",
 };
 
@@ -52,20 +54,32 @@ class UserStore {
         return this.store.dispatch(action);
     }
 
-    async login(credentials) {
+    async login({login, password}) {
         try {
-            const res = await AppUserRequests.Login(credentials.login, credentials.password );
+            const res = await AppUserRequests.Login(login, password );
 
             this.#dispatch({
                 type: UserActions.LOGIN_SUCCESS,
-                payload: { username: credentials.login },
+                payload: { username: login },
             });
-
-            router.goToPage("home");
         } catch (err) {
-            console.log(err);
+            throw err;
         }
     }
+
+    async register ({login, password}) {
+        try {
+            const res = await AppUserRequests.SignUp(login, password );
+
+            this.#dispatch({
+                type: UserActions.REGISTER_SUCCESS,
+                payload: { username: login },
+            });
+        } catch (err) {
+            throw err;
+        }
+    }
+
 
     async logout() {
         try {

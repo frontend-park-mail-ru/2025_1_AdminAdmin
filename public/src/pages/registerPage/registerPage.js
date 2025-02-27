@@ -1,4 +1,5 @@
 import { router } from "../../modules/routing.js";
+import { userStore } from "../../store/userStore.js";
 
 export default class RegisterPage {
     #parent;
@@ -27,6 +28,29 @@ export default class RegisterPage {
         const signupLink = event.target.closest(".signin-link");
         if (signupLink) {
             router.goToPage('loginPage');
+        }
+
+        const registerButton = event.target.closest(".register-form__register-button");
+        if (registerButton) {
+            event.preventDefault();
+
+            const form = registerButton.closest("form");
+            if (!form) return;
+
+            const loginInput = form.querySelector('input[type="text"]');
+            const passwordInput = form.querySelector('input[type="password"]');
+
+            if (loginInput && passwordInput) {
+                const login = loginInput.value.trim();
+                const password = passwordInput.value.trim();
+
+                userStore.register({login, password}).then(() => {
+                    router.goToPage("home");
+                })
+                .catch((err) => {
+                    console.error("Register failed:", err);
+                });
+            }
         }
     }
 

@@ -1,4 +1,3 @@
-import * as requests from "../../modules/requests.js";
 import { AppRestaurantRequests } from "../../modules/ajax.js";
 
 export default class RestaurantPage {
