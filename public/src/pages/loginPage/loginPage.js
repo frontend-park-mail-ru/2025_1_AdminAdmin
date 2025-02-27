@@ -1,30 +1,52 @@
-import goToPage from "../../modules/routing.js";
-import {userStore} from "../../store/userStore.js";
+import { router } from "../../modules/routing.js";
+import { userStore } from "../../store/userStore.js";
 
 export default class LoginPage {
+    #parent;
+    #template;
+    #page;
+    #clickHandler;
+
     constructor(parent) {
-        this.parent = parent;
-        this.template = Handlebars.templates["loginPage.hbs"];
-        this.page = null;
+        this.#parent = parent;
+        this.#template = Handlebars.templates["loginPage.hbs"];
+        this.#page = null;
+        this.#clickHandler = this.#handleClick.bind(this);
     }
 
     render() {
-        this.page = this.template();
-        this._addEventListeners();
-        this.parent.innerHTML = this.page;
+        this.#page = this.#template();
+        this.#parent.innerHTML = this.#page;
+        document.addEventListener("click", this.#clickHandler);
     }
 
-    _addEventListeners() {
-        document.addEventListener("click", (event) => {
-            const signupLink = event.target.closest(".signup-link");
-            if (signupLink) {
-                goToPage('registerPage');
-            }
+    #handleClick(event) {
+        const signupLink = event.target.closest(".signup-link");
+        if (signupLink) {
+            router.goToPage("registerPage");
+        }
 
-            const loginButton = event.target.closest(".login-form__login-button");
-            if (loginButton) {
-                userStore.login("bob")
+        const loginButton = event.target.closest(".login-form__login-button");
+        if (loginButton) {
+            event.preventDefault();
+
+            const form = loginButton.closest("form");
+            if (!form) return;
+
+            const emailInput = form.querySelector('input[type="email"]');
+            const passwordInput = form.querySelector('input[type="password"]');
+
+            if (emailInput && passwordInput) {
+                const email = emailInput.value.trim();
+                const password = passwordInput.value.trim();
+
+                userStore.login({ email, password });
             }
-        });
+        }
+    }
+
+    remove() {
+        document.removeEventListener("click", this.#clickHandler);
+        this.#parent.innerHTML = "";
     }
 }
