@@ -37,14 +37,14 @@ export default class RegisterPage {
             const form = registerButton.closest("form");
             if (!form) return;
 
-            const emailInput = form.querySelector('input[type="text"]');
+            const loginInput = form.querySelector('input[type="text"]');
             const passwordInput = form.querySelector('input[type="password"]');
 
-            if (emailInput && passwordInput) {
-                const email = emailInput.value.trim();
+            if (loginInput && passwordInput) {
+                const login = loginInput.value.trim();
                 const password = passwordInput.value.trim();
 
-                userStore.register({email, password}).then(() => {
+                userStore.register({login, password}).then(() => {
                     router.goToPage("home");
                 });
             }

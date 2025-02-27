@@ -52,22 +52,22 @@ class UserStore {
         return this.store.dispatch(action);
     }
 
-    async login(credentials) {
+    async login({login, password}) {
         try {
-            const res = await AppUserRequests.Login(credentials.login, credentials.password );
+            const res = await AppUserRequests.Login(login, password );
 
             this.#dispatch({
                 type: UserActions.LOGIN_SUCCESS,
-                payload: { username: credentials.login },
+                payload: { username: login },
             });
         } catch (err) {
             console.log(err);
         }
     }
 
-    async register (credentials) {
+    async register ({login, password}) {
         try {
-            const res = await AppUserRequests.SignUp(credentials.login, credentials.password );
+            const res = await AppUserRequests.SignUp(login, password );
 
             this.#dispatch({
                 type: UserActions.REGISTER_SUCCESS,
