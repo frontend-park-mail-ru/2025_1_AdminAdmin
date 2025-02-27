@@ -1,5 +1,6 @@
 import { createStore } from "./store.js";
-import goToPage from "../modules/routing.js";
+import { router } from "../modules/routing.js";
+import {AppUserRequests} from "../modules/ajax.js";
 
 const initialUserState = {
     username: "",
@@ -47,20 +48,20 @@ class UserStore {
         return this.store.getState();
     }
 
-    dispatch(action) {
+    #dispatch(action) {
         return this.store.dispatch(action);
     }
 
     async login(credentials) {
         try {
-            const res = { username: credentials };
+            const res = await AppUserRequests.Login(credentials.login, credentials.password );
 
-            this.dispatch({
+            this.#dispatch({
                 type: UserActions.LOGIN_SUCCESS,
-                payload: { username: res.username },
+                payload: { username: credentials.login },
             });
 
-            goToPage("home");
+            router.goToPage("home");
         } catch (err) {
             console.log(err);
         }
@@ -68,8 +69,8 @@ class UserStore {
 
     async logout() {
         try {
-            this.dispatch({ type: UserActions.LOGOUT_SUCCESS });
-            goToPage("home");
+            this.#dispatch({ type: UserActions.LOGOUT_SUCCESS });
+            router.goToPage("home");
         } catch (err) {
             console.log(err);
         }
