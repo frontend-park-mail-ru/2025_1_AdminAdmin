@@ -33,14 +33,16 @@ export default class LoginPage {
             const form = loginButton.closest("form");
             if (!form) return;
 
-            const emailInput = form.querySelector('input[type="email"]');
+            const emailInput = form.querySelector('input[type="text"]');
             const passwordInput = form.querySelector('input[type="password"]');
 
             if (emailInput && passwordInput) {
                 const email = emailInput.value.trim();
                 const password = passwordInput.value.trim();
 
-                userStore.login({ email, password });
+                userStore.login({ email, password }).then(() => {
+                    router.goToPage("home");
+                });
             }
         }
     }

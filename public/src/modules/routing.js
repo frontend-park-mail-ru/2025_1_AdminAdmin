@@ -5,7 +5,7 @@ import RegisterPage from "../pages/registerPage/registerPage.js";
 import Header from "../../src/components/header/header.js";
 import auxHeader from "../components/auxHeader/auxHeader.js";
 
-export default class Router {
+class Router {
     #parent;
     #headerElement;
     #pageElement;

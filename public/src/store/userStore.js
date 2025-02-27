@@ -10,7 +10,7 @@ const initialUserState = {
 
 const userReducer = (state = initialUserState, action) => {
     switch (action.type) {
-        case UserActions.LOGIN_SUCCESS:
+        case UserActions.LOGIN_SUCCESS || UserActions.REGISTER_SUCCESS:
             return {
                 ...state,
                 isAuth: true,
@@ -23,7 +23,6 @@ const userReducer = (state = initialUserState, action) => {
                 isAuth: false,
                 username: "",
             };
-
         default:
             return state;
     }
@@ -31,6 +30,7 @@ const userReducer = (state = initialUserState, action) => {
 
 export const UserActions = {
     LOGIN_SUCCESS: "LOGIN_SUCCESS",
+    REGISTER_SUCCESS: "REGISTER_SUCCESS",
     LOGOUT_SUCCESS: "LOGOUT_SUCCESS",
 };
 
@@ -60,12 +60,24 @@ class UserStore {
                 type: UserActions.LOGIN_SUCCESS,
                 payload: { username: credentials.login },
             });
-
-            router.goToPage("home");
         } catch (err) {
             console.log(err);
         }
     }
+
+    async register (credentials) {
+        try {
+            const res = await AppUserRequests.SignUp(credentials.login, credentials.password );
+
+            this.#dispatch({
+                type: UserActions.REGISTER_SUCCESS,
+                payload: { username: credentials.login },
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
 
     async logout() {
         try {

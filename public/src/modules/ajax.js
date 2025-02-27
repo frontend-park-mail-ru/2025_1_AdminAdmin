@@ -1,6 +1,6 @@
 import {decode, timeout} from "./utils.js";
 
-/** @typedef {Promise<{create_time: string, image_path: string, id: string, username: string}>} UserData **/
+/** @typedef {Promise<{create_time: string, image_path: string, id: string, login: string}>} UserData **/
 
 
 const isDebug = false;
@@ -74,6 +74,88 @@ const baseRequest = async (method, url, data = null, params=null) => {
     }
 };
 
+class UserRequests {
+    #baseUrl = "/auth";
+
+    /**
+     * Запрос на логин пользователя
+     * @param login {string}
+     * @param password {string}
+     * @returns UserDataResponse
+     */
+    Login = async (login, password) => {
+        const {status, body} = await baseRequest(
+            methods.POST,this.#baseUrl + "/signin",
+            {login, password}
+        );
+
+        if (status === 200) {
+            return;
+        }
+
+        throw Error(body.message);
+    };
+
+    /**
+     * Запрос на регистрацию нового пользователя
+     * @param login{string}
+     * @param password{string}
+     * @returns UserDataResponse
+     */
+    SignUp = async (login, password) => {
+        const {status, body} = await baseRequest(
+            methods.POST,
+            this.#baseUrl + "/signup",
+            {login, password}
+        );
+
+
+        if (status === 201) {
+            return;
+        }
+
+        throw Error(body.message);
+    };
+
+    /**
+     * Запрос на логаут пользователя
+     * @returns {Promise<{message: string}>}
+     */
+    Logout = async () => {
+        const {status, body} = await baseRequest(
+            methods.DELETE,
+            this.#baseUrl + "/logout"
+        );
+
+        if (status === 204){
+            console.log("logged out");
+            JWT = null;
+            return {
+                message: "ok"
+            };
+        } else {
+            throw Error(body.message);
+        }
+    };
+
+    /**
+     * Запрос на проверку пользователя
+     * @returns {Promise<{message}|null>}
+     * @throws Error - not authorized
+     */
+    CheckUser = async () => {
+        const {status, body} = await baseRequest(
+            methods.GET,
+            this.#baseUrl + "/check_user"
+        );
+
+        if (status === 200) {
+            return body;
+        } else {
+            throw Error("not authorized");
+        }
+    };
+}
 
 class RestaurantsRequests {
     #baseUrl = "/restaurants";
@@ -120,3 +202,4 @@ class RestaurantsRequests {
 }
 
 export const AppRestaurantRequests = new RestaurantsRequests();
+export const AppUserRequests = new UserRequests();
