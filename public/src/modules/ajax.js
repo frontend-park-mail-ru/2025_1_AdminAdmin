@@ -33,7 +33,6 @@ const baseRequest = async (method, url, data = null, params=null) => {
         method: method,
         mode: "cors",
         credentials: "include",
-        signal: timeout(REQUEST_TIMEOUT),
         headers: {
             "Content-Type": "application/json",
             "Accept": "application/json",
@@ -54,14 +53,20 @@ const baseRequest = async (method, url, data = null, params=null) => {
     }
 
     try{
-        const response = await fetch(query_url.toString(), options).catch(() => {
-            //toasts.error("Ошибка", "Что-то пошло не так");
+        const response = await fetch(query_url.toString(), options).catch((err) => {
+            console.log(err);
         });
-        let body = null;
+        let body;
         try {
-            body = await response.json();
-        } catch (err) {
-            console.log("no body");
+            body = await response.clone().json();
+        } catch (jsonErr) {
+            console.log("Response is not JSON, trying as text...");
+            try {
+                body = await response.text();
+            } catch (textErr) {
+                console.error("Failed to parse response as text:", textErr);
+                body = null;
+            }
         }
         if (response.headers.get("Authorization") !== null) {
             JWT = response.headers.get("Authorization");
@@ -93,7 +98,7 @@ class UserRequests {
             return;
         }
 
-        throw new Error(body);
+        throw body;
     };
 
     /**
@@ -114,7 +119,7 @@ class UserRequests {
             return;
         }
 
-        throw Error(body.message);
+        throw body;
     };
 
     /**

@@ -63,8 +63,7 @@ class UserStore {
                 payload: { username: login },
             });
         } catch (err) {
-            console.log(err);
-            throw new Error("Неверные данные");
+            throw err;
         }
     }
 
@@ -77,8 +76,7 @@ class UserStore {
                 payload: { username: login },
             });
         } catch (err) {
-            console.log(err);
-            throw new Error("Неверные данные");
+            throw err;
         }
     }
 

@@ -48,7 +48,7 @@ export default class RegisterPage {
                     router.goToPage("home");
                 })
                 .catch((err) => {
-                    console.error("Login failed:", err);
+                    console.error("Register failed:", err);
                 });
             }
         }
