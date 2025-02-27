@@ -1,5 +1,5 @@
 import { router } from "../../modules/routing.js";
-import {userStore} from "../../store/userStore.js";
+import { userStore } from "../../store/userStore.js";
 
 export default class RegisterPage {
     #parent;
@@ -46,6 +46,9 @@ export default class RegisterPage {
 
                 userStore.register({login, password}).then(() => {
                     router.goToPage("home");
+                })
+                .catch((err) => {
+                    console.error("Login failed:", err);
                 });
             }
         }

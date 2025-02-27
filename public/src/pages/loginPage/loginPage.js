@@ -42,6 +42,9 @@ export default class LoginPage {
 
                 userStore.login({ login, password }).then(() => {
                     router.goToPage("home");
+                })
+                .catch((err) => {
+                    console.error("Login failed:", err);
                 });
             }
         }

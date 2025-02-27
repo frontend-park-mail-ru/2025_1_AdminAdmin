@@ -10,12 +10,14 @@ const initialUserState = {
 
 const userReducer = (state = initialUserState, action) => {
     switch (action.type) {
-        case UserActions.LOGIN_SUCCESS || UserActions.REGISTER_SUCCESS:
+        case UserActions.LOGIN_SUCCESS:
+        case UserActions.REGISTER_SUCCESS:
             return {
                 ...state,
                 isAuth: true,
                 username: action.payload.username,
             };
+
 
         case UserActions.LOGOUT_SUCCESS:
             return {
@@ -62,6 +64,7 @@ class UserStore {
             });
         } catch (err) {
             console.log(err);
+            throw new Error("Неверные данные");
         }
     }
 
@@ -71,10 +74,11 @@ class UserStore {
 
             this.#dispatch({
                 type: UserActions.REGISTER_SUCCESS,
-                payload: { username: credentials.login },
+                payload: { username: login },
             });
         } catch (err) {
             console.log(err);
+            throw new Error("Неверные данные");
         }
     }
 

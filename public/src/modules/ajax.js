@@ -93,7 +93,7 @@ class UserRequests {
             return;
         }
 
-        throw Error(body.message);
+        throw new Error(body);
     };
 
     /**
