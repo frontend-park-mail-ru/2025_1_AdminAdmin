@@ -13,30 +13,6 @@ function logger(req, res, next) {
     next();
 }
 
-app.get('/api/restaurants', (req, res) => {
-    res.json(mocks.restaurantList);
-});
-
-app.get('/api/restaurants/:id', (req, res) => {
-    const restaurant = mocks.restaurantList.find(r => r.id === parseInt(req.params.id));
-
-    if (!restaurant) {
-        return res.status(404).json({ error: "Restaurant not found" });
-    }
-
-    const menuItemIds = mocks.restaurantMenu[restaurant.id] || [];
-    const menu = [];
-
-    for (const category in mocks.menuItems) {
-        const items = mocks.menuItems[category].filter(item => menuItemIds.includes(item.id));
-        if (items.length > 0) {
-            menu.push({ category, items });
-        }
-    }
-
-    res.json({ ...restaurant, menu });
-});
-
 app.get("*", (req, res) => {
     res.sendFile(path.resolve("public", "index.html"));
 });
