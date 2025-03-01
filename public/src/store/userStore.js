@@ -41,7 +41,6 @@ class UserStore {
   }
 
   isAuth() {
-    console.log(this.store.getState().isAuth);
     return this.store.getState().isAuth;
   }
 
@@ -70,12 +69,8 @@ class UserStore {
   }
 
   async logout() {
-    try {
-      this.#dispatch({ type: UserActions.LOGOUT_SUCCESS });
-      router.goToPage('home');
-    } catch (err) {
-      console.log(err);
-    }
+    this.#dispatch({ type: UserActions.LOGOUT_SUCCESS });
+    router.goToPage('home');
   }
 
   subscribe(listener) {
