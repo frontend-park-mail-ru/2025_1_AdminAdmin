@@ -1,12 +1,19 @@
 import { router } from '../../modules/routing.js';
 import { userStore } from '../../store/userStore.js';
 
+/**
+ * Класс, представляющий страницу логина.
+ */
 export default class LoginPage {
   #parent;
   #template;
   #page;
   #clickHandler;
 
+  /**
+   * Создает экземпляр страницы логина.
+   * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться страница
+   */
   constructor(parent) {
     this.#parent = parent;
     this.#template = Handlebars.templates['loginPage.hbs'];
@@ -14,12 +21,21 @@ export default class LoginPage {
     this.#clickHandler = this.#handleClick.bind(this);
   }
 
+  /**
+   * Рендерит страницу логина в родительский элемент.
+   * Добавляет обработчик событий для кликов по элементам страницы.
+   */
   render() {
     this.#page = this.#template();
     this.#parent.innerHTML = this.#page;
     document.addEventListener('click', this.#clickHandler);
   }
 
+  /**
+   * Обрабатывает клики на странице.
+   * Выполняет переход на страницу регистрации или отправку формы логина.
+   * @param {MouseEvent} event - Событие клика
+   */
   #handleClick(event) {
     const signupLink = event.target.closest('.signup-link');
     if (signupLink) {
@@ -52,6 +68,9 @@ export default class LoginPage {
     }
   }
 
+  /**
+   * Удаляет страницу из родительского элемента и очищает события.
+   */
   remove() {
     document.removeEventListener('click', this.#clickHandler);
     this.#parent.innerHTML = '';

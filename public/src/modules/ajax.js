@@ -1,27 +1,37 @@
-/** @typedef {Promise<{create_time: string, image_path: string, id: string, login: string}>} UserData **/
+/**
+ * @typedef {Object} UserData
+ * @property {string} create_time - Дата создания пользователя
+ * @property {string} image_path - Путь к изображению профиля
+ * @property {string} id - Идентификатор пользователя
+ * @property {string} login - Логин пользователя
+ */
+
+/**
+ * @typedef {Object} ResponseData
+ * @property {number} status - HTTP статус ответа
+ * @property {any} body - Тело ответа
+ */
 
 const isDebug = false;
 
-const baseUrl = `https://${isDebug ? '127.0.0.1' : 'doordashers.ru'}:8443/api`;
+const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? '127.0.0.1' : 'doordashers.ru'}:8443/api`;
 
-const methods = {
+const methods = Object.freeze({
   POST: 'POST',
   GET: 'GET',
   DELETE: 'DELETE',
   PUT: 'PUT',
-};
+});
 
-let JWT = null;
-
-JWT = window.localStorage.getItem('Authorization');
+let JWT = window.localStorage.getItem('Authorization');
 
 /**
- * Базовый запрос
- * @param method {methods}
- * @param url {string}
- * @param data {any}
- * @param {Object.<string, string>} params
- * @returns UserDataResponse
+ * Выполняет базовый HTTP-запрос.
+ * @param {string} method - HTTP метод (GET, POST, DELETE, PUT)
+ * @param {string} url - URL-адрес запроса
+ * @param {any} [data=null] - Данные для отправки в запросе (для методов POST и PUT)
+ * @param {Object.<string, string>} [params=null] - GET-параметры запроса
+ * @returns {Promise<ResponseData>}
  */
 const baseRequest = async (method, url, data = null, params = null) => {
   const options = {
@@ -34,7 +44,7 @@ const baseRequest = async (method, url, data = null, params = null) => {
     },
   };
 
-  if (JWT !== null) {
+  if (JWT) {
     options.headers.Authorization = JWT;
   }
 
@@ -60,8 +70,8 @@ const baseRequest = async (method, url, data = null, params = null) => {
         body = null;
       }
     } else if (
-      (contentType && contentType.includes('text/plain')) ||
-      contentType.includes('text/html')
+      contentType &&
+      (contentType.includes('text/plain') || contentType.includes('text/html'))
     ) {
       try {
         body = await response.text();
@@ -69,13 +79,15 @@ const baseRequest = async (method, url, data = null, params = null) => {
         body = null;
       }
     }
-    if (response.headers.get('Authorization') !== null) {
-      JWT = response.headers.get('Authorization');
+
+    const newJWT = response.headers.get('Authorization');
+    if (newJWT) {
+      JWT = newJWT;
       window.localStorage.setItem('Authorization', JWT);
     }
     return { status: response.status, body };
   } catch (err) {
-    return { status: 503, body: { message: err } };
+    return { status: 503, body: { message: err.message } };
   }
 };
 
@@ -83,10 +95,11 @@ class UserRequests {
   #baseUrl = '/auth';
 
   /**
-   * Запрос на логин пользователя
-   * @param login {string}
-   * @param password {string}
-   * @returns UserDataResponse
+   * Отправляет запрос на авторизацию пользователя.
+   * @param {string} login - Логин пользователя
+   * @param {string} password - Пароль пользователя
+   * @returns {Promise<void>}
+   * @throws {Error} - В случае ошибки возвращает объект ошибки
    */
   Login = async (login, password) => {
     const { status, body } = await baseRequest(methods.POST, this.#baseUrl + '/signin', {
@@ -102,10 +115,11 @@ class UserRequests {
   };
 
   /**
-   * Запрос на регистрацию нового пользователя
-   * @param login{string}
-   * @param password{string}
-   * @returns UserDataResponse
+   * Отправляет запрос на регистрацию нового пользователя.
+   * @param {string} login - Логин нового пользователя
+   * @param {string} password - Пароль нового пользователя
+   * @returns {Promise<void>}
+   * @throws {Error} - В случае ошибки возвращает объект ошибки
    */
   SignUp = async (login, password) => {
     const { status, body } = await baseRequest(methods.POST, this.#baseUrl + '/signup', {
@@ -121,26 +135,25 @@ class UserRequests {
   };
 
   /**
-   * Запрос на логаут пользователя
+   * Отправляет запрос на выход из системы.
    * @returns {Promise<{message: string}>}
+   * @throws {Error} - В случае ошибки возвращает объект ошибки
    */
   Logout = async () => {
     const { status, body } = await baseRequest(methods.DELETE, this.#baseUrl + '/logout');
 
     if (status === 204) {
       JWT = null;
-      return {
-        message: 'ok',
-      };
+      return { message: 'ok' };
     } else {
-      throw Error(body.message);
+      throw new Error(body.message);
     }
   };
 
   /**
-   * Запрос на проверку пользователя
-   * @returns {Promise<{message}|null>}
-   * @throws Error - not authorized
+   * Проверяет авторизацию пользователя.
+   * @returns {Promise<{message: string}>}
+   * @throws {Error} - Если пользователь не авторизован
    */
   CheckUser = async () => {
     const { status, body } = await baseRequest(methods.GET, this.#baseUrl + '/check_user');
@@ -148,7 +161,7 @@ class UserRequests {
     if (status === 200) {
       return body;
     } else {
-      throw Error('not authorized');
+      throw new Error('not authorized');
     }
   };
 }
@@ -157,8 +170,10 @@ class RestaurantsRequests {
   #baseUrl = '/restaurants';
 
   /**
-   * Получение списка всех ресторанов
-   * @returns {Promise<{message}|{any}>}
+   * Получает список всех ресторанов.
+   * @param {Object.<string, string>} [params=null] - GET-параметры запроса
+   * @returns {Promise<any>}
+   * @throws {Error} - В случае ошибки возвращает объект ошибки
    */
   GetAll = async (params = null) => {
     const { status, body } = await baseRequest(methods.GET, this.#baseUrl + '/list', null, params);
@@ -166,14 +181,15 @@ class RestaurantsRequests {
     if (status === 200) {
       return body;
     } else {
-      throw Error(body.message);
+      throw new Error(body.message);
     }
   };
 
   /**
-   * Получение одного ресторана
-   * @param id {number} - id ресторана
-   * @returns {Promise<*>}
+   * Получает информацию об одном ресторане.
+   * @param {number} id - Идентификатор ресторана
+   * @returns {Promise<any>}
+   * @throws {Error} - В случае ошибки возвращает объект ошибки
    */
   Get = async (id) => {
     const { status, body } = await baseRequest(methods.GET, this.#baseUrl + '/' + id, null);
@@ -181,7 +197,7 @@ class RestaurantsRequests {
     if (status === 200) {
       return body;
     } else {
-      throw Error(body.message);
+      throw new Error(body.message);
     }
   };
 }
