@@ -35,7 +35,9 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
     "nodemon": "^3.1.9",
-    "prettier": "^3.5.2"
+    "prettier": "^3.5.2",
+    "stylelint": "^16.15.0",
+    "stylelint-config-standard": "^37.0.0"
   },
   "lint-staged": {
     "public/src/**/*.{js,ts,jsx,tsx}": [
@@ -43,7 +45,8 @@
       "prettier --write"
     ],
     "public/src/**/*.{css,html}": [
-      "prettier --write"
+      "prettier --write",
+      "stylint --fix"
     ]
   }
 }
