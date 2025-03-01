@@ -1,209 +1,195 @@
-import {decode, timeout} from "./utils.js";
-
 /** @typedef {Promise<{create_time: string, image_path: string, id: string, login: string}>} UserData **/
-
 
 const isDebug = false;
 
-const REQUEST_TIMEOUT = 2000;
-
-const baseUrl = `https://${isDebug ? "127.0.0.1" : "doordashers.ru"}:8443/api`;
+const baseUrl = `https://${isDebug ? '127.0.0.1' : 'doordashers.ru'}:8443/api`;
 
 const methods = {
-    POST: "POST",
-    GET: "GET",
-    DELETE: "DELETE",
-    PUT: "PUT"
+  POST: 'POST',
+  GET: 'GET',
+  DELETE: 'DELETE',
+  PUT: 'PUT',
 };
 
 let JWT = null;
 
-JWT = window.localStorage.getItem("Authorization");
+JWT = window.localStorage.getItem('Authorization');
 
 /**
  * Базовый запрос
  * @param method {methods}
  * @param url {string}
  * @param data {any}
- * @param params {Dict<string, string>}
+ * @param {Object.<string, string>} params
  * @returns UserDataResponse
  */
-const baseRequest = async (method, url, data = null, params=null) => {
-    const options = {
-        method: method,
-        mode: "cors",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        }
-    };
+const baseRequest = async (method, url, data = null, params = null) => {
+  const options = {
+    method: method,
+    mode: 'cors',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+  };
 
-    if (JWT !== null) {
-        options.headers.Authorization = JWT;
-    }
+  if (JWT !== null) {
+    options.headers.Authorization = JWT;
+  }
 
-    if (data !== null) {
-        options.body = JSON.stringify(data);
-    }
+  if (data !== null) {
+    options.body = JSON.stringify(data);
+  }
 
-    let query_url = new URL(baseUrl + url);
-    if (params != null) {
-        query_url.search = new URLSearchParams(params);
-    }
+  let query_url = new URL(baseUrl + url);
+  if (params != null) {
+    query_url.search = new URLSearchParams(params).toString();
+  }
 
-    try{
-        const response = await fetch(query_url.toString(), options).catch((err) => {
-            console.log(err);
-        });
-        let body;
-        try {
-            body = await response.clone().json();
-        } catch (jsonErr) {
-            console.log("Response is not JSON, trying as text...");
-            try {
-                body = await response.text();
-            } catch (textErr) {
-                console.error("Failed to parse response as text:", textErr);
-                body = null;
-            }
-        }
-        if (response.headers.get("Authorization") !== null) {
-            JWT = response.headers.get("Authorization");
-            window.localStorage.setItem("Authorization", JWT);
-        }
-        return {status: response.status, body};
-    } catch (err) {
-        console.log(err);
-        return {status: 503, body: {message: err}};
+  try {
+    const response = await fetch(query_url.toString(), options).catch((err) => {
+      console.log(err);
+    });
+
+    let body = null;
+    const contentType = response.headers.get('Content-Type');
+
+    if (contentType && contentType.includes('application/json')) {
+      try {
+        body = await response.json(); // Парсим JSON
+      } catch (err) {
+        console.log('Ошибка при парсинге JSON', err);
+        body = null;
+      }
+    } else if (
+      (contentType && contentType.includes('text/plain')) ||
+      contentType.includes('text/html')
+    ) {
+      try {
+        body = await response.text();
+      } catch (err) {
+        console.log('Ошибка при получении текста', err);
+        body = null;
+      }
     }
+    if (response.headers.get('Authorization') !== null) {
+      JWT = response.headers.get('Authorization');
+      window.localStorage.setItem('Authorization', JWT);
+    }
+    return { status: response.status, body };
+  } catch (err) {
+    console.log(err);
+    return { status: 503, body: { message: err } };
+  }
 };
 
 class UserRequests {
-    #baseUrl = "/auth";
+  #baseUrl = '/auth';
 
-    /**
-     * Запрос на логин пользователя
-     * @param login {string}
-     * @param password {string}
-     * @returns UserDataResponse
-     */
-    Login = async (login, password) => {
-        const {status, body} = await baseRequest(
-            methods.POST,this.#baseUrl + "/signin",
-            {login, password}
-        );
+  /**
+   * Запрос на логин пользователя
+   * @param login {string}
+   * @param password {string}
+   * @returns UserDataResponse
+   */
+  Login = async (login, password) => {
+    const { status, body } = await baseRequest(methods.POST, this.#baseUrl + '/signin', {
+      login,
+      password,
+    });
 
-        if (status === 200) {
-            return;
-        }
+    if (status === 200) {
+      return;
+    }
 
-        throw body;
-    };
+    throw body;
+  };
 
-    /**
-     * Запрос на регистрацию нового пользователя
-     * @param login{string}
-     * @param password{string}
-     * @returns UserDataResponse
-     */
-    SignUp = async (login, password) => {
-        const {status, body} = await baseRequest(
-            methods.POST,
-            this.#baseUrl + "/signup",
-            {login, password}
-        );
+  /**
+   * Запрос на регистрацию нового пользователя
+   * @param login{string}
+   * @param password{string}
+   * @returns UserDataResponse
+   */
+  SignUp = async (login, password) => {
+    const { status, body } = await baseRequest(methods.POST, this.#baseUrl + '/signup', {
+      login,
+      password,
+    });
 
+    if (status === 201) {
+      return;
+    }
 
-        if (status === 201) {
-            return;
-        }
+    throw body;
+  };
 
-        throw body;
-    };
+  /**
+   * Запрос на логаут пользователя
+   * @returns {Promise<{message: string}>}
+   */
+  Logout = async () => {
+    const { status, body } = await baseRequest(methods.DELETE, this.#baseUrl + '/logout');
 
-    /**
-     * Запрос на логаут пользователя
-     * @returns {Promise<{message: string}>}
-     */
-    Logout = async () => {
-        const {status, body} = await baseRequest(
-            methods.DELETE,
-            this.#baseUrl + "/logout"
-        );
+    if (status === 204) {
+      console.log('logged out');
+      JWT = null;
+      return {
+        message: 'ok',
+      };
+    } else {
+      throw Error(body.message);
+    }
+  };
 
-        if (status === 204){
-            console.log("logged out");
-            JWT = null;
-            return {
-                message: "ok"
-            };
-        } else {
-            throw Error(body.message);
-        }
-    };
+  /**
+   * Запрос на проверку пользователя
+   * @returns {Promise<{message}|null>}
+   * @throws Error - not authorized
+   */
+  CheckUser = async () => {
+    const { status, body } = await baseRequest(methods.GET, this.#baseUrl + '/check_user');
 
-    /**
-     * Запрос на проверку пользователя
-     * @returns {Promise<{message}|null>}
-     * @throws Error - not authorized
-     */
-    CheckUser = async () => {
-        const {status, body} = await baseRequest(
-            methods.GET,
-            this.#baseUrl + "/check_user"
-        );
-
-        if (status === 200) {
-            return body;
-        } else {
-            throw Error("not authorized");
-        }
-    };
+    if (status === 200) {
+      return body;
+    } else {
+      throw Error('not authorized');
+    }
+  };
 }
 
 class RestaurantsRequests {
-    #baseUrl = "/restaurants";
+  #baseUrl = '/restaurants';
 
-    /**
-     * Получение списка всех ресторанов
-     * @returns {Promise<{message}|{any}>}
-     */
-    GetAll = async (params=null) => {
+  /**
+   * Получение списка всех ресторанов
+   * @returns {Promise<{message}|{any}>}
+   */
+  GetAll = async (params = null) => {
+    const { status, body } = await baseRequest(methods.GET, this.#baseUrl + '/list', null, params);
 
-        const {status, body} = await baseRequest(
-            methods.GET,
-            this.#baseUrl + "/list",
-            null,
-            params
-        );
+    if (status === 200) {
+      return body;
+    } else {
+      throw Error(body.message);
+    }
+  };
 
-        if (status === 200) {
-            return body;
-        } else {
-            throw Error(body.message);
-        }
-    };
+  /**
+   * Получение одного ресторана
+   * @param id {number} - id ресторана
+   * @returns {Promise<*>}
+   */
+  Get = async (id) => {
+    const { status, body } = await baseRequest(methods.GET, this.#baseUrl + '/' + id, null);
 
-    /**
-     * Получение одного ресторана
-     * @param id {number} - id ресторана
-     * @returns {Promise<*>}
-     */
-    Get = async (id) => {
-
-        const {status, body} = await baseRequest(
-            methods.GET,
-            this.#baseUrl + "/" + id,
-            null
-        );
-
-        if (status === 200) {
-            return body;
-        } else {
-            throw Error(body.message);
-        }
-    };
+    if (status === 200) {
+      return body;
+    } else {
+      throw Error(body.message);
+    }
+  };
 }
 
 export const AppRestaurantRequests = new RestaurantsRequests();
