@@ -9,7 +9,7 @@ export default class Header {
   constructor(parent) {
     this.#parent = parent;
     this.#template = Handlebars.templates['header.hbs'];
-    this.#clickHandler = this.#handleClick.bind(this); // Привязка контекста
+    this.#clickHandler = this.#handleClick.bind(this);
 
     userStore.subscribe(() => this.updateAuthState());
   }
