@@ -48,18 +48,15 @@ const baseRequest = async (method, url, data = null, params = null) => {
   }
 
   try {
-    const response = await fetch(query_url.toString(), options).catch((err) => {
-      console.log(err);
-    });
+    const response = await fetch(query_url.toString(), options);
 
     let body = null;
     const contentType = response.headers.get('Content-Type');
 
     if (contentType && contentType.includes('application/json')) {
       try {
-        body = await response.json(); // Парсим JSON
-      } catch (err) {
-        console.log('Ошибка при парсинге JSON', err);
+        body = await response.json();
+      } catch {
         body = null;
       }
     } else if (
@@ -68,8 +65,7 @@ const baseRequest = async (method, url, data = null, params = null) => {
     ) {
       try {
         body = await response.text();
-      } catch (err) {
-        console.log('Ошибка при получении текста', err);
+      } catch {
         body = null;
       }
     }
@@ -79,7 +75,6 @@ const baseRequest = async (method, url, data = null, params = null) => {
     }
     return { status: response.status, body };
   } catch (err) {
-    console.log(err);
     return { status: 503, body: { message: err } };
   }
 };
@@ -133,7 +128,6 @@ class UserRequests {
     const { status, body } = await baseRequest(methods.DELETE, this.#baseUrl + '/logout');
 
     if (status === 204) {
-      console.log('logged out');
       JWT = null;
       return {
         message: 'ok',
