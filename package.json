@@ -5,9 +5,12 @@
   "main": "index.js",
   "scripts": {
     "build": "node build.js",
-    "start": "npm run build && nodemon server/server.js"
+    "start": "npm run build && nodemon server/server.js",
+    "prepare": "husky install",
+    "lint": "eslint public/src --ext .js",
+    "lint:fix": "eslint public/src --ext .js --fix",
+    "format": "prettier --write 'public/src/**/*.{js,html.css}'"
   },
-
   "repository": {
     "type": "git",
     "url": "git+https://github.com/frontend-park-mail-ru/2025_1_AdminAdmin.git"
@@ -25,6 +28,22 @@
     "handlebars": "^4.7.8"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "@eslint/js": "^9.21.0",
+    "eslint": "^9.21.0",
+    "eslint-config-prettier": "^10.0.2",
+    "globals": "^16.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.5.2"
+  },
+  "lint-staged": {
+    "public/src/**/*.{js,ts,jsx,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "public/src/**/*.{css,html}": [
+      "prettier --write"
+    ]
   }
 }
