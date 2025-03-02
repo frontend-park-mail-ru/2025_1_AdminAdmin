@@ -1,20 +1,41 @@
 import goToPage from "../../modules/routing.js";
 import { userStore } from "../../store/userStore.js";
+import { logo } from "../logo/logo.js";
+import logoImage from "../../logo.png"
+import { button } from "../button/button.js";
+
 
 export default class Header {
+    #parent;
+    #logo;
+    #loginButton;
+    #logoutButton;
+
     constructor(parent) {
-        this.parent = parent;
-        this.template = Handlebars.templates["header.hbs"];
+        this.#parent = parent;
         userStore.subscribe(() => this.updateAuthState());
     }
 
+    /* Ссылка на объект */
+    get self(){
+        return document.querySelector(".header");
+    } 
+
     render() {
-        this.parent.innerHTML = this.template();
-        this._addEventListeners();
+        const template = window.Handlebars.templates["image.hbs"];
+        const html = template();
+        this.#parent.insertAdjacentHTML("beforeend", html);
+        this.#logo = new logo(this.self, logoImage);
+        this.#logo.render();
+        this.#loginButton = new button(this.self, "Вход");
+        this.#logoutButton.render();
+        this.#loginButton = new button(this.self, "Выход");
+        this.#logoutButton.render();
+        this.#handleClick();
         this.updateAuthState();
     }
 
-    _addEventListeners() {
+    #handleClick() {
         document.addEventListener("click", (event) => {
             const logo = event.target.closest(".logo");
             const loginButton = event.target.closest(".login-button");

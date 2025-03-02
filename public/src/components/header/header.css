@@ -1,0 +1,19 @@
+/* Хедер */
+.header {
+    box-sizing: border-box;
+    width: 100%;
+	margin-top: 10px;
+	padding: 0px;
+    /* Используем grid для разметки по 12 колонкам */
+	display: grid;
+	grid-template-areas: "header__logo header__logo header__search header__search header__search header__search header__location header__location header__location . header__buttons header__buttons";
+	gap: 20px;
+    align-items: center;
+}
+/* Хедер: Область кнопок (Корзина + Логин) */
+.header__buttons {
+	grid-area: header__buttons;
+	display: flex;
+	gap: 20px;
+    height: 35px; 
+}

@@ -1,0 +1,10 @@
+/* Хедер: Область логотипа */
+.logo {
+	grid-area: header__logo;
+  display: flex;
+  justify-content: center;
+}
+.logo img {
+  height: 35px;
+  object-fit: contain;
+}
