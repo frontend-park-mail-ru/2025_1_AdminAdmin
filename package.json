@@ -9,7 +9,7 @@
     "prepare": "husky install",
     "lint": "eslint public/src --ext .js",
     "lint:fix": "eslint public/src --ext .js --fix",
-    "format": "prettier --write 'public/src/**/*.{js,html.css}'"
+    "format": "prettier --write 'public/src/**/*.{js,html, css}'"
   },
   "repository": {
     "type": "git",
@@ -47,7 +47,7 @@
     ],
     "public/src/**/*.{css,html}": [
       "prettier --write",
-      "stylint --fix"
+      "styleint --fix"
     ]
   }
 }
