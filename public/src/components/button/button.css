@@ -1,0 +1,21 @@
+.button {
+    /* Эти свойства буду применяться для всех кнопок */
+    cursor: pointer;
+	padding: 5px 15px;
+    border: none;
+    align-items: center;        /* Выравнивание по вертикали по центру */
+    justify-content: center;    /* Выравнивание по горизонтали по центру */
+}
+
+.button_active {
+	background-color: #FF4D00;
+}
+.button_inactive {
+    background-color: #686868;
+}
+
+.header_main__button {
+    color: black;
+    border-radius: 10px;
+    width: 70px;
+}
