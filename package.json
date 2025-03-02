@@ -4,7 +4,7 @@
   "description": "Репозиторий команды \"admin admin\". Проект: Delivery Club",
   "main": "index.js",
   "scripts": {
-    "build": "node build.js",
+    "build": "build.sh",
     "start": "npm run build && nodemon server/server.js",
     "prepare": "husky install",
     "lint": "eslint public/src --ext .js",
