@@ -1,1 +1,0 @@
-(()=>{var a=Handlebars.template;(Handlebars.templates=Handlebars.templates||{})["auxHeader.hbs"]=a({compiler:[8,">= 4.3.0"],main:function(a,e,r,l,n){return'<div class="logo">\r\n    Delivery\r\n</div>'},useData:!0})})();
