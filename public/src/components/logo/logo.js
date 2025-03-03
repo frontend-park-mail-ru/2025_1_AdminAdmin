@@ -1,40 +1,44 @@
+import { router } from '../../modules/routing.js';
+
 /* Логотип */
 export class logo {
-    #parent;        // Родитель (где вызывается)
-    #props = {      // Свойства лого
-        image: "",     // картинка логотипа
-    };
+  #parent; // Родитель (где вызывается)
+  #clickHandler;
+  #props = {
+    // Свойства лого
+    image: '', // картинка логотипа
+  };
 
-    /* Конструктор */
-    constructor(parent, image) {
-        this.#parent = parent;
-        this.#props = {image: image}
+  /* Конструктор */
+  constructor(parent, image) {
+    this.#parent = parent;
+    this.#props = { image: image };
+    this.#clickHandler = this.#handleClick.bind(this);
+  }
+
+  #addEventListeners() {
+    document.addEventListener('click', this.#clickHandler);
+  }
+
+  /* Действие при нажатии */
+  #handleClick(event) {
+    const logo = event.target.closest('.logo');
+    if (logo) {
+      router.goToPage('home');
     }
+  }
 
-    /* Ссылка на объект */
-    get self(){
-        return document.querySelector("logo");
-    } 
+  /* Рендер */
+  render() {
+    const template = window.Handlebars.templates['logo.hbs'];
+    const html = template(this.#props);
+    this.#parent.insertAdjacentHTML('beforeend', html);
+    this.#addEventListeners();
+  }
 
-    /* Действие при нажатии */
-    #handleClick() {
-        this.self.addEventListener("click", () => {
-            router.redirect("/");   // Редирект на главную
-        });
-    }
-
-    /* Рендер */
-    render(){
-        template = window.Handlebars.templates["logo.hbs"];
-        html = template(this.#props);
-        this.#parent.insertAdjacentHTML("beforeend", html);
-        this.#handleClick();
-    }
-
-    /* При удалении объекта */
-    #destructor(){
-        this.self.removeEventListener("click", () => {
-            router.goToPage('home');   // Переход на главную страницу
-        });
-    } 
+  /* При удалении объекта */
+  remove() {
+    document.removeEventListener('click', this.#clickHandler);
+    this.#parent.innerHTML = '';
+  }
 }

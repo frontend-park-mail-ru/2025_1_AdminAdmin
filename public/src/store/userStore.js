@@ -1,83 +1,81 @@
-import { createStore } from "./store.js";
-import goToPage from "../modules/routing.js";
+import { createStore } from './store.js';
+import { router } from '../modules/routing.js';
+import { AppUserRequests } from '../modules/ajax.js';
 
 const initialUserState = {
-    username: "",
-    avatarUrl: "/src/assets/avatar.png",
-    isAuth: false,
+  username: '',
+  avatarUrl: '/src/assets/avatar.png',
+  isAuth: false,
 };
 
 const userReducer = (state = initialUserState, action) => {
-    switch (action.type) {
-        case UserActions.LOGIN_SUCCESS:
-            return {
-                ...state,
-                isAuth: true,
-                username: action.payload.username,
-            };
+  switch (action.type) {
+    case UserActions.LOGIN_SUCCESS:
+    case UserActions.REGISTER_SUCCESS:
+      return {
+        ...state,
+        isAuth: true,
+        username: action.payload.username,
+      };
 
-        case UserActions.LOGOUT_SUCCESS:
-            return {
-                ...state,
-                isAuth: false,
-                username: "",
-            };
-
-        default:
-            return state;
-    }
+    case UserActions.LOGOUT_SUCCESS:
+      return {
+        ...state,
+        isAuth: false,
+        username: '',
+      };
+    default:
+      return state;
+  }
 };
 
 export const UserActions = {
-    LOGIN_SUCCESS: "LOGIN_SUCCESS",
-    LOGOUT_SUCCESS: "LOGOUT_SUCCESS",
+  LOGIN_SUCCESS: 'LOGIN_SUCCESS',
+  REGISTER_SUCCESS: 'REGISTER_SUCCESS',
+  LOGOUT_SUCCESS: 'LOGOUT_SUCCESS',
 };
 
 class UserStore {
-    constructor() {
-        this.store = createStore(userReducer);
-    }
+  constructor() {
+    this.store = createStore(userReducer);
+  }
 
-    isAuth() {
-        console.log(this.store.getState().isAuth);
-        return this.store.getState().isAuth;
-    }
+  isAuth() {
+    return this.store.getState().isAuth;
+  }
 
-    getState() {
-        return this.store.getState();
-    }
+  getState() {
+    return this.store.getState();
+  }
 
-    dispatch(action) {
-        return this.store.dispatch(action);
-    }
+  #dispatch(action) {
+    return this.store.dispatch(action);
+  }
 
-    async login(credentials) {
-        try {
-            const res = { username: credentials };
+  async login({ login, password }) {
+    await AppUserRequests.Login(login, password);
+    this.#dispatch({
+      type: UserActions.LOGIN_SUCCESS,
+      payload: { username: login },
+    });
+  }
 
-            this.dispatch({
-                type: UserActions.LOGIN_SUCCESS,
-                payload: { username: res.username },
-            });
+  async register({ login, password }) {
+    await AppUserRequests.SignUp(login, password);
+    this.#dispatch({
+      type: UserActions.REGISTER_SUCCESS,
+      payload: { username: login },
+    });
+  }
 
-            goToPage("home");
-        } catch (err) {
-            console.log(err);
-        }
-    }
+  async logout() {
+    this.#dispatch({ type: UserActions.LOGOUT_SUCCESS });
+    router.goToPage('home');
+  }
 
-    async logout() {
-        try {
-            this.dispatch({ type: UserActions.LOGOUT_SUCCESS });
-            goToPage("home");
-        } catch (err) {
-            console.log(err);
-        }
-    }
-
-    subscribe(listener) {
-        this.store.subscribe(listener);
-    }
+  subscribe(listener) {
+    this.store.subscribe(listener);
+  }
 }
 
 export const userStore = new UserStore();
