@@ -1,12 +1,11 @@
-import { router } from '../../modules/routing.js';
+import { logo } from '../logo/logo.js';
 
 /**
  * Класс AuxHeader представляет заголовок страниц логина и авторизации.
  */
 export default class AuxHeader {
   #parent;
-  #template;
-  #clickHandler;
+  #logo
 
   /**
    * Создает экземпляр заголовка.
@@ -14,45 +13,28 @@ export default class AuxHeader {
    */
   constructor(parent) {
     this.#parent = parent;
-    this.#template = Handlebars.templates['auxHeader.hbs'];
-    this.#clickHandler = this.#handleClick.bind(this);
   }
 
+  /* Ссылка на объект */
+  get self() {
+    return document.querySelector('.aux_header');
+  }
+  
   /**
    * Отображает заголовок на странице.
    */
   render() {
-    this.#parent.innerHTML = this.#template();
-    this.#addEventListeners();
-  }
-
-  /**
-   * Добавляет обработчики событий.
-   * @private
-   */
-  #addEventListeners() {
-    document.addEventListener('click', this.#clickHandler);
-  }
-
-  /**
-   * Обрабатывает клик по элементам заголовка.
-   * Перенаправляет на главную страницу при клике на логотип.
-   * @param {Event} event - Событие клика.
-   * @private
-   */
-  #handleClick(event) {
-    const logo = event.target.closest('.logo');
-
-    if (logo) {
-      router.goToPage('home');
-    }
+    const template = window.Handlebars.templates["auxHeader.hbs"];
+    const html = template();
+    this.#parent.innerHTML = html;
+    this.#logo = new logo(this.self, '/src/assets/logo.png');
+    this.#logo.render();
   }
 
   /**
    * Удаляет заголовок со страницы и снимает обработчики событий.
    */
   remove() {
-    document.removeEventListener('click', this.#clickHandler);
     this.#parent.innerHTML = '';
   }
 }

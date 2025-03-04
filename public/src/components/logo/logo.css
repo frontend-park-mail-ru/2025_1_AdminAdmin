@@ -3,6 +3,7 @@
 	grid-area: header__logo;
   display: flex;
   justify-content: center;
+  cursor: pointer;
 }
 .logo img {
   height: 35px;
