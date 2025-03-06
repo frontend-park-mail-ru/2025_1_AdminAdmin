@@ -7,8 +7,6 @@ import { restaurantCard } from '../../components/restaurantCard/restaurantCard.j
 export default class RestaurantList {
   #parent;
   #restaurantList;
-  #template;
-  #page;
 
   /**
    * Создает экземпляр списка ресторанов.
@@ -17,8 +15,6 @@ export default class RestaurantList {
   constructor(parent) {
     this.#parent = parent;
     this.#restaurantList = [];
-    this.#template = Handlebars.templates['restaurantList.hbs'];
-    this.#page = null;
   }
 
   get self() {
@@ -34,11 +30,13 @@ export default class RestaurantList {
     try {
       // Получаем список ресторанов
       this.#restaurantList = await AppRestaurantRequests.GetAll();
+
       if (!this.#restaurantList) throw new Error('Empty restaurant list');
 
       // Генерируем HTML с использованием шаблона
-      this.#page = this.#template({ restaurantList: this.#restaurantList });
-      this.#parent.innerHTML = this.#page;
+      const template = window.Handlebars.templates["restaurantList.hbs"];
+      const html = template();
+      this.#parent.innerHTML = html;
       for (let restaurant of this.#restaurantList) {
         const card = new restaurantCard(this.self, restaurant);
         card.render();

@@ -1,0 +1,17 @@
+/* Хедер */
+.aux_header {
+    box-sizing: border-box;
+    width: 100%;
+	margin-top: 10px;
+	padding: 0px;
+    /* Используем grid для разметки по 12 колонкам */
+	display: grid;
+    grid-template-columns: repeat(12, 1fr); /* 12 колонок */
+	gap: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+.aux_header .logo{
+    grid-column: 6 / span 2;
+}

@@ -1,14 +1,13 @@
-import { router } from '../../modules/routing.js';
-import { userStore } from '../../store/userStore.js';
+//import {input} from '../../components/input/input.js'
 
 /**
  * Класс, представляющий страницу логина.
  */
 export default class LoginPage {
   #parent;
-  #template;
-  #page;
-  #clickHandler;
+  //#template;
+  //#page;
+  //#clickHandler;
 
   /**
    * Создает экземпляр страницы логина.
@@ -16,9 +15,14 @@ export default class LoginPage {
    */
   constructor(parent) {
     this.#parent = parent;
-    this.#template = Handlebars.templates['loginPage.hbs'];
-    this.#page = null;
-    this.#clickHandler = this.#handleClick.bind(this);
+    //this.#template = Handlebars.templates['loginPage.hbs'];
+    //this.#page = null;
+    //this.#clickHandler = this.#handleClick.bind(this);
+  }
+
+  /* Ссылка на объект */
+  get self() {
+    return document.querySelector('.');
   }
 
   /**
@@ -26,9 +30,13 @@ export default class LoginPage {
    * Добавляет обработчик событий для кликов по элементам страницы.
    */
   render() {
-    this.#page = this.#template();
-    this.#parent.innerHTML = this.#page;
-    document.addEventListener('click', this.#clickHandler);
+    const template = window.Handlebars.templates["loginPage.hbs"];
+    const html = template();
+    this.#parent.innerHTML = html;
+    //this.#page = this.#template();
+    //this.#parent.innerHTML = this.#page;
+    //document.addEventListener('click', this.#clickHandler);
+    //->const login_input = new input(this.self, "логин")
   }
 
   /**
@@ -36,6 +44,7 @@ export default class LoginPage {
    * Выполняет переход на страницу регистрации или отправку формы логина.
    * @param {MouseEvent} event - Событие клика
    */
+  /*
   #handleClick(event) {
     const signupLink = event.target.closest('.signup-link');
     if (signupLink) {
@@ -67,12 +76,13 @@ export default class LoginPage {
       }
     }
   }
+  */
 
   /**
    * Удаляет страницу из родительского элемента и очищает события.
    */
   remove() {
-    document.removeEventListener('click', this.#clickHandler);
+    //document.removeEventListener('click', this.#clickHandler);
     this.#parent.innerHTML = '';
   }
 }

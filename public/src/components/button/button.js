@@ -9,13 +9,13 @@ export class button {
   #style;
   #onSubmit; // Функция при нажатии
 
-  /* Конструктор */
-  constructor(parent, id, text, onSubmit, style = 'button') {
-    this.#parent = parent;
-    this.#props = { id: id, text: text };
-    this.#onSubmit = onSubmit;
-    this.#style = style;
-  }
+    /* Конструктор */
+    constructor(parent, id, text, onSubmit=undefined, style="button") {
+        this.#parent = parent;
+        this.#props = {id: id, text: text};
+        this.#onSubmit = onSubmit;
+        this.#style = style;
+    }
 
   /* Ссылка на объект */
   get self() {
@@ -41,15 +41,13 @@ export class button {
     this.#handleClick();
   }
 
-  /* При удалении объекта */
-  /*
-  #destructor() {
-    if (this.#onSubmit !== undefined) {
-      this.self.removeEventListener('click', (event) => {
-        event.preventDefault(); // Отменяем дефолтное дейтсвие
-        this.#onSubmit(); // Вызываем новое
-      });
-    }
-  }
-    */
+    /* При удалении объекта */
+    remove(){
+        if (this.#onSubmit !== undefined) {
+            this.self.removeEventListener("click", (event) => {
+                event.preventDefault(); // Отменяем дефолтное дейтсвие
+                this.#onSubmit();       // Вызываем новое
+            });
+        }
+    } 
 }
