@@ -1,5 +1,5 @@
-import { router } from '../../modules/routing.js';
 import { AppRestaurantRequests } from '../../modules/ajax.js';
+import { restaurantCard } from '../../components/restaurantCard/restaurantCard.js';
 
 /**
  * Класс, представляющий список ресторанов.
@@ -7,9 +7,6 @@ import { AppRestaurantRequests } from '../../modules/ajax.js';
 export default class RestaurantList {
   #parent;
   #restaurantList;
-  #template;
-  #page;
-  #clickHandler;
 
   /**
    * Создает экземпляр списка ресторанов.
@@ -18,9 +15,10 @@ export default class RestaurantList {
   constructor(parent) {
     this.#parent = parent;
     this.#restaurantList = [];
-    this.#template = Handlebars.templates['restaurantList.hbs'];
-    this.#page = null;
-    this.#clickHandler = this.#handleClick.bind(this);
+  }
+
+  get self() {
+    return document.querySelector('.restaurant__container');
   }
 
   /**
@@ -32,44 +30,26 @@ export default class RestaurantList {
     try {
       // Получаем список ресторанов
       this.#restaurantList = await AppRestaurantRequests.GetAll();
+
       if (!this.#restaurantList) throw new Error('Empty restaurant list');
 
       // Генерируем HTML с использованием шаблона
-      this.#page = this.#template({ restaurantList: this.#restaurantList });
-      this.#parent.innerHTML = this.#page;
-
-      // Добавляем обработчики событий
-      this.#addEventListeners();
+      const template = window.Handlebars.templates["restaurantList.hbs"];
+      const html = template();
+      this.#parent.innerHTML = html;
+      for (let restaurant of this.#restaurantList) {
+        const card = new restaurantCard(this.self, restaurant);
+        card.render();
+      }
     } catch (error) {
       console.error('Error rendering restaurant list:', error);
     }
   }
 
   /**
-   * Добавляет обработчик событий для кликов по странице.
-   */
-  #addEventListeners() {
-    document.addEventListener('click', this.#clickHandler);
-  }
-
-  /**
-   * Обрабатывает клики на карточки ресторанов.
-   * При клике на карточку ресторана выполняется переход на страницу этого ресторана.
-   * @param {MouseEvent} event - Событие клика
-   */
-  #handleClick(event) {
-    const restaurantCard = event.target.closest('.restaurant-card');
-    if (restaurantCard) {
-      const restaurantId = restaurantCard.dataset.id;
-      router.goToPage('restaurantPage', restaurantId);
-    }
-  }
-
-  /**
-   * Удаляет список ресторанов и очищает события.
+   * Удаляет список ресторанов.
    */
   remove() {
-    document.removeEventListener('click', this.#clickHandler);
     this.#parent.innerHTML = '';
   }
 }

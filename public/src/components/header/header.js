@@ -1,5 +1,7 @@
 import { router } from '../../modules/routing.js';
 import { userStore } from '../../store/userStore.js';
+import { logo } from '../logo/logo.js';
+import { button } from '../button/button.js';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -7,8 +9,11 @@ import { userStore } from '../../store/userStore.js';
  */
 export default class Header {
   #parent;
-  #template;
-  #clickHandler;
+  //#template;
+  //#clickHandler;
+  #logo;
+  #loginButton;
+  #logoutButton;
 
   /**
    * Создает экземпляр заголовка.
@@ -16,19 +21,43 @@ export default class Header {
    */
   constructor(parent) {
     this.#parent = parent;
-    this.#template = Handlebars.templates['header.hbs'];
-    this.#clickHandler = this.#handleClick.bind(this);
+    //this.#template = Handlebars.templates['header.hbs'];
+    //this.#clickHandler = this.#handleClick.bind(this);
 
     // Подписываемся на изменения состояния пользователя
     userStore.subscribe(() => this.updateAuthState());
+  }
+
+  /* Ссылка на объект */
+  get self() {
+    return document.querySelector('.header');
   }
 
   /**
    * Отображает заголовок на странице.
    */
   render() {
-    this.#parent.innerHTML = this.#template();
-    this.#addEventListeners();
+    //this.#parent.innerHTML = this.#template();
+    const template = window.Handlebars.templates["header.hbs"];
+    const html = template();
+    this.#parent.innerHTML = html;
+    this.#logo = new logo(this.self, '/src/assets/logo.png');
+    this.#logo.render();
+    this.#loginButton = new button(
+      document.querySelector('.header__buttons'),
+      'login_button',
+      'Вход',
+      () => {router.goToPage('loginPage');},   // Переход на страницу логина
+    );
+    this.#loginButton.render();
+    this.#logoutButton = new button(
+      document.querySelector('.header__buttons'),
+      'logout_button',
+      'Выход',
+      () => {userStore.logout();},   // Переход на страницу регистрации
+    );
+    this.#logoutButton.render();
+    //this.#addEventListeners();
     this.updateAuthState();
   }
 
@@ -36,9 +65,11 @@ export default class Header {
    * Добавляет обработчики событий.
    * @private
    */
+  /*
   #addEventListeners() {
     document.addEventListener('click', this.#clickHandler);
   }
+  */
 
   /**
    * Обрабатывает клики по элементам заголовка.
@@ -46,14 +77,10 @@ export default class Header {
    * @param {Event} event - Событие клика.
    * @private
    */
+  /*
   #handleClick(event) {
-    const logo = event.target.closest('.logo');
     const loginButton = event.target.closest('.login-button');
     const logoutButton = event.target.closest('.logout-button');
-
-    if (logo) {
-      router.goToPage('home');
-    }
 
     if (loginButton) {
       router.goToPage('loginPage');
@@ -63,14 +90,16 @@ export default class Header {
       userStore.logout();
     }
   }
+  */
 
   /**
    * Обновляет состояние аутентификации в заголовке.
    * Показывает или скрывает кнопки входа/выхода в зависимости от состояния пользователя.
    */
   updateAuthState() {
-    const loginButton = this.#parent.querySelector('.login-button');
-    const logoutButton = this.#parent.querySelector('.logout-button');
+    
+    const loginButton = this.#loginButton.self;
+    const logoutButton = this.#logoutButton.self;
 
     if (userStore.isAuth()) {
       if (loginButton) loginButton.style.display = 'none';
@@ -85,7 +114,7 @@ export default class Header {
    * Удаляет заголовок со страницы и снимает обработчики событий.
    */
   remove() {
-    document.removeEventListener('click', this.#clickHandler);
+    //document.removeEventListener('click', this.#clickHandler);
     this.#parent.innerHTML = '';
   }
 }

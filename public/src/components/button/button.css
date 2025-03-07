@@ -1,0 +1,8 @@
+.button {
+    /* Эти свойства буду применяться для всех кнопок */
+    cursor: pointer;
+	padding: 5px 15px;
+    border: none;
+    align-items: center;        /* Выравнивание по вертикали по центру */
+    justify-content: center;    /* Выравнивание по горизонтали по центру */
+}

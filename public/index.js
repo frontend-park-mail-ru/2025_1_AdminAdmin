@@ -1,14 +1,20 @@
-import "./build/restaurantList.js";
-import "./build/restaurantPage.js";
-import "./build/loginPage.js";
-import "./build/registerPage.js";
-import "./build/header.js";
-import "./build/restaurantCard.js";
-import "./build/auxHeader.js";
-import {initRouting} from "./src/modules/routing.js";
+// Импорт js компонентов
+import './build/logo.js';
+import './build/button.js';
+// Импорт js сложных компонентов
+import './build/header.js';
+import './build/restaurantCard.js';
+import './build/auxHeader.js';
+// Импорт js страниц
+import './build/restaurantList.js';
+import './build/restaurantPage.js';
+import './build/loginPage.js';
+import './build/registerPage.js';
 
-const rootElement = document.getElementById("root");
+import { initRouting } from './src/modules/routing.js';
 
-Handlebars.registerPartial("restaurantCard", Handlebars.templates["restaurantCard.hbs"]);
+const rootElement = document.getElementById('root');
+
+Handlebars.registerPartial('restaurantCard', Handlebars.templates['restaurantCard.hbs']);
 
 initRouting(rootElement);

@@ -57,7 +57,6 @@ class Router {
       },
     };
 
-    this.#handleRouteChange = this.#handleRouteChange.bind(this);
     window.addEventListener('popstate', this.#handleRouteChange);
     this.#handleRouteChange();
   }
