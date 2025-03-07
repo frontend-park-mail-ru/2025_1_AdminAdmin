@@ -1,0 +1,23 @@
+.form__line {
+    grid-column: 5 / span 4;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+    gap: 5px;
+    padding: 0px;
+}
+
+.form__line_tabs {
+    display: flex;
+    margin: 0 auto;
+    padding: 0px;
+    width: 80%;
+    background-color: #686868;
+    border-radius: 20px;
+}
+
+.form__line_submit_button {
+    margin-top: 15px;
+}

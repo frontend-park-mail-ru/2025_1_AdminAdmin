@@ -2,16 +2,18 @@
 .aux_header {
     box-sizing: border-box;
     width: 100%;
-	margin-top: 10px;
+    margin-top: 10px;
+    margin-bottom: 30px;
 	padding: 0px;
     /* Используем grid для разметки по 12 колонкам */
 	display: grid;
-    grid-template-columns: repeat(12, 1fr); /* 12 колонок */
+    grid-template-areas: ". . . . . header__logo header__logo . . . . .";
 	gap: 20px;
     align-items: center;
     justify-content: center;
+    height: 35px;
 }
 
 .aux_header .logo{
-    grid-column: 6 / span 2;
+    grid-area: header__logo;
 }

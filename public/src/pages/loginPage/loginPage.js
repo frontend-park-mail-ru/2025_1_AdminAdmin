@@ -1,13 +1,12 @@
-//import {input} from '../../components/input/input.js'
+import { form } from "../../components/form/form.js";
+import { router } from "../../modules/routing.js";
+import { userStore } from "../../store/userStore.js";
 
 /**
  * Класс, представляющий страницу логина.
  */
 export default class LoginPage {
   #parent;
-  //#template;
-  //#page;
-  //#clickHandler;
 
   /**
    * Создает экземпляр страницы логина.
@@ -15,14 +14,11 @@ export default class LoginPage {
    */
   constructor(parent) {
     this.#parent = parent;
-    //this.#template = Handlebars.templates['loginPage.hbs'];
-    //this.#page = null;
-    //this.#clickHandler = this.#handleClick.bind(this);
   }
 
   /* Ссылка на объект */
   get self() {
-    return document.querySelector('.');
+    return document.querySelector('.loginPage__body');
   }
 
   /**
@@ -33,56 +29,52 @@ export default class LoginPage {
     const template = window.Handlebars.templates["loginPage.hbs"];
     const html = template();
     this.#parent.innerHTML = html;
-    //this.#page = this.#template();
-    //this.#parent.innerHTML = this.#page;
-    //document.addEventListener('click', this.#clickHandler);
-    //->const login_input = new input(this.self, "логин")
+    console.log(this.self);
+    const login_form = new form(this.self, {
+      tabs: [
+        {type: "button", props: {id: "form__tab_register", text: "Регистрация", onSubmit: () => {router.goToPage('registerPage');}, style: "form__button button_inactive"}},
+        {type: "button", props: {id: "form__tab_login", text: "Логин", onSubmit: () => {router.goToPage('loginPage');}, style: "form__button button_active"}},
+      ],
+      lines: [
+        { id: "form__line_login", 
+          components: [
+            {type: "form__input", props: {id: "form__line__login", label: "Логин", props: {id: "form__line__login__input", placeholder: "Введите логин"}}}
+          ]
+        },
+        { id: "form__line_password",
+          components: [
+            {type: "form__input", props: { id: "form__line__password", label: "Пароль", props: { id: "form__line__password__input", placeholder: "Введите пароль"}}}
+          ]
+        },
+        {id: "form__line_login_button",
+          components: [
+            { type: "button", props: { 
+              id: "form__line__login_button",
+              text: "Войти", 
+              onSubmit: () => {
+                const loginInput = document.getElementById("form__line__login__input").value.trim();
+                console.log(loginInput);
+                const passwordInput = document.getElementById("form__line__password__input").value.trim();
+                console.log(passwordInput);
+                userStore
+                  .login({ login: loginInput, password: passwordInput })
+                  .then(() => {router.goToPage('home');})
+                  .catch((err) => {console.error('Login failed:', err);});
+              },
+              style: "form__button button_active"}
+            }
+          ],
+          style: "form__line_submit_button"
+        }
+      ]
+    });
+    login_form.render();
   }
-
-  /**
-   * Обрабатывает клики на странице.
-   * Выполняет переход на страницу регистрации или отправку формы логина.
-   * @param {MouseEvent} event - Событие клика
-   */
-  /*
-  #handleClick(event) {
-    const signupLink = event.target.closest('.signup-link');
-    if (signupLink) {
-      router.goToPage('registerPage');
-    }
-
-    const loginButton = event.target.closest('.login-form__login-button');
-    if (loginButton) {
-      event.preventDefault();
-
-      const form = loginButton.closest('form');
-      if (!form) return;
-
-      const loginInput = form.querySelector('input[type="text"]');
-      const passwordInput = form.querySelector('input[type="password"]');
-
-      if (loginInput && passwordInput) {
-        const login = loginInput.value.trim();
-        const password = passwordInput.value.trim();
-
-        userStore
-          .login({ login, password })
-          .then(() => {
-            router.goToPage('home');
-          })
-          .catch((err) => {
-            console.error('Login failed:', err);
-          });
-      }
-    }
-  }
-  */
 
   /**
    * Удаляет страницу из родительского элемента и очищает события.
    */
   remove() {
-    //document.removeEventListener('click', this.#clickHandler);
     this.#parent.innerHTML = '';
   }
 }

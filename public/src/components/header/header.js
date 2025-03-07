@@ -45,16 +45,18 @@ export default class Header {
     this.#logo.render();
     this.#loginButton = new button(
       document.querySelector('.header__buttons'),
-      'login_button',
-      'Вход',
-      () => {router.goToPage('loginPage');},   // Переход на страницу логина
+      {id: 'login_button',
+      text: 'Вход',
+      onSubmit: () => {router.goToPage('loginPage');} // Переход на страницу логина
+      },   
     );
     this.#loginButton.render();
     this.#logoutButton = new button(
-      document.querySelector('.header__buttons'),
-      'logout_button',
-      'Выход',
-      () => {userStore.logout();},   // Переход на страницу регистрации
+      document.querySelector('.header__buttons'), {
+        id: 'logout_button',
+        text: 'Выход',
+        onSubmit: () => {userStore.logout();},   // Переход на страницу регистрации
+      },
     );
     this.#logoutButton.render();
     //this.#addEventListeners();

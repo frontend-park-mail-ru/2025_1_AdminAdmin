@@ -1,14 +1,12 @@
 import { router } from '../../modules/routing.js';
 import { userStore } from '../../store/userStore.js';
+import { form } from '../../components/form/form.js';
 
 /**
  * Класс, представляющий страницу регистрации.
  */
 export default class RegisterPage {
   #parent;
-  #template;
-  #page;
-  #clickHandler;
 
   /**
    * Создает экземпляр страницы регистрации.
@@ -16,9 +14,11 @@ export default class RegisterPage {
    */
   constructor(parent) {
     this.#parent = parent;
-    this.#template = Handlebars.templates['registerPage.hbs'];
-    this.#page = null;
-    this.#clickHandler = this.#handleClick.bind(this);
+  }
+
+  /* Ссылка на объект */
+  get self() {
+    return document.querySelector('.registerPage__body');
   }
 
   /**
@@ -26,60 +26,62 @@ export default class RegisterPage {
    * Добавляет обработчики событий для кликов по элементам страницы.
    */
   render() {
-    this.#page = this.#template();
-    this.#addEventListeners();
-    this.#parent.innerHTML = this.#page;
+    const template = window.Handlebars.templates["registerPage.hbs"];
+    const html = template();
+    this.#parent.innerHTML = html;
+    const register_form = new form(this.self, {
+      tabs: [
+        {type: "button", props: {id: "form__tab_register", text: "Регистрация", onSubmit: () => {router.goToPage('registerPage');}, style: "form__button button_active"}},
+        {type: "button", props: {id: "form__tab_login", text: "Логин", onSubmit: () => {router.goToPage('loginPage');}, style: "form__button button_inactive"}},
+      ],
+      lines: [
+        { id: "form__line_firstname_lastname",
+          components: [
+            {type: "form__input", props: { id: "form__line__firstname", label: "Имя", props: { id: "form__line__firstname__input", placeholder: "Введите имя"}}},
+            {type: "form__input", props: { id: "form__line__lastname", label: "Фамилия", props: { id: "form__line__lastname__input", placeholder: "Введите фамилию"}}},
+          ]
+        },
+        { id: "form__line_phone",
+          components: [
+            {type: "form__input", props: { id: "form__line__phone_code", label: "Код страны", props: { id: "form__line__phone_code__input", placeholder: "Введите код"}}},
+            {type: "form__input", props: { id: "form__line__phone", label: "Телефон", props: { id: "form__line__phone__input", placeholder: "Введите телефон"}}},
+          ]
+        },
+        { id: "form__line_login",
+          components: [
+            { type: "form__input", props: { id: "form__line__login", label: "Логин", props: { id: "form__line__login__input", placeholder: "Введите логин"}}},
+          ]
+        },
+        { id: "form__line_password",
+          components: [
+            {type: "form__input", props: { id: "form__line__password", label: "Пароль", description: "Не менее 10 символов", props: { id: "form__line__password__input", placeholder: "Введите пароль"}}}
+          ]
+        },
+        {id: "form__line_register_button",
+          components: [
+            {type: "button", props: { 
+              id: "form__line__register_button",
+              text: "Зарегистрироваться",
+              onSubmit: () => {
+                const loginInput = document.getElementById("form__line__login__input").value.trim();
+                const passwordInput = document.getElementById("form__line__password__input").value.trim();
+                userStore
+                  .register({ login: loginInput, password: passwordInput })
+                  .then(() => {router.goToPage('home');})
+                  .catch((err) => {console.error('Register failed:', err);});
+              }, 
+              style: "form__button button_active"}
+            }
+          ],
+          style: "form__line_submit_button"
+        }
+      ],
+    });
+    register_form.render();
   }
 
-  /**
-   * Добавляет обработчик событий для кликов по странице.
-   */
-  #addEventListeners() {
-    document.addEventListener('click', this.#clickHandler);
-  }
-
-  /**
-   * Обрабатывает клики на странице.
-   * Выполняет переход на страницу логина или отправку формы регистрации.
-   * @param {MouseEvent} event - Событие клика
-   */
-  #handleClick(event) {
-    const signinLink = event.target.closest('.signin-link');
-    if (signinLink) {
-      router.goToPage('loginPage');
-    }
-
-    const registerButton = event.target.closest('.register-form__register-button');
-    if (registerButton) {
-      event.preventDefault();
-
-      const form = registerButton.closest('form');
-      if (!form) return;
-
-      const loginInput = form.querySelector('input[type="text"]');
-      const passwordInput = form.querySelector('input[type="password"]');
-
-      if (loginInput && passwordInput) {
-        const login = loginInput.value.trim();
-        const password = passwordInput.value.trim();
-
-        userStore
-          .register({ login, password })
-          .then(() => {
-            router.goToPage('home');
-          })
-          .catch((err) => {
-            console.error('Register failed:', err);
-          });
-      }
-    }
-  }
-
-  /**
-   * Удаляет страницу из родительского элемента и очищает события.
-   */
+  
   remove() {
-    document.removeEventListener('click', this.#clickHandler);
     this.#parent.innerHTML = '';
   }
 }

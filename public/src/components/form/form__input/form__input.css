@@ -1,0 +1,33 @@
+.form__input {
+    color: black;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    text-align: left;
+    width: 100%;
+}
+
+.form__input input {
+    height: 45px;
+    border-radius: 10px;
+    border: none;
+    background-color: #F2F2F2;
+    color: #686868;
+    padding-left: 10px;
+}
+
+.form__input span {
+    font-size: 20px;
+}
+
+.form__input_with_description {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.form__input_with_description .form__input_with_description__description {
+    font-size: 14px;
+    color: #686868;
+}

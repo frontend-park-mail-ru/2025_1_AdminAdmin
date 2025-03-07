@@ -6,15 +6,19 @@ export class input {
         placeholder: "",    // начальный текст
     };
 
+    /* Конструктор */
+    constructor(parent, props) {
+        if (!parent) {
+            throw new Error("Input: no parent!");
+        }
+        console.log(props)
+        this.#parent = parent;
+        this.#props = {id: props.id, placeholder: props.placeholder}
+    }
+
     /* Ссылка на объект */
     get self() {
         return document.getElementById(this.#props.id);
-    }
-
-    /* Конструктор */
-    constructor(parent, props) {
-        this.#parent = parent;
-        this.#props = {id: props.id, placeholder: props.placeholder}
     }
 
     /* Рендер */
