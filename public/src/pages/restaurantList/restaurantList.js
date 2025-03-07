@@ -1,6 +1,6 @@
 import { AppRestaurantRequests } from '../../modules/ajax.js';
 import { restaurantCard } from '../../components/restaurantCard/restaurantCard.js';
-import throttle from "../../modules/highLoadUtils.js";
+import throttle from "../../modules/throttle.js";
 
 /**
  * Класс, представляющий список ресторанов.
