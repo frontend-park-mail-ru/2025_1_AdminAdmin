@@ -8,6 +8,8 @@ export default class RestaurantList {
   #parent;
   #restaurantList;
   #observer;
+  #firstCardId;
+  #lastCardId;
 
   /**
    * Создает экземпляр списка ресторанов.
@@ -16,6 +18,8 @@ export default class RestaurantList {
   constructor(parent) {
     this.#parent = parent;
     this.#restaurantList = [];
+    this.#firstCardId = -1;
+    this.#lastCardId = -1;
     this.#observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -60,38 +64,28 @@ export default class RestaurantList {
   }
 
   #loadMoreBeg() {
-    const cards = Array.from(document.querySelectorAll('.restaurant__card'));
-    if (!cards.length) return;
-
-    const firstCard = cards[0];
-    let firstElemId = this.#restaurantList.findIndex(restaurant => restaurant.id === firstCard.id);
-    if (firstElemId <= 0) return;
-
-    const begCount = Math.max(firstElemId - 16, 0);
-    for (let i = firstElemId - 1; i >= begCount; i--) {
+    const begCount = Math.max(this.#firstCardId - 16, 0);
+    for (let i = this.#firstCardId - 1; i >= begCount; i--) {
       const card = new restaurantCard(this.self, this.#restaurantList[i]);
       card.render('afterBegin');
     }
+
+    this.#firstCardId = begCount;
   }
 
   #loadMoreEnd() {
-    const cards = Array.from(document.querySelectorAll('.restaurant__card'));
-    let lastElemId = -1;
-    if (cards.length) {
-      const lastCard = cards.at(-1);
-      lastElemId = this.#restaurantList.findIndex(restaurant => restaurant.id === lastCard.id);
-    }
-    lastElemId += 1;
-
-    const endCount = Math.min(lastElemId + 16, this.#restaurantList.length);
-    for (let i = lastElemId; i < endCount; i++) {
+    const startCount = this.#lastCardId + 1;
+    const endCount = Math.min(startCount + 16, this.#restaurantList.length);
+    for (let i = startCount; i < endCount; i++) {
       const card = new restaurantCard(this.self, this.#restaurantList[i]);
       card.render('beforeEnd');
     }
+
+    this.#lastCardId = endCount - 1;
   }
 
 
-  #deleteFromDom() {
+  #deleteFromDom = () => {
     if (this._deletionScheduled) return;
     this._deletionScheduled = true;
 
@@ -102,16 +96,19 @@ export default class RestaurantList {
       const firstFour = Array.from(cards).slice(0, 4);
       if (firstFour[0].getBoundingClientRect().bottom < -window.innerHeight * 2) {
         firstFour.forEach(card => card.remove());
+        this.#firstCardId += firstFour.length;
       }
 
       const lastFour = Array.from(cards).slice(-4);
       if (lastFour[0].getBoundingClientRect().top > window.innerHeight * 2) {
         lastFour.forEach(card => card.remove());
+        this.#lastCardId -= lastFour.length;
       }
 
       this._deletionScheduled = false;
     });
   }
+
 
   /**
    * Удаляет список ресторанов.
