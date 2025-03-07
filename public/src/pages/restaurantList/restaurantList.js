@@ -2,6 +2,12 @@ import { AppRestaurantRequests } from '../../modules/ajax.js';
 import { restaurantCard } from '../../components/restaurantCard/restaurantCard.js';
 import throttle from "../../modules/throttle.js";
 
+// Константы
+const LOAD_COUNT = 16;
+const SCROLL_MARGIN = 100;
+const REMOVE_THRESHOLD = 4;
+const SCROLL_THRESHOLD = 2;
+
 /**
  * Класс, представляющий список ресторанов.
  */
@@ -32,7 +38,7 @@ export default class RestaurantList {
           }
         }
       });
-    }, { rootMargin: '100px' });
+    }, { rootMargin: `${SCROLL_MARGIN}px` });
 
     this.#loadMoreEndThrottle = throttle(this.#loadMoreEnd.bind(this), 500);
   }
@@ -64,7 +70,7 @@ export default class RestaurantList {
   }
 
   #loadMoreBeg() {
-    const begCount = Math.max(this.#firstCardId - 16, 0);
+    const begCount = Math.max(this.#firstCardId - LOAD_COUNT, 0);
     for (let i = this.#firstCardId - 1; i >= begCount; i--) {
       const card = new restaurantCard(this.self, this.#restaurantList[i]);
       card.render('afterBegin');
@@ -75,9 +81,9 @@ export default class RestaurantList {
 
   async #loadMoreEnd() {
     const startCount = this.#lastCardId + 1;
-    let endCount = startCount + 16;
+    let endCount = startCount + LOAD_COUNT;
     if (endCount >= this.#restaurantList.length) {
-      this.#restaurantList.push(...await AppRestaurantRequests.GetAll({count: "16", offset: startCount}));
+      this.#restaurantList.push(...await AppRestaurantRequests.GetAll({count: `${LOAD_COUNT}`, offset: startCount}));
     }
     if (endCount > this.#restaurantList.length) {
       endCount = this.#restaurantList.length;
@@ -96,16 +102,16 @@ export default class RestaurantList {
 
     requestAnimationFrame(() => {
       const cards = document.querySelectorAll('.restaurant__card');
-      if (cards.length < 4) return;
+      if (cards.length < REMOVE_THRESHOLD) return;
 
-      const firstFour = Array.from(cards).slice(0, 4);
-      if (firstFour[0].getBoundingClientRect().bottom < -window.innerHeight * 2) {
+      const firstFour = Array.from(cards).slice(0, REMOVE_THRESHOLD);
+      if (firstFour[0].getBoundingClientRect().bottom < -window.innerHeight * SCROLL_THRESHOLD) {
         firstFour.forEach(card => card.remove());
         this.#firstCardId += firstFour.length;
       }
 
-      const lastFour = Array.from(cards).slice(-4);
-      if (lastFour[0].getBoundingClientRect().top > window.innerHeight * 2) {
+      const lastFour = Array.from(cards).slice(-REMOVE_THRESHOLD);
+      if (lastFour[0].getBoundingClientRect().top > window.innerHeight * SCROLL_THRESHOLD) {
         lastFour.forEach(card => card.remove());
         this.#lastCardId -= lastFour.length;
       }
@@ -127,5 +133,4 @@ export default class RestaurantList {
     this.#observer.disconnect();
     this.#restaurantList = [];
   }
-
 }
