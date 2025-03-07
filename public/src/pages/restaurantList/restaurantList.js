@@ -1,5 +1,6 @@
 import { AppRestaurantRequests } from '../../modules/ajax.js';
 import { restaurantCard } from '../../components/restaurantCard/restaurantCard.js';
+import throttle from "../../modules/highLoadUtils.js";
 
 /**
  * Класс, представляющий список ресторанов.
@@ -33,7 +34,7 @@ export default class RestaurantList {
       });
     }, { rootMargin: '100px' });
 
-    this.#loadMoreEndThrottle = this.#throttle(this.#loadMoreEnd.bind(this), 500);
+    this.#loadMoreEndThrottle = throttle(this.#loadMoreEnd.bind(this), 500);
   }
 
   get self() {
@@ -125,33 +126,6 @@ export default class RestaurantList {
     document.removeEventListener('scroll', this.#deleteFromDom);
     this.#observer.disconnect();
     this.#restaurantList = [];
-  }
-
-  #throttle(func, ms) {
-    let isThrottled = false;
-    let savedArgs = null;
-    let savedThis = null;
-
-    const wrapper = (...args) => {
-      if (isThrottled) {
-        savedArgs = args;
-        savedThis = this;
-        return;
-      }
-
-      func.apply(this, args);
-      isThrottled = true;
-
-      setTimeout(() => {
-        isThrottled = false;
-        if (savedArgs) {
-          wrapper.apply(savedThis, savedArgs);
-          savedArgs = savedThis = null;
-        }
-      }, ms);
-    };
-
-    return wrapper;
   }
 
 }
