@@ -128,32 +128,30 @@ export default class RestaurantList {
   }
 
   #throttle(func, ms) {
+    let isThrottled = false;
+    let savedArgs = null;
+    let savedThis = null;
 
-    let isThrottled = false,
-        savedArgs,
-        savedThis;
-
-    function wrapper() {
-
+    const wrapper = (...args) => {
       if (isThrottled) {
-        savedArgs = arguments;
+        savedArgs = args;
         savedThis = this;
         return;
       }
 
-      func.apply(this, arguments);
-
+      func.apply(this, args);
       isThrottled = true;
 
-      setTimeout(function() {
+      setTimeout(() => {
         isThrottled = false;
         if (savedArgs) {
           wrapper.apply(savedThis, savedArgs);
           savedArgs = savedThis = null;
         }
       }, ms);
-    }
+    };
 
     return wrapper;
   }
+
 }
