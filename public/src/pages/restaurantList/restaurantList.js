@@ -44,10 +44,6 @@ export default class RestaurantList {
    */
   async render() {
     try {
-      this.#restaurantList = await AppRestaurantRequests.GetAll();
-
-      if (!this.#restaurantList || this.#restaurantList.length === 0) throw new Error('Empty restaurant list');
-
       const template = window.Handlebars.templates["restaurantList.hbs"];
       this.#parent.innerHTML = template(undefined);
 
@@ -73,9 +69,12 @@ export default class RestaurantList {
     this.#firstCardId = begCount;
   }
 
-  #loadMoreEnd() {
+  async #loadMoreEnd() {
     const startCount = this.#lastCardId + 1;
-    const endCount = Math.min(startCount + 16, this.#restaurantList.length);
+    const endCount = startCount + 16;
+    if (endCount >= this.#restaurantList.length) {
+      this.#restaurantList.push(await AppRestaurantRequests.GetAll({count: "16", offset: this.#lastCardId}));
+    }
     for (let i = startCount; i < endCount; i++) {
       const card = new restaurantCard(this.self, this.#restaurantList[i]);
       card.render('beforeEnd');
