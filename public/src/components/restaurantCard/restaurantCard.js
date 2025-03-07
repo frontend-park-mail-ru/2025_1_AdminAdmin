@@ -40,23 +40,23 @@ export class restaurantCard {
     /* Действие при нажатии */
     #handleClick() {
         this.self.addEventListener("click", (event) => {
-            event.preventDefault(); // Отменяем дефолтное дейтсвие 
-            router.goToPage("restaurantPage", this.#props.id);   // Переход на страницу ресторана
+            event.preventDefault();
+            router.goToPage("restaurantPage", this.#props.id);
         });
     }
 
     /* Рендер */
-    render(){
+    render(pushDirection ){
         const template = window.Handlebars.templates["restaurantCard.hbs"];
         const html = template(this.#props);
-        this.#parent.insertAdjacentHTML("beforeend", html);
+        this.#parent.insertAdjacentHTML(pushDirection, html);
         this.#handleClick();
     }
 
     /* При удалении объекта */
     remove(){
         this.self.removeEventListener("click", (event) => {
-            event.preventDefault(); // Отменяем дефолтное дейтсвие 
+            event.preventDefault(); // Отменяем дефолтное дейтсвие
             router.goToPage('restaurantPage', this.#props.id);;   // Переход на страницу ресторана
         });
     } 
