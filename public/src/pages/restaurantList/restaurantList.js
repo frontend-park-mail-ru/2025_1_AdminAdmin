@@ -10,6 +10,7 @@ export default class RestaurantList {
   #observer;
   #firstCardId;
   #lastCardId;
+  #loadMoreEndDebounced;
 
   /**
    * Создает экземпляр списка ресторанов.
@@ -26,11 +27,13 @@ export default class RestaurantList {
           if (entry.target.classList.contains('upper-sentinel')) {
             this.#loadMoreBeg();
           } else if (entry.target.classList.contains('lower-sentinel')) {
-            this.#loadMoreEnd();
+            this.#loadMoreEndDebounced();
           }
         }
       });
     }, { rootMargin: '100px' });
+
+    this.#loadMoreEndDebounced = this.#debounce(this.#loadMoreEnd.bind(this), 500);
   }
 
   get self() {
@@ -71,9 +74,12 @@ export default class RestaurantList {
 
   async #loadMoreEnd() {
     const startCount = this.#lastCardId + 1;
-    const endCount = startCount + 16;
+    let endCount = startCount + 16;
     if (endCount >= this.#restaurantList.length) {
-      this.#restaurantList.push(await AppRestaurantRequests.GetAll({count: "16", offset: this.#lastCardId}));
+      this.#restaurantList.push(...await AppRestaurantRequests.GetAll({count: "16", offset: startCount}));
+    }
+    if (endCount > this.#restaurantList.length) {
+      endCount = this.#restaurantList.length;
     }
     for (let i = startCount; i < endCount; i++) {
       const card = new restaurantCard(this.self, this.#restaurantList[i]);
@@ -82,7 +88,6 @@ export default class RestaurantList {
 
     this.#lastCardId = endCount - 1;
   }
-
 
   #deleteFromDom = () => {
     if (this._deletionScheduled) return;
@@ -108,7 +113,6 @@ export default class RestaurantList {
     });
   }
 
-
   /**
    * Удаляет список ресторанов.
    */
@@ -121,5 +125,19 @@ export default class RestaurantList {
     document.removeEventListener('scroll', this.#deleteFromDom);
     this.#observer.disconnect();
     this.#restaurantList = [];
+  }
+
+  /**
+   * Функция debounce
+   * @param {Function} func - Функция, которую нужно выполнить после задержки
+   * @param {number} wait - Время задержки в миллисекундах
+   * @returns {Function} - Возвращает новую функцию с debounce логикой
+   */
+  #debounce(func, wait) {
+    let timeout;
+    return function() {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, arguments), wait);
+    };
   }
 }
