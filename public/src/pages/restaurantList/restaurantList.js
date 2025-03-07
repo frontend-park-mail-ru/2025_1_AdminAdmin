@@ -10,7 +10,7 @@ export default class RestaurantList {
   #observer;
   #firstCardId;
   #lastCardId;
-  #loadMoreEndDebounced;
+  #loadMoreEndThrottle;
 
   /**
    * Создает экземпляр списка ресторанов.
@@ -27,13 +27,13 @@ export default class RestaurantList {
           if (entry.target.classList.contains('upper-sentinel')) {
             this.#loadMoreBeg();
           } else if (entry.target.classList.contains('lower-sentinel')) {
-            this.#loadMoreEndDebounced();
+            this.#loadMoreEndThrottle();
           }
         }
       });
     }, { rootMargin: '100px' });
 
-    this.#loadMoreEndDebounced = this.#debounce(this.#loadMoreEnd.bind(this), 500);
+    this.#loadMoreEndThrottle = this.#throttle(this.#loadMoreEnd.bind(this), 500);
   }
 
   get self() {
@@ -127,17 +127,33 @@ export default class RestaurantList {
     this.#restaurantList = [];
   }
 
-  /**
-   * Функция debounce
-   * @param {Function} func - Функция, которую нужно выполнить после задержки
-   * @param {number} wait - Время задержки в миллисекундах
-   * @returns {Function} - Возвращает новую функцию с debounce логикой
-   */
-  #debounce(func, wait) {
-    let timeout;
-    return function() {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, arguments), wait);
-    };
+  #throttle(func, ms) {
+
+    let isThrottled = false,
+        savedArgs,
+        savedThis;
+
+    function wrapper() {
+
+      if (isThrottled) {
+        savedArgs = arguments;
+        savedThis = this;
+        return;
+      }
+
+      func.apply(this, arguments);
+
+      isThrottled = true;
+
+      setTimeout(function() {
+        isThrottled = false;
+        if (savedArgs) {
+          wrapper.apply(savedThis, savedArgs);
+          savedArgs = savedThis = null;
+        }
+      }, ms);
+    }
+
+    return wrapper;
   }
 }
