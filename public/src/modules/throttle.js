@@ -6,18 +6,18 @@ export default function throttle(func, ms) {
 
     function wrapper() {
 
-        if (isThrottled) { // (2)
+        if (isThrottled) {
             savedArgs = arguments;
             savedThis = this;
             return;
         }
 
-        func.apply(this, arguments); // (1)
+        func.apply(this, arguments);
 
         isThrottled = true;
 
         setTimeout(function() {
-            isThrottled = false; // (3)
+            isThrottled = false;
             if (savedArgs) {
                 wrapper.apply(savedThis, savedArgs);
                 savedArgs = savedThis = null;
