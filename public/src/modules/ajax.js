@@ -79,7 +79,6 @@ const baseRequest = async (method, url, data = null, params = null) => {
         body = null;
       }
     }
-
     const newJWT = response.headers.get('Authorization');
     if (newJWT) {
       JWT = newJWT;
