@@ -3,13 +3,14 @@
 @import 'src/components/logo/logo.css';
 /* @import 'src/components/image/image.css'; */
 @import 'src/components/input/input.css';
+@import 'src/components/select/select.css';
 /* Импорт css сложных компонентов */
 @import 'src/components/header/header.css';
 @import 'src/components/auxHeader/auxHeader.css';
 @import 'src/components/restaurantCard/restaurantCard.css';
 @import 'src/components/form/form.css';
-@import 'src/components/form/form__input/form__input.css';
-@import 'src/components/form/form__line/form__line.css';
+@import 'src/components/form/formInput/formInput.css';
+@import 'src/components/form/formLine/formLine.css';
 /* Импорт css страниц */
 @import 'src/pages/restaurantList/restaurantList.css';
 @import 'src/pages/registerPage/registerPage.css';

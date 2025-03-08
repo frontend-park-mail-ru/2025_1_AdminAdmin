@@ -12,8 +12,8 @@
     height: 45px;
     border-radius: 10px;
     border: none;
-    background-color: #F2F2F2;
-    color: #686868;
+    background-color: var(--light_grey);
+    color: var(--dark_gray);
     padding-left: 10px;
 }
 
@@ -21,13 +21,12 @@
     font-size: 20px;
 }
 
-.form__input_with_description {
+.form__input-head {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
 }
 
-.form__input_with_description .form__input_with_description__description {
-    font-size: 14px;
-    color: #686868;
+.form__input__error {
+    color: var(--red);
 }

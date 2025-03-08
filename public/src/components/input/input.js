@@ -1,9 +1,11 @@
- /* Поле ввода */
-export class input {
+/* Поле ввода */
+export class Input {
     #parent;                // Родитель (где вызывается)
     #props = {              // Свойства поля ввода
         id: "",             // Id для идентификации
         placeholder: "",    // начальный текст
+        type: "",           // Тип поля ввода
+        required: false     // Обязательное поле или нет
     };
 
     /* Конструктор */
@@ -11,9 +13,13 @@ export class input {
         if (!parent) {
             throw new Error("Input: no parent!");
         }
-        console.log(props)
         this.#parent = parent;
-        this.#props = {id: props.id, placeholder: props.placeholder}
+        this.#props = {
+            id: props.id,
+            placeholder: props.placeholder,
+            type: props.type,
+            required: props.required ?? false
+        };
     }
 
     /* Ссылка на объект */

@@ -28,7 +28,7 @@ class Router {
   constructor(parent) {
     this.#parent = parent;
 
-    this.#headerElement = document.createElement('header');
+    this.#headerElement = document.createElement('header-container');
     this.#pageElement = document.createElement('main');
 
     this.#parent.appendChild(this.#headerElement);
@@ -57,7 +57,7 @@ class Router {
       },
     };
 
-    window.addEventListener('popstate', this.#handleRouteChange);
+    window.addEventListener('popstate', this.#handleRouteChange.bind(this));
     this.#handleRouteChange();
   }
 

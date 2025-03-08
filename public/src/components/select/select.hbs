@@ -1,0 +1,8 @@
+<div class="form__select">
+    <label for="{{id}}" class="form__label">{{label}}</label>
+    <select id="{{id}}">
+        {{#each options}}
+            <option value="{{this.value}}">{{this.text}}</option>
+        {{/each}}
+    </select>
+</div>

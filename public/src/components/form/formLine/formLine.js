@@ -1,8 +1,9 @@
-import { form__input } from "../form__input/form__input.js";
-import { button } from "../../button/button.js";
+import { FormInput } from "../formInput/formInput.js";
+import { Button } from "../../button/button.js";
+import { Select } from "../../select/select.js";
 
 /* строка в форме */
-export class form__line {
+export class FormLine {
     #parent;                // Родитель (где вызывается)
     #props = {              // Свойства поля ввода
         id: "",             // Id для идентификации
@@ -15,7 +16,6 @@ export class form__line {
         if (!parent) {
             throw new Error("Form_line: no parent!");
         }
-        console.log(props);
         this.#parent = parent;
         this.#props = {
             id: props.id,
@@ -31,38 +31,32 @@ export class form__line {
 
     /* Рендер */
     render = () => {
-        const template = window.Handlebars.templates["form__line.hbs"];
+        const template = window.Handlebars.templates["formLine.hbs"];
         const html = template(this.#props);
         this.#parent.insertAdjacentHTML("beforeend", html);
         if (!this.self) {
             throw new Error("Form_line: invalid self!");
         }
-        this.self.classList += ` ${this.#props.style}`;
+        if (this.#props.style) {
+            this.self.classList.add(...this.#props.style.split(' '));
+        }
         for (let form__component of this.#props.components) {
-            /*
-            form__component = {
-                type: "form__input",
-                props: {...},
-            }
-            или
-            form__component = {
-                type: "button",
-                props: {...},
-            }
-            */
            switch (form__component.type){
                 case "form__input": {
-                    const form__component_input = new form__input(this.self, form__component.props);
+                    const form__component_input = new FormInput(this.self, form__component.props);
                     form__component_input.render(); 
                     break;
                 }
                 case "button": {
-                    const form__component_button = new button(this.self, form__component.props);
+                    const form__component_button = new Button(this.self, form__component.props);
                     form__component_button.render();
                     break;
                 }
-                default:
-                    console.log(`form_line id=${this.#props.id} : Неправильные данные, тип ${this.#props.load.type} не поддерживается`)
+               case "form__select": {
+                   const form__component_select = new Select(this.self, form__component.props);
+                   form__component_select.render();
+                   break;
+               }
            }
         }
 

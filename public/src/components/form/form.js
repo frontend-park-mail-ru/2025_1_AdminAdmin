@@ -1,7 +1,7 @@
-import { form__line } from "./form__line/form__line.js";
+import { FormLine } from "./formLine/formLine.js";
  
 /* Форма */
-export class form {
+export class Form {
     #parent;                // Родитель (где вызывается)
     #props = {              // Свойства поля ввода
         tabs: [],           // Кнопки сверху
@@ -30,16 +30,13 @@ export class form {
         for (let tab_props of this.#props.tabs) {
             if (tab_props.type !== "button") {
                 tab_props.type = "button";
-            };
+            }
         }
-        const form__tabs = new form__line(this.self, {id:"form__tabs", components:this.#props.tabs, style:"form__line_tabs"});
+        const form__tabs = new FormLine(this.self, {id:"form__tabs", components:this.#props.tabs, style:"form__line_tabs"});
         form__tabs.render();
         document.getElementById("form__tabs").style.marginBottom = "15px";
         for (let line_props of this.#props.lines) {
-            const line = new form__line(this.self, line_props);
-            if (line_props.type === "button"){
-                console.log("Кнопка");
-            }
+            const line = new FormLine(this.self, line_props);
             line.render();
         }
     }

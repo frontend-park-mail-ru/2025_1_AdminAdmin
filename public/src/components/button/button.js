@@ -1,5 +1,5 @@
 /* Кнопка */
-export class button {
+export class Button {
   #parent;  // Родитель (где вызывается)
   #props = {  // Свойства кнопки
     id: '',               // Id для идентификации
@@ -17,6 +17,7 @@ export class button {
         this.#props = {
           id: props.id, 
           text: props.text,
+          type: props.type,
           style: props.style,
           onSubmit: props.onSubmit,
         };
@@ -45,7 +46,9 @@ export class button {
     if (!parent) {
       throw new Error("Button: invalid self!");
     }
-    this.self.className += ` ${this.#props.style}`;
+    if (this.#props.style) {
+        this.self.classList.add(...this.#props.style.split(' '));
+    }
     this.#handleClick();
   }
 
