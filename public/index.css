@@ -6,10 +6,15 @@
 @import 'src/components/header/header.css';
 @import 'src/components/auxHeader/auxHeader.css';
 @import 'src/components/restaurantCard/restaurantCard.css';
+@import 'src/components/form/form.css';
+@import 'src/components/form/form__input/form__input.css';
+@import 'src/components/form/form__line/form__line.css';
+@import 'src/components/restaurant__header/restaurant__header.css';
 /* Импорт css страниц */
 @import 'src/pages/restaurantList/restaurantList.css';
 @import 'src/pages/registerPage/registerPage.css';
 @import 'src/pages/loginPage/loginPage.css';
+@import 'src/pages/restaurantPage/restaurantPage.css';
 
 body {
     font-family: Arial, sans-serif;

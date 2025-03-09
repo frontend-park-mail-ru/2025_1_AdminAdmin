@@ -5,6 +5,10 @@ import './build/button.js';
 import './build/header.js';
 import './build/restaurantCard.js';
 import './build/auxHeader.js';
+import './build/form__input.js';
+import './build/form__line.js';
+import './build/form.js';
+import './build/restaurant__header.js';
 // Импорт js страниц
 import './build/restaurantList.js';
 import './build/restaurantPage.js';
