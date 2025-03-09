@@ -9,3 +9,5 @@ handlebars -m public/src/components/header/header.hbs -f public/build/header.js
 handlebars -m public/src/components/auxHeader/auxHeader.hbs -f public/build/auxHeader.js
 handlebars -m public/src/components/button/button.hbs -f public/build/button.js
 handlebars -m public/src/components/logo/logo.hbs -f public/build/logo.js
+handlebars -m public/src/components/restaurantCard/restaurantCard.hbs -f public/build/restaurantCard.js
+handlebars -m public/src/components/restaurantHeader/restaurantHeader.hbs -f public/build/restaurantHeader.js
