@@ -44,6 +44,7 @@
 }
 
 .form__input__error {
+    padding-right: 5px;
     color: var(--red);
 }
 

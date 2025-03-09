@@ -96,7 +96,7 @@ export const ValidateName = (value, field = 'name') => {
     const isCyrillic = /^[а-яА-ЯёЁ]+$/.test(value);
 
     if (!isCyrillic) {
-        return ValidationResult(false, `${fieldName} содержит не кириллические буквы`);
+        return ValidationResult(false, `Присутствуют не кириллические буквы`);
     }
 
     return ValidationResult(true);
