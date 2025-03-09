@@ -24,7 +24,7 @@ export class restaurantHeader {
                 score: props.rating.score,
                 //amount: props.rating.amount,
             },
-            background: props.background || "/src/assets/burgerking.png",
+            background: props.background || "/src/assets/header.png",
             icon: props.icon || "/src/assets/burgerking.png",
         };
     }

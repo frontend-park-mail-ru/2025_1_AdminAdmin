@@ -6,7 +6,6 @@
 @import 'src/components/header/header.css';
 @import 'src/components/auxHeader/auxHeader.css';
 @import 'src/components/restaurantCard/restaurantCard.css';
-@import 'src/components/form/form.css';
 @import 'src/components/restaurantHeader/restaurantHeader.css';
 /* Импорт css страниц */
 @import 'src/pages/restaurantList/restaurantList.css';

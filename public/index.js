@@ -5,7 +5,6 @@ import './build/button.js';
 import './build/header.js';
 import './build/restaurantCard.js';
 import './build/auxHeader.js';
-import './build/form.js';
 import './build/restaurantHeader.js';
 // Импорт js страниц
 import './build/restaurantList.js';
