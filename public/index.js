@@ -9,7 +9,6 @@ import './build/header.js';
 import './build/restaurantCard.js';
 import './build/auxHeader.js';
 import './build/formInput.js';
-import './build/formLine.js';
 // Импорт js страниц
 import './build/restaurantList.js';
 import './build/restaurantPage.js';
