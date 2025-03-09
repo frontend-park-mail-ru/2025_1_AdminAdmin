@@ -15,8 +15,6 @@ const commands = [
   `npx handlebars -m ${path.join('public', 'src', 'components', 'logo', 'logo.hbs')} -f ${path.join('public', 'build', 'logo.js')}`,
   `npx handlebars -m ${path.join('public', 'src', 'components', 'restaurantCard', 'restaurantCard.hbs')} -f ${path.join('public', 'build', 'restaurantCard.js')}`,
   `npx handlebars -m ${path.join('public', 'src', 'components', 'input', 'input.hbs')} -f ${path.join('public', 'build', 'input.js')}`,
-  `npx handlebars -m ${path.join('public', 'src', 'components', 'form', 'form__input', 'form__input.hbs')} -f ${path.join('public', 'build', 'form__input.js')}`,
-  `npx handlebars -m ${path.join('public', 'src', 'components', 'form', 'form__line', 'form__line.hbs')} -f ${path.join('public', 'build', 'form__line.js')}`,
   `npx handlebars -m ${path.join('public', 'src', 'components', 'form', 'form.hbs')} -f ${path.join('public', 'build', 'form.js')}`,
   `npx handlebars -m ${path.join('public', 'src', 'components', 'restaurant__header', 'restaurant__header.hbs')} -f ${path.join('public', 'build', 'restaurant__header.js')}`,
 ];
