@@ -2,10 +2,10 @@ import { FormLine } from "./formLine/formLine.js";
  
 /* Форма */
 export class Form {
-    #parent;                // Родитель (где вызывается)
-    #props = {              // Свойства поля ввода
-        tabs: [],           // Кнопки сверху
-        lines: [],          // Внутренности формы
+    #parent;
+    #props = {
+        tabs: [],
+        lines: [],
     };
 
     /* Ссылка на объект */

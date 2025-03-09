@@ -14,8 +14,9 @@ import './build/form.js';
 // Импорт js страниц
 import './build/restaurantList.js';
 import './build/restaurantPage.js';
-import './build/loginPage.js';
-import './build/registerPage.js';
+import './build/authPage.js';
+import './build/loginForm.js';
+import './build/registerForm.js';
 
 import { initRouting } from './src/modules/routing.js';
 

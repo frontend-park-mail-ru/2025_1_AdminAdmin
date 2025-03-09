@@ -1,172 +1,146 @@
 import { Form } from "../form/form.js";
 import { router } from "../../modules/routing.js";
 import { userStore } from "../../store/userStore.js";
+import {FormInput} from "../form/formInput/formInput.js";
+import {Button} from "../button/button.js";
+import {ValidateLogin, ValidatePassword} from "../../modules/validation.js";
 
 /**
  * Класс, представляющий форму логина.
  */
 export default class LoginForm {
     #parent;
-    #form;
+    #config;
 
-    constructor(parent) {
+    #loginInput;
+    #passwordInput;
+    #submitBtn;
+
+    /**
+     * Конструктор класса
+     * @param parent {HTMLElement} - родительский элемент
+     * @param config {Object} - пропсы
+     */
+    constructor(parent, config) {
         this.#parent = parent;
+        this.#config = config;
     }
 
+    /**
+     * Получение HTML элемента формы
+     * @returns {HTMLElement}
+     */
+    get self () {
+        return document.getElementById(this.#config.id);
+    }
+
+    /**
+     * Валидация данных
+     */
+    validateData = () => {
+        const login = this.#loginInput.value.trim();
+        const password = this.#passwordInput.value;
+
+        const validateLogin = this.#validateLogin();
+        const validatePassword = this.#validatePassword();
+        if (validateLogin && validatePassword) {
+            userStore
+                .login({ login, password })
+                .then(() => {
+                    router.goToPage("home");
+                })
+                .catch((err) => {
+                    console.error("Login failed:", err);
+                });
+        }
+    };
+
+    /**
+     * Валидация логина
+     * @returns {boolean}
+     */
+    #validateLogin(){
+        const value = this.#loginInput.value;
+
+        const validationResult = ValidateLogin(value);
+
+        if (validationResult.result) {
+            this.#loginInput.cleanError();
+            this.#loginInput.self.classList.add("success");
+        } else {
+            this.#loginInput.throwError(validationResult.message);
+        }
+
+        return validationResult.result;
+    }
+
+    /**
+     * Валидация пароля
+     * @returns {boolean}
+     */
+    #validatePassword(){
+        const value = this.#passwordInput.value;
+
+        const validationResult = ValidatePassword(value);
+
+        if (!validationResult.result){
+            this.#passwordInput.throwError(validationResult.message);
+            return false;
+        }
+
+        if (validationResult.result) {
+            this.#passwordInput.cleanError();
+            this.#passwordInput.self.classList.add("success");
+        }
+
+        return validationResult.result;
+    }
+
+    /**
+     * Обработка события ввода данных
+     * @param id {number}
+     */
+    #inputEventHandler = (id) => {
+        if(id === this.#passwordInput.id){
+            this.#validatePassword();
+        } else if (id === this.#loginInput.id){
+            this.#validateLogin();
+        }
+    };
+
+    /**
+     * Отображение сообщения об ошибках
+     */
+    #throwIncorrectData = () => {
+        this.#loginInput.throwError("Неправильный логин или пароль!");
+        this.#passwordInput.throwError("Неправильный логин или пароль!");
+    };
+
+    /**
+     * Очистка
+     */
+    remove(){
+        this.#submitBtn.remove();
+    }
+
+    /**
+     * Рендеринг формы
+     */
     render() {
-        this.#form = new Form(this.#parent, {
-            tabs: [
-                {
-                    type: "button",
-                    props: {
-                        id: "form__tab_register",
-                        text: "Регистрация",
-                        onSubmit: () => {
-                            router.goToPage("registerPage");
-                        },
-                        style: "form__button button_inactive",
-                    },
-                },
-                {
-                    type: "button",
-                    props: {
-                        id: "form__tab_login",
-                        text: "Логин",
-                        onSubmit: () => {
-                            router.goToPage("loginPage");
-                        },
-                        style: "form__button button_active",
-                    },
-                },
-            ],
-            lines: [
-                {
-                    id: "form__line_login",
-                    components: [
-                        {
-                            type: "form__input",
-                            props: {
-                                id: "form__line__login__input",
-                                label: "Логин",
-                                props: {
-                                    id: "form__line__login__input__input",
-                                    placeholder: "Введите логин",
-                                    required: true
-                                },
-                            },
-                        },
-                    ],
-                },
-                {
-                    id: "form__line_password",
-                    components: [
-                        {
-                            type: "form__input",
-                            props: {
-                                id: "form__line__password",
-                                label: "Пароль",
-                                props: {
-                                    id: "form__line__password__input",
-                                    type: "password",
-                                    placeholder: "Введите пароль",
-                                    required: true
-                                },
-                            },
-                        },
-                    ],
-                },
-                {
-                    id: "form__line_login_button",
-                    components: [
-                        {
-                            type: "button",
-                            props: {
-                                id: "form__line__login_button",
-                                text: "Войти",
-                                type: "submit",
-                                style: "form__button button_active",
-                            },
-                        },
-                    ],
-                    style: "form__line_submit_button",
-                },
-            ],
-        });
+        const template = window.Handlebars.templates["loginForm.hbs"];
+        this.#parent.innerHTML =  template(undefined);
 
-        this.#form.render();
+        const loginContainer = document.getElementById("form__line_login");
+        const passwordContainer = document.getElementById("form__line_password");
+        const buttonContainer = document.getElementById("form__line_login_button");
 
-        const loginButton = document.getElementById("form__line__login_button");
-        loginButton.addEventListener("click", this.#handleLogin.bind(this));
-    }
+        this.#loginInput = new FormInput(loginContainer, this.#config.inputs.login);
+        this.#loginInput.render();
 
-    /**
-     * Обработчик логина.
-     * @param {Event} event - Объект события.
-     */
-    #handleLogin(event) {
-        event.preventDefault();
+        this.#passwordInput = new FormInput(passwordContainer, this.#config.inputs.password);
+        this.#passwordInput.render();
 
-        const loginInput = document.querySelector("#form__line_login .form__input input");
-        const passwordInput = document.querySelector("#form__line_password .form__input input");
-
-        this.#clearErrors();
-
-        let isValid = true;
-
-        if (!loginInput || !passwordInput) {
-            console.error("Не удалось найти поля ввода");
-            return;
-        }
-
-        if (!loginInput.value.trim()) {
-            this.#setError(loginInput, "Поле логин не может быть пустым");
-            isValid = false;
-        }
-
-        if (!passwordInput.value.trim()) {
-            this.#setError(passwordInput, "Поле пароль не может быть пустым");
-            isValid = false;
-        }
-
-        if (!isValid) {
-            return;
-        }
-
-        const login = loginInput.value.trim();
-        const password = passwordInput.value.trim();
-
-        userStore
-            .login({ login, password })
-            .then(() => {
-                router.goToPage("home");
-            })
-            .catch((err) => {
-                console.error("Login failed:", err);
-            });
-    }
-
-
-    /**
-     * Очищает ошибки
-     */
-    #clearErrors() {
-        document.querySelectorAll(".form__input__error").forEach(errorElement => {
-            errorElement.textContent = "";
-        });
-    }
-
-    /**
-     * Устанавливает ошибку для поля ввода
-     * @param {HTMLInputElement} input - Поле ввода
-     * @param {string} message - Текст ошибки
-     */
-    #setError(input, message) {
-        const inputContainer = input.closest(".form__input"); // Находим контейнер поля
-        if (!inputContainer) return;
-
-        const errorElement = inputContainer.querySelector(".form__input__error");
-        if (errorElement) {
-            errorElement.textContent = message;
-        }
+        this.#submitBtn = new Button(buttonContainer, this.#config.buttons.submitBtn, this.validateData);
+        this.#submitBtn.render();
     }
 }

@@ -1,165 +1,62 @@
-import { Form } from "../form/form.js";
-import { router } from "../../modules/routing.js";
-import { userStore } from "../../store/userStore.js";
+import { FormInput } from "../form/formInput/formInput.js";
+import { Button } from "../button/button.js";
+import {Select} from "../select/select.js";
 
-/**
- * Класс, представляющий форму регистрации.
- */
 export default class RegisterForm {
     #parent;
-    #form;
+    #config;
+    #fNameInput;
+    #lNameInput;
+    #codeSelect;
+    #phoneInput;
+    #loginInput
+    #passwordInput;
+    #rPasswordInput;
+    #submitBtn;
 
-    /**
-     * Создает экземпляр формы регистрации.
-     * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться форма.
-     */
-    constructor(parent) {
+    constructor(parent, config) {
         this.#parent = parent;
+        this.#config = config;
     }
 
-    /**
-     * Рендерит форму регистрации.
-     */
+    get self() {
+        return document.getElementById(this.#config.id);
+    }
+
+
     render() {
-        this.#form = new Form(this.#parent, {
-            tabs: [
-                {
-                    type: "button",
-                    props: {
-                        id: "form__tab_register",
-                        text: "Регистрация",
-                        onSubmit: () => {
-                            router.goToPage("registerPage");
-                        },
-                        style: "form__button button_active",
-                    },
-                },
-                {
-                    type: "button",
-                    props: {
-                        id: "form__tab_login",
-                        text: "Логин",
-                        onSubmit: () => {
-                            router.goToPage("loginPage");
-                        },
-                        style: "form__button button_inactive",
-                    },
-                },
-            ],
-            lines: [
-                {
-                    id: "form__line_firstname_lastname",
-                    components: [
-                        {
-                            type: "form__input",
-                            props: {
-                                id: "form__line__firstname",
-                                label: "Имя",
-                                props: { id: "form__line__firstname__input", placeholder: "Введите имя", required: true },
-                            },
-                        },
-                        {
-                            type: "form__input",
-                            props: {
-                                id: "form__line__lastname",
-                                label: "Фамилия",
-                                props: { id: "form__line__lastname__input", placeholder: "Введите фамилию", required: true },
-                            },
-                        },
-                    ],
-                },
-                {
-                    id: "form__line_phone",
-                    components: [
-                        {
-                            type: "form__select",
-                            props: {
-                                id: "form__line__phone_code",
-                                label: "Код страны",
-                                options: [
-                                    {value: "RU", text: "Россия (+7)"},
-                                    {value: "BY", text: "Беларусь (+375)"},
-                                    {value: "KZ", text: "Казахстан (+7)"},
-                                    {value: "AM", text: "Армения (+374)"},
-                                    {value: "KG", text: "Кыргызстан (+996)"},
-                                    {value: "MD", text: "Молдова (+373)"},
-                                    {value: "TJ", text: "Таджикистан (+992)"},
-                                    {value: "UZ", text: "Узбекистан (+998)"},
-                                    {value: "AZ", text: "Азербайджан (+994)"},
-                                    {value: "TM", text: "Туркменистан (+993)"},
-                                ],
-                                required: true,
-                            },
-                        },
-                        {
-                            type: "form__input",
-                            props: {
-                                id: "form__line__phone",
-                                label: "Телефон",
-                                props: { id: "form__line__phone__input", placeholder: "Введите телефон", required: true },
-                            },
-                        },
-                    ],
-                },
-                {
-                    id: "form__line_login",
-                    components: [
-                        {
-                            type: "form__input",
-                            props: {
-                                id: "form__line__login",
-                                label: "Логин",
-                                props: { id: "form__line__login__input", placeholder: "Введите логин", required: true },
-                            },
-                        },
-                    ],
-                },
-                {
-                    id: "form__line_password",
-                    components: [
-                        {
-                            type: "form__input",
-                            props: {
-                                id: "form__line__password",
-                                label: "Пароль",
-                                props: { id: "form__line__password__input", type: "password", placeholder: "Введите пароль (Не менее 10 символов)", required: true },
-                            },
-                        },
-                    ],
-                },
-                {
-                    id: "form__line_register_button",
-                    components: [
-                        {
-                            type: "button",
-                            props: {
-                                id: "form__line__register_button",
-                                text: "Зарегистрироваться",
-                                onSubmit: this.#handleRegister,
-                                style: "form__button button_active",
-                            },
-                        },
-                    ],
-                    style: "form__line_submit_button",
-                },
-            ],
-        });
-        this.#form.render();
+        const template = window.Handlebars.templates["registerForm.hbs"];
+        this.#parent.innerHTML =  template(undefined);
+
+        const firstLastNameContainer = document.getElementById("form__line__firstname_lastname");
+        const phoneContainer = document.getElementById("form__line__phone");
+        const loginContainer = document.getElementById("form__line__register_login");
+        const passwordContainer = document.getElementById("form__line__register_password");
+        const rPasswordContainer = document.getElementById("form__line__repeat_password");
+        const buttonContainer = document.getElementById("form__line_register_button");
+
+        this.#fNameInput = new FormInput(firstLastNameContainer, this.#config.inputs.fName);
+        this.#fNameInput.render();
+
+        this.#lNameInput = new FormInput(firstLastNameContainer, this.#config.inputs.lName);
+        this.#lNameInput.render();
+
+        this.#codeSelect = new Select(phoneContainer, this.#config.selects.code);
+        this.#codeSelect.render();
+        this.#phoneInput = new FormInput(phoneContainer, this.#config.inputs.phone)
+        this.#phoneInput.render();
+
+        this.#loginInput = new FormInput(loginContainer, this.#config.inputs.login);
+        this.#loginInput.render();
+
+        this.#passwordInput = new FormInput(passwordContainer, this.#config.inputs.password);
+        this.#passwordInput.render();
+
+        this.#rPasswordInput = new FormInput(rPasswordContainer, this.#config.inputs.repeatPassword);
+        this.#rPasswordInput.render();
+
+        this.#submitBtn = new Button(buttonContainer, this.#config.buttons.submitBtn, this.validateData);
+        this.#submitBtn.render();
     }
 
-    /**
-     * Обработчик регистрации.
-     */
-    #handleRegister() {
-        const loginInput = document.getElementById("form__line__login__input").value.trim();
-        const passwordInput = document.getElementById("form__line__password__input").value.trim();
-        userStore
-            .register({ login: loginInput, password: passwordInput })
-            .then(() => {
-                router.goToPage("home");
-            })
-            .catch((err) => {
-                console.error("Register failed:", err);
-            });
-    }
 }

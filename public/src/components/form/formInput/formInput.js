@@ -1,5 +1,3 @@
-import { Input } from "../../input/input.js";
-
 /* Поле ввода */
 export class FormInput {
     #parent;                // Родитель (где вызывается)
@@ -7,7 +5,9 @@ export class FormInput {
         id: "",             // Id для идентификации
         label: "",          // Заголовок поля ввода (перед полем ввода)
         error: "",    // Дополнительная информация (ошибка или подсказка)
-        props: "",    // Пропсы для строки ввода
+        placeholder: "",    // начальный текст
+        type: "",           // Тип поля ввода
+        required: false     // Обязательное поле или нет
     };
 
     /* Ссылка на объект */
@@ -25,7 +25,9 @@ export class FormInput {
             id: props.id, 
             label: props.label,
             error: props.error,
-            props: props.props,
+            placeholder: props.placeholder,
+            type: props.type,
+            required: props.required
         }
     }
 
@@ -34,10 +36,5 @@ export class FormInput {
         const template = window.Handlebars.templates["formInput.hbs"];
         const html = template(this.#props);
         this.#parent.insertAdjacentHTML("beforeend", html);
-        if (!this.self) {
-            throw new Error("Form__input: invalid self!");
-        }
-        const component_input = new Input(this.self, this.#props.props);
-        component_input.render();
     }
 }

@@ -1,9 +1,8 @@
 import RestaurantList from '../pages/restaurantList/restaurantList.js';
 import RestaurantPage from '../pages/restaurantPage/restaurantPage.js';
-import LoginPage from '../pages/loginPage/loginPage.js';
-import RegisterPage from '../pages/registerPage/registerPage.js';
 import Header from '../../src/components/header/header.js';
 import auxHeader from '../components/auxHeader/auxHeader.js';
+import {AuthPage} from "../pages/authPage/authPage.js";
 
 /**
  * Класс для управления маршрутизацией в приложении.
@@ -47,12 +46,12 @@ class Router {
       },
       loginPage: {
         href: '/login',
-        class: LoginPage,
+        class: AuthPage,
         header: auxHeader,
       },
       registerPage: {
         href: '/register',
-        class: RegisterPage,
+        class: AuthPage,
         header: auxHeader,
       },
     };

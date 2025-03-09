@@ -40,9 +40,10 @@ export default class Header {
     this.#logo.render();
     this.#loginButton = new Button(
       document.querySelector('.header__buttons'),
-      {id: 'login_button',
-      text: 'Вход',
-      onSubmit: () => {router.goToPage('loginPage');}
+        {
+        id: 'login_button',
+        text: 'Вход',
+        onSubmit: () => {router.goToPage('loginPage');}
       },   
     );
     this.#loginButton.render();
@@ -80,6 +81,9 @@ export default class Header {
    * Удаляет заголовок со страницы и снимает обработчики событий.
    */
   remove() {
+    this.#logo.remove();
+    this.#loginButton.remove();
+    this.#logoutButton.remove();
     this.#parent.innerHTML = '';
   }
 }

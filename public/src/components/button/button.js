@@ -1,64 +1,73 @@
-/* Кнопка */
 export class Button {
-  #parent;  // Родитель (где вызывается)
-  #props = {  // Свойства кнопки
-    id: '',               // Id для идентификации
-    text: '',             // text для отображения
-    style: '',            // Дополнительный стиль css
-    onSubmit: undefined,  // Функция при нажатии
-  };  
+    #parent;  // Родитель (где вызывается)
+    #clickHandler;
+    #props = {  // Свойства кнопки
+        id: '',               // Id для идентификации
+        text: '',             // text для отображения
+        style: '',            // Дополнительный стиль css
+        onSubmit: undefined,  // Функция при нажатии
+        disabled: false,      // Состояние кнопки
+    };
 
     /* Конструктор */
     constructor(parent, props) {
         if (!parent) {
-          throw new Error("Button: no parent!");
+            throw new Error("Button: no parent!");
         }
         this.#parent = parent;
         this.#props = {
-          id: props.id, 
-          text: props.text,
-          type: props.type,
-          style: props.style,
-          onSubmit: props.onSubmit,
+            id: props.id,
+            text: props.text,
+            type: props.type,
+            style: props.style,
+            onSubmit: props.onSubmit,
+            disabled: props.disabled || false,
         };
+
+        this.#clickHandler = this.#handleClick.bind(this);
     }
 
-  /* Ссылка на объект */
-  get self() {
-    return document.getElementById(this.#props.id);
-  }
-
-  /* Действие при нажатии */
-  #handleClick() {
-    if (this.#props.onSubmit !== undefined) {
-      this.self.addEventListener('click', (event) => {
-        event.preventDefault(); // Отменяем дефолтное дейтсвие
-        this.#props.onSubmit(); // Вызываем новое
-      });
+    /* Ссылка на объект */
+    get self() {
+        return document.getElementById(this.#props.id);
     }
-  }
 
-  /* Рендер */
-  render = () => {
-    const template = window.Handlebars.templates['button.hbs'];
-    const html = template(this.#props);
-    this.#parent.insertAdjacentHTML('beforeend', html);
-    if (!parent) {
-      throw new Error("Button: invalid self!");
+    /* Действие при нажатии */
+    #handleClick(event) {
+        event.preventDefault();
+        if (this.#props.onSubmit !== undefined) {
+            this.#props.onSubmit();
+        }
     }
-    if (this.#props.style) {
-        this.self.classList.add(...this.#props.style.split(' '));
-    }
-    this.#handleClick();
-  }
 
-  /* При удалении объекта */
-  remove(){
-      if (this.#props.onSubmit !== undefined) {
-          this.self.removeEventListener("click", (event) => {
-              event.preventDefault(); // Отменяем дефолтное дейтсвие
-              this.#props.onSubmit();       // Вызываем новое
-          });
-      }
-  } 
+    /* Рендер */
+    render = () => {
+        const template = window.Handlebars.templates['button.hbs'];
+        const html = template(this.#props);
+        this.#parent.insertAdjacentHTML('beforeend', html);
+        if (!this.#parent) {
+            throw new Error("Button: invalid self!");
+        }
+        if (this.#props.style) {
+            this.self.classList.add(...this.#props.style.split(' '));
+        }
+        this.self.disabled = this.#props.disabled;
+        this.self.addEventListener('click', this.#clickHandler);
+    }
+
+    /* При удалении объекта */
+    remove() {
+        if (this.self) {
+            this.self.removeEventListener("click", this.#clickHandler);  // Удаляем обработчик
+            this.self.remove();
+        }
+    }
+
+    /* Метод для переключения класса */
+    toggleClass(oldClass, newClass) {
+        if (this.self) {
+            this.self.classList.remove(oldClass);
+            this.self.classList.add(newClass);
+        }
+    }
 }

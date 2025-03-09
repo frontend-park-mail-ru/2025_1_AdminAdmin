@@ -41,24 +41,6 @@ export class FormLine {
             this.self.classList.add(...this.#props.style.split(' '));
         }
         for (let form__component of this.#props.components) {
-           switch (form__component.type){
-                case "form__input": {
-                    const form__component_input = new FormInput(this.self, form__component.props);
-                    form__component_input.render(); 
-                    break;
-                }
-                case "button": {
-                    const form__component_button = new Button(this.self, form__component.props);
-                    form__component_button.render();
-                    break;
-                }
-               case "form__select": {
-                   const form__component_select = new Select(this.self, form__component.props);
-                   form__component_select.render();
-                   break;
-               }
-           }
         }
-
     }
 }
