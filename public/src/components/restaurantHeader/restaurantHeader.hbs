@@ -1,0 +1,17 @@
+<div class="restaurant__header">
+    <div class="restaurant__header__image">
+        <img class="restaurant__header__image__background" src="{{background}}" alt="Шапка">
+        <img class="restaurant__header__image__icon" src="{{icon}}" alt="Иконка">
+    </div>
+    <div class="restaurant__header__info">
+        <span class="restaurant__header__name">{{name}}</span>
+        <div class="restaurant__header__description">
+            <span id="restaurant__header__description__rating__score">{{rating.score}}</span>
+            <svg class="star-svg" viewBox="0 0 24 24">
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.07-.67L12 2 9.24 8.57 2 9.24l5.46 4.73L5.82 21z"></path>
+            </svg>
+            <span id="restaurant__header__description__tags"> • {{description}}</span>
+            <span id="restaurant__header__description__tags"> • {{type}}</span>
+        </div>
+    </div>
+</div>

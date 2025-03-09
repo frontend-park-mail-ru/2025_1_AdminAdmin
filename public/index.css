@@ -11,9 +11,11 @@
 @import 'src/components/form/formLine/formLine.css';
 @import 'src/components/loginForm/loginForm.css';
 @import 'src/components/registerForm/registerForm.css';
+@import 'src/components/restaurantHeader/restaurantHeader.css';
 /* Импорт css страниц */
 @import 'src/pages/restaurantList/restaurantList.css';
 @import 'src/pages/authPage/authPage.css';
+@import 'src/pages/restaurantPage/restaurantPage.css';
 
 body {
     font-family: Arial, sans-serif;

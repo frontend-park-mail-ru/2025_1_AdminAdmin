@@ -17,6 +17,7 @@ const commands = [
   `npx handlebars -m ${path.join('public', 'src', 'components', 'select', 'select.hbs')} -f ${path.join('public', 'build', 'select.js')}`,
   `npx handlebars -m ${path.join('public', 'src', 'components', 'loginForm', 'loginForm.hbs')} -f ${path.join('public', 'build', 'loginForm.js')}`,
   `npx handlebars -m ${path.join('public', 'src', 'components', 'registerForm', 'registerForm.hbs')} -f ${path.join('public', 'build', 'registerForm.js')}`,
+  `npx handlebars -m ${path.join('public', 'src', 'components', 'restaurantHeader', 'restaurantHeader.hbs')} -f ${path.join('public', 'build', 'restaurantHeader.js')}`,
 ];
 
 commands.forEach((cmd) => execSync(cmd, { stdio: 'inherit', shell: true }));

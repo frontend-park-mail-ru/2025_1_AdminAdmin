@@ -7,7 +7,8 @@ export class restaurantCard {
         id: "",             // Идентификатор карточки
         name: "",           // Название ресторана
         description: "",    // Описание ресторана
-        deliveryTime: "",   // Время доставки
+        type: "",           // Тип ресторана (Кухня)
+        //deliveryTime: "",   // Время доставки
         rating: {
             score: "",      // Оценка
             amount: "",     // Кол-во отзывов
@@ -22,13 +23,13 @@ export class restaurantCard {
             id: props.id,
             name: props.name,
             description: props.description,
-            deliveryTime: props.deliveryTime, // Убрать?
+            type: props.type,
+            //deliveryTime: props.deliveryTime, // Убрать?
             rating: {
                 score: props.rating,
                 amount: props.amount,
             },
-            //image: props.image,
-            image: "/src/assets/burgerking.png",
+            image: props.image || "/src/assets/burgerking.png",
         }
     }
 

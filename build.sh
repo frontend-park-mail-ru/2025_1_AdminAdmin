@@ -14,3 +14,5 @@ handlebars -m public/src/components/restaurantCard/restaurantCard.hbs -f public/
 handlebars -m public/src/components/form/form__line/form__line.hbs -f public/build/form__line.js
 handlebars -m public/src/components/form/form__input/form__input.hbs -f public/build/form__input.js
 handlebars -m public/src/components/form/form.hbs -f public/build/form.js
+handlebars -m public/src/components/restaurantCard/restaurantCard.hbs -f public/build/restaurantCard.js
+handlebars -m public/src/components/restaurantHeader/restaurantHeader.hbs -f public/build/restaurantHeader.js

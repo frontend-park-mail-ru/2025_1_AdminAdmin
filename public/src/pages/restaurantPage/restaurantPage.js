@@ -1,3 +1,4 @@
+import { restaurantHeader } from '../../components/restaurantHeader/restaurantHeader.js';
 import { AppRestaurantRequests } from '../../modules/ajax.js';
 
 /**
@@ -5,9 +6,17 @@ import { AppRestaurantRequests } from '../../modules/ajax.js';
  */
 export default class RestaurantPage {
   #parent;
-  #id;
-  #restaurantDetail;
-  #page;
+  #props = {            // Свойства ресторана
+    id: "",
+    name: "",           // Название ресторана
+    description: "",    // Описание ресторана
+    rating: {
+        score: "",      // Оценка
+        //amount: "",     // Кол-во отзывов
+    },
+    background: "",     // Фоновое изображение (шапка)
+    icon: "",           // Иконка ресторана
+  };
 
   /**
    * Создает экземпляр страницы ресторана.
@@ -16,9 +25,11 @@ export default class RestaurantPage {
    */
   constructor(parent, id) {
     this.#parent = parent;
-    this.#id = id;
-    this.#restaurantDetail = null;
-    this.#page = null;
+    this.#props.id = id;
+  }
+
+  get self() {
+    return document.querySelector('.restaurantPage__body');
   }
 
   /**
@@ -31,16 +42,23 @@ export default class RestaurantPage {
       // Получаем список всех ресторанов
       const restaurants = await AppRestaurantRequests.GetAll();
       if (!Array.isArray(restaurants)) {
-        throw new Error('Expected an array of restaurants');
+        throw new Error('RestaurantPage: Нет ресторанов!');
       }
 
-      // Ищем ресторан по ID
-      this.#restaurantDetail = restaurants.find((r) => r.id === this.#id);
-
+      // Ищем ресторан по ID. Получаем его данные
+      const restaurantDetails = restaurants.find((r) => r.id === this.#props.id);
+      this.#props.name = restaurantDetails.name;
+      this.#props.description = restaurantDetails.description;
+      this.#props.type = restaurantDetails.type;
+      this.#props.rating.score = restaurantDetails.rating;
+      //this.#props.background = "/src/assets/burgerking.png";
+      //this.#props.icon = "/src/assets/burgerking.png";
       // Генерируем HTML с использованием шаблона
-      const template = Handlebars.templates['restaurantPage.hbs'];
-      this.#page = template({ restaurantDetail: this.#restaurantDetail });
-      this.#parent.innerHTML = this.#page;
+      const template = window.Handlebars.templates["restaurantPage.hbs"];
+      const html = template();
+      this.#parent.innerHTML = html;
+      const restaurant__header = new restaurantHeader(this.self, this.#props);
+      restaurant__header.render(); 
     } catch (error) {
       console.error('Error rendering restaurant page:', error);
     }
