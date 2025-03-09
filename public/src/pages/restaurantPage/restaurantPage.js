@@ -1,4 +1,4 @@
-import { restaurantHeader } from '../../components/restaurant__header/restaurant__header.js';
+import { restaurantHeader } from '../../components/restaurantHeader/restaurantHeader.js';
 import { AppRestaurantRequests } from '../../modules/ajax.js';
 
 /**

@@ -12,4 +12,4 @@ handlebars -m public/src/components/logo/logo.hbs -f public/build/logo.js
 handlebars -m public/src/components/input/input.hbs -f public/build/input.js
 handlebars -m public/src/components/restaurantCard/restaurantCard.hbs -f public/build/restaurantCard.js
 handlebars -m public/src/components/form/form.hbs -f public/build/form.js
-handlebars -m public/src/components/restaurant__header/restaurant__header.hbs -f public/build/restaurant__header.js
+handlebars -m public/src/components/restaurantHeader/restaurantHeader.hbs -f public/build/restaurantHeader.js
