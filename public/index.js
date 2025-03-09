@@ -3,7 +3,6 @@ import './build/logo.js';
 import './build/button.js';
 import './build/select.js'
 //import './build/image.js';
-import './build/input.js';
 // Импорт js сложных компонентов
 import './build/header.js';
 import './build/restaurantCard.js';
