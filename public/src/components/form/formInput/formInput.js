@@ -15,6 +15,10 @@ export class FormInput {
         return document.getElementById(this.#props.id);
     }
 
+    get input() {
+        return this.self.querySelector("input");
+    }
+
     /* Конструктор */
     constructor(parent, props) {
         if (!parent) {
@@ -22,7 +26,7 @@ export class FormInput {
         }
         this.#parent = parent;
         this.#props = {
-            id: props.id, 
+            id: props.id,
             label: props.label,
             error: props.error,
             placeholder: props.placeholder,
@@ -36,5 +40,35 @@ export class FormInput {
         const template = window.Handlebars.templates["formInput.hbs"];
         const html = template(this.#props);
         this.#parent.insertAdjacentHTML("beforeend", html);
+    }
+
+    setError(errorMessage) {
+        const errorElement = this.#parent.querySelector(`#${this.#props.id}-error`);
+        if (errorElement) {
+            errorElement.textContent = errorMessage;
+            errorElement.style.display = "block";
+        }
+
+        if (this.input) {
+            this.input.classList.add("error");
+        }
+    }
+
+    clearError() {
+        const errorElement = this.#parent.querySelector(`#${this.#props.id}-error`);
+        if (errorElement) {
+            errorElement.textContent = "";
+            errorElement.style.display = "none";
+        }
+
+        if (this.input) {
+            this.input.classList.remove("error");
+        }
+    }
+
+
+
+    get value() {
+        return this.input ? this.input.value : "";
     }
 }

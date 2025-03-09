@@ -1,9 +1,0 @@
-/* Формы (для логина и регистрации) */
-.form {
-    box-sizing: border-box;
-    width: 100%;
-    padding: 0px;
-    display: grid;
-    grid-template-columns: repeat(12, 1fr); /* 12 колонок */
-    gap: 10px;
-}

@@ -20,11 +20,18 @@
 .form__input input {
     height: 45px;
     border-radius: 10px;
-    border: none;
+    border: 2px solid transparent;
     background-color: var(--light_grey);
     color: var(--dark_gray);
     padding-left: 10px;
+    transition: border 0.3s ease;
 }
+
+.form__input input:focus {
+    border: 2px solid var(--dark_gray);
+    outline: none;
+}
+
 
 .form__input span {
     font-size: 20px;
@@ -39,3 +46,9 @@
 .form__input__error {
     color: var(--red);
 }
+
+.form__input input.error {
+    border: 2px solid var(--orange);
+    background-color: var(--pink);
+}
+

@@ -1,4 +1,3 @@
-import { Form } from "../form/form.js";
 import { router } from "../../modules/routing.js";
 import { userStore } from "../../store/userStore.js";
 import {FormInput} from "../form/formInput/formInput.js";
@@ -41,8 +40,8 @@ export default class LoginForm {
         const login = this.#loginInput.value.trim();
         const password = this.#passwordInput.value;
 
-        const validateLogin = this.#validateLogin();
-        const validatePassword = this.#validatePassword();
+        const validateLogin = this.#validateLogin(login);
+        const validatePassword = this.#validatePassword(password);
         if (validateLogin && validatePassword) {
             userStore
                 .login({ login, password })
@@ -50,7 +49,8 @@ export default class LoginForm {
                     router.goToPage("home");
                 })
                 .catch((err) => {
-                    console.error("Login failed:", err);
+                    const errorMessage = err ? err.message : "Неверный логин или пароль";
+                    this.setError(errorMessage);
                 });
         }
     };
@@ -59,16 +59,13 @@ export default class LoginForm {
      * Валидация логина
      * @returns {boolean}
      */
-    #validateLogin(){
-        const value = this.#loginInput.value;
-
-        const validationResult = ValidateLogin(value);
+    #validateLogin(login){
+        const validationResult = ValidateLogin(login);
 
         if (validationResult.result) {
-            this.#loginInput.cleanError();
-            this.#loginInput.self.classList.add("success");
+            this.#loginInput.clearError();
         } else {
-            this.#loginInput.throwError(validationResult.message);
+            this.#loginInput.setError(validationResult.message);
         }
 
         return validationResult.result;
@@ -78,49 +75,44 @@ export default class LoginForm {
      * Валидация пароля
      * @returns {boolean}
      */
-    #validatePassword(){
-        const value = this.#passwordInput.value;
-
-        const validationResult = ValidatePassword(value);
+    #validatePassword(password){
+        const validationResult = ValidatePassword(password);
 
         if (!validationResult.result){
-            this.#passwordInput.throwError(validationResult.message);
+            this.#passwordInput.setError(validationResult.message);
             return false;
         }
 
         if (validationResult.result) {
-            this.#passwordInput.cleanError();
-            this.#passwordInput.self.classList.add("success");
+            this.#passwordInput.clearError();
+        }
+        else {
+            this.#passwordInput.setError(validationResult.message);
+            return false;
         }
 
         return validationResult.result;
     }
 
-    /**
-     * Обработка события ввода данных
-     * @param id {number}
-     */
-    #inputEventHandler = (id) => {
-        if(id === this.#passwordInput.id){
-            this.#validatePassword();
-        } else if (id === this.#loginInput.id){
-            this.#validateLogin();
+    setError(errorMessage) {
+        const errorElement = this.#parent.querySelector(".form__error");
+
+        if (errorElement) {
+            errorElement.textContent = errorMessage;
+            errorElement.style.display = "block";
         }
-    };
+    }
 
     /**
-     * Отображение сообщения об ошибках
+     * Очистка ошибки
      */
-    #throwIncorrectData = () => {
-        this.#loginInput.throwError("Неправильный логин или пароль!");
-        this.#passwordInput.throwError("Неправильный логин или пароль!");
-    };
+    clearError() {
+        const errorElement = this.#parent.querySelector(".form__error");
 
-    /**
-     * Очистка
-     */
-    remove(){
-        this.#submitBtn.remove();
+        if (errorElement) {
+            errorElement.textContent = "";
+            errorElement.style.display = "none";
+        }
     }
 
     /**
@@ -140,7 +132,20 @@ export default class LoginForm {
         this.#passwordInput = new FormInput(passwordContainer, this.#config.inputs.password);
         this.#passwordInput.render();
 
-        this.#submitBtn = new Button(buttonContainer, this.#config.buttons.submitBtn, this.validateData);
+        this.#submitBtn = new Button(buttonContainer, {
+            ...this.#config.buttons.submitBtn,
+            onSubmit: () => {
+                this.validateData();
+            }
+        });
         this.#submitBtn.render();
     }
+
+    /**
+     * Очистка
+     */
+    remove(){
+        this.#submitBtn.remove();
+    }
+
 }

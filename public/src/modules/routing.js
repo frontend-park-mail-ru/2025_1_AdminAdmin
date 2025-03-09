@@ -29,6 +29,7 @@ class Router {
 
     this.#headerElement = document.createElement('header-container');
     this.#pageElement = document.createElement('main');
+    this.#pageElement.style.paddingTop = '50px';
 
     this.#parent.appendChild(this.#headerElement);
     this.#parent.appendChild(this.#pageElement);

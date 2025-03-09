@@ -12,6 +12,7 @@ export default class Header {
   #logo;
   #loginButton;
   #logoutButton;
+  #handleScrollBound;
 
   /**
    * Создает экземпляр заголовка.
@@ -19,8 +20,7 @@ export default class Header {
    */
   constructor(parent) {
     this.#parent = parent;
-
-    // Подписываемся на изменения состояния пользователя
+    this.#handleScrollBound = this.#handleScroll.bind(this);
     userStore.subscribe(() => this.updateAuthState());
   }
 
@@ -34,28 +34,44 @@ export default class Header {
    */
   render() {
     const template = window.Handlebars.templates["header.hbs"];
-    const html = template();
-    this.#parent.innerHTML = html;
+    this.#parent.innerHTML = template(undefined);
     this.#logo = new Logo(this.self, '/src/assets/logo.png');
     this.#logo.render();
     this.#loginButton = new Button(
-      document.querySelector('.header__buttons'),
+        document.querySelector('.header__buttons'),
         {
-        id: 'login_button',
-        text: 'Вход',
-        onSubmit: () => {router.goToPage('loginPage');}
-      },   
+          id: 'login_button',
+          text: 'Вход',
+          onSubmit: () => { router.goToPage('loginPage'); }
+        },
     );
     this.#loginButton.render();
     this.#logoutButton = new Button(
-      document.querySelector('.header__buttons'), {
-        id: 'logout_button',
-        text: 'Выход',
-        onSubmit: () => {userStore.logout();}
-      },
+        document.querySelector('.header__buttons'), {
+          id: 'logout_button',
+          text: 'Выход',
+          onSubmit: () => { userStore.logout(); }
+        },
     );
     this.#logoutButton.render();
     this.updateAuthState();
+
+    window.addEventListener('scroll', this.#handleScrollBound)
+    this.#handleScroll();
+  }
+
+  /**
+   * Обработчик события прокрутки страницы.
+   * Добавляет или удаляет класс тени в зависимости от прокрутки.
+   * @private
+   */
+  #handleScroll() {
+    if (!this.self) return;
+    if (window.scrollY > 0) {
+      this.self.classList.add('header--scrolled');
+    } else {
+      this.self.classList.remove('header--scrolled');
+    }
   }
 
 
@@ -64,7 +80,6 @@ export default class Header {
    * Показывает или скрывает кнопки входа/выхода в зависимости от состояния пользователя.
    */
   updateAuthState() {
-    
     const loginButton = this.#loginButton.self;
     const logoutButton = this.#logoutButton.self;
 
@@ -85,5 +100,7 @@ export default class Header {
     this.#loginButton.remove();
     this.#logoutButton.remove();
     this.#parent.innerHTML = '';
+    window.removeEventListener('scroll', this.#handleScrollBound);
   }
 }
+
