@@ -163,6 +163,8 @@ export default class RegisterForm {
         this.#codeSelect.render();
         this.#phoneInput = new FormInput(phoneContainer, this.#config.inputs.phone)
         this.#phoneInput.render();
+        this.#phoneInput.setMask("(999) 999-99-99");
+
 
         this.#loginInput = new FormInput(loginContainer, this.#config.inputs.login);
         this.#loginInput.render();

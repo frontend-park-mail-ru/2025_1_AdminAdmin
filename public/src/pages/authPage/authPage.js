@@ -1,7 +1,7 @@
 import {Button} from "../../components/button/button.js";
 import config from "./authPageConfig.js";
 import LoginForm from "../../components/loginForm/loginForm.js";
-import RegisterForm from "../../components/RegisterForm/RegisterForm.js";
+import RegisterForm from "../../components/RegisterForm/registerForm.js";
 
 export class AuthPage {
     #loginForm;

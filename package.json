@@ -25,7 +25,8 @@
   "homepage": "https://github.com/frontend-park-mail-ru/2025_1_AdminAdmin#readme",
   "dependencies": {
     "express": "^4.21.2",
-    "handlebars": "^4.7.8"
+    "handlebars": "^4.7.8",
+    "inputmask": "^5.0.9"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

@@ -1,3 +1,6 @@
+import Inputmask from "inputmask";  // Если используете NPM
+
+
 /* Поле ввода */
 export class FormInput {
     #parent;                // Родитель (где вызывается)
@@ -17,6 +20,11 @@ export class FormInput {
 
     get input() {
         return this.self.querySelector("input");
+    }
+
+    setMask(mask) {
+        const im = new Inputmask(mask);
+        im.mask(this.input);
     }
 
     /* Конструктор */
