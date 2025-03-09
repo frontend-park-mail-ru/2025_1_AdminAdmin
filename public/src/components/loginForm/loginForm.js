@@ -1,6 +1,6 @@
 import { router } from "../../modules/routing.js";
 import { userStore } from "../../store/userStore.js";
-import {FormInput} from "../form/formInput/formInput.js";
+import {FormInput} from "../formInput/formInput.js";
 import {Button} from "../button/button.js";
 import {ValidateLogin, ValidatePassword} from "../../modules/validation.js";
 

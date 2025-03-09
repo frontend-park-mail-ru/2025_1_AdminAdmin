@@ -1,4 +1,4 @@
-import { FormInput } from "../form/formInput/formInput.js";
+import { FormInput } from "../formInput/formInput.js";
 import { Button } from "../button/button.js";
 import {Select} from "../select/select.js";
 import {userStore} from "../../store/userStore.js";
