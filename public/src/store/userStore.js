@@ -35,23 +35,47 @@ export const UserActions = {
   LOGOUT_SUCCESS: 'LOGOUT_SUCCESS',
 };
 
+/**
+ * Класс для управления состоянием пользователя.
+ */
 class UserStore {
+  /**
+   * Создает стор для хранения состояния пользователя
+   * @constructor
+   */
   constructor() {
     this.store = createStore(userReducer);
   }
-
+  
+  /**
+   * Проверяет авторизацию
+   * @returns {boolean} - авторизован пользователь или нет
+   */
   isAuth() {
     return this.store.getState().isAuth;
   }
 
+  /**
+   * Возвращает состояние пользователя
+   * @returns {any} - текущее состояние пользователя
+   */
   getState() {
     return this.store.getState();
   }
-
+  
+  /**
+   * Отправляет action в хранилище
+   * @param {Object | Function} action 
+   * @returns {void}
+   */
   #dispatch(action) {
     return this.store.dispatch(action);
   }
-
+  
+  /**
+   * Вход пользователя
+   * @param {Object} param0 - данные пользователя 
+   */
   async login({ login, password }) {
     await AppUserRequests.Login(login, password);
     this.#dispatch({
@@ -59,20 +83,31 @@ class UserStore {
       payload: { username: login },
     });
   }
-
-  async register({ login, password }) {
-    await AppUserRequests.SignUp(login, password);
+  
+  /**
+   * Регистрация нового пользователя
+   * @param {Object} param0 - данные пользователя 
+   */
+  async register({ login, password, firstName, lastName, phoneNumber }) {
+    await AppUserRequests.SignUp(login, password, firstName, lastName, phoneNumber);
     this.#dispatch({
       type: UserActions.REGISTER_SUCCESS,
       payload: { username: login },
     });
   }
 
+  /**
+   * Выход пользователя
+   */
   async logout() {
     this.#dispatch({ type: UserActions.LOGOUT_SUCCESS });
     router.goToPage('home');
   }
 
+  /**
+   * Подписывает listener на изменение состояния
+   * @param {Function} listener 
+   */
   subscribe(listener) {
     this.store.subscribe(listener);
   }

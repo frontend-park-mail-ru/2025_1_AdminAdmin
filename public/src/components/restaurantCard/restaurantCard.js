@@ -1,6 +1,8 @@
 import { router } from '../../modules/routing.js';
 
-/* Карточка ресторана */
+/**
+ * Класс карточки ресторана
+ */
 export class restaurantCard {
     #parent;                // Родитель (где вызывается)
     #props = {              // Свойства лого
@@ -8,7 +10,6 @@ export class restaurantCard {
         name: "",           // Название ресторана
         description: "",    // Описание ресторана
         type: "",           // Тип ресторана (Кухня)
-        //deliveryTime: "",   // Время доставки
         rating: {
             score: "",      // Оценка
             amount: "",     // Кол-во отзывов
@@ -16,7 +17,12 @@ export class restaurantCard {
         image: "",          // Изображение
     };
 
-    /* Конструктор */
+    /**
+     * Создает экземпляр карточки ресторана.
+     * @constructor
+     * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться карточка.
+     * @param {Object} props - Словарь данных для определения свойств карточки
+     */
     constructor(parent, props) {
         this.#parent = parent;
         this.#props = {
@@ -24,7 +30,6 @@ export class restaurantCard {
             name: props.name,
             description: props.description,
             type: props.type,
-            //deliveryTime: props.deliveryTime, // Убрать?
             rating: {
                 score: props.rating,
                 amount: props.amount,
@@ -33,12 +38,18 @@ export class restaurantCard {
         }
     }
 
-    /* Ссылка на объект */
+    /**
+     * Ссылка на объект
+     * @returns {HTMLElement} - ссылка на объект 
+     */
     get self(){
         return document.getElementById(this.#props.id);
     } 
 
-    /* Действие при нажатии */
+    /**
+     * Обработчик нажатия на карточку.
+     * @private
+     */
     #handleClick() {
         this.self.addEventListener("click", (event) => {
             event.preventDefault();
@@ -46,7 +57,10 @@ export class restaurantCard {
         });
     }
 
-    /* Рендер */
+    /**
+     * Отображает карточку на странице.
+     * @param {String} pushDirection определяет куда вставлять карточку относительно родителя 
+     */
     render(pushDirection ){
         const template = window.Handlebars.templates["restaurantCard.hbs"];
         const html = template(this.#props);
@@ -54,7 +68,9 @@ export class restaurantCard {
         this.#handleClick();
     }
 
-    /* При удалении объекта */
+    /**
+     * Удаляет карточку ресторана со страницы и снимает обработчики событий.
+     */
     remove(){
         this.self.removeEventListener("click", (event) => {
             event.preventDefault(); // Отменяем дефолтное дейтсвие

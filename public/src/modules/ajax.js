@@ -117,13 +117,19 @@ class UserRequests {
    * Отправляет запрос на регистрацию нового пользователя.
    * @param {string} login - Логин нового пользователя
    * @param {string} password - Пароль нового пользователя
+   * @param {string} first_name - Имя нового пользователя
+   * @param {string} last_name - Фамилия нового пользователя
+   * @param {string} phone_number - Телефон нового пользователя
    * @returns {Promise<void>}
    * @throws {Error} - В случае ошибки возвращает объект ошибки
    */
-  SignUp = async (login, password) => {
+  SignUp = async (login, password, first_name, last_name, phone_number) => {
     const { status, body } = await baseRequest(methods.POST, this.#baseUrl + '/signup', {
       login,
       password,
+      first_name,
+      last_name,
+      phone_number,
     });
 
     if (status === 201) {

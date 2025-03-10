@@ -17,6 +17,7 @@ export default class LoginForm {
 
     /**
      * Конструктор класса
+     * @constructor
      * @param parent {HTMLElement} - родительский элемент
      * @param config {Object} - пропсы
      */
@@ -93,7 +94,11 @@ export default class LoginForm {
 
         return validationResult.result;
     }
-
+    
+    /**
+     * Отображает ошибку
+     * @param {String} errorMessage - сообщение ошибки
+     */
     setError(errorMessage) {
         const errorElement = this.#parent.querySelector(".form__error");
 

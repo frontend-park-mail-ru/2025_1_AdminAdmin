@@ -16,6 +16,7 @@ export default class Header {
 
   /**
    * Создает экземпляр заголовка.
+   * @constructor
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться заголовок.
    */
   constructor(parent) {
@@ -24,7 +25,10 @@ export default class Header {
     userStore.subscribe(() => this.updateAuthState());
   }
 
-  /* Ссылка на объект */
+  /**
+   * Ссылка на объект
+   * @returns {HTMLElement} - ссылка на объект 
+   */
   get self() {
     return document.querySelector('.header');
   }

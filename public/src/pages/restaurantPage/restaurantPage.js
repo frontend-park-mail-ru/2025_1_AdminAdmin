@@ -7,7 +7,7 @@ import { AppRestaurantRequests } from '../../modules/ajax.js';
 export default class RestaurantPage {
   #parent;
   #props = {            // Свойства ресторана
-    id: "",
+    id: "",             // Идентификатор ресторана
     name: "",           // Название ресторана
     description: "",    // Описание ресторана
     rating: {
@@ -20,7 +20,8 @@ export default class RestaurantPage {
 
   /**
    * Создает экземпляр страницы ресторана.
-   * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться информация о ресторане
+   * @constructor
+   * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться страница ресторана
    * @param {number} id - Идентификатор ресторана, который нужно отобразить
    */
   constructor(parent, id) {
@@ -28,6 +29,10 @@ export default class RestaurantPage {
     this.#props.id = id;
   }
 
+  /**
+   * Ссылка на объект
+   * @returns {HTMLElement} - ссылка на объект 
+   */
   get self() {
     return document.querySelector('.restaurantPage__body');
   }
@@ -44,16 +49,13 @@ export default class RestaurantPage {
       if (!Array.isArray(restaurants)) {
         throw new Error('RestaurantPage: Нет ресторанов!');
       }
-
       // Ищем ресторан по ID. Получаем его данные
       const restaurantDetails = restaurants.find((r) => r.id === this.#props.id);
       this.#props.name = restaurantDetails.name;
       this.#props.description = restaurantDetails.description;
       this.#props.type = restaurantDetails.type;
       this.#props.rating.score = restaurantDetails.rating;
-      //this.#props.background = "/src/assets/burgerking.png";
-      //this.#props.icon = "/src/assets/burgerking.png";
-      // Генерируем HTML с использованием шаблона
+      // Генерируем HTML
       const template = window.Handlebars.templates["restaurantPage.hbs"];
       const html = template();
       this.#parent.innerHTML = html;
@@ -63,23 +65,6 @@ export default class RestaurantPage {
       console.error('Error rendering restaurant page:', error);
     }
   }
-
-  /*  /!**
-   * Получает статус открытия ресторана.
-   * Проверяет текущее время и сравнивает его с рабочими часами ресторана.
-   * @returns {string} - Статус работы ресторана, может быть "Open" или "Closed"
-   *!/
-  #getOpenStatus() {
-    const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    if (
-      this.#restaurantDetail.workingHours.open < currentTime &&
-      this.#restaurantDetail.workingHours.closed > currentTime
-    ) {
-      return 'Open';
-    } else {
-      return 'Closed';
-    }
-  }*/
 
   /**
    * Удаляет страницу ресторана и очищает содержимое родительского элемента.
