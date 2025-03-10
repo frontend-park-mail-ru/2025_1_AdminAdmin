@@ -68,11 +68,16 @@ class UserStore {
   }
 
   async register({ firstName, lastName, phoneNumber, login, password }) {
-    const res = await AppUserRequests.SignUp(firstName, lastName, phoneNumber, login, password);
-    this.#dispatch({
-      type: UserActions.REGISTER_SUCCESS,
-      payload: { login: res.login },
-    });
+    try {
+      const res = await AppUserRequests.SignUp(firstName, lastName, phoneNumber, login, password);
+      this.#dispatch({
+        type: UserActions.REGISTER_SUCCESS,
+        payload: { login: res.login },
+      });
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async logout() {

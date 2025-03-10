@@ -60,7 +60,7 @@ export default class RegisterForm {
           router.goToPage('home');
         })
         .catch((err) => {
-          const errorMessage = err ? err.message : 'Непредвиденная ошибка';
+          const errorMessage = err ? err : 'Непредвиденная ошибка';
           this.setError(errorMessage);
         });
     }
