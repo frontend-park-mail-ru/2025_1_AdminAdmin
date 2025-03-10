@@ -2,7 +2,8 @@ import RestaurantList from '../pages/restaurantList/restaurantList.js';
 import RestaurantPage from '../pages/restaurantPage/restaurantPage.js';
 import Header from '../../src/components/header/header.js';
 import auxHeader from '../components/auxHeader/auxHeader.js';
-import {AuthPage} from "../pages/authPage/authPage.js";
+import { AuthPage } from '../pages/authPage/authPage.js';
+import { userStore } from '../store/userStore.js';
 
 /**
  * Класс для управления маршрутизацией в приложении.
@@ -16,7 +17,7 @@ class Router {
   #pageElement;
   /** @type {Header | auxHeader | null} */
   #currentHeader = null;
-  /** @type {RestaurantList | RestaurantPage | LoginPage | RegisterPage | null} */
+  /** @type {RestaurantList | RestaurantPage | AuthPage | null} */
   #currentPage = null;
   /** @type {Object.<string, { href: string, class: any, header: any }>} */
   #routes;
@@ -57,6 +58,7 @@ class Router {
       },
     };
 
+    userStore.checkUser();
     window.addEventListener('popstate', this.#handleRouteChange.bind(this));
     this.#handleRouteChange();
   }

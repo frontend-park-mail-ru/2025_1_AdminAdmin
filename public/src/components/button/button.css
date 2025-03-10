@@ -8,7 +8,7 @@
 }
 
 .button:hover {
-    background-image: linear-gradient(rgb(0 0 0/10%) 0 0);
+    background-image: linear-gradient(rgb(0 0 0 / 10%), rgb(0 0 0 / 10%));
 }
 
 .form__button {
@@ -28,5 +28,5 @@
 }
 
 .button_inactive:hover {
-    background-image: linear-gradient(rgb(0 0 0/20%) 0 0);
+    background-image: linear-gradient(rgb(0 0 0 / 20%), rgb(0 0 0 / 20%));
 }

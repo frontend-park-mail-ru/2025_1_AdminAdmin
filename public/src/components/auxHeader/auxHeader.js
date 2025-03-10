@@ -5,7 +5,7 @@ import { Logo } from '../logo/logo.js';
  */
 export default class AuxHeader {
   #parent;
-  #logo
+  #logo;
 
   /**
    * Создает экземпляр заголовка.
@@ -19,12 +19,12 @@ export default class AuxHeader {
   get self() {
     return document.querySelector('.aux_header');
   }
-  
+
   /**
    * Отображает заголовок на странице.
    */
   render() {
-    const template = window.Handlebars.templates["auxHeader.hbs"];
+    const template = window.Handlebars.templates['auxHeader.hbs'];
     this.#parent.innerHTML = template(undefined);
     this.#logo = new Logo(this.self, '/src/assets/logo.png');
     this.#logo.render();

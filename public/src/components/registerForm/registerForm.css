@@ -10,7 +10,7 @@
     align-items: flex-end;
     width: 100%;
     gap: 5px;
-    padding: 0px;
+    padding: 0;
 }
 
 .form__error {

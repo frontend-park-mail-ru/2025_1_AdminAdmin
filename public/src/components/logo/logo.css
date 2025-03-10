@@ -5,6 +5,7 @@
   justify-content: center;
   cursor: pointer;
 }
+
 .logo img {
   height: 35px;
   object-fit: contain;

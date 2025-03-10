@@ -107,7 +107,10 @@ class UserRequests {
     });
 
     if (status === 200) {
-      return;
+      return {
+        id: body.id,
+        login: body.login,
+      };
     }
 
     throw body;
@@ -115,19 +118,30 @@ class UserRequests {
 
   /**
    * Отправляет запрос на регистрацию нового пользователя.
+   * @param {string} firstName - Имя нового пользователя
+   * @param {string} lastName - Фамилия нового пользователя
+   * @param {string} phoneNumber - Телефон нового пользователя
    * @param {string} login - Логин нового пользователя
    * @param {string} password - Пароль нового пользователя
-   * @returns {Promise<void>}
+   * @returns {Promise<{id, username: *, create_time: (string|*), image_path: (string|*)}>}
    * @throws {Error} - В случае ошибки возвращает объект ошибки
    */
-  SignUp = async (login, password) => {
-    const { status, body } = await baseRequest(methods.POST, this.#baseUrl + '/signup', {
+  SignUp = async (firstName, lastName, phoneNumber, login, password) => {
+    const response = await baseRequest(methods.POST, this.#baseUrl + '/signup', {
+      first_name: firstName,
+      last_name: lastName,
+      phone_number: phoneNumber,
       login,
-      password,
+      password
     });
 
+    const { status, body } = response;
+
     if (status === 201) {
-      return;
+      return {
+        id: body.id,
+        login: body.login,
+      };
     }
 
     throw body;
@@ -139,9 +153,9 @@ class UserRequests {
    * @throws {Error} - В случае ошибки возвращает объект ошибки
    */
   Logout = async () => {
-    const { status, body } = await baseRequest(methods.DELETE, this.#baseUrl + '/logout');
+    const { status, body } = await baseRequest(methods.GET, this.#baseUrl + '/logout');
 
-    if (status === 204) {
+    if (status === 200) {
       JWT = null;
       return { message: 'ok' };
     } else {
@@ -155,7 +169,7 @@ class UserRequests {
    * @throws {Error} - Если пользователь не авторизован
    */
   CheckUser = async () => {
-    const { status, body } = await baseRequest(methods.GET, this.#baseUrl + '/check_user');
+    const { status, body } = await baseRequest(methods.GET, this.#baseUrl + '/check');
 
     if (status === 200) {
       return body;
