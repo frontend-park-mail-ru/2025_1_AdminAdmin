@@ -3,8 +3,11 @@ import { Button } from "../button/button.js";
 import {Select} from "../select/select.js";
 import {userStore} from "../../store/userStore.js";
 import {router} from "../../modules/routing.js";
-import {ValidateLogin, ValidateName, ValidatePassword} from "../../modules/validation.js";
+import {ValidateLogin, ValidateName, ValidatePassword, ValidatePhone} from "../../modules/validation.js";
 
+/**
+ * Класс, представляющий форму регистрации
+ */
 export default class RegisterForm {
     #parent;
     #config;
@@ -17,11 +20,21 @@ export default class RegisterForm {
     #repeatPasswordInput;
     #submitBtn;
 
+    /**
+     * Конструктор класса
+     * @constructor
+     * @param parent {HTMLElement} - родительский элемент
+     * @param config {Object} - пропсы
+     */
     constructor(parent, config) {
         this.#parent = parent;
         this.#config = config;
     }
 
+    /**
+     * Получение HTML элемента формы
+     * @returns {HTMLElement}
+     */
     get self() {
         return document.getElementById(this.#config.id);
     }
@@ -35,14 +48,16 @@ export default class RegisterForm {
         const login = this.#loginInput.value.trim();
         const password = this.#passwordInput.value;
         const repeatPassword = this.#repeatPasswordInput.value;
+        const phoneNumber = this.#phoneInput.value.trim();
 
         const validateName = this.#validateName(firstName, lastName);  // Валидация имени и фамилии
         const validateLogin = this.#validateLogin(login);  // Валидация логина
         const validatePassword = this.#validatePassword(password, repeatPassword);  // Валидация пароля
+        const validatePhone = this.#validatePhone(phoneNumber); // Валидация номера телефона
 
-        if (validateName && validateLogin && validatePassword) {
+        if (validateName && validateLogin && validatePassword && validatePhone) {
             userStore
-                .register({ firstName, lastName, login, password })
+                .register({ firstName, lastName, login, password, phoneNumber })
                 .then(() => {
                     router.goToPage("home");
                 })
@@ -69,6 +84,25 @@ export default class RegisterForm {
         }
 
         return validationResult.result;
+    }
+
+    /**
+     * Валидация телефона
+     * @returns {boolean}
+     */
+    #validatePhone(phone) {
+        const validationResult = ValidatePhone(phone);
+
+        if (!validationResult.result){
+            this.#phoneInput.setError(validationResult.message);
+        }
+
+        if (validationResult.result) {
+            this.#phoneInput.clearError();
+        }
+
+        return validationResult.result;
+
     }
 
     /**
@@ -121,6 +155,10 @@ export default class RegisterForm {
         return firstNameValidationResult.result && lastNameValidationResult.result;
     }
 
+    /**
+     * Отображает ошибку
+     * @param {String} errorMessage - сообщение ошибки
+     */
     setError(errorMessage) {
         const errorElement = this.#parent.querySelector(".form__error");
 
@@ -142,6 +180,9 @@ export default class RegisterForm {
         }
     }
 
+    /**
+     * Рендеринг формы
+     */
     render() {
         const template = window.Handlebars.templates["registerForm.hbs"];
         this.#parent.innerHTML =  template(undefined);
@@ -183,6 +224,9 @@ export default class RegisterForm {
         this.#submitBtn.render();
     }
 
+    /**
+     * Очистка
+     */
     remove(){
         this.#submitBtn.remove();
     }

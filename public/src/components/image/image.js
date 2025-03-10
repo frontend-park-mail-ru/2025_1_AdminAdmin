@@ -1,4 +1,6 @@
-/* Изображение */
+/**
+ * Класс компонента изображения
+ */
 export class image {
     #parent;            // Родитель (где вызывается)
     #props = {          // Свойства изображения
@@ -6,13 +8,29 @@ export class image {
         picture: "",    // url для отображения
     };
 
-    /* Конструктор */
+    /**
+     * Создает экземпляр картинки.
+     * @constructor
+     * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться картинка.
+     * @param {String} id - Идентификатор картинки на странице
+     * @param {String} picture - Путь до картинки 
+     */
     constructor(parent, id, picture) {
         this.#parent = parent;
         this.#props = {id: id, picture: picture}
     }
 
-    /* Рендер */
+    /**
+     * Ссылка на объект
+     * @returns {HTMLElement} - ссылка на объект 
+     */
+    get self() {
+        return document.getElementById(this.#props.id);
+    }
+
+    /**
+     * Отображает картинку на странице.
+     */
     render(){
         const template = window.Handlebars.templates["image.hbs"];
         const html = template(this.#props);

@@ -10,6 +10,7 @@
     align-items: center;
 }
 .restaurant__container {
+    height: 100vh;
     grid-column: 2 / span 10;
     /* Используем grid для разметки по 4 колонкам */
 	display: grid;

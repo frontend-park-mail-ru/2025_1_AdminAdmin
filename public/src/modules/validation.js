@@ -40,6 +40,23 @@ export const ValidatePassword = (value) => {
     return ValidationResult(true);
 };
 
+/**
+ * Выполняет валидацию номера телефона
+ * @param value {string} переданная строка
+ * @returns {{result: boolean, message: (string|null)}} вернет true - если телефон подходит, в противном случае false, а также сообщение об ошибке
+ */
+export const ValidatePhone = (value) => {
+    if (value.length != 10) {
+        return ValidationResult(false, "Номер телефона должен быть 10 символов");
+    }
+    const isDigit = /\d+$/.test(value);         // все символы в строке цифры
+    if (!isDigit) {
+        return ValidationResult(false, "Номер телефона может содержать только цифры");
+    }
+    // Если все проверки пройдены
+    return ValidationResult(true);
+}
+
 
 /**
  * Выполняет валидацию логина

@@ -1,4 +1,6 @@
-/* Хедер ресторана */
+/**
+ * Класс хедера ресторана (шапка с название и описанием)
+ */
 export class restaurantHeader {
     #parent;                // Родитель (где вызывается)
     #props = {              // Свойства хедера
@@ -13,7 +15,12 @@ export class restaurantHeader {
         icon: "",           // Иконка ресторана
     };
 
-    /* Конструктор */
+    /**
+     * Создает экземпляр хедера ресторана
+     * @constructor
+     * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться хедер.
+     * @param {Object} props - Словарь данных для определения свойств хедера
+     */
     constructor(parent, props) {
         this.#parent = parent;
         this.#props = {
@@ -29,12 +36,17 @@ export class restaurantHeader {
         };
     }
 
-    /* Ссылка на объект */
+    /**
+     * Ссылка на объект
+     * @returns {HTMLElement} - ссылка на объект 
+     */
     get self(){
         return document.querySelector(".restaurant__header");
     }
 
-    /* Рендер */
+    /**
+     * Отображает хедер ресторана на странице.
+     */
     render(){
         const template = window.Handlebars.templates["restaurantHeader.hbs"];
         const html = template(this.#props);

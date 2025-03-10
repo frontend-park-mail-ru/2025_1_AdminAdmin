@@ -21,6 +21,7 @@ export default class RestaurantList {
 
   /**
    * Создает экземпляр списка ресторанов.
+   * @constructor
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться список ресторанов
    */
   constructor(parent) {
@@ -43,6 +44,10 @@ export default class RestaurantList {
     this.#loadMoreEndThrottle = throttle(this.#loadMoreEnd.bind(this), 500);
   }
 
+  /**
+   * Ссылка на объект
+   * @returns {HTMLElement} - ссылка на объект 
+   */
   get self() {
     return document.querySelector('.restaurant__container');
   }
@@ -69,6 +74,10 @@ export default class RestaurantList {
     }
   }
 
+  /**
+   * Добавляет карточки при прокрутке вверх
+   * @private
+   */
   #loadMoreBeg() {
     const begCount = Math.max(this.#firstCardId - LOAD_COUNT, 0);
     for (let i = this.#firstCardId - 1; i >= begCount; i--) {
@@ -79,6 +88,10 @@ export default class RestaurantList {
     this.#firstCardId = begCount;
   }
 
+  /**
+   * Добавляет карточки при прокрутке вниз
+   * @private
+   */
   async #loadMoreEnd() {
     const startCount = this.#lastCardId + 1;
     let endCount = startCount + LOAD_COUNT;
@@ -96,6 +109,10 @@ export default class RestaurantList {
     this.#lastCardId = endCount - 1;
   }
 
+  /**
+   * Удаляет лишние карточка из DOM-а
+   * @private 
+   */
   #deleteFromDom = () => {
     if (this._deletionScheduled) return;
     this._deletionScheduled = true;
@@ -121,7 +138,7 @@ export default class RestaurantList {
   }
 
   /**
-   * Удаляет список ресторанов.
+   * Удаляет страницу ресторана и очищает содержимое родительского элемента.
    */
   remove() {
     const cards = document.querySelectorAll('.restaurant__card');
