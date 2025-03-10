@@ -42,23 +42,46 @@ export const UserActions = {
   CHECK_SUCCESS: 'CHECK_SUCCESS',
 };
 
+/**
+ * Класс для управления состоянием пользователя.
+ */
 class UserStore {
+  /**
+   * Создает стор для хранения состояния пользователя
+   * @constructor
+   */
   constructor() {
     this.store = createStore(userReducer);
   }
 
+  /**
+   * Проверяет авторизацию
+   * @returns {boolean} - авторизован пользователь или нет
+   */
   isAuth() {
     return this.store.getState().isAuth;
   }
 
+  /**
+   * Возвращает состояние пользователя
+   * @returns {any} - текущее состояние пользователя
+   */
   getState() {
     return this.store.getState();
   }
 
+  /**
+   * Отправляет action в хранилище
+   * @param {Object | Function} action
+   */
   #dispatch(action) {
     return this.store.dispatch(action);
   }
 
+  /**
+   * Вход пользователя
+   * @param {Object} param0 - данные пользователя
+   */
   async login({ login, password }) {
     const res = await AppUserRequests.Login(login, password);
     this.#dispatch({
@@ -67,6 +90,10 @@ class UserStore {
     });
   }
 
+  /**
+   * Регистрация нового пользователя
+   * @param {Object} param0 - данные пользователя
+   */
   async register({ firstName, lastName, phoneNumber, login, password }) {
     const res = await AppUserRequests.SignUp(firstName, lastName, phoneNumber, login, password);
     this.#dispatch({
@@ -75,6 +102,9 @@ class UserStore {
     });
   }
 
+  /**
+   * Выход пользователя
+   */
   async logout() {
     await AppUserRequests.Logout();
     this.#dispatch({ type: UserActions.LOGOUT_SUCCESS });
@@ -97,6 +127,10 @@ class UserStore {
     }
   }
 
+  /**
+   * Подписывает listener на изменение состояния
+   * @param {Function} listener
+   */
   subscribe(listener) {
     this.store.subscribe(listener);
   }

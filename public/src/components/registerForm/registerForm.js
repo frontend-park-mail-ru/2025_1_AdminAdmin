@@ -10,6 +10,9 @@ import {
   ValidatePhone,
 } from '../../modules/validation.js';
 
+/**
+ * Класс, представляющий форму регистрации
+ */
 export default class RegisterForm {
   #parent;
   #config;
@@ -23,11 +26,21 @@ export default class RegisterForm {
   #submitBtn;
   #phoneInputHandler;
 
+  /**
+   * Конструктор класса
+   * @constructor
+   * @param parent {HTMLElement} - родительский элемент
+   * @param config {Object} - пропсы
+   */
   constructor(parent, config) {
     this.#parent = parent;
     this.#config = config;
   }
 
+  /**
+   * Получение HTML элемента формы
+   * @returns {HTMLElement}
+   */
   get self() {
     return document.getElementById(this.#config.id);
   }
@@ -60,7 +73,7 @@ export default class RegisterForm {
           router.goToPage('home');
         })
         .catch((err) => {
-          const errorMessage = err ? err.message : 'Непредвиденная ошибка';
+          const errorMessage = err ? err : 'Непредвиденная ошибка';
           this.setError(errorMessage);
         });
     }
@@ -134,6 +147,10 @@ export default class RegisterForm {
     return firstNameValidationResult.result && lastNameValidationResult.result;
   }
 
+  /**
+   * Валидация телефона
+   * @returns {boolean}
+   */
   #validatePhone(phoneNumber) {
     const validationResult = ValidatePhone(phoneNumber);
 
@@ -148,6 +165,10 @@ export default class RegisterForm {
     return validationResult.result;
   }
 
+  /**
+   * Отображает ошибку
+   * @param {String} errorMessage - сообщение ошибки
+   */
   setError(errorMessage) {
     const errorElement = this.#parent.querySelector('.form__error');
 
@@ -169,6 +190,9 @@ export default class RegisterForm {
     }
   }
 
+  /**
+   * Добавляет маску для ввода номера телефона в формате (XXX) XXX-XXXX.
+   */
   addPhoneMask() {
     this.#phoneInputHandler = (e) => {
       let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
@@ -178,17 +202,26 @@ export default class RegisterForm {
     this.#phoneInput.input.addEventListener('input', this.#phoneInputHandler);
   }
 
+  /**
+   * Удаляет маску с поля ввода номера телефона.
+   */
   removePhoneMask() {
     if (this.#phoneInputHandler) {
       this.#phoneInput.input.removeEventListener('input', this.#phoneInputHandler);
     }
   }
 
+  /**
+   * Очистка
+   */
   remove() {
     this.removePhoneMask();
     this.#submitBtn.remove();
   }
 
+  /**
+   * Рендеринг формы
+   */
   render() {
     const template = window.Handlebars.templates['registerForm.hbs'];
     this.#parent.innerHTML = template(undefined);

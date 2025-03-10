@@ -2,7 +2,7 @@ export class Button {
   #parent; // Родитель (где вызывается)
   #clickHandler;
   #props = {
-    // Свойства кнопки
+    // Свойства кнопки:
     id: '', // Id для идентификации
     text: '', // text для отображения
     style: '', // Дополнительный стиль css
@@ -10,7 +10,12 @@ export class Button {
     disabled: false, // Состояние кнопки
   };
 
-  /* Конструктор */
+  /**
+   *Создает экземпляр кнопки.
+   * @constructor
+   * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться кнопка.
+   * @param {Object} props - Словарь данных для определения свойств кнопки
+   */
   constructor(parent, props) {
     if (!parent) {
       throw new Error('Button: no parent!');
@@ -28,12 +33,18 @@ export class Button {
     this.#clickHandler = this.#handleClick.bind(this);
   }
 
-  /* Ссылка на объект */
+  /**
+   * Ссылка на объект
+   * @returns {HTMLElement} - ссылка на объект
+   */
   get self() {
     return document.getElementById(this.#props.id);
   }
 
-  /* Действие при нажатии */
+  /**
+   * Обработчик нажатия на кнопку.
+   * @private
+   */
   #handleClick(event) {
     event.preventDefault();
     if (this.#props.onSubmit !== undefined) {
@@ -56,7 +67,9 @@ export class Button {
     this.self.addEventListener('click', this.#clickHandler);
   };
 
-  /* При удалении объекта */
+  /**
+   * Удаляет кнопку со страницы и снимает обработчики событий.
+   */
   remove() {
     if (this.self) {
       this.self.removeEventListener('click', this.#clickHandler); // Удаляем обработчик
@@ -64,7 +77,11 @@ export class Button {
     }
   }
 
-  /* Метод для переключения класса */
+  /**
+   * Метод для переключения CSS-класса.
+   * @param {string} oldClass - Текущий класс, который нужно удалить.
+   * @param {string} newClass - Новый класс, который нужно добавить.
+   */
   toggleClass(oldClass, newClass) {
     if (this.self) {
       this.self.classList.remove(oldClass);

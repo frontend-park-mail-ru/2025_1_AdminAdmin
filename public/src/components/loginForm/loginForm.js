@@ -17,6 +17,7 @@ export default class LoginForm {
 
   /**
    * Конструктор класса
+   * @constructor
    * @param parent {HTMLElement} - родительский элемент
    * @param config {Object} - пропсы
    */
@@ -49,7 +50,7 @@ export default class LoginForm {
           router.goToPage('home');
         })
         .catch((err) => {
-          const errorMessage = err ? err.message : 'Неверный логин или пароль';
+          const errorMessage = err ? err : 'Неверный логин или пароль';
           this.setError(errorMessage);
         });
     }
@@ -93,6 +94,10 @@ export default class LoginForm {
     return validationResult.result;
   }
 
+  /**
+   * Отображает ошибку
+   * @param {String} errorMessage - сообщение ошибки
+   */
   setError(errorMessage) {
     const errorElement = this.#parent.querySelector('.form__error');
 

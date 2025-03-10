@@ -9,13 +9,17 @@ export default class AuxHeader {
 
   /**
    * Создает экземпляр заголовка.
+   * @constructor
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться заголовок.
    */
   constructor(parent) {
     this.#parent = parent;
   }
 
-  /* Ссылка на объект */
+  /**
+   * Ссылка на объект
+   * @returns {HTMLElement} - ссылка на объект
+   */
   get self() {
     return document.querySelector('.aux_header');
   }

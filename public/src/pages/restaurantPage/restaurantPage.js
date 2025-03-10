@@ -8,7 +8,7 @@ export default class RestaurantPage {
   #parent;
   #props = {
     // Свойства ресторана
-    id: '',
+    id: '', // Идентификатор ресторана
     name: '', // Название ресторана
     description: '', // Описание ресторана
     rating: {
@@ -21,7 +21,8 @@ export default class RestaurantPage {
 
   /**
    * Создает экземпляр страницы ресторана.
-   * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться информация о ресторане
+   * @constructor
+   * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться страница ресторана
    * @param {number} id - Идентификатор ресторана, который нужно отобразить
    */
   constructor(parent, id) {
@@ -29,6 +30,10 @@ export default class RestaurantPage {
     this.#props.id = id;
   }
 
+  /**
+   * Ссылка на объект
+   * @returns {HTMLElement} - ссылка на объект
+   */
   get self() {
     return document.querySelector('.restaurantPage__body');
   }
@@ -52,9 +57,7 @@ export default class RestaurantPage {
       this.#props.description = restaurantDetails.description;
       this.#props.type = restaurantDetails.type;
       this.#props.rating.score = restaurantDetails.rating;
-      //this.#props.background = "/src/assets/burgerking.png";
-      //this.#props.icon = "/src/assets/burgerking.png";
-      // Генерируем HTML с использованием шаблона
+      // Генерируем HTML
       const template = window.Handlebars.templates['restaurantPage.hbs'];
       this.#parent.innerHTML = template();
       const restaurant__header = new restaurantHeader(this.self, this.#props);

@@ -1,22 +1,37 @@
 export class FormInput {
   #parent;
   #props = {
-    id: '',
-    label: '',
-    error: '',
-    placeholder: '',
-    type: '',
-    required: false,
+    // Свойства поля ввода
+    id: '', // Id для идентификации
+    label: '', // Заголовок поля ввода (перед полем ввода)
+    error: '', // Дополнительная информация (ошибка или подсказка)
+    placeholder: '', // начальный текст
+    type: '', // Тип поля ввода
+    required: false, // Обязательное поле или нет
   };
 
+  /**
+   * Ссылка на объект
+   * @returns {HTMLElement} - ссылка на объект
+   */
   get self() {
     return document.getElementById(this.#props.id);
   }
 
+  /**
+   * Ссылка на поле ввода
+   * @returns {HTMLElement} - ссылка на объект
+   */
   get input() {
     return this.self.querySelector('input');
   }
 
+  /**
+   *Создает экземпляр поля ввода.
+   * @constructor
+   * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться поле ввода.
+   * @param {Object} props - Словарь данных для определения свойств поля ввода
+   */
   constructor(parent, props) {
     if (!parent) {
       throw new Error('Form__input: no parent!');
@@ -32,19 +47,19 @@ export class FormInput {
     };
   }
 
+  /**
+   * Отображает поле ввода на странице.
+   */
   render() {
     const template = window.Handlebars.templates['formInput.hbs'];
     const html = template(this.#props);
     this.#parent.insertAdjacentHTML('beforeend', html);
-
-    // Применяем маску к полю телефона
-    if (this.#props.id === 'phone') {
-      // Применяем только к полю телефона
-      const phoneInput = this.input;
-      this.addPhoneMask(phoneInput);
-    }
   }
 
+  /**
+   * Отображает ошибку рядом с полем ввода.
+   * @param {String} errorMessage - сообщение ошибки
+   */
   setError(errorMessage) {
     const errorElement = this.#parent.querySelector(`#${this.#props.id}-error`);
     if (errorElement) {
@@ -55,6 +70,9 @@ export class FormInput {
     this.input.classList.add('error');
   }
 
+  /**
+   * Убирает отображение ошибки
+   */
   clearError() {
     const errorElement = this.#parent.querySelector(`#${this.#props.id}-error`);
     if (errorElement) {
@@ -67,6 +85,10 @@ export class FormInput {
     }
   }
 
+  /**
+   * Возвращает значение в поле ввода
+   * @returns {String} - введенная строка
+   */
   get value() {
     return this.input ? this.input.value : '';
   }

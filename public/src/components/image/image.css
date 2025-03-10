@@ -1,14 +1,13 @@
-
 .image {
-    object-fit: contain;
+  object-fit: contain;
 }
 
 .image_icon {
-    height: 20px;
+  height: 20px;
 }
 
 .image_restaurant_card {
-    margin-bottom: 5px;
-    width: 100%;
-    border-radius: 10px;
+  margin-bottom: 5px;
+  width: 100%;
+  border-radius: 10px;
 }

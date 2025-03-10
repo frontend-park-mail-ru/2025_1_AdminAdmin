@@ -3,6 +3,9 @@ import config from './authPageConfig.js';
 import LoginForm from '../../components/loginForm/loginForm.js';
 import RegisterForm from '../../components/registerForm/registerForm.js';
 
+/**
+ * Класс страницы авторизации
+ */
 export class AuthPage {
   #loginForm;
   #registerForm;
@@ -14,10 +17,18 @@ export class AuthPage {
   #registerFormSelector = '.authPage__register';
   #formLineSelector = '.authPage__line';
 
+  /**
+   * Создает экземпляр карточки ресторана.
+   * @constructor
+   * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться страница авторизации
+   */
   constructor(parent) {
     this.#parent = parent;
   }
 
+  /**
+   * Отображает страницу авторизации.
+   */
   render = () => {
     const template = window.Handlebars.templates['authPage.hbs'];
     this.#parent.innerHTML = template(undefined);
@@ -100,7 +111,7 @@ export class AuthPage {
   };
 
   /**
-   * Очищает DOM
+   * Удаляет страницу ресторана и очищает содержимое родительского элемента.
    */
   remove() {
     if (this.#loginForm !== undefined) {
