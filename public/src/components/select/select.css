@@ -6,7 +6,6 @@
     gap: 10px;
     justify-content: center;
     text-align: left;
-    position: relative;
 }
 
 .form__label {
@@ -14,35 +13,23 @@
 }
 
 .form__select select {
-    height: 49px;
+    height: 45px;
     border-radius: 10px;
+    border: none;
     background-color: var(--light_grey);
     color: var(--dark_gray);
-    border: 2px solid transparent;
     padding-left: 10px;
     padding-right: 30px;
     box-sizing: border-box;
-    transition: border 0.3s ease;
-    appearance: none;
-    position: relative;
-}
-
-.form__select::after {
-    content: '\25BC';
-    font-size: 14px;
-    color: var(--dark_gray);
-    position: absolute;
-    top: 60%;
-    right: 10px;
-    pointer-events: none;
 }
 
 .form__select select:focus {
-    border: 2px solid var(--dark_gray);
     outline: none;
+    border-color: var(--black);
 }
 
 .form__select option {
-    background-color: var(--light_grey);
+    background-color: #F2F2F2;
+    color: #686868;
     padding-left: 10px;
 }

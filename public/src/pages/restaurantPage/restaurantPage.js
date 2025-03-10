@@ -6,17 +6,16 @@ import { AppRestaurantRequests } from '../../modules/ajax.js';
  */
 export default class RestaurantPage {
   #parent;
-  #props = {
-    // Свойства ресторана
-    id: '',
-    name: '', // Название ресторана
-    description: '', // Описание ресторана
+  #props = {            // Свойства ресторана
+    id: "",
+    name: "",           // Название ресторана
+    description: "",    // Описание ресторана
     rating: {
-      score: '', // Оценка
-      //amount: "",     // Кол-во отзывов
+        score: "",      // Оценка
+        //amount: "",     // Кол-во отзывов
     },
-    background: '', // Фоновое изображение (шапка)
-    icon: '', // Иконка ресторана
+    background: "",     // Фоновое изображение (шапка)
+    icon: "",           // Иконка ресторана
   };
 
   /**
@@ -55,10 +54,11 @@ export default class RestaurantPage {
       //this.#props.background = "/src/assets/burgerking.png";
       //this.#props.icon = "/src/assets/burgerking.png";
       // Генерируем HTML с использованием шаблона
-      const template = window.Handlebars.templates['restaurantPage.hbs'];
-      this.#parent.innerHTML = template();
+      const template = window.Handlebars.templates["restaurantPage.hbs"];
+      const html = template();
+      this.#parent.innerHTML = html;
       const restaurant__header = new restaurantHeader(this.self, this.#props);
-      restaurant__header.render();
+      restaurant__header.render(); 
     } catch (error) {
       console.error('Error rendering restaurant page:', error);
     }

@@ -1,20 +1,16 @@
 .restaurantList__body {
-    min-height: 100vh;
     box-sizing: border-box;
     margin-top: 20px;
     width: 100%;
-	padding: 0;
-
+	padding: 0px;
     /* Используем grid для разметки по 12 колонкам */
 	display: grid;
 	grid-template-columns: repeat(12, 1fr);
 	gap: 20px;
     align-items: center;
 }
-
 .restaurant__container {
     grid-column: 2 / span 10;
-
     /* Используем grid для разметки по 4 колонкам */
 	display: grid;
     grid-template-columns: repeat(4, 1fr);
