@@ -51,7 +51,7 @@ export default class RegisterForm {
   validateData = () => {
     const firstName = this.#fNameInput.value.trim();
     const lastName = this.#lNameInput.value.trim();
-    const code = this.#codeSelect.value.trim();
+    const code = this.#codeSelect.value;
 
     const phone = this.#phoneInput.value.trim();
     const cleanedPhone = phone.replace(/[\s()-]/g, '');
