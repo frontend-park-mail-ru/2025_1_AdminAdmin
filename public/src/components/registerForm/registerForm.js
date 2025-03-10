@@ -16,6 +16,7 @@ export default class RegisterForm {
     #passwordInput;
     #repeatPasswordInput;
     #submitBtn;
+    #phoneInputHandler;
 
     constructor(parent, config) {
         this.#parent = parent;
@@ -32,13 +33,16 @@ export default class RegisterForm {
     validateData = () => {
         const firstName = this.#fNameInput.value.trim();
         const lastName = this.#lNameInput.value.trim();
+        const code = this.#codeSelect.value.trim();
+        const phone = this.#phoneInput.value.trim();
         const login = this.#loginInput.value.trim();
         const password = this.#passwordInput.value;
         const repeatPassword = this.#repeatPasswordInput.value;
 
-        const validateName = this.#validateName(firstName, lastName);  // Валидация имени и фамилии
-        const validateLogin = this.#validateLogin(login);  // Валидация логина
-        const validatePassword = this.#validatePassword(password, repeatPassword);  // Валидация пароля
+        const validateName = this.#validateName(firstName, lastName);
+        const validatePhone= this.#validatePhone(code, phone);
+        const validateLogin = this.#validateLogin(login);
+        const validatePassword = this.#validatePassword(password, repeatPassword);
 
         if (validateName && validateLogin && validatePassword) {
             userStore
@@ -121,6 +125,21 @@ export default class RegisterForm {
         return firstNameValidationResult.result && lastNameValidationResult.result;
     }
 
+    #validatePhone(code, phone) {
+        const phoneNumber = code + phone;
+        const validationResult = ValidatePassword(phoneNumber);
+
+        if (!validationResult.result){
+            this.#loginInput.setError(validationResult.message);
+        }
+
+        if (validationResult.result) {
+            this.#loginInput.clearError();
+        }
+
+        return validationResult.result;
+    }
+
     setError(errorMessage) {
         const errorElement = this.#parent.querySelector(".form__error");
 
@@ -142,6 +161,26 @@ export default class RegisterForm {
         }
     }
 
+    addPhoneMask() {
+        this.#phoneInputHandler = (e) => {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+            e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        };
+
+        this.#phoneInput.input.addEventListener('input', this.#phoneInputHandler);
+    }
+
+    removePhoneMask() {
+        if (this.#phoneInputHandler) {
+            this.#phoneInput.input.removeEventListener('input', this.#phoneInputHandler);
+        }
+    }
+
+    remove() {
+        this.removePhoneMask();
+        this.#submitBtn.remove();
+    }
+
     render() {
         const template = window.Handlebars.templates["registerForm.hbs"];
         this.#parent.innerHTML =  template(undefined);
@@ -161,9 +200,10 @@ export default class RegisterForm {
 
         this.#codeSelect = new Select(phoneContainer, this.#config.selects.code);
         this.#codeSelect.render();
-        this.#phoneInput = new FormInput(phoneContainer, this.#config.inputs.phone)
+        this.#phoneInput = new FormInput(phoneContainer, this.#config.inputs.phone);
         this.#phoneInput.render();
 
+        this.addPhoneMask();
 
         this.#loginInput = new FormInput(loginContainer, this.#config.inputs.login);
         this.#loginInput.render();
@@ -181,9 +221,5 @@ export default class RegisterForm {
             }
         });
         this.#submitBtn.render();
-    }
-
-    remove(){
-        this.#submitBtn.remove();
     }
 }
