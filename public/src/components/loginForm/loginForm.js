@@ -49,7 +49,7 @@ export default class LoginForm {
           router.goToPage('home');
         })
         .catch((err) => {
-          const errorMessage = err ? err.message : 'Неверный логин или пароль';
+          const errorMessage = err ? err : 'Неверный логин или пароль';
           this.setError(errorMessage);
         });
     }
