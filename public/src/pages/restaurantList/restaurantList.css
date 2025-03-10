@@ -9,7 +9,7 @@
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 20px;
-  align-items: center;
+  align-items: start;
 }
 
 .restaurant__container {
@@ -19,5 +19,5 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  align-items: center;
+  align-items: start;
 }

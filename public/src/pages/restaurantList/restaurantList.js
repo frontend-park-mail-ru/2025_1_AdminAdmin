@@ -65,6 +65,8 @@ export default class RestaurantList {
       const template = window.Handlebars.templates['restaurantList.hbs'];
       this.#parent.innerHTML = template(undefined);
 
+      await this.#loadMoreEnd();
+
       const lowerSentinel = document.querySelector('.lower-sentinel');
       this.#observer.observe(lowerSentinel);
 
