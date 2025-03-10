@@ -33,29 +33,30 @@ export default class Header {
    * Отображает заголовок на странице.
    */
   render() {
-    const template = window.Handlebars.templates['header.hbs'];
+    const template = window.Handlebars.templates["header.hbs"];
     this.#parent.innerHTML = template(undefined);
     this.#logo = new Logo(this.self, '/src/assets/logo.png');
     this.#logo.render();
-    this.#loginButton = new Button(document.querySelector('.header__buttons'), {
-      id: 'login_button',
-      text: 'Вход',
-      onSubmit: () => {
-        router.goToPage('loginPage');
-      },
-    });
+    this.#loginButton = new Button(
+        document.querySelector('.header__buttons'),
+        {
+          id: 'login_button',
+          text: 'Вход',
+          onSubmit: () => { router.goToPage('loginPage'); }
+        },
+    );
     this.#loginButton.render();
-    this.#logoutButton = new Button(document.querySelector('.header__buttons'), {
-      id: 'logout_button',
-      text: 'Выход',
-      onSubmit: () => {
-        userStore.logout();
-      },
-    });
+    this.#logoutButton = new Button(
+        document.querySelector('.header__buttons'), {
+          id: 'logout_button',
+          text: 'Выход',
+          onSubmit: () => { userStore.logout(); }
+        },
+    );
     this.#logoutButton.render();
     this.updateAuthState();
 
-    window.addEventListener('scroll', this.#handleScrollBound);
+    window.addEventListener('scroll', this.#handleScrollBound)
     this.#handleScroll();
   }
 
@@ -73,6 +74,7 @@ export default class Header {
     }
   }
 
+
   /**
    * Обновляет состояние аутентификации в заголовке.
    * Показывает или скрывает кнопки входа/выхода в зависимости от состояния пользователя.
@@ -80,22 +82,13 @@ export default class Header {
   updateAuthState() {
     const loginButton = this.#loginButton.self;
     const logoutButton = this.#logoutButton.self;
-    const loginContainer = document.querySelector('.header__login');
 
     if (userStore.isAuth()) {
       if (loginButton) loginButton.style.display = 'none';
       if (logoutButton) logoutButton.style.display = 'block';
-
-      if (loginContainer) {
-        loginContainer.textContent = userStore.getState().login || '';
-      }
     } else {
       if (loginButton) loginButton.style.display = 'block';
       if (logoutButton) logoutButton.style.display = 'none';
-
-      if (loginContainer) {
-        loginContainer.textContent = '';
-      }
     }
   }
 
@@ -110,3 +103,4 @@ export default class Header {
     window.removeEventListener('scroll', this.#handleScrollBound);
   }
 }
+
