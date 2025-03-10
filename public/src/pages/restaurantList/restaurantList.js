@@ -85,7 +85,7 @@ export default class RestaurantList {
     const begCount = Math.max(this.#firstCardId - LOAD_COUNT, 0);
     for (let i = this.#firstCardId - 1; i >= begCount; i--) {
       const card = new RestaurantCard(this.self, this.#restaurantList[i]);
-      card.render('afterBegin');
+      card.render('afterbegin');
     }
 
     this.#firstCardId = begCount;
@@ -108,7 +108,7 @@ export default class RestaurantList {
     }
     for (let i = startCount; i < endCount; i++) {
       const card = new RestaurantCard(this.self, this.#restaurantList[i]);
-      card.render('beforeEnd');
+      card.render('beforeend');
     }
 
     this.#lastCardId = endCount - 1;
