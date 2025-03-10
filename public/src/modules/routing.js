@@ -23,6 +23,7 @@ class Router {
   #routes;
 
   /**
+   * @constructor
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться контент.
    */
   constructor(parent) {

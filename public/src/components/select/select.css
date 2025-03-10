@@ -1,48 +1,48 @@
 .form__select {
-    max-width: 200px;
-    color: black;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    justify-content: center;
-    text-align: left;
-    position: relative;
+  max-width: 200px;
+  color: black;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  text-align: left;
+  position: relative;
 }
 
 .form__label {
-    font-size: 20px;
+  font-size: 20px;
 }
 
 .form__select select {
-    height: 49px;
-    border-radius: 10px;
-    background-color: var(--light_grey);
-    color: var(--dark_gray);
-    border: 2px solid transparent;
-    padding-left: 10px;
-    padding-right: 30px;
-    box-sizing: border-box;
-    transition: border 0.3s ease;
-    appearance: none;
-    position: relative;
+  height: 49px;
+  border-radius: 10px;
+  background-color: var(--light_grey);
+  color: var(--dark_gray);
+  border: 2px solid transparent;
+  padding-left: 10px;
+  padding-right: 30px;
+  box-sizing: border-box;
+  transition: border 0.3s ease;
+  appearance: none;
+  position: relative;
 }
 
 .form__select::after {
-    content: '\25BC';
-    font-size: 14px;
-    color: var(--dark_gray);
-    position: absolute;
-    top: 60%;
-    right: 10px;
-    pointer-events: none;
+  content: '\25BC';
+  font-size: 14px;
+  color: var(--dark_gray);
+  position: absolute;
+  top: 60%;
+  right: 10px;
+  pointer-events: none;
 }
 
 .form__select select:focus {
-    border: 2px solid var(--dark_gray);
-    outline: none;
+  border: 2px solid var(--dark_gray);
+  outline: none;
 }
 
 .form__select option {
-    background-color: var(--light_grey);
-    padding-left: 10px;
+  background-color: var(--light_grey);
+  padding-left: 10px;
 }

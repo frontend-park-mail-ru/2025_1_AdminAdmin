@@ -1,6 +1,6 @@
 /* Хедер: Область логотипа */
 .logo {
-	grid-area: header__logo;
+  grid-area: header__logo;
   display: flex;
   justify-content: center;
   cursor: pointer;
