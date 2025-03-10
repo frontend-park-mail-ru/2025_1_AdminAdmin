@@ -1,0 +1,35 @@
+.form__select {
+    max-width: 200px;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    text-align: left;
+}
+
+.form__label {
+    font-size: 20px;
+}
+
+.form__select select {
+    height: 45px;
+    border-radius: 10px;
+    border: none;
+    background-color: var(--light_grey);
+    color: var(--dark_gray);
+    padding-left: 10px;
+    padding-right: 30px;
+    box-sizing: border-box;
+}
+
+.form__select select:focus {
+    outline: none;
+    border-color: var(--black);
+}
+
+.form__select option {
+    background-color: #F2F2F2;
+    color: #686868;
+    padding-left: 10px;
+}

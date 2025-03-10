@@ -1,7 +1,7 @@
 import { router } from '../../modules/routing.js';
 
 /* Логотип */
-export class logo {
+export class Logo {
   #parent; // Родитель (где вызывается)
   #clickHandler;
   #props = {

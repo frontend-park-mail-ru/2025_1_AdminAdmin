@@ -1,4 +1,4 @@
-import { logo } from '../logo/logo.js';
+import { Logo } from '../logo/logo.js';
 
 /**
  * Класс AuxHeader представляет заголовок страниц логина и авторизации.
@@ -25,9 +25,8 @@ export default class AuxHeader {
    */
   render() {
     const template = window.Handlebars.templates["auxHeader.hbs"];
-    const html = template();
-    this.#parent.innerHTML = html;
-    this.#logo = new logo(this.self, '/src/assets/logo.png');
+    this.#parent.innerHTML = template(undefined);
+    this.#logo = new Logo(this.self, '/src/assets/logo.png');
     this.#logo.render();
   }
 
@@ -35,6 +34,7 @@ export default class AuxHeader {
    * Удаляет заголовок со страницы и снимает обработчики событий.
    */
   remove() {
+    this.#logo.remove();
     this.#parent.innerHTML = '';
   }
 }

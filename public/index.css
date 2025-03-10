@@ -1,16 +1,20 @@
 /* Ипорт css компонентов */
 @import 'src/components/button/button.css';
 @import 'src/components/logo/logo.css';
-@import 'src/components/image/image.css';
+@import 'src/components/select/select.css';
 /* Импорт css сложных компонентов */
 @import 'src/components/header/header.css';
 @import 'src/components/auxHeader/auxHeader.css';
 @import 'src/components/restaurantCard/restaurantCard.css';
+@import 'src/components/form/form.css';
+@import 'src/components/formInput/formInput.css';
+@import 'src/components/form/formLine/formLine.css';
+@import 'src/components/loginForm/loginForm.css';
+@import 'src/components/registerForm/registerForm.css';
 @import 'src/components/restaurantHeader/restaurantHeader.css';
 /* Импорт css страниц */
 @import 'src/pages/restaurantList/restaurantList.css';
-@import 'src/pages/registerPage/registerPage.css';
-@import 'src/pages/loginPage/loginPage.css';
+@import 'src/pages/authPage/authPage.css';
 @import 'src/pages/restaurantPage/restaurantPage.css';
 
 body {

@@ -2,16 +2,21 @@
 .aux_header {
     box-sizing: border-box;
     width: 100%;
-	margin-top: 10px;
-	padding: 0px;
-    /* Используем grid для разметки по 12 колонкам */
+	padding: 0;
 	display: grid;
-    grid-template-columns: repeat(12, 1fr); /* 12 колонок */
+    grid-template-areas: ". . . . . header__logo header__logo . . . . .";
 	gap: 20px;
     align-items: center;
-    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background-color: white;
+    height: 50px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
 }
 
 .aux_header .logo{
-    grid-column: 6 / span 2;
+    grid-area: header__logo;
 }
