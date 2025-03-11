@@ -14,7 +14,7 @@
 
 const isDebug = false;
 
-const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? '127.0.0.1' : 'doordashers.ru'}:443/api`;
+const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? '127.0.0.1' : 'doordashers.ru'}:8443/api`;
 
 const methods = Object.freeze({
   POST: 'POST',
@@ -24,6 +24,11 @@ const methods = Object.freeze({
 });
 
 let JWT = window.localStorage.getItem('Authorization');
+
+function getCookie(name) {
+  let cookie = document.cookie.split('; ').find((row) => row.startsWith(name + '='));
+  return cookie ? cookie.split('=')[1] : null;
+}
 
 /**
  * Выполняет базовый HTTP-запрос.
@@ -41,6 +46,7 @@ const baseRequest = async (method, url, data = null, params = null) => {
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      'X-CSRF-Token': getCookie('csrftoken'),
     },
   };
 
