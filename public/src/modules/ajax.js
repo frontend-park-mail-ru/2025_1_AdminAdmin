@@ -25,10 +25,7 @@ const methods = Object.freeze({
 
 let JWT = window.localStorage.getItem('Authorization');
 
-function getCookie(name) {
-  let cookie = document.cookie.split('; ').find((row) => row.startsWith(name + '='));
-  return cookie ? cookie.split('=')[1] : null;
-}
+let CSRF = window.localStorage.getItem('X-CSRF-Token');
 
 /**
  * Выполняет базовый HTTP-запрос.
@@ -46,12 +43,15 @@ const baseRequest = async (method, url, data = null, params = null) => {
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      'X-CSRF-Token': getCookie('csrftoken'),
     },
   };
 
   if (JWT) {
     options.headers.Authorization = JWT;
+  }
+
+  if (CSRF) {
+    options.headers['X-CSRF-Token'] = CSRF;
   }
 
   if (data !== null) {
@@ -85,10 +85,19 @@ const baseRequest = async (method, url, data = null, params = null) => {
         body = null;
       }
     }
-    const newJWT = response.headers.get('Authorization');
-    if (newJWT) {
-      JWT = newJWT;
-      window.localStorage.setItem('Authorization', JWT);
+    try {
+      const newJWT = response.headers.get('Authorization');
+      if (newJWT) {
+        JWT = newJWT;
+        window.localStorage.setItem('Authorization', JWT);
+      }
+      const newCSRF = response.headers.get('X-CSRF-Token');
+      if (newCSRF) {
+        CSRF = newCSRF;
+        window.localStorage.setItem('X-CSRF-Token', CSRF);
+      }
+    } catch (err) {
+      console.error(err);
     }
     return { status: response.status, body };
   } catch (err) {
