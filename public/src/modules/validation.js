@@ -120,7 +120,7 @@ export const ValidatePhone = (value) => {
     return ValidationResult(false, 'Номер телефона должен содержать только цифры');
   }
 
-  if (value.length < 10 || value.length > 15) {
+  if (value.length < 7 || value.length > 15) {
     return ValidationResult(false, 'Телефон от 10 до 15 символов');
   }
 
