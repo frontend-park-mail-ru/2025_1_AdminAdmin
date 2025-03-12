@@ -6,6 +6,8 @@
  * @property {string} login - Логин пользователя
  */
 
+import { addToHeaders, clearLocalStorage, saveToLocalStorage } from './localStorage.js';
+
 /**
  * @typedef {Object} ResponseData
  * @property {number} status - HTTP статус ответа
@@ -22,10 +24,6 @@ const methods = Object.freeze({
   DELETE: 'DELETE',
   PUT: 'PUT',
 });
-
-let JWT = window.localStorage.getItem('Authorization');
-
-let CSRF = window.localStorage.getItem('X-CSRF-Token');
 
 /**
  * Выполняет базовый HTTP-запрос.
@@ -46,13 +44,7 @@ const baseRequest = async (method, url, data = null, params = null) => {
     },
   };
 
-  if (JWT) {
-    options.headers.Authorization = JWT;
-  }
-
-  if (CSRF) {
-    options.headers['X-CSRF-Token'] = CSRF;
-  }
+  addToHeaders(options);
 
   if (data !== null) {
     options.body = JSON.stringify(data);
@@ -86,16 +78,7 @@ const baseRequest = async (method, url, data = null, params = null) => {
       }
     }
     try {
-      const newJWT = response.headers.get('Authorization');
-      if (newJWT) {
-        JWT = newJWT;
-        window.localStorage.setItem('Authorization', JWT);
-      }
-      const newCSRF = response.headers.get('X-CSRF-Token');
-      if (newCSRF) {
-        CSRF = newCSRF;
-        window.localStorage.setItem('X-CSRF-Token', CSRF);
-      }
+      saveToLocalStorage(response.headers);
     } catch (err) {
       console.error(err);
     }
@@ -128,7 +111,7 @@ class UserRequests {
       };
     }
 
-    throw body;
+    throw body.error;
   };
 
   /**
@@ -171,7 +154,7 @@ class UserRequests {
     const { status, body } = await baseRequest(methods.GET, this.#baseUrl + '/logout');
 
     if (status === 200) {
-      JWT = null;
+      clearLocalStorage();
       return { message: 'ok' };
     } else {
       throw new Error(body.message);
