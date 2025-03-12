@@ -16,7 +16,7 @@ import { addToHeaders, clearLocalStorage, saveToLocalStorage } from './localStor
 
 const isDebug = false;
 
-const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? '127.0.0.1' : 'doordashers.ru'}:8443/api`;
+const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? '127.0.0.1' : 'doordashers.ru'}:443/api`;
 
 const methods = Object.freeze({
   POST: 'POST',
