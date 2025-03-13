@@ -16,7 +16,7 @@ import { addToHeaders, clearLocalStorage, saveToLocalStorage } from './localStor
 
 const isDebug = false;
 
-const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? '127.0.0.1' : 'doordashers.ru'}:443/api`;
+const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? '127.0.0.1' : 'doordashers.ru'}:8443/api`;
 
 const methods = Object.freeze({
   POST: 'POST',
@@ -35,7 +35,7 @@ const methods = Object.freeze({
  */
 const baseRequest = async (method, url, data = null, params = null) => {
   const options = {
-    method: method,
+    method,
     mode: 'cors',
     credentials: 'include',
     headers: {
@@ -46,42 +46,32 @@ const baseRequest = async (method, url, data = null, params = null) => {
 
   addToHeaders(options);
 
-  if (data !== null) {
-    options.body = JSON.stringify(data);
-  }
+  if (data) options.body = JSON.stringify(data);
 
-  let query_url = new URL(baseUrl + url);
-  if (params != null) {
-    query_url.search = new URLSearchParams(params).toString();
-  }
+  const queryUrl = new URL(baseUrl + url);
+  if (params) queryUrl.search = new URLSearchParams(params).toString();
 
   try {
-    const response = await fetch(query_url.toString(), options);
+    const response = await fetch(queryUrl.toString(), options);
+    const contentType = response.headers.get('Content-Type') || '';
 
-    let body = null;
-    const contentType = response.headers.get('Content-Type');
-
-    if (contentType && contentType.includes('application/json')) {
-      try {
+    let body;
+    try {
+      if (contentType.includes('application/json')) {
         body = await response.json();
-      } catch {
-        body = null;
-      }
-    } else if (
-      contentType &&
-      (contentType.includes('text/plain') || contentType.includes('text/html'))
-    ) {
-      try {
+      } else if (contentType.includes('text/plain') || contentType.includes('text/html')) {
         body = await response.text();
-      } catch {
-        body = null;
       }
+    } catch {
+      body = null;
     }
+
     try {
       saveToLocalStorage(response.headers);
     } catch (err) {
       console.error(err);
     }
+
     return { status: response.status, body };
   } catch (err) {
     return { status: 503, body: { message: err.message } };

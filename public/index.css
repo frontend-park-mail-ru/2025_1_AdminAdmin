@@ -6,9 +6,7 @@
 @import 'src/components/header/header.css';
 @import 'src/components/auxHeader/auxHeader.css';
 @import 'src/components/restaurantCard/restaurantCard.css';
-@import 'src/components/form/form.css';
 @import 'src/components/formInput/formInput.css';
-@import 'src/components/form/formLine/formLine.css';
 @import 'src/components/loginForm/loginForm.css';
 @import 'src/components/registerForm/registerForm.css';
 @import 'src/components/restaurantHeader/restaurantHeader.css';
@@ -20,7 +18,7 @@
 body {
     font-family: Arial, sans-serif;
     font-size: 12px;
-	margin: 0px;
+	margin: 0;
     background-color: var(--white);
 }
 
@@ -36,4 +34,5 @@ body {
 --dark_orange: #C23A00;
 --red: #FF0000;
 --pink: #FFDADA;
+--border-radius: 20px;
 }

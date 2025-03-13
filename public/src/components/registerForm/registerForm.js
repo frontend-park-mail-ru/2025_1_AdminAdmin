@@ -3,12 +3,6 @@ import { Button } from '../button/button.js';
 import { Select } from '../select/select.js';
 import { userStore } from '../../store/userStore.js';
 import { router } from '../../modules/routing.js';
-import {
-  ValidateLogin,
-  ValidateName,
-  ValidatePassword,
-  ValidatePhone,
-} from '../../modules/validation.js';
 
 /**
  * Класс, представляющий форму регистрации
@@ -49,6 +43,18 @@ export default class RegisterForm {
    * Валидация введенных данных
    */
   validateData = () => {
+    if (
+      !(
+        this.#fNameInput.checkValue() &&
+        this.#lNameInput.checkValue() &&
+        this.#phoneInput.checkValue() &&
+        this.#loginInput.checkValue() &&
+        this.#passwordInput.checkValue() &&
+        this.#repeatPasswordInput.value === this.#passwordInput.value
+      )
+    )
+      return;
+
     const firstName = this.#fNameInput.value.trim();
     const lastName = this.#lNameInput.value.trim();
     const code = this.#codeSelect.value;
@@ -59,111 +65,17 @@ export default class RegisterForm {
 
     const login = this.#loginInput.value.trim();
     const password = this.#passwordInput.value;
-    const repeatPassword = this.#repeatPasswordInput.value;
 
-    const validateName = this.#validateName(firstName, lastName);
-    const validatePhone = this.#validatePhone(phoneNumber);
-    const validateLogin = this.#validateLogin(login);
-    const validatePassword = this.#validatePassword(password, repeatPassword);
-
-    if (validateName && validatePhone && validateLogin && validatePassword) {
-      userStore
-        .register({ firstName, lastName, phoneNumber, login, password })
-        .then(() => {
-          router.goToPage('home');
-        })
-        .catch((err) => {
-          const errorMessage = err ? err : 'Непредвиденная ошибка';
-          this.setError(errorMessage);
-        });
-    }
+    userStore
+      .register({ firstName, lastName, phoneNumber, login, password })
+      .then(() => {
+        router.goToPage('home');
+      })
+      .catch((err) => {
+        const errorMessage = err ? err : 'Непредвиденная ошибка';
+        this.setError(errorMessage);
+      });
   };
-
-  /**
-   * Валидация логина
-   * @returns {boolean}
-   */
-  #validateLogin(login) {
-    const validationResult = ValidateLogin(login);
-
-    if (!validationResult.result) {
-      this.#loginInput.setError(validationResult.message);
-    }
-
-    if (validationResult.result) {
-      this.#loginInput.clearError();
-    }
-
-    return validationResult.result;
-  }
-
-  /**
-   * Валидация пароля
-   * @returns {boolean}
-   */
-  #validatePassword(password, repeatPassword) {
-    const validationResult = ValidatePassword(password);
-
-    if (!validationResult.result) {
-      this.#passwordInput.setError(validationResult.message);
-      this.#repeatPasswordInput.setError(validationResult.message);
-      return false;
-    }
-
-    if (password !== repeatPassword) {
-      this.#passwordInput.setError('Пароли не совпадают');
-      this.#repeatPasswordInput.setError('Пароли не совпадают');
-      return false;
-    }
-
-    if (validationResult.result) {
-      this.#passwordInput.clearError();
-      this.#repeatPasswordInput.clearError();
-    }
-
-    return validationResult.result;
-  }
-
-  /**
-   * Валидация имени и фамилии
-   * @returns {boolean}
-   */
-  #validateName(firstName, lastName) {
-    let firstNameValidationResult = ValidateName(firstName);
-    let lastNameValidationResult = ValidateName(lastName);
-
-    if (!firstNameValidationResult.result) {
-      this.#fNameInput.setError(firstNameValidationResult.message);
-    } else {
-      this.#fNameInput.clearError();
-    }
-
-    if (!lastNameValidationResult.result) {
-      this.#lNameInput.setError(lastNameValidationResult.message);
-    } else {
-      this.#lNameInput.clearError();
-    }
-
-    return firstNameValidationResult.result && lastNameValidationResult.result;
-  }
-
-  /**
-   * Валидация телефона
-   * @returns {boolean}
-   */
-  #validatePhone(phoneNumber) {
-    const validationResult = ValidatePhone(phoneNumber);
-
-    if (!validationResult.result) {
-      this.#phoneInput.setError(validationResult.message);
-    }
-
-    if (validationResult.result) {
-      this.#phoneInput.clearError();
-    }
-
-    return validationResult.result;
-  }
 
   /**
    * Отображает ошибку
@@ -195,8 +107,21 @@ export default class RegisterForm {
    */
   addPhoneMask() {
     this.#phoneInputHandler = (e) => {
-      let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
-      e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+      let input = e.target;
+      let cursorPos = input.selectionStart;
+      let oldLength = input.value.length;
+
+      let digits = input.value.replace(/\D/g, '');
+      let match = digits.match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+      let formatted = !match[2]
+        ? match[1]
+        : `(${match[1]}) ${match[2]}${match[3] ? `-${match[3]}` : ''}`;
+
+      input.value = formatted;
+
+      let newLength = formatted.length;
+      cursorPos += newLength - oldLength;
+      input.setSelectionRange(cursorPos, cursorPos);
     };
 
     this.#phoneInput.input.addEventListener('input', this.#phoneInputHandler);
@@ -216,6 +141,13 @@ export default class RegisterForm {
    */
   remove() {
     this.removePhoneMask();
+
+    this.#fNameInput.remove();
+    this.#lNameInput.remove();
+    this.#phoneInput.remove();
+    this.#loginInput.remove();
+    this.#passwordInput.remove();
+    this.#repeatPasswordInput.remove();
     this.#submitBtn.remove();
   }
 

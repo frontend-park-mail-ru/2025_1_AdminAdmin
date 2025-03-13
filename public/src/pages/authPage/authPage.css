@@ -1,5 +1,5 @@
 .authPage {
-  min-height: calc(100vh - 50px);
+  min-height: calc(101vh - 50px);
   box-sizing: border-box;
   width: 100%;
   padding: 60px 0 0;
@@ -9,6 +9,7 @@
   grid-row: 1;
   grid-auto-rows: min-content;
   background-image: url('../../assets/background.jpg');
+  background-attachment: fixed;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -22,11 +23,10 @@
   align-items: flex-end;
   width: 80%;
   gap: 5px;
-  margin: 0 auto;
   padding: 0;
   background-color: #686868;
   border-radius: 20px;
-  margin-bottom: 15px;
+  margin: 0 auto 15px;
 }
 
 .authPage__body {

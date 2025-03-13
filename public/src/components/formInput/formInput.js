@@ -1,5 +1,7 @@
 export class FormInput {
   #parent;
+  #inputHandler;
+  #eyeClickHandler;
   #props = {
     // Свойства поля ввода
     id: '', // Id для идентификации
@@ -8,6 +10,7 @@ export class FormInput {
     placeholder: '', // начальный текст
     type: '', // Тип поля ввода
     required: false, // Обязательное поле или нет
+    validator: '',
   };
 
   /**
@@ -37,6 +40,7 @@ export class FormInput {
       throw new Error('Form__input: no parent!');
     }
     this.#parent = parent;
+    this.#inputHandler = this.checkValue.bind(this);
     this.#props = {
       id: props.id,
       label: props.label,
@@ -44,6 +48,7 @@ export class FormInput {
       placeholder: props.placeholder,
       type: props.type,
       required: props.required,
+      validator: props.validator,
     };
   }
 
@@ -54,6 +59,39 @@ export class FormInput {
     const template = window.Handlebars.templates['formInput.hbs'];
     const html = template(this.#props);
     this.#parent.insertAdjacentHTML('beforeend', html);
+
+    if (this.#props.type === 'password') {
+      const eyeIcon = this.self.querySelector('.form__input__eye-icon');
+      this.#eyeClickHandler = this.#handleClick.bind(this, eyeIcon);
+      eyeIcon.addEventListener('click', this.#eyeClickHandler);
+    }
+
+    this.self.addEventListener('input', this.#inputHandler);
+  }
+
+  #handleClick(eyeIcon) {
+    const eyeImg = eyeIcon.querySelector('img');
+    if (this.input.type === 'password') {
+      this.input.type = 'text';
+      eyeImg.src = '/src/assets/eye.png';
+      eyeImg.alt = 'eye open';
+    } else {
+      this.input.type = 'password';
+      eyeImg.src = '/src/assets/hide.png';
+      eyeImg.alt = 'eye closed';
+    }
+  }
+
+  checkValue() {
+    const value = this.input.value.trim();
+    const validationResult = this.#props.validator(value);
+    if (!validationResult.result) {
+      this.setError(validationResult.message);
+    } else {
+      this.clearError();
+    }
+
+    return validationResult.result;
   }
 
   /**
@@ -91,5 +129,13 @@ export class FormInput {
    */
   get value() {
     return this.input ? this.input.value : '';
+  }
+
+  remove() {
+    this.self.removeEventListener('input', this.#inputHandler);
+    const eyeIcon = this.self.querySelector('.form__input__eye-icon');
+    if (eyeIcon) {
+      eyeIcon.removeEventListener('click', this.#eyeClickHandler);
+    }
   }
 }

@@ -14,10 +14,12 @@ const SCROLL_THRESHOLD = 2;
 export default class RestaurantList {
   #parent;
   #restaurantList;
+  #renderedIds;
   #observer;
   #firstCardId;
   #lastCardId;
   #loadMoreEndThrottle;
+  #deleteFromDomThrottle;
 
   /**
    * Создает экземпляр списка ресторанов.
@@ -27,6 +29,7 @@ export default class RestaurantList {
   constructor(parent) {
     this.#parent = parent;
     this.#restaurantList = [];
+    this.#renderedIds = new Set();
     this.#firstCardId = -1;
     this.#lastCardId = -1;
     this.#observer = new IntersectionObserver(
@@ -45,6 +48,7 @@ export default class RestaurantList {
     );
 
     this.#loadMoreEndThrottle = throttle(this.#loadMoreEnd.bind(this), 500);
+    this.#deleteFromDomThrottle = throttle(this.#deleteFromDom.bind(this), 200);
   }
 
   /**
@@ -73,7 +77,7 @@ export default class RestaurantList {
       const upperSentinel = document.querySelector('.upper-sentinel');
       this.#observer.observe(upperSentinel);
 
-      document.addEventListener('scroll', this.#deleteFromDom);
+      document.addEventListener('scroll', this.#deleteFromDomThrottle);
     } catch (error) {
       console.error('Error rendering restaurant list:', error);
     }
@@ -101,10 +105,14 @@ export default class RestaurantList {
     const startCount = this.#lastCardId + 1;
     let endCount = startCount + LOAD_COUNT;
     if (endCount >= this.#restaurantList.length) {
-      this.#restaurantList.push(
-        ...(await AppRestaurantRequests.GetAll({ count: `${LOAD_COUNT}`, offset: startCount })),
-      );
+      const newRestaurants = await AppRestaurantRequests.GetAll({
+        count: `${LOAD_COUNT}`,
+        offset: startCount,
+      });
+      const uniqueRestaurants = newRestaurants.filter((r) => !this.#renderedIds.has(r.id));
+      this.#restaurantList.push(...uniqueRestaurants);
     }
+
     if (endCount > this.#restaurantList.length) {
       endCount = this.#restaurantList.length;
     }
@@ -153,7 +161,7 @@ export default class RestaurantList {
       cards.forEach((card) => card.remove());
     }
     this.#parent.innerHTML = '';
-    document.removeEventListener('scroll', this.#deleteFromDom);
+    document.removeEventListener('scroll', this.#deleteFromDomThrottle);
     this.#observer.disconnect();
     this.#restaurantList = [];
   }

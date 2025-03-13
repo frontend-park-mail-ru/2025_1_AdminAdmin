@@ -12,7 +12,7 @@
 }
 
 .form__button {
-  border-radius: 20px;
+  border-radius: var(--border-radius);
   font-size: 20px;
   height: 45px;
   width: 100%;
