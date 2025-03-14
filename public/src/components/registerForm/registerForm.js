@@ -42,18 +42,27 @@ export default class RegisterForm {
   /**
    * Валидация введенных данных
    */
-  validateData = () => {
+  async validateData() {
+    const isFNameValid = this.#fNameInput.checkValue();
+    const isLNameValid = this.#lNameInput.checkValue();
+    const isPhoneValid = this.#phoneInput.checkValue();
+    const isLoginValid = this.#loginInput.checkValue();
+    const isPasswordValid = this.#passwordInput.checkValue();
+    this.#repeatPasswordInput.checkValue();
+    const isRepeatPasswordValid = this.#repeatPasswordInput.value === this.#passwordInput.value;
+
     if (
       !(
-        this.#fNameInput.checkValue() &&
-        this.#lNameInput.checkValue() &&
-        this.#phoneInput.checkValue() &&
-        this.#loginInput.checkValue() &&
-        this.#passwordInput.checkValue() &&
-        this.#repeatPasswordInput.value === this.#passwordInput.value
+        isFNameValid &&
+        isLNameValid &&
+        isPhoneValid &&
+        isLoginValid &&
+        isPasswordValid &&
+        isRepeatPasswordValid
       )
-    )
+    ) {
       return;
+    }
 
     const firstName = this.#fNameInput.value.trim();
     const lastName = this.#lNameInput.value.trim();
@@ -66,16 +75,14 @@ export default class RegisterForm {
     const login = this.#loginInput.value.trim();
     const password = this.#passwordInput.value;
 
-    userStore
-      .register({ firstName, lastName, phoneNumber, login, password })
-      .then(() => {
-        router.goToPage('home');
-      })
-      .catch((err) => {
-        const errorMessage = err ? err : 'Непредвиденная ошибка';
-        this.setError(errorMessage);
-      });
-  };
+    try {
+      await userStore.register({ firstName, lastName, phoneNumber, login, password });
+      router.goToPage('home');
+    } catch (err) {
+      const errorMessage = err?.message || 'Непредвиденная ошибка';
+      this.setError(errorMessage);
+    }
+  }
 
   /**
    * Отображает ошибку

@@ -36,21 +36,25 @@ export default class LoginForm {
   /**
    * Валидация данных
    */
-  validateData = () => {
-    if (!(this.#loginInput.checkValue() && this.#passwordInput.checkValue())) return;
+  async validateData() {
+    const isLoginValid = this.#loginInput.checkValue();
+    const isPasswordValid = this.#passwordInput.checkValue();
+
+    if (!(isLoginValid && isPasswordValid)) {
+      return;
+    }
 
     const login = this.#loginInput.value.trim();
     const password = this.#passwordInput.value;
-    userStore
-      .login({ login, password })
-      .then(() => {
-        router.goToPage('home');
-      })
-      .catch((err) => {
-        const errorMessage = err ? err : 'Неверный логин или пароль';
-        this.setError(errorMessage);
-      });
-  };
+
+    try {
+      await userStore.login({ login, password });
+      router.goToPage('home');
+    } catch (err) {
+      const errorMessage = err || 'Неверный логин или пароль';
+      this.setError(errorMessage);
+    }
+  }
 
   /**
    * Отображает ошибку

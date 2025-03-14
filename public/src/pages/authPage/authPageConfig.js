@@ -11,17 +11,13 @@ export default {
       id: 'form__tab_login',
       text: 'Вход',
       icon: '/src/assets/user.png',
-      placeholder: 'Введите логин',
       style: 'form__button',
-      validator: ValidateLogin,
     },
     register: {
       id: 'form__tab_register',
       text: 'Регистрация',
       icon: '/src/assets/password.png',
-      placeholder: 'Введите пароль',
       style: 'form__button',
-      validator: ValidatePassword,
     },
   },
   forms: {
@@ -32,12 +28,14 @@ export default {
           id: 'form__line__login__input',
           label: 'Логин',
           placeholder: 'Введите логин',
+          validator: ValidateLogin,
         },
         password: {
           id: 'form__line__password__input',
           label: 'Пароль',
           type: 'password',
           placeholder: 'Введите пароль',
+          validator: ValidatePassword,
         },
       },
       buttons: {
