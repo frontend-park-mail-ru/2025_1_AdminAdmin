@@ -1,0 +1,43 @@
+/* Импорт стилей компонентов */
+@use 'src/components/button/button' as *;
+@use 'src/components/logo/logo' as *;
+@use 'src/components/select/select' as *;
+
+/* Импорт сложных компонентов */
+@use 'src/components/header/header' as *;
+@use 'src/components/auxHeader/auxHeader' as *;
+@use 'src/components/restaurantCard/restaurantCard' as *;
+@use 'src/components/formInput/formInput' as *;
+@use 'src/components/loginForm/loginForm' as *;
+@use 'src/components/registerForm/registerForm' as *;
+@use 'src/components/restaurantHeader/restaurantHeader' as *;
+
+/* Импорт стилей страниц */
+@use 'src/pages/restaurantList/restaurantList' as *;
+@use 'src/pages/authPage/authPage' as *;
+@use 'src/pages/restaurantPage/restaurantPage' as *;
+
+/* Переменные */
+:root {
+  --light-grey: #F2F2F2;
+  --grey: #D9D9D9;
+  --white: #FFFFFF;
+  --black: #000000;
+  --dark-gray: #686868;
+  --orange: #FF4D00;
+  --dark-orange: #C23A00;
+  --red: #FF0000;
+  --pink: #FFDADA;
+  --border-radius: 20px;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  margin: 0;
+  background-color: var(--white);
+}
+
+.root {
+  overflow-y: auto;
+}

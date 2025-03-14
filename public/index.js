@@ -16,6 +16,8 @@ import './build/authPage.js';
 import './build/loginForm.js';
 import './build/registerForm.js';
 
+import './index.scss';
+
 import { initRouting } from './src/modules/routing.js';
 
 const rootElement = document.getElementById('root');
