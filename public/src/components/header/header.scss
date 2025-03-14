@@ -14,27 +14,27 @@
   background-color: white;
   height: 50px;
   transition: box-shadow 0.3s ease;
-}
 
-.header__buttons {
-  grid-area: header__buttons;
-  display: flex;
-  gap: 20px;
-  height: 35px;
-}
+  &--scrolled {
+    box-shadow: 0 2px 10px rgb(0 0 0 / 10%);
+  }
 
-.header__buttons button {
-  display: flex;
-  gap: 15px;
-  color: black;
-  background-color: var(--light_grey);
-  border-radius: 10px;
-}
+  &__buttons {
+    grid-area: header__buttons;
+    display: flex;
+    gap: 20px;
+    height: 35px;
 
-.header__buttons button:hover {
-  background-color: var(--grey);
-}
+    button {
+      display: flex;
+      gap: 15px;
+      color: black;
+      background-color: var(--light-grey);
+      border-radius: 10px;
 
-.header--scrolled {
-  box-shadow: 0 2px 10px rgb(0 0 0 / 10%);
+      &:hover {
+        background-color: var(--grey);
+      }
+    }
+  }
 }
