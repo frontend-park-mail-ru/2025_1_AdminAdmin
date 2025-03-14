@@ -2,7 +2,6 @@ import { router } from '../../modules/routing.js';
 import { userStore } from '../../store/userStore.js';
 import { FormInput } from '../formInput/formInput.js';
 import { Button } from '../button/button.js';
-import { ValidateLogin, ValidatePassword } from '../../modules/validation.js';
 
 /**
  * Класс, представляющий форму логина.
@@ -37,61 +36,24 @@ export default class LoginForm {
   /**
    * Валидация данных
    */
-  validateData = () => {
+  async validateData() {
+    const isLoginValid = this.#loginInput.checkValue();
+    const isPasswordValid = this.#passwordInput.checkValue();
+
+    if (!(isLoginValid && isPasswordValid)) {
+      return;
+    }
+
     const login = this.#loginInput.value.trim();
     const password = this.#passwordInput.value;
 
-    const validateLogin = this.#validateLogin(login);
-    const validatePassword = this.#validatePassword(password);
-    if (validateLogin && validatePassword) {
-      userStore
-        .login({ login, password })
-        .then(() => {
-          router.goToPage('home');
-        })
-        .catch((err) => {
-          const errorMessage = err ? err : 'Неверный логин или пароль';
-          this.setError(errorMessage);
-        });
+    try {
+      await userStore.login({ login, password });
+      router.goToPage('home');
+    } catch (err) {
+      const errorMessage = err || 'Неверный логин или пароль';
+      this.setError(errorMessage);
     }
-  };
-
-  /**
-   * Валидация логина
-   * @returns {boolean}
-   */
-  #validateLogin(login) {
-    const validationResult = ValidateLogin(login);
-
-    if (validationResult.result) {
-      this.#loginInput.clearError();
-    } else {
-      this.#loginInput.setError(validationResult.message);
-    }
-
-    return validationResult.result;
-  }
-
-  /**
-   * Валидация пароля
-   * @returns {boolean}
-   */
-  #validatePassword(password) {
-    const validationResult = ValidatePassword(password);
-
-    if (!validationResult.result) {
-      this.#passwordInput.setError(validationResult.message);
-      return false;
-    }
-
-    if (validationResult.result) {
-      this.#passwordInput.clearError();
-    } else {
-      this.#passwordInput.setError(validationResult.message);
-      return false;
-    }
-
-    return validationResult.result;
   }
 
   /**
@@ -149,6 +111,8 @@ export default class LoginForm {
    * Очистка
    */
   remove() {
+    this.#loginInput.remove();
+    this.#passwordInput.remove();
     this.#submitBtn.remove();
   }
 }

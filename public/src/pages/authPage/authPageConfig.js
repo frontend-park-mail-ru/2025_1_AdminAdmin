@@ -1,17 +1,22 @@
+import {
+  ValidateLogin,
+  ValidateName,
+  ValidatePassword,
+  ValidatePhone,
+} from '../../modules/validation.js';
+
 export default {
   buttons: {
     login: {
       id: 'form__tab_login',
       text: 'Вход',
       icon: '/src/assets/user.png',
-      placeholder: 'Введите логин',
       style: 'form__button',
     },
     register: {
       id: 'form__tab_register',
       text: 'Регистрация',
       icon: '/src/assets/password.png',
-      placeholder: 'Введите пароль',
       style: 'form__button',
     },
   },
@@ -23,12 +28,14 @@ export default {
           id: 'form__line__login__input',
           label: 'Логин',
           placeholder: 'Введите логин',
+          validator: ValidateLogin,
         },
         password: {
           id: 'form__line__password__input',
           label: 'Пароль',
           type: 'password',
           placeholder: 'Введите пароль',
+          validator: ValidatePassword,
         },
       },
       buttons: {
@@ -47,33 +54,39 @@ export default {
           id: 'form__line__firstname__input',
           label: 'Имя',
           placeholder: 'Введите имя',
+          validator: ValidateName,
         },
         lName: {
           id: 'form__line__lastname__input',
           label: 'Фамилия',
           placeholder: 'Введите фамилию',
+          validator: ValidateName,
         },
         phone: {
           id: 'form__line__phone__input',
           label: 'Телефон',
           placeholder: 'Введите телефон',
+          validator: ValidatePhone,
         },
         login: {
           id: 'form__line__register_login__input',
           label: 'Логин',
           placeholder: 'Введите логин',
+          validator: ValidateLogin,
         },
         password: {
           id: 'form__line__register_password__input',
           label: 'Пароль',
           type: 'password',
           placeholder: 'Введите пароль (Не менее 10 символов)',
+          validator: ValidatePassword,
         },
         repeatPassword: {
           id: 'form__line__repeat_password__input',
           label: 'Повторите пароль',
           type: 'password',
           placeholder: 'Повторите пароль',
+          validator: ValidatePassword,
         },
       },
       selects: {

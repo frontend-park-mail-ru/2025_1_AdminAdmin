@@ -19,7 +19,7 @@ class Router {
   #currentHeader = null;
   /** @type {RestaurantList | RestaurantPage | AuthPage | null} */
   #currentPage = null;
-  /** @type {Object.<string, { href: string, class: any, header: any }>} */
+  /** @type {Object.<string, { href: string, class: any, header: any, options?: any }>} */
   #routes;
 
   /**
@@ -51,11 +51,13 @@ class Router {
         href: '/login',
         class: AuthPage,
         header: auxHeader,
+        options: true,
       },
       registerPage: {
         href: '/register',
         class: AuthPage,
         header: auxHeader,
+        options: false,
       },
     };
 
@@ -93,20 +95,25 @@ class Router {
    * @param {boolean} [shouldPushState=true] - Нужно ли обновлять `history.pushState`.
    */
   goToPage(page, id = null, shouldPushState = true) {
-    if (!(this.#currentHeader instanceof this.#routes[page].header)) {
+    const pageData = this.#routes[page];
+
+    if (!(this.#currentHeader instanceof pageData.header)) {
       this.#currentHeader?.remove();
-      this.#currentHeader = new this.#routes[page].header(this.#headerElement);
+      this.#currentHeader = new pageData.header(this.#headerElement);
       this.#currentHeader.render();
     }
 
     if (shouldPushState) {
-      const newPath = id ? `${this.#routes[page].href}${id}` : this.#routes[page].href;
+      const newPath = id ? `${pageData.href}${id}` : pageData.href;
       history.pushState(id ? { id } : {}, '', newPath);
     }
 
-    this.#currentPage?.remove();
-    this.#currentPage = new this.#routes[page].class(this.#pageElement, id);
-    this.#currentPage.render();
+    if (!(this.#currentPage instanceof pageData.class)) {
+      this.#currentPage?.remove();
+      this.#currentPage = new pageData.class(this.#pageElement, id);
+    }
+
+    this.#currentPage.render(pageData.options);
   }
 
   /**

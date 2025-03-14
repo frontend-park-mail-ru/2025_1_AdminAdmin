@@ -8,6 +8,14 @@
   width: 100%;
 }
 
+.form__input__input-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
 .form__input input {
   height: 45px;
   border-radius: 10px;
@@ -16,6 +24,18 @@
   color: var(--dark_gray);
   padding-left: 10px;
   transition: border 0.3s ease;
+}
+
+.form__input__eye-icon {
+  position: absolute;
+  cursor: pointer;
+  width: 20px;
+  right: 20px;
+}
+
+.form__input__eye-icon img {
+  max-width: 100%;
+  height: auto;
 }
 
 .form__input input:focus {

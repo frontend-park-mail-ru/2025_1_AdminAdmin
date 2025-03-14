@@ -116,12 +116,13 @@ export const ValidatePhone = (value) => {
     return ValidationResult(false, 'Номер телефона не может быть пустым');
   }
 
+  value = value.replace(/[\s()-]/g, '');
   if (!/^\d+$/.test(value)) {
     return ValidationResult(false, 'Номер телефона должен содержать только цифры');
   }
 
-  if (value.length < 7 || value.length > 15) {
-    return ValidationResult(false, 'Телефон от 10 до 15 символов');
+  if (value.length < 9 || value.length > 10) {
+    return ValidationResult(false, 'Телефон от 9 до 10 цифр без учета префикса');
   }
 
   return ValidationResult(true);

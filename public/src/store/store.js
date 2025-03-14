@@ -32,7 +32,6 @@ export const createStore = (reducer) => {
     /**
      * Подписывается на изменения состояния хранилища.
      * @param {Function} cb - Колбэк-функция, которая будет вызвана при изменении состояния
-     * @returns {void}
      */
     subscribe: (cb) => subscribers.push(cb),
   };
