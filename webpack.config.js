@@ -1,13 +1,18 @@
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import webpack from 'webpack';
 
 const __dirname = import.meta.dirname;
 
 export default {
     devServer: {
         watchFiles: path.resolve(__dirname, 'public/src'),
+        static: path.resolve(__dirname, 'public'),
         port: 3000,
+        compress: true,
+        hot: true,
+        historyApiFallback: true,
     },
     entry: {
         main: path.resolve(__dirname, 'public', 'index.js'),
@@ -23,7 +28,6 @@ export default {
                 test: /\.(scss|css)$/,
                 use: [
                     MiniCssExtractPlugin.loader,
-                    'style-loader',
                     'css-loader',
                     {
                         loader: 'postcss-loader',
@@ -53,12 +57,18 @@ export default {
            },
             {
                 test: /\.hbs$/,
-                loader: "handlebars-loader"
-            }
+                loader: "handlebars-loader",
+            },
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+            },
         ],
     },
     output: {
-        path: path.resolve(__dirname, 'public/build'),
+        filename: 'bundle.js',
+        path: path.resolve(__dirname, 'dist'),
     },
     plugins: [
         new HtmlWebpackPlugin({
@@ -66,10 +76,11 @@ export default {
             filename: 'index.html',
         }),
         new MiniCssExtractPlugin({
-            filename: '[name].[contenthash].css',
+            filename: '[name].[contenthash].css',  // Убедитесь, что имя файлов настроено
         }),
+        new webpack.HotModuleReplacementPlugin({}),
     ],
     resolve: {
-        extensions: ['.js', '.scss', '.css'],
+        extensions: ['.tsx', '.ts', '.js', '.scss', '.css'],
     },
 };

@@ -1,5 +1,6 @@
 import { restaurantHeader } from '../../components/restaurantHeader/restaurantHeader.js';
 import { AppRestaurantRequests } from '../../modules/ajax.js';
+import template from './restaurantPage.hbs';
 
 /**
  * Класс, представляющий страницу конкретного ресторана.
@@ -58,7 +59,6 @@ export default class RestaurantPage {
       this.#props.type = restaurantDetails.type;
       this.#props.rating.score = restaurantDetails.rating;
       // Генерируем HTML
-      const template = window.Handlebars.templates['restaurantPage.hbs'];
       this.#parent.innerHTML = template();
       const restaurant__header = new restaurantHeader(this.self, this.#props);
       restaurant__header.render();

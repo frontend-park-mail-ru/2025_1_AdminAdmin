@@ -3,6 +3,7 @@ import { Button } from '../button/button.js';
 import { Select } from '../select/select.js';
 import { userStore } from '../../store/userStore.js';
 import { router } from '../../modules/routing.js';
+import template from './registerForm.hbs';
 
 /**
  * Класс, представляющий форму регистрации
@@ -162,7 +163,6 @@ export default class RegisterForm {
    * Рендеринг формы
    */
   render() {
-    const template = window.Handlebars.templates['registerForm.hbs'];
     this.#parent.innerHTML = template(undefined);
 
     const firstLastNameContainer = document.getElementById('form__line__firstname_lastname');

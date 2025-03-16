@@ -3,6 +3,7 @@ import config from './authPageConfig.js';
 import LoginForm from '../../components/loginForm/loginForm.js';
 import RegisterForm from '../../components/registerForm/registerForm.js';
 import { router } from '../../modules/routing.js';
+import template from './authPage.hbs';
 
 /**
  * Класс страницы авторизации
@@ -32,8 +33,7 @@ export class AuthPage {
    */
   render = (isLoginPage) => {
     if (!this.#registerButton) {
-      const template = window.Handlebars.templates['authPage.hbs'];
-      this.#parent.innerHTML = template(undefined);
+      this.#parent.innerHTML = template();
 
       const formLine = this.#parent.querySelector(this.#formLineSelector);
 

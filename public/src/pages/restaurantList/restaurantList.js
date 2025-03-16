@@ -1,6 +1,7 @@
 import { AppRestaurantRequests } from '../../modules/ajax.js';
 import { RestaurantCard } from '../../components/restaurantCard/restaurantCard.js';
 import throttle from '../../modules/throttle.js';
+import template from './restaurantList.hbs';
 
 // Константы
 const LOAD_COUNT = 16;
@@ -48,7 +49,7 @@ export default class RestaurantList {
     );
 
     this.#loadMoreEndThrottle = throttle(this.#loadMoreEnd.bind(this), 500);
-    this.#deleteFromDomThrottle = throttle(this.#deleteFromDom.bind(this), 200);
+    this.#deleteFromDomThrottle = throttle(this.#deleteFromDom.bind(this), 10);
   }
 
   /**
@@ -66,7 +67,6 @@ export default class RestaurantList {
    */
   async render() {
     try {
-      const template = window.Handlebars.templates['restaurantList.hbs'];
       this.#parent.innerHTML = template(undefined);
 
       await this.#loadMoreEnd();
