@@ -5,12 +5,10 @@ on:
     branches:
       - develop
       - main
-      - ad-16-forms-login-register
   pull_request:
     branches:
       - develop
       - main
-      - ad-16-forms-login-register
 
 jobs:
   build:
