@@ -2,6 +2,7 @@ import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import webpack from 'webpack';
+import ImageMinimizerPlugin from 'image-minimizer-webpack-plugin';
 
 const __dirname = import.meta.dirname;
 
@@ -78,8 +79,41 @@ export default {
         new MiniCssExtractPlugin({
             filename: '[name].[contenthash].css',  // Убедитесь, что имя файлов настроено
         }),
-        new webpack.HotModuleReplacementPlugin({}),
+        new webpack.HotModuleReplacementPlugin(),
     ],
+    optimization: {
+        minimizer: [
+            new ImageMinimizerPlugin({
+                minimizer: {
+                    implementation: ImageMinimizerPlugin.sharpMinify,
+                    options: {
+                        encodeOptions: {
+                            jpeg: {
+                                // https://sharp.pixelplumbing.com/api-output#jpeg
+                                quality: 100,
+                            },
+                            webp: {
+                                // https://sharp.pixelplumbing.com/api-output#webp
+                                lossless: true,
+                            },
+                            avif: {
+                                // https://sharp.pixelplumbing.com/api-output#avif
+                                lossless: true,
+                            },
+
+                            // png by default sets the quality to 100%, which is same as lossless
+                            // https://sharp.pixelplumbing.com/api-output#png
+                            png: {},
+
+                            // gif does not support lossless compression at all
+                            // https://sharp.pixelplumbing.com/api-output#gif
+                            gif: {},
+                        },
+                    },
+                },
+            }),
+        ],
+    },
     resolve: {
         extensions: ['.tsx', '.ts', '.js', '.scss', '.css'],
     },
