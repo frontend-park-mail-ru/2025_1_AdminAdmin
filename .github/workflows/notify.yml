@@ -3,7 +3,7 @@ name: Telegram Notifier
 on:
   push:
   pull_request:
-    types: [opened]
+    types: [opened, closed]
 
 jobs:
   notify:
