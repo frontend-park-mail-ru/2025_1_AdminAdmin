@@ -1,4 +1,5 @@
 import { router } from '../../modules/routing.js';
+import template from './logo.hbs';
 
 /**
  * Класс логотипа
@@ -46,7 +47,6 @@ export class Logo {
    * Отображает лого на странице
    */
   render() {
-    const template = window.Handlebars.templates['logo.hbs'];
     const html = template(this.#props);
     this.#parent.insertAdjacentHTML('beforeend', html);
     this.#addEventListeners();

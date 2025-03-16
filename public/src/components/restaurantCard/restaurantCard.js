@@ -1,4 +1,5 @@
 import { router } from '../../modules/routing.js';
+import template from './restaurantCard.hbs';
 
 /**
  * Класс карточки ресторана
@@ -66,7 +67,6 @@ export class RestaurantCard {
    *        Определяет, куда вставлять карточку относительно родителя.
    */
   render(pushDirection) {
-    const template = window.Handlebars.templates['restaurantCard.hbs'];
     const html = template(this.#props);
     this.#parent.insertAdjacentHTML(pushDirection, html);
     this.#handleClick();

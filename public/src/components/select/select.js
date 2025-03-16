@@ -1,3 +1,5 @@
+import template from './select.hbs';
+
 /* Селект (выпадающий список) */
 export class Select {
   #parent; // Родитель (где вызывается)
@@ -34,7 +36,6 @@ export class Select {
 
   /* Рендер */
   render = () => {
-    const template = window.Handlebars.templates['select.hbs']; // Шаблон для выпадающего списка
     const html = template(this.#props);
     this.#parent.insertAdjacentHTML('beforeend', html);
     if (!this.self) {

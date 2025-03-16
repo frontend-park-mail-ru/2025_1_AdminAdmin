@@ -1,0 +1,40 @@
+/* Селект */
+.form__select {
+  max-width: 200px;
+  color: black;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  text-align: left;
+  position: relative;
+
+  select {
+    height: 49px;
+    border-radius: 10px;
+    background-color: var(--light-grey);
+    color: var(--dark-gray);
+    border: 2px solid transparent;
+    padding-left: 10px;
+    padding-right: 30px;
+    box-sizing: border-box;
+    transition: border 0.3s ease;
+    appearance: none;
+    position: relative;
+
+    &:focus {
+      border: 2px solid var(--dark-gray);
+      outline: none;
+    }
+  }
+
+  &::after {
+    content: '\25BC';
+    font-size: 14px;
+    color: var(--dark-gray);
+    position: absolute;
+    top: 60%;
+    right: 10px;
+    pointer-events: none;
+  }
+}

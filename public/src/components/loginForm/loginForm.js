@@ -2,6 +2,7 @@ import { router } from '../../modules/routing.js';
 import { userStore } from '../../store/userStore.js';
 import { FormInput } from '../formInput/formInput.js';
 import { Button } from '../button/button.js';
+import template from './loginForm.hbs';
 
 /**
  * Класс, представляющий форму логина.
@@ -85,8 +86,7 @@ export default class LoginForm {
    * Рендеринг формы
    */
   render() {
-    const template = window.Handlebars.templates['loginForm.hbs'];
-    this.#parent.innerHTML = template(undefined);
+    this.#parent.innerHTML = template();
 
     const loginContainer = document.getElementById('form__line_login');
     const passwordContainer = document.getElementById('form__line_password');

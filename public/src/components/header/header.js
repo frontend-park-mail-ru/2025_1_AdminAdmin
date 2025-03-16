@@ -2,6 +2,7 @@ import { router } from '../../modules/routing.js';
 import { userStore } from '../../store/userStore.js';
 import { Logo } from '../logo/logo.js';
 import { Button } from '../button/button.js';
+import template from './header.hbs';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -37,8 +38,7 @@ export default class Header {
    * Отображает заголовок на странице.
    */
   render() {
-    const template = window.Handlebars.templates['header.hbs'];
-    this.#parent.innerHTML = template(undefined);
+    this.#parent.innerHTML = template();
     this.#logo = new Logo(this.self, '/src/assets/logo.png');
     this.#logo.render();
     this.#loginButton = new Button(document.querySelector('.header__buttons'), {

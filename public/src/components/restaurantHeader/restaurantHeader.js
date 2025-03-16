@@ -1,3 +1,4 @@
+import template from './restaurantHeader.hbs';
 /**
  * Класс хедера ресторана (шапка с название и описанием)
  */
@@ -49,7 +50,6 @@ export class restaurantHeader {
    * Отображает хедер ресторана на странице.
    */
   render() {
-    const template = window.Handlebars.templates['restaurantHeader.hbs'];
     const html = template(this.#props);
     this.#parent.insertAdjacentHTML('beforeend', html);
   }

@@ -1,3 +1,5 @@
+import template from './button.hbs';
+
 export class Button {
   #parent; // Родитель (где вызывается)
   #clickHandler;
@@ -54,7 +56,6 @@ export class Button {
 
   /* Рендер */
   render = () => {
-    const template = window.Handlebars.templates['button.hbs'];
     const html = template(this.#props);
     this.#parent.insertAdjacentHTML('beforeend', html);
     if (!this.#parent) {

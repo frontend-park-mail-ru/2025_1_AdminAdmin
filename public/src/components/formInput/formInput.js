@@ -1,3 +1,5 @@
+import template from './formInput.hbs';
+
 export class FormInput {
   #parent;
   #inputHandler;
@@ -56,12 +58,12 @@ export class FormInput {
    * Отображает поле ввода на странице.
    */
   render() {
-    const template = window.Handlebars.templates['formInput.hbs'];
     const html = template(this.#props);
     this.#parent.insertAdjacentHTML('beforeend', html);
 
     if (this.#props.type === 'password') {
       const eyeIcon = this.self.querySelector('.form__input__eye-icon');
+      eyeIcon.style.display = 'block';
       this.#eyeClickHandler = this.#handleClick.bind(this, eyeIcon);
       eyeIcon.addEventListener('click', this.#eyeClickHandler);
     }
