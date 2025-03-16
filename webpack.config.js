@@ -1,6 +1,7 @@
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import FileManagerPlugin from 'filemanager-webpack-plugin';
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
 
 const __dirname = import.meta.dirname;
 
@@ -10,7 +11,7 @@ export default {
         port: 3000,
     },
     entry: {
-        main: path.resolve(__dirname, 'public', 'index.js'),
+        main: path.resolve(__dirname, 'public/src', 'index.js'),
     },
     module: {
         rules: [
@@ -22,6 +23,7 @@ export default {
             {
                 test: /\.(scss|css)$/,
                 use: [
+                    MiniCssExtractPlugin.loader,
                     'style-loader',
                     'css-loader',
                     {
@@ -39,6 +41,21 @@ export default {
                     'sass-loader',
                 ],
             },
+            {
+                test: /\.(png|jpg|jpeg|gif)$/i,
+                type: 'asset/resource',
+           },
+           {
+                 test: /\.svg$/,
+                 type: 'asset/resource',
+                 generator: {
+                   filename: path.join('icons', '[name].[contenthash][ext]'),
+                 },
+           },
+            {
+                test: /\.hbs$/,
+                loader: "handlebars-loader"
+            }
         ],
     },
     output: {
@@ -53,9 +70,12 @@ export default {
         new FileManagerPlugin({
             events: {
                 onStart: {
-                    delete: ['build'],
+                    delete: [path.resolve(__dirname, 'public/build')],
                 },
             },
+        }),
+        new MiniCssExtractPlugin({
+            filename: '[name].[contenthash].css',
         }),
     ],
     resolve: {
