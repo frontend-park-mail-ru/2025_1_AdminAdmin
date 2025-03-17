@@ -17,6 +17,20 @@ self.addEventListener('install', event => {
     })());
 });
 
+self.addEventListener('activate', event => {
+    event.waitUntil((async () => {
+        const cacheNames = await caches.keys();
+        await Promise.all(
+            cacheNames.map(cacheName => {
+                if (cacheName !== 'static') {
+                    return caches.delete(cacheName);
+                }
+            })
+        );
+    })());
+});
+
+
 self.addEventListener('fetch', event => {
     event.respondWith((async () => {
         try {
