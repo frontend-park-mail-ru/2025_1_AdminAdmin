@@ -1,4 +1,12 @@
-export function addToHeaders(options) {
+export interface RequestOptions {
+  headers?: Record<string, string>;
+}
+
+/**
+ * Добавляет токены из localStorage в заголовки запроса
+ * @param options Объект с параметрами запроса
+ */
+export function addToHeaders(options: RequestOptions): void {
   if (!options.headers) {
     options.headers = {};
   }
@@ -15,7 +23,11 @@ export function addToHeaders(options) {
   }
 }
 
-export function saveToLocalStorage(headers) {
+/**
+ * Сохраняет токены из заголовков ответа в localStorage
+ * @param headers Заголовки ответа
+ */
+export function saveToLocalStorage(headers: Headers): void {
   try {
     const newJWT = headers.get('Authorization');
     if (newJWT) {
@@ -31,7 +43,10 @@ export function saveToLocalStorage(headers) {
   }
 }
 
-export function clearLocalStorage() {
+/**
+ * Очищает токены из localStorage
+ */
+export function clearLocalStorage(): void {
   window.localStorage.removeItem('Authorization');
   window.localStorage.removeItem('X-CSRF-Token');
 }

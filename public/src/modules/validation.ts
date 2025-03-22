@@ -1,24 +1,36 @@
 /**
- * Выполняет валидацию пароля
- * @param value {string} переданная строка
- * @returns {{result: boolean, message: (string|null)}} вернет true - если пароль подходит, в противном случае false, а также сообщение об ошибке
+ * Тип результата валидации
  */
-export const ValidatePassword = (value) => {
-  // Проверка на пустой пароль
+interface ValidationResultType {
+  result: boolean;
+  message: string | null;
+}
+
+/**
+ * Результат валидации
+ */
+const ValidationResult = (result: boolean, message: string | null = null): ValidationResultType => {
+  return { result, message };
+};
+
+/**
+ * Выполняет валидацию пароля
+ * @param value переданная строка
+ * @returns Вернет true - если пароль подходит, в противном случае false, а также сообщение об ошибке
+ */
+export const ValidatePassword = (value: string): ValidationResultType => {
   if (value === '') {
     return ValidationResult(false, 'Пароль не может быть пустым');
   }
 
-  // Проверка длины пароля
   if (value.length < 8 || value.length > 25) {
     return ValidationResult(false, 'Пароль должен быть от 8 до 25 символов');
   }
 
-  // Регулярные выражения для проверки условий
-  const hasUpperCase = /[A-Z]/.test(value); // хотя бы 1 заглавная буква
-  const hasLowerCase = /[a-z]/.test(value); // хотя бы 1 строчная буква
-  const hasDigit = /\d/.test(value); // хотя бы 1 цифра
-  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value); // хотя бы 1 спец. символ
+  const hasUpperCase = /[A-Z]/.test(value);
+  const hasLowerCase = /[a-z]/.test(value);
+  const hasDigit = /\d/.test(value);
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value);
 
   if (!hasUpperCase) {
     return ValidationResult(false, 'Пароль должен содержать хотя бы одну заглавную букву');
@@ -36,16 +48,13 @@ export const ValidatePassword = (value) => {
     return ValidationResult(false, 'Пароль должен содержать хотя бы один специальный символ');
   }
 
-  // Если все проверки пройдены
   return ValidationResult(true);
 };
 
 /**
  * Выполняет валидацию логина
- * @param value {string} переданная строка
- * @returns {{result: boolean, message: string | null}} вернет true - если логин подходит, в противном случае false, а также сообщение об ошибке
  */
-export const ValidateLogin = (value) => {
+export const ValidateLogin = (value: string): ValidationResultType => {
   if (value === '') {
     return ValidationResult(false, 'Логин не может быть пустым');
   }
@@ -59,16 +68,16 @@ export const ValidateLogin = (value) => {
   }
 
   for (let index = 0; index < value.length; ++index) {
+    const charCode = value.charCodeAt(index);
     if (
       !(
-        (value.charCodeAt(index) >= 97 && value.charCodeAt(index) <= 122) || // a-z
-        (value.charCodeAt(index) >= 65 && value.charCodeAt(index) <= 90) || // A-Z
-        (value.charCodeAt(index) >= 48 && value.charCodeAt(index) <= 57) || // 0-9
-        value.charCodeAt(index) === 95 || // _
-        value.charCodeAt(index) === 45
+        (charCode >= 97 && charCode <= 122) || // a-z
+        (charCode >= 65 && charCode <= 90) || // A-Z
+        (charCode >= 48 && charCode <= 57) || // 0-9
+        charCode === 95 || // _
+        charCode === 45 // -
       )
     ) {
-      // -
       return ValidationResult(
         false,
         'Логин должен содержать только латинские символы, цифры, _ или -',
@@ -81,10 +90,8 @@ export const ValidateLogin = (value) => {
 
 /**
  * Выполняет валидацию имени или фамилии
- * @param value {string} переданная строка
- * @returns {{result: boolean, message: string | null}} вернет true, если строка подходит, в противном случае false, а также сообщение об ошибке
  */
-export const ValidateName = (value) => {
+export const ValidateName = (value: string): ValidationResultType => {
   if (value === '') {
     return ValidationResult(false, 'Поле не может быть пустым');
   }
@@ -97,9 +104,7 @@ export const ValidateName = (value) => {
     return ValidationResult(false, 'Поле слишком длинное');
   }
 
-  const isCyrillic = /^[а-яА-ЯёЁ]+$/.test(value);
-
-  if (!isCyrillic) {
+  if (!/^[а-яА-ЯёЁ]+$/.test(value)) {
     return ValidationResult(false, 'Присутствуют не кириллические буквы');
   }
 
@@ -108,32 +113,20 @@ export const ValidateName = (value) => {
 
 /**
  * Выполняет валидацию номера телефона
- * @param value {string} переданная строка
- * @returns {{result: boolean, message: string | null}} вернет true, если номер телефона подходит, иначе false и сообщение об ошибке
  */
-export const ValidatePhone = (value) => {
+export const ValidatePhone = (value: string): ValidationResultType => {
   if (value === '') {
     return ValidationResult(false, 'Номер телефона не может быть пустым');
   }
 
-  value = value.replace(/[\s()-]/g, '');
-  if (!/^\d+$/.test(value)) {
+  const cleanedValue = value.replace(/[\s()-]/g, '');
+  if (!/^\d+$/.test(cleanedValue)) {
     return ValidationResult(false, 'Номер телефона должен содержать только цифры');
   }
 
-  if (value.length < 9 || value.length > 10) {
+  if (cleanedValue.length < 9 || cleanedValue.length > 10) {
     return ValidationResult(false, 'Телефон от 9 до 10 цифр без учета префикса');
   }
 
   return ValidationResult(true);
-};
-
-/**
- * Результат валидации
- * @param result {boolean} результат проверки
- * @param message {string | null} сообщение об ошибке
- * @returns {{result: boolean, message: string | null}}
- */
-const ValidationResult = (result, message = null) => {
-  return { result, message };
 };

@@ -1,18 +1,26 @@
-import { router } from '../../modules/routing.js';
+import { router } from '../../modules/routing';
 import template from './restaurantCard.hbs';
+
+interface RestaurantProps {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  rating: string;
+  amount: string;
+  image?: string;
+}
 
 /**
  * Класс карточки ресторана
  */
 export class RestaurantCard {
-  #parent; // Родитель (где вызывается)
-  #props = {
-    // Свойства лого
+  private parent: HTMLElement; // Родитель (где вызывается)
+  private readonly props = {
     id: '', // Идентификатор карточки
     name: '', // Название ресторана
     description: '', // Описание ресторана
     type: '', // Тип ресторана (Кухня)
-    //deliveryTime: "",   // Время доставки
     rating: {
       score: '', // Оценка
       amount: '', // Кол-во отзывов
@@ -26,14 +34,13 @@ export class RestaurantCard {
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться карточка.
    * @param {Object} props - Словарь данных для определения свойств карточки
    */
-  constructor(parent, props) {
-    this.#parent = parent;
-    this.#props = {
+  constructor(parent: HTMLElement, props: RestaurantProps) {
+    this.parent = parent;
+    this.props = {
       id: props.id,
       name: props.name,
       description: props.description,
       type: props.type,
-      //deliveryTime: props.deliveryTime, // Убрать?
       rating: {
         score: props.rating,
         amount: props.amount,
@@ -46,39 +53,38 @@ export class RestaurantCard {
    * Ссылка на объект
    * @returns {HTMLElement} - ссылка на объект
    */
-  get self() {
-    return document.getElementById(this.#props.id);
+  get self(): HTMLElement {
+    return document.getElementById(this.props.id) as HTMLElement;
   }
 
   /**
    * Обработчик нажатия на карточку.
    * @private
    */
-  #handleClick() {
-    this.self.addEventListener('click', (event) => {
+  private handleClick() {
+    this.self.addEventListener('click', (event: Event) => {
       event.preventDefault();
-      router.goToPage('restaurantPage', this.#props.id);
+      router.goToPage('restaurantPage', this.props.id);
     });
   }
 
   /**
    * Отображает карточку на странице.
-   * @param {"beforebegin" | "afterbegin" | "beforeend" | "afterend"} pushDirection
-   *        Определяет, куда вставлять карточку относительно родителя.
+   * @param pushDirection {"beforebegin" | "afterbegin" | "beforeend" | "afterend"} - Определяет, куда вставлять карточку относительно родителя.
    */
-  render(pushDirection) {
-    const html = template(this.#props);
-    this.#parent.insertAdjacentHTML(pushDirection, html);
-    this.#handleClick();
+  render(pushDirection: 'beforebegin' | 'afterbegin' | 'beforeend' | 'afterend') {
+    const html = template(this.props);
+    this.parent.insertAdjacentHTML(pushDirection, html);
+    this.handleClick();
   }
 
   /**
    * Удаляет карточку ресторана со страницы и снимает обработчики событий.
    */
   remove() {
-    this.self.removeEventListener('click', (event) => {
-      event.preventDefault(); // Отменяем дефолтное дейтсвие
-      router.goToPage('restaurantPage', this.#props.id); // Переход на страницу ресторана
+    this.self.removeEventListener('click', (event: Event) => {
+      event.preventDefault();
+      router.goToPage('restaurantPage', this.props.id);
     });
   }
 }

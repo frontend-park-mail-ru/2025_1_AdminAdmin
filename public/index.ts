@@ -1,6 +1,6 @@
 import './index.scss'
 
-import { initRouting } from './src/modules/routing.js';
+import { initRouting } from './src/modules/routing';
 
 const rootElement = document.getElementById('root');
 
@@ -17,4 +17,3 @@ if ('serviceWorker' in navigator) {
         }
     })();
 }
-

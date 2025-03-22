@@ -2,7 +2,7 @@
   "name": "2025_1_adminadmin",
   "version": "1.0.0",
   "description": "Репозиторий команды \"admin admin\". Проект: Delivery Club",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "start": "webpack serve --open --mode development",
     "build": "webpack --mode production",

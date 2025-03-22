@@ -8,7 +8,7 @@ self.addEventListener('install', event => {
             await cache.addAll([
                 '/',
                 '/index.html',
-                '/index.js',
+                '/index.ts',
                 '/index.scss',
             ]);
         } catch (err) {
@@ -45,7 +45,6 @@ self.addEventListener('fetch', event => {
             return response;
         } catch (err) {
             console.error('[Service Worker] Fetch failed', err);
-            throw err;
         }
     })());
 });

@@ -19,7 +19,7 @@ const config = {
         historyApiFallback: true,
     },
     entry: {
-        main: path.resolve(__dirname, 'public', 'index.js'),
+        main: path.resolve(__dirname, 'public', 'index.ts'),
     },
     module: {
         rules: [

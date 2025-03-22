@@ -1,14 +1,38 @@
-import { createStore } from './store.js';
-import { router } from '../modules/routing.js';
-import { AppUserRequests } from '../modules/ajax.js';
+import { createStore } from './store';
+import { router } from '../modules/routing';
+import { AppUserRequests } from '../modules/ajax';
 
-const initialUserState = {
+interface UserState {
+  login: string;
+  avatarUrl: string;
+  isAuth: boolean;
+}
+
+interface LoginPayload {
+  login: string;
+  password: string;
+}
+
+interface RegisterPayload {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  login: string;
+  password: string;
+}
+
+interface Action {
+  type: string;
+  payload?: any;
+}
+
+const initialUserState: UserState = {
   login: '',
   avatarUrl: '/src/assets/avatar.png',
   isAuth: false,
 };
 
-const userReducer = (state = initialUserState, action) => {
+const userReducer = (state = initialUserState, action: Action): UserState => {
   switch (action.type) {
     case UserActions.LOGIN_SUCCESS:
     case UserActions.REGISTER_SUCCESS:
@@ -24,12 +48,14 @@ const userReducer = (state = initialUserState, action) => {
         isAuth: false,
         login: '',
       };
+
     case UserActions.CHECK_SUCCESS:
       return {
         ...state,
         isAuth: true,
         login: action.payload.login,
       };
+
     default:
       return state;
   }
@@ -42,14 +68,9 @@ export const UserActions = {
   CHECK_SUCCESS: 'CHECK_SUCCESS',
 };
 
-/**
- * Класс для управления состоянием пользователя.
- */
 class UserStore {
-  /**
-   * Создает стор для хранения состояния пользователя
-   * @constructor
-   */
+  private store;
+
   constructor() {
     this.store = createStore(userReducer);
   }
@@ -58,33 +79,33 @@ class UserStore {
    * Проверяет авторизацию
    * @returns {boolean} - авторизован пользователь или нет
    */
-  isAuth() {
+  isAuth(): boolean {
     return this.store.getState().isAuth;
   }
 
   /**
    * Возвращает состояние пользователя
-   * @returns {any} - текущее состояние пользователя
+   * @returns {UserState} - текущее состояние пользователя
    */
-  getState() {
+  getState(): UserState {
     return this.store.getState();
   }
 
   /**
    * Отправляет action в хранилище
-   * @param {Object | Function} action
+   * @param {Action} action
    */
-  #dispatch(action) {
-    return this.store.dispatch(action);
+  private dispatch(action: Action): void {
+    this.store.dispatch(action);
   }
 
   /**
    * Вход пользователя
-   * @param {Object} param0 - данные пользователя
+   * @param {LoginPayload} param0 - данные пользователя
    */
-  async login({ login, password }) {
+  async login({ login, password }: LoginPayload): Promise<void> {
     const res = await AppUserRequests.Login(login, password);
-    this.#dispatch({
+    this.dispatch({
       type: UserActions.LOGIN_SUCCESS,
       payload: { login: res.login },
     });
@@ -92,11 +113,17 @@ class UserStore {
 
   /**
    * Регистрация нового пользователя
-   * @param {Object} param0 - данные пользователя
+   * @param {RegisterPayload} param0 - данные пользователя
    */
-  async register({ firstName, lastName, phoneNumber, login, password }) {
+  async register({
+    firstName,
+    lastName,
+    phoneNumber,
+    login,
+    password,
+  }: RegisterPayload): Promise<void> {
     const res = await AppUserRequests.SignUp(firstName, lastName, phoneNumber, login, password);
-    this.#dispatch({
+    this.dispatch({
       type: UserActions.REGISTER_SUCCESS,
       payload: { login: res.login },
     });
@@ -105,25 +132,34 @@ class UserStore {
   /**
    * Выход пользователя
    */
-  async logout() {
-    await AppUserRequests.Logout();
-    this.#dispatch({ type: UserActions.LOGOUT_SUCCESS });
-    router.goToPage('home');
+  async logout(): Promise<void> {
+    try {
+      await AppUserRequests.Logout();
+      this.dispatch({ type: UserActions.LOGOUT_SUCCESS });
+      router.goToPage('home');
+    } catch (err) {
+      console.error('Ошибка при попытке выхода:', err);
+    }
   }
 
   /**
    * Проверяет, авторизован ли пользователь
    * @returns {Promise<void>}
    */
-  async checkUser() {
+  async checkUser(): Promise<void> {
     try {
       const res = await AppUserRequests.CheckUser();
-      this.#dispatch({
-        type: UserActions.CHECK_SUCCESS,
-        payload: { login: res.login },
-      });
+
+      if ('login' in res) {
+        this.dispatch({
+          type: UserActions.CHECK_SUCCESS,
+          payload: { login: res.login },
+        });
+      } else {
+        console.error('Ошибка: Ответ не содержит логин', res);
+      }
     } catch (err) {
-      console.error('Ошибка при проверке пользователя:', err);
+      console.error('Ошибка при проверке пользователя:', err.message);
     }
   }
 
@@ -131,7 +167,7 @@ class UserStore {
    * Подписывает listener на изменение состояния
    * @param {Function} listener
    */
-  subscribe(listener) {
+  subscribe(listener: () => void): void {
     this.store.subscribe(listener);
   }
 }
