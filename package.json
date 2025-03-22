@@ -7,6 +7,7 @@
     "start": "webpack serve --open --mode development",
     "build": "webpack --mode production",
     "prepare": "husky install",
+    "serve:build": "webpack serve --static dist --open",
     "lint": "eslint public/src --ext .js",
     "lint:fix": "eslint public/src --ext .js --fix",
     "format": "prettier --write public/src/**/*.{js,html,css}"
