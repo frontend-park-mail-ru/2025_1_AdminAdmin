@@ -1,0 +1,33 @@
+/* Кнопки */
+.button {
+  cursor: pointer;
+  padding: 5px 15px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-image: linear-gradient(rgb(0 0 0 / 10%), rgb(0 0 0 / 10%));
+  }
+}
+
+.form__button {
+  border-radius: var(--border-radius);
+  font-size: 20px;
+  height: 45px;
+  width: 100%;
+  color: white;
+}
+
+.button_active {
+  background-color: var(--orange);
+}
+
+.button_inactive {
+  background-color: var(--dark-gray);
+
+  &:hover {
+    background-image: linear-gradient(rgb(0 0 0 / 20%), rgb(0 0 0 / 20%));
+  }
+}

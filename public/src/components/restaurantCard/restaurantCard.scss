@@ -1,0 +1,16 @@
+.restaurant__card {
+  gap: 5px;
+  color: black;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+
+  img {
+    margin-bottom: 5px;
+    width: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+}
