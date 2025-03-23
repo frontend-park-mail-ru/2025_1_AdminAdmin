@@ -1,44 +1,45 @@
 type T_Action = { type: string; [key: string]: any };
-type T_Reducer<State = any, Action = T_Action> = (state: State, T_Action: Action) => State;
+type T_Reducer<Success = any, Action = T_Action> = (state: Success, action: Action) => Success;
 type T_Subscriber = () => void;
 
-interface Store<State = any, Action = T_Action> {
-  getState: () => State;
-  dispatch: (T_Action: Action | ThunkAction) => void;
+interface T_Store<Success = any, Action = T_Action> {
+  getState: () => Success;
+  dispatch: (action: Action | T_ThunkAction) => void;
   subscribe: (cb: T_Subscriber) => void;
 }
 
-type ThunkAction = (dispatch: Store['dispatch'], getState: Store['getState']) => void;
+type T_ThunkAction = (dispatch: T_Store['dispatch'], getState: T_Store['getState']) => void;
+
 /**
  * Создает хранилище состояния с поддержкой подписки и диспатча действий.
- * @param {Function} T_Reducer - Функция-редьюсер, которая управляет состоянием на основе переданных действий
+ * @param {Function} reducer - Функция-редьюсер, которая управляет состоянием на основе переданных действий
  * @returns {Object} Хранилище состояния с методами для получения состояния, отправки действий и подписки на обновления
  */
-export const createStore = <State, Action extends T_Action>(
-  T_Reducer: T_Reducer<State, Action>,
-): Store<State, Action> => {
-  let state = T_Reducer(undefined as State, { type: '__INIT__' } as Action);
+export const createStore = <Success, Action extends T_Action>(
+  reducer: T_Reducer<Success, Action>,
+): T_Store<Success, Action> => {
+  let state = reducer(undefined as Success, { type: '__INIT__' } as Action);
   let subscribers: T_Subscriber[] = [];
 
-  const store: Store<State, Action> = {
+  const store: T_Store<Success, Action> = {
     /**
      * Получает текущее состояние хранилища.
-     * @returns {State} Текущее состояние хранилища
+     * @returns {Success} Текущее состояние хранилища
      */
-    getState: (): State => state,
+    getState: (): Success => state,
 
     /**
-     * Отправляет действие (T_Action) в хранилище для изменения состояния.
+     * Отправляет действие (action) в хранилище для изменения состояния.
      * Может быть функцией, которая будет вызвана с dispatch и getState.
-     * @param {Action | ThunkAction} T_Action - Действие для отправки (может быть объектом или функцией)
+     * @param {Action | T_ThunkAction} action - Действие для отправки (может быть объектом или функцией)
      * @returns {void}
      */
-    dispatch: (T_Action: Action | ThunkAction): void => {
-      if (typeof T_Action === 'function') {
-        (T_Action as ThunkAction)(store.dispatch, store.getState);
+    dispatch: (action: Action | T_ThunkAction): void => {
+      if (typeof action === 'function') {
+        (action as T_ThunkAction)(store.dispatch, store.getState);
         return;
       }
-      state = T_Reducer(state, T_Action);
+      state = reducer(state, action);
       subscribers.forEach((cb) => cb());
     },
 
