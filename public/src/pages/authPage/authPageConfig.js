@@ -3,7 +3,7 @@ import {
   ValidateName,
   ValidatePassword,
   ValidatePhone,
-} from '../../modules/validation.js';
+} from '../../modules/validation.ts';
 
 export default {
   buttons: {
