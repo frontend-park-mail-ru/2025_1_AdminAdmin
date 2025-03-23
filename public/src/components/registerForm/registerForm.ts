@@ -74,10 +74,12 @@ export default class RegisterForm {
 
     try {
       await userStore.register({ firstName, lastName, phoneNumber, login, password });
+      router.showToast('success', 'Вы успешно зарегистрировались!');
       router.goToPage('home');
     } catch (err) {
       const errorMessage = err?.message || 'Непредвиденная ошибка';
       this.setError(errorMessage);
+      router.showToast('error', errorMessage);
     }
   }
 

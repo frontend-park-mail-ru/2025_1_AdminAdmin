@@ -39,6 +39,7 @@ export default class Header {
    */
   render(): void {
     this.parent.innerHTML = template();
+    this.parent.classList.add('main_header');
     const headerElement = this.self;
     if (!headerElement) return;
 
@@ -60,9 +61,7 @@ export default class Header {
     this.logoutButton = new Button(buttonContainer, {
       id: 'logout_button',
       text: 'Выход',
-      onSubmit: () => {
-        userStore.logout();
-      },
+      onSubmit: this.handleLogout.bind(this), // Вызов новой функции handleLogout
     });
     this.logoutButton.render();
 
@@ -81,9 +80,9 @@ export default class Header {
     if (!headerElement) return;
 
     if (window.scrollY > 0) {
-      headerElement.classList.add('header--scrolled');
+      headerElement.classList.add('scrolled');
     } else {
-      headerElement.classList.remove('header--scrolled');
+      headerElement.classList.remove('scrolled');
     }
   }
 
@@ -114,6 +113,19 @@ export default class Header {
   }
 
   /**
+   * Обработчик выхода пользователя.
+   * Осуществляет выход и отображает сообщение.
+   */
+  private async handleLogout(): Promise<void> {
+    try {
+      await userStore.logout();
+      router.showToast('success', 'Вы успешно вышли из системы');
+    } catch (error) {
+      router.showToast('error', error.message);
+    }
+  }
+
+  /**
    * Удаляет заголовок со страницы и снимает обработчики событий.
    */
   remove(): void {
@@ -121,6 +133,7 @@ export default class Header {
     this.loginButton?.remove();
     this.logoutButton?.remove();
     this.parent.innerHTML = '';
+    this.parent.classList.remove('main_header');
     window.removeEventListener('scroll', this.handleScrollBound);
   }
 }
