@@ -156,7 +156,7 @@ class UserRequests {
       clearLocalStorage();
       return { message: 'ok' };
     } else {
-      throw new Error(body.message);
+      throw new Error(body.error ?? 'Unknown error');
     }
   };
 
