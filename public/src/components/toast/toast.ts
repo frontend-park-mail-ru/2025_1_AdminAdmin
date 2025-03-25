@@ -15,6 +15,12 @@ export class Toast {
 
   /* Рендер */
   render(): void {
+    const existingToasts = this.parent.getElementsByClassName('toast');
+
+    if (existingToasts.length >= 7) {
+      existingToasts[0].remove();
+    }
+
     const html = template({ id: this.id, type: this.type, message: this.message });
     this.parent.insertAdjacentHTML('beforeend', html);
 
