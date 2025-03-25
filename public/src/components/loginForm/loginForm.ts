@@ -3,6 +3,7 @@ import { userStore } from '../../store/userStore';
 import { FormInput } from '../formInput/formInput';
 import { Button } from '../button/button';
 import template from './loginForm.hbs';
+import { toasts } from '../../modules/toasts';
 
 /**
  * Класс, представляющий форму логина.
@@ -50,12 +51,12 @@ export default class LoginForm {
 
     try {
       await userStore.login({ login, password });
-      router.showToast('success', 'Вы успешно вошли в систему!');
+      toasts.success('Вы успешно вошли в систему!');
       router.goToPage('home');
     } catch (err) {
       const errorMessage = err.message || 'Неверный логин или пароль';
       this.setError(errorMessage);
-      router.showToast('error', errorMessage);
+      toasts.error(errorMessage);
     }
   }
 

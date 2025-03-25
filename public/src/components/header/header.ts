@@ -3,6 +3,7 @@ import { userStore } from '../../store/userStore';
 import { Logo } from '../logo/logo';
 import { Button } from '../button/button';
 import template from './header.hbs';
+import { toasts } from '../../modules/toasts';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -119,9 +120,9 @@ export default class Header {
   private async handleLogout(): Promise<void> {
     try {
       await userStore.logout();
-      router.showToast('success', 'Вы успешно вышли из системы');
+      toasts.success('Вы успешно вышли из системы');
     } catch (error) {
-      router.showToast('error', error.message);
+      toasts.error(error.message);
     }
   }
 

@@ -3,6 +3,7 @@ import { Button } from '../button/button';
 import { Select } from '../select/select';
 import { userStore } from '../../store/userStore';
 import { router } from '../../modules/routing';
+import { toasts } from '../../modules/toasts';
 import template from './registerForm.hbs';
 
 /**
@@ -74,12 +75,12 @@ export default class RegisterForm {
 
     try {
       await userStore.register({ firstName, lastName, phoneNumber, login, password });
-      router.showToast('success', 'Вы успешно зарегистрировались!');
+      toasts.success('Вы успешно зарегистрировались!');
       router.goToPage('home');
     } catch (err) {
       const errorMessage = err?.message || 'Непредвиденная ошибка';
       this.setError(errorMessage);
-      router.showToast('error', errorMessage);
+      toasts.error(errorMessage);
     }
   }
 

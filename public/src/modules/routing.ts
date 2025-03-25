@@ -129,11 +129,6 @@ class Router {
     this.currentPage.render(pageData.options);
   }
 
-  showToast(type: string, message: string): void {
-    const toast = new Toast(this.toastBoxElement, type, message);
-    toast.render();
-  }
-
   /**
    * Удаляет обработчики событий и очищает содержимое контейнера.
    */

@@ -15,25 +15,41 @@ export class Toast {
 
   /* Рендер */
   render(): void {
-    const existingToasts = this.parent.getElementsByClassName('toast');
-
-    if (existingToasts.length >= 5) {
-      const oldestToast = existingToasts[0] as HTMLElement;
-      oldestToast.classList.add('toast-removing');
-
-      setTimeout(() => {
-        oldestToast.remove();
-      }, 200);
-    }
-
     const html = template({ id: this.id, type: this.type, message: this.message });
     this.parent.insertAdjacentHTML('beforeend', html);
 
-    const toastElement = document.getElementById(this.id);
-    if (toastElement) {
-      setTimeout(() => {
-        toastElement.remove();
-      }, 6000);
-    }
+    setTimeout(() => this.close(), 5000);
+  }
+
+  /**
+   * Возвращает HTML элемент компонента
+   * @returns {HTMLElement}
+   */
+  get self(): HTMLElement {
+    return document.getElementById(this.id);
+  }
+
+  /**
+   * Закрывает тост
+   */
+  close(): void {
+    const toastElement = this.self;
+    if (!toastElement) return;
+
+    toastElement.animate(
+      [
+        { opacity: 1, transform: 'translateX(0)' },
+        { opacity: 0, transform: 'translateX(-100%)' },
+      ],
+      {
+        duration: 500,
+        easing: 'linear',
+        fill: 'forwards',
+      },
+    );
+
+    setTimeout(() => {
+      toastElement.remove();
+    }, 500);
   }
 }
