@@ -17,8 +17,13 @@ export class Toast {
   render(): void {
     const existingToasts = this.parent.getElementsByClassName('toast');
 
-    if (existingToasts.length >= 7) {
-      existingToasts[0].remove();
+    if (existingToasts.length >= 5) {
+      const oldestToast = existingToasts[0] as HTMLElement;
+      oldestToast.classList.add('toast-removing');
+
+      setTimeout(() => {
+        oldestToast.remove();
+      }, 200);
     }
 
     const html = template({ id: this.id, type: this.type, message: this.message });

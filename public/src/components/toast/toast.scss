@@ -21,6 +21,23 @@
   }
 }
 
+@keyframes fadeout-force {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+.toast-removing {
+  animation: fadeout-force 0.2s ease-in-out forwards;
+}
+
+
+
 .toast {
   width: 400px;
   height: 80px;
