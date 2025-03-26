@@ -6,6 +6,11 @@ const rootElement = document.getElementById('root');
 
 initRouting(rootElement);
 
+const apiKey = process.env.YANDEX_API_KEY;
+const script = document.createElement("script");
+script.src = `https://api-maps.yandex.ru/2.1/?apikey=${apiKey}&lang=ru_RU`;
+document.body.appendChild(script);
+
 
 /*
 if ('serviceWorker' in navigator) {

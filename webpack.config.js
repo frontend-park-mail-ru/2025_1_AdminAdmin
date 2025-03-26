@@ -3,11 +3,14 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import webpack from 'webpack';
 import ImageMinimizerPlugin from 'image-minimizer-webpack-plugin';
+import * as dotenv from "dotenv";
 
 const __dirname = import.meta.dirname;
 const isProduction = process.env.NODE_ENV === "production";
 
 const stylesHandler = isProduction ? MiniCssExtractPlugin.loader : "style-loader";
+
+dotenv.config();
 
 const config = {
     devServer: {
@@ -83,6 +86,9 @@ const config = {
             filename: 'index.html',
         }),
         new webpack.HotModuleReplacementPlugin(),
+        new webpack.DefinePlugin({
+            "process.env.YANDEX_API_KEY": JSON.stringify(process.env.YANDEX_API_KEY),
+        }),
     ],
     optimization: {
         minimizer: [
