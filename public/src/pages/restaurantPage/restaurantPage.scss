@@ -6,3 +6,29 @@
   grid-template-columns: repeat(12, 1fr);
   gap: 20px;
 }
+
+.product__cards {
+  grid-area: cards;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+.product__cards__header{
+  font-size: 32px;
+  font-weight: bold;
+}
+.product__cards__body{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+gap: 20px;
+}
+
+.restaurant__products{
+  margin-top: 60px;
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr;
+  grid-template-areas: "categories cards cart";
+  gap: 20px;
+  align-items: start;
+  grid-column: 2 / span 10;
+}

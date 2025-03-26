@@ -1,0 +1,27 @@
+.category{
+    display: flex;
+    cursor: pointer;
+	padding: 5px 15px;
+    border: none;
+    align-items: center;        /* Выравнивание по вертикали по центру */
+    justify-content: center;    /* Выравнивание по горизонтали по центру */
+    /* --- */
+    border-radius: 10px;
+    font-size: 16px;
+    color: black;
+    background-color: #fff;
+    height: 35px;
+    justify-content: left;
+
+    &:hover {
+        background-color: $light-grey;
+    }
+}
+.category_active {
+    background-color: $orange;
+    color: #fff;
+
+    &:hover {
+        background-color: $dark-orange;
+    }
+}
