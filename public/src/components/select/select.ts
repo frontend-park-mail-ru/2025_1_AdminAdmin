@@ -3,7 +3,7 @@ import template from './select.hbs';
 /* Селект (выпадающий список) */
 export class Select {
   private parent: HTMLElement; // Родитель (где вызывается)
-  private props = {
+  private readonly props = {
     id: '', // Id для идентификации
     label: '', // Метка для отображения
     options: [] as string[], // Массив опций

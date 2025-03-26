@@ -2,6 +2,7 @@
 @use './src/components/button/button' as *;
 @use './src/components/logo/logo' as *;
 @use './src/components/select/select' as *;
+@use './src/components/toast/toast' as *;
 
 /* Импорт сложных компонентов */
 @use './src/components/header/header' as *;
@@ -29,7 +30,9 @@
   --dark-orange: #C23A00;
   --red: #FF0000;
   --pink: #FFDADA;
+  --green: #008000;
   --border-radius: 20px;
+  --blue: #2196F3;
 }
 
 body {
@@ -41,4 +44,31 @@ body {
 
 .root {
   overflow-y: auto;
+}
+
+.header {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0;
+  display: grid;
+  gap: 20px;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  background-color: white;
+  height: 50px;
+  transition: box-shadow 0.3s ease;
+}
+
+.toastBox {
+  position: fixed;
+  z-index: 1000;
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  padding: 20px;
 }
