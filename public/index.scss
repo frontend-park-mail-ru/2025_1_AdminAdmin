@@ -3,20 +3,21 @@
 @use './src/components/logo/logo' as *;
 @use './src/components/select/select' as *;
 @use './src/components/toast/toast' as *;
+@use './src/components/suggest/suggest' as *;
 
 /* Импорт сложных компонентов */
 @use './src/components/header/header' as *;
 @use './src/components/auxHeader/auxHeader' as *;
 @use './src/components/restaurantCard/restaurantCard' as *;
 @use './src/components/formInput/formInput' as *;
-@use './src/components/loginForm/loginForm' as *;
-@use './src/components/registerForm/registerForm' as *;
 @use './src/components/restaurantHeader/restaurantHeader' as *;
+@use './src/components/suggestsContainer/suggestsContainer' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;
 @use './src/pages/authPage/authPage' as *;
 @use './src/pages/restaurantPage/restaurantPage' as *;
+@use './src/pages/mapModal/mapModal' as *;
 
 
 /* Переменные */
@@ -31,7 +32,7 @@
   --red: #FF0000;
   --pink: #FFDADA;
   --green: #008000;
-  --border-radius: 20px;
+  --border-radius: 15px;
   --blue: #2196F3;
 }
 
@@ -56,7 +57,7 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000;
+  z-index: 10;
   background-color: white;
   height: 50px;
   transition: box-shadow 0.3s ease;
@@ -71,4 +72,28 @@ body {
   align-items: flex-end;
   flex-direction: column;
   padding: 20px;
+}
+
+.form__line {
+  grid-column: 5 / span 4;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  gap: 5px;
+  padding: 0;
+
+  &_submit_button {
+    margin-top: 15px;
+    margin-bottom: 60px;
+  }
+}
+
+.form__error {
+  font-size: 16px;
+  height: 20px;
+  grid-column: 5 / span 4;
+  grid-row: 2;
+  color: var(--red);
 }

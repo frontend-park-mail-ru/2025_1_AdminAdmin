@@ -105,7 +105,7 @@ export const ValidateName = (value: string): ValidationResultType => {
   }
 
   if (!/^[а-яА-ЯёЁ]+$/.test(value)) {
-    return ValidationResult(false, 'Присутствуют не кириллические буквы');
+    return ValidationResult(false, 'Есть не кириллица');
   }
 
   return ValidationResult(true);
@@ -116,16 +116,16 @@ export const ValidateName = (value: string): ValidationResultType => {
  */
 export const ValidatePhone = (value: string): ValidationResultType => {
   if (value === '') {
-    return ValidationResult(false, 'Номер телефона не может быть пустым');
+    return ValidationResult(false, 'Телефон не может быть пустым');
   }
 
   const cleanedValue = value.replace(/[\s()-]/g, '');
   if (!/^\d+$/.test(cleanedValue)) {
-    return ValidationResult(false, 'Номер телефона должен содержать только цифры');
+    return ValidationResult(false, 'Должен содержать только цифры');
   }
 
   if (cleanedValue.length < 9 || cleanedValue.length > 10) {
-    return ValidationResult(false, 'Телефон от 9 до 10 цифр без учета префикса');
+    return ValidationResult(false, 'От 9 до 10 цифр без учета префикса');
   }
 
   return ValidationResult(true);
