@@ -1,15 +1,18 @@
+import { fileURLToPath } from 'url';
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import webpack from 'webpack';
 import ImageMinimizerPlugin from 'image-minimizer-webpack-plugin';
 
-const __dirname = import.meta.dirname;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const isProduction = process.env.NODE_ENV === "production";
 
 const stylesHandler = isProduction ? MiniCssExtractPlugin.loader : "style-loader";
 
 const config = {
+    target: 'web',
     devServer: {
         watchFiles: path.resolve(__dirname, 'public/src'),
         static: path.resolve(__dirname, 'public'),
@@ -41,7 +44,10 @@ const config = {
                                     [
                                         'postcss-preset-env',
                                         {
-                                            browsers: 'last 2 versions',
+                                            browsers: [
+                                                "last 4 versions",
+                                                "not dead"
+                                            ]
                                         },
                                     ],
                                 ],
@@ -84,6 +90,9 @@ const config = {
         }),
         new webpack.HotModuleReplacementPlugin(),
     ],
+    experiments: {
+        topLevelAwait: true,
+    },
     optimization: {
         minimizer: [
             new ImageMinimizerPlugin({

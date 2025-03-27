@@ -4,6 +4,7 @@ import { Logo } from '../logo/logo';
 import { Button } from '../button/button';
 import template from './header.hbs';
 import { toasts } from '../../modules/toasts';
+import MapModal from '../../pages/mapModal/mapModal';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -15,6 +16,7 @@ export default class Header {
   private loginButton!: Button;
   private logoutButton!: Button;
   private readonly handleScrollBound: () => void;
+  private readonly clickHandler: (event: Event) => void;
 
   /**
    * Создает экземпляр заголовка.
@@ -25,6 +27,22 @@ export default class Header {
     this.parent = parent;
     this.handleScrollBound = this.handleScroll.bind(this);
     userStore.subscribe(() => this.updateAuthState());
+
+    this.clickHandler = this.handleClick.bind(this);
+  }
+
+  private handleClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
+
+    if (target.closest('.header__location_select_button')) {
+      dropdown.style.display = 'block';
+    } else if (target.closest('.header__location_dropdown_button')) {
+      const modalMap = new MapModal();
+      modalMap.render();
+    } else if (dropdown && !target.closest('.header__location_dropdown')) {
+      dropdown.style.display = 'none';
+    }
   }
 
   /**
@@ -62,13 +80,15 @@ export default class Header {
     this.logoutButton = new Button(buttonContainer, {
       id: 'logout_button',
       text: 'Выход',
-      onSubmit: this.handleLogout.bind(this), // Вызов новой функции handleLogout
+      onSubmit: this.handleLogout.bind(this),
     });
     this.logoutButton.render();
 
     this.updateAuthState();
 
     window.addEventListener('scroll', this.handleScrollBound);
+    document.addEventListener('click', this.clickHandler);
+
     this.handleScroll();
   }
 
@@ -136,5 +156,6 @@ export default class Header {
     this.parent.innerHTML = '';
     this.parent.classList.remove('main_header');
     window.removeEventListener('scroll', this.handleScrollBound);
+    document.removeEventListener('click', this.clickHandler);
   }
 }
