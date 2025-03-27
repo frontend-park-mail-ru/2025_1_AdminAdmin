@@ -46,7 +46,7 @@ export default class MapModal {
     this.searchInput = new FormInput(searchContainer, config.inputs.searchInput);
     this.searchInput.render();
 
-    suggestsContainer.render(this.searchInput.self);
+    suggestsContainer.render(this.searchInput);
 
     this.submitBtn = new Button(searchContainer, {
       ...config.buttons.submitBtn,
