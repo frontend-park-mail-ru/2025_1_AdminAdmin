@@ -4,18 +4,20 @@ import { Highlight, I_Suggest } from '../../modules/ymapsRequests';
 export class Suggest {
   private readonly parent: HTMLElement;
   private readonly text: string;
+  private readonly tags: string[];
   private readonly id: string;
   private readonly highlight: Highlight[];
   private readonly subtitle: string;
   private readonly distance: number | null;
   private readonly address: string | null;
-  private readonly onClick: (text: string) => void;
+  private readonly onClick: (text: string, tags: string[]) => void;
   private readonly clickHandler: (event: Event) => void;
 
   constructor(parent: HTMLElement, id: string, props: I_Suggest, onClick: (text: string) => void) {
     this.parent = parent;
     this.id = id;
     this.text = props.title.text;
+    this.tags = props.tags;
     this.highlight = props.title.hl;
     this.subtitle = props.subtitle ? props.subtitle.text : '';
     this.distance = props.distance ? props.distance.value : null;
@@ -58,7 +60,7 @@ export class Suggest {
 
   private handleClick() {
     if (this.onClick) {
-      this.onClick(this.address || '');
+      this.onClick(this.address || '', this.tags);
     }
   }
 

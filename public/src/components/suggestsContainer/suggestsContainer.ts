@@ -45,12 +45,24 @@ class SuggestsContainer {
     this.suggests = [];
   }
 
-  private handleSuggestClick(address: string) {
+  private handleSuggestClick(address: string, tags: string[]) {
     if (!this.parentInput) {
       console.error('No parent input assigned');
       return;
     }
+
     this.parentInput.input.value = address;
+
+    const finalTags = ['house', 'business', 'office', 'hotel'];
+    const isFinalAddress = tags.some((tag) => finalTags.includes(tag));
+
+    if (isFinalAddress) {
+      this.clear();
+      return;
+    }
+
+    const event = new Event('input', { bubbles: true });
+    this.parentInput.input.dispatchEvent(event);
   }
 }
 
