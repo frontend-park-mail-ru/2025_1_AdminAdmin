@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
@@ -5,7 +6,8 @@ import webpack from 'webpack';
 import ImageMinimizerPlugin from 'image-minimizer-webpack-plugin';
 import * as dotenv from "dotenv";
 
-const __dirname = import.meta.dirname;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const isProduction = process.env.NODE_ENV === "production";
 
 const stylesHandler = isProduction ? MiniCssExtractPlugin.loader : "style-loader";
@@ -13,6 +15,7 @@ const stylesHandler = isProduction ? MiniCssExtractPlugin.loader : "style-loader
 dotenv.config();
 
 const config = {
+    target: 'web',
     devServer: {
         watchFiles: path.resolve(__dirname, 'public/src'),
         static: path.resolve(__dirname, 'public'),
@@ -44,7 +47,10 @@ const config = {
                                     [
                                         'postcss-preset-env',
                                         {
-                                            browsers: 'last 2 versions',
+                                            browsers: [
+                                                "last 4 versions",
+                                                "not dead"
+                                            ]
                                         },
                                     ],
                                 ],
@@ -90,6 +96,9 @@ const config = {
             "process.env.YANDEX_API_KEY": JSON.stringify(process.env.YANDEX_API_KEY),
         }),
     ],
+    experiments: {
+        topLevelAwait: true,
+    },
     optimization: {
         minimizer: [
             new ImageMinimizerPlugin({

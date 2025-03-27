@@ -1,4 +1,5 @@
 .form__input {
+  position: relative;
   color: black;
   display: flex;
   flex-direction: column;
@@ -17,11 +18,12 @@
 
   input {
     height: 45px;
-    border-radius: 10px;
+    border-radius: var(--border-radius);
     border: 2px solid transparent;
     background-color: var(--light-grey);
     color: var(--dark-gray);
     padding-left: 10px;
+    padding-right: 20px;
     transition: border 0.3s ease;
 
     &:focus {
@@ -38,8 +40,10 @@
   &__eye-icon {
     position: absolute;
     cursor: pointer;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
     width: 20px;
-    right: 20px;
     display: none;
 
     img {
@@ -48,18 +52,16 @@
     }
   }
 
-  span {
-    font-size: 20px;
-  }
-
   &-head {
     display: flex;
+    font-size: 16px;
     justify-content: space-between;
     align-items: flex-end;
   }
 
   &__error {
     padding-right: 5px;
+    font-size: 12px;
     color: var(--red);
   }
 }

@@ -2,12 +2,21 @@
   "compilerOptions": {
     "outDir": "./dist/",
     "noImplicitAny": true,
-    "module": "es6",
-    "target": "es5",
+    "module": "ESNext",
+    "target": "ESNext",
     "allowJs": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "lib": ["dom", "WebWorker", "ES2015"]
+    "typeRoots": [
+      "./../node_modules/@types",
+      "./../node_modules/@yandex/ymaps3-types"
+    ],
+    "paths": {
+      "ymaps3": [
+        "./node_modules/@yandex/ymaps3-types"
+      ]
+    },
+    "lib": ["dom", "WebWorker", "ESNext"]
   },
 }
