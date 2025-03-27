@@ -4,6 +4,7 @@ import { Logo } from '../logo/logo';
 import { Button } from '../button/button';
 import template from './header.hbs';
 import { toasts } from '../../modules/toasts';
+import MapModal from '../../pages/mapModal/mapModal';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -37,7 +38,8 @@ export default class Header {
     if (target.closest('.header__location_select_button')) {
       dropdown.style.display = 'block';
     } else if (target.closest('.header__location_dropdown_button')) {
-      console.log('Клик по dropdown_button');
+      const modalMap = new MapModal();
+      modalMap.render();
     } else if (dropdown && !target.closest('.header__location_dropdown')) {
       dropdown.style.display = 'none';
     }
@@ -85,7 +87,7 @@ export default class Header {
     this.updateAuthState();
 
     window.addEventListener('scroll', this.handleScrollBound);
-    document.addEventListener('click', this.clickHandler); // ✅ Слушаем клики по всему документу
+    document.addEventListener('click', this.clickHandler);
 
     this.handleScroll();
   }
