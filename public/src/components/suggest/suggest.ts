@@ -9,15 +9,20 @@ export class Suggest {
   private readonly subtitle: string;
   private readonly distance: number | null;
   private readonly address: string | null;
+  private readonly onClick: (text: string) => void;
+  private readonly clickHandler: (event: Event) => void;
 
-  constructor(parent: HTMLElement, props: I_Suggest) {
+  constructor(parent: HTMLElement, id: string, props: I_Suggest, onClick: (text: string) => void) {
     this.parent = parent;
-    this.id = `suggest-${Date.now()}`;
+    this.id = id;
     this.text = props.title.text;
     this.highlight = props.title.hl;
     this.subtitle = props.subtitle ? props.subtitle.text : '';
     this.distance = props.distance ? props.distance.value : null;
     this.address = props.address ? props.address.formatted_address : null;
+    this.onClick = onClick;
+
+    this.clickHandler = this.handleClick.bind(this);
   }
 
   /* Рендер */
@@ -46,6 +51,15 @@ export class Suggest {
     });
 
     this.parent.insertAdjacentHTML('beforeend', html);
+
+    const suggestElement = this.self;
+    suggestElement.addEventListener('click', this.clickHandler);
+  }
+
+  private handleClick() {
+    if (this.onClick) {
+      this.onClick(this.address || '');
+    }
   }
 
   /**
@@ -62,6 +76,7 @@ export class Suggest {
   remove(): void {
     const suggestElement = this.self;
     if (!suggestElement) return;
+    suggestElement.removeEventListener('click', this.clickHandler);
     suggestElement.remove();
   }
 }

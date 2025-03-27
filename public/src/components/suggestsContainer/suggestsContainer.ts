@@ -1,15 +1,18 @@
 import template from './suggestsContainer.hbs';
 import { I_Suggest } from '../../modules/ymapsRequests';
 import { Suggest } from '../suggest/suggest';
+import { FormInput } from '../formInput/formInput';
 
 class SuggestsContainer {
   private suggests: Suggest[] = [];
+  private parentInput: FormInput | null = null;
 
   constructor() {}
 
-  render(parent: HTMLElement) {
-    console.log(parent);
+  render(parentInput: FormInput) {
+    this.parentInput = parentInput;
     const html = template();
+    const parent = parentInput.self;
     parent.insertAdjacentHTML('beforeend', html);
   }
 
@@ -24,7 +27,12 @@ class SuggestsContainer {
       return;
     }
 
-    const suggest = new Suggest(parent, props);
+    const suggest = new Suggest(
+      parent,
+      this.suggests.length.toString(),
+      props,
+      this.handleSuggestClick.bind(this),
+    );
     suggest.render();
 
     this.suggests.push(suggest);
@@ -34,8 +42,15 @@ class SuggestsContainer {
     for (const suggest of this.suggests) {
       suggest.remove();
     }
-
     this.suggests = [];
+  }
+
+  private handleSuggestClick(address: string) {
+    if (!this.parentInput) {
+      console.error('No parent input assigned');
+      return;
+    }
+    this.parentInput.input.value = address;
   }
 }
 
