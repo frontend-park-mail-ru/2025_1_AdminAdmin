@@ -3,8 +3,8 @@ import template from './restaurantHeader.hbs';
 // Структура класса рейтинга
 export interface RatingProps {
   // ? - необязательное поле
-  score?: string; // Числовая оценка    | Если не задан, то 0
-  amount?: string; // Количество оценок  | Если не задан, то 0
+  score?: number; // Числовая оценка    | Если не задан, то 0
+  amount?: number; // Количество оценок  | Если не задан, то 0
 }
 // Структура класса хедера ресторана
 export interface RestaurantHeaderProps {
@@ -36,8 +36,8 @@ export class RestaurantHeader {
       description: props.description ?? 'Описание ресторана',
       type: props.type ?? 'Кухня ресторана',
       rating: {
-        score: props.rating.score ?? '0',
-        amount: props.rating.amount ?? '0',
+        score: props.rating.score ?? 0,
+        amount: props.rating.amount ?? 0,
       },
       background: props.background || '/src/assets/header.png',
       icon: props.icon || '/src/assets/burgerking.png',

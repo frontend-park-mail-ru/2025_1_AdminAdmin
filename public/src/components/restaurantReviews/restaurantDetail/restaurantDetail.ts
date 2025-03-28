@@ -1,9 +1,9 @@
 import template from './restaurantDetail.hbs';
 
 // Структура изображения (нужно для структуры детали)
-interface ImageProps {
+export interface ImageProps {
   // ? - необязательное поле
-  src?: string; // Путь до изображения        | Если не задано, то detail.png
+  src: string; // Путь до изображения        | Если не задано, то detail.png
   alt?: string; // Текст если не загрузилось  | Если не задано, то "подробная информация"
 }
 
@@ -29,22 +29,28 @@ export class RestaurantDetail {
    * @param {Object} props - Словарь данных для определения свойств детали ресторана
    */
   constructor(parent: HTMLElement, props: RestaurantDetailProps) {
+    if (!parent) {
+      throw new Error('RestaurantDetail: no parent!');
+    }
     this.parent = parent;
     this.props = {
       id: props.id,
       image: {
-        src: props.image.src || '/src/assets/detail.png',
-        // В alt записываем название файла (.../[название файла].[расширение])
+        // В src записываем путь до картинки если он задан, иначе detail.png
+        src: props.image?.src || '/src/assets/detail.png',
+        // В alt записываем текст если не подгрузилась картинка или название файла (.../[название файла].[расширение]) если задано правильно, иначе detail
         alt:
-          props.image.alt ||
-          props.image.src.slice(
+          props.image?.alt ||
+          props.image?.src.slice(
             props.image.src.lastIndexOf('/') + 1,
             props.image.src.lastIndexOf('.'),
-          ),
+          ) ||
+          'detail',
       },
       mainText: props.mainText,
-      addText: props.addText ?? null,
+      addText: props.addText || null,
     };
+    console.log(`Создан элемент класса RestaurantDetail со следующими пропсами: ${this.props}`);
   }
 
   /**

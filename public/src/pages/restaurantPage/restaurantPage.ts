@@ -30,7 +30,7 @@ interface RestaurantRequestProps {
   description: string;
   type: string;
   rating: {
-    score: string;
+    score: number;
   };
   background: string;
   icon: string;
@@ -49,6 +49,9 @@ export default class RestaurantPage {
    * @param id - Идентификатор ресторана, который нужно отобразить
    */
   constructor(parent: HTMLElement, id: string) {
+    if (!parent) {
+      throw new Error('RestaurantPage: no parent!');
+    }
     this.parent = parent;
     this.props = {
       id: id,
@@ -59,19 +62,19 @@ export default class RestaurantPage {
       // Для остальных тоже лучше пустые сделать а потом заполнять, но пока так
       restaurantReviewsProps: {
         rating: {
-          score: '5',
-          amount: '100',
+          score: 5,
+          amount: 100,
         } as RatingProps,
         reviewsList: [
           {
-            id: '1',
+            id: 'review1',
             text: '1-ый отзыв',
             rating: 1,
             author: 'Автор1',
             date: '01.01.25',
           } as RestaurantReviewProps,
           {
-            id: '2',
+            id: 'review2',
             text: '2-ой отзыв',
             rating: 2,
             author: 'Автор2',
@@ -97,62 +100,65 @@ export default class RestaurantPage {
       } as RestaurantReviewsProps,
       productsProps: [
         {
-          id: '1',
+          id: 'product1',
           name: 'Воппер',
           isActive: true,
           price: 529.99,
           amount: 2,
         } as ProductCardProps,
         {
-          id: '2',
+          id: 'product2',
           name: 'Воппер',
           price: 529.99,
         } as ProductCardProps,
         {
-          id: '3',
+          id: 'product3',
           name: 'Воппер',
           price: 529.99,
         } as ProductCardProps,
         {
-          id: '4',
+          id: 'product4',
           name: 'Воппер',
           isActive: true,
           price: 529.99,
           amount: 2,
         } as ProductCardProps,
         {
-          id: '5',
+          id: 'product5',
           name: 'Воппер',
           price: 529.99,
         } as ProductCardProps,
         {
-          id: '6',
+          id: 'product6',
           name: 'Воппер',
           price: 529.99,
         } as ProductCardProps,
       ],
       productCategoriesProps: {
-        activeCategoryId: '1',
+        onChange: this.handleCategory.bind(this),
         categoriesList: [
           {
-            id: '1',
+            id: 'category1',
             name: 'Популярное',
           } as CategoryProps,
           {
-            id: '2',
+            id: 'category2',
             name: 'Новинки',
           } as CategoryProps,
           {
-            id: '3',
+            id: 'category3',
             name: 'Кинг комбо',
           } as CategoryProps,
           {
-            id: '4',
+            id: 'category4',
             name: 'Боксы',
           } as CategoryProps,
         ],
       } as CategoriesProps,
     } as RestaurantPageProps;
+    console.log(
+      `Создан элемент класса RestaurantPage со следующими пропсами: ${JSON.stringify(this.props)}`,
+    );
   }
 
   /**
@@ -160,7 +166,7 @@ export default class RestaurantPage {
    * @returns {HTMLElement} - ссылка на объект
    */
   get self(): HTMLElement {
-    const element = document.querySelector('.restaurantPage__body');
+    const element = document.querySelector('.restaurant-page__body');
     if (!element) {
       throw new Error(`Error: can't find restaurant-page`);
     }
@@ -187,6 +193,9 @@ export default class RestaurantPage {
       if (!restaurantDetails) {
         throw new Error(`RestaurantPage: Ресторан с ID ${this.props.id} не найден!`);
       }
+      console.log(
+        `Для ресторана с id=${this.props.id} из БД получили следующие данные: ${JSON.stringify(restaurantDetails)}`,
+      );
       this.props.restaurantHeaderProps = {
         name: restaurantDetails.name,
         description: restaurantDetails.description,
@@ -198,45 +207,67 @@ export default class RestaurantPage {
         icon: restaurantDetails.icon,
       };
       // Генерируем HTML
+      console.log('Рендерим шаблончик');
       this.parent.innerHTML = template();
       // Заполняем
+      console.log('Заоплняем компонентами');
+      // Рендерим хедер (шапка + название)
+      const restaurantHeaderWrapper = this.self.querySelector(
+        '.restaurant-header__wrapper',
+      ) as HTMLElement;
+      console.log(
+        `Рендерим хедер на странице ресторана, вызываем конструктор для RestaurantHeader со следующими пропсами: ${JSON.stringify(this.props.restaurantHeaderProps)}`,
+      );
       const restaurantHeaderComponent = new RestaurantHeader(
-        this.self,
+        restaurantHeaderWrapper,
         this.props.restaurantHeaderProps,
       );
       restaurantHeaderComponent.render();
+      // Рендерим блок отзывов (общая оценка + отзывы + адрес и время работы)
+      console.log(
+        `Рендерим блок отзывов на странице ресторана, вызываем конструктор для RestaurantReviews со следующими пропсами: ${JSON.stringify(this.props.restaurantReviewsProps)}`,
+      );
+      const restaurantReviewsWrapper = this.self.querySelector(
+        '.restaurant-reviews__wrapper',
+      ) as HTMLElement;
       const restaurantReviewsComponent = new RestaurantReviews(
-        this.self,
+        restaurantReviewsWrapper,
         this.props.restaurantReviewsProps,
       );
       restaurantReviewsComponent.render();
-      const restaurantProductsInsert = `
-      <div class="restaurant__products">
-      </div>
-      `;
-      this.self.insertAdjacentHTML('beforeend', restaurantProductsInsert);
-      const restaurantProducts = this.self.querySelector('.restaurant__products') as HTMLElement;
+      // Рендерим блок категорий
+      console.log(
+        `Рендерим блок категорий товаров на странице ресторана, вызываем конструктор для Categories со следующими пропсами: ${JSON.stringify(this.props.productCategoriesProps)}`,
+      );
+      const categoriesWrapper = this.self.querySelector(
+        '.product-categories__wrapper',
+      ) as HTMLElement;
       const categoriesComponent = new Categories(
-        restaurantProducts,
+        categoriesWrapper,
         this.props.productCategoriesProps,
       );
       categoriesComponent.render();
-      const productCardsInsert = `
-      <div class="product__cards">
-        <span class="product__cards__header">Категория ${this.props.productCategoriesProps.activeCategoryId}</span>
-        <div class="product__cards__body">
-        </div>
-      </div>
-      `;
-      restaurantProducts.insertAdjacentHTML('beforeend', productCardsInsert);
-      const productCardsBody = this.self.querySelector('.product__cards__body') as HTMLElement;
+      this.handleCategory(
+        categoriesComponent.getProps.categoriesList.find(
+          (catergory) => catergory.id === categoriesComponent.getProps.activeCategoryId,
+        )?.name,
+      );
+      // Рендерим карточки
+      const productCardsBody = this.self.querySelector('.product-cards__body') as HTMLElement;
       this.props.productsProps.forEach((productCardProps) => {
+        console.log(
+          `Рендерим карточку товара, вызываем конструктор для ProductCard со следующими пропсами: ${JSON.stringify(productCardProps)}`,
+        );
         const productCardComponent = new ProductCard(productCardsBody, productCardProps);
         productCardComponent.render();
       });
     } catch (error) {
       console.error('Error rendering restaurant page:', error);
     }
+  }
+
+  handleCategory(categoryName: string): void {
+    this.self.querySelector('.product-cards__header').textContent = `Категория: ${categoryName}`;
   }
 
   /**

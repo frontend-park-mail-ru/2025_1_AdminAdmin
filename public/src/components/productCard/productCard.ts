@@ -5,12 +5,12 @@ import template from './productCard.hbs';
 // Структура класса карточки
 export interface ProductCardProps {
   // ? - необязательное поле
-  id?: string; // Идентификатор карточки                       | если не задан, то product-card-${name}
+  id?: string; // Идентификатор карточки                          | если не задан, то product-card-${name}
   image?: string; // Картинка продукта                            | если не задан, то whopper.png
-  name: string; // Название товара                              | обязательное поле
-  isActive?: boolean; // true - карточка активна (есть в корзине)     | если не задан, то false
+  name: string; // Название товара                                | обязательное поле
+  isActive?: boolean; // true - карточка активна (есть в корзине) | если не задан, то false
   price?: number; // Цена товара (за единицу или общая)           | если не задан, то 0
-  amount?: number; // Количество товара в корзине                  | если не задан, то 0)
+  amount?: number; // Количество товара в корзине                 | если не задан, то 0)
 }
 /**
  * Класс карточки товара
@@ -59,6 +59,9 @@ export class ProductCard {
       // Если карточка в корзине, то в price конечная сумма
       this.props.price *= this.props.amount;
     }
+    console.log(
+      `Создан элемент класса productCard со следующими пропсами: ${JSON.stringify(this.props)}`,
+    );
   }
 
   /**
@@ -77,58 +80,58 @@ export class ProductCard {
    * Отображает карточку товара на странице
    */
   render(): void {
+    console.log(this.props);
     if (!template) {
       throw new Error('Error: productCard template not found');
     }
     // Рендерим шаблончик с данными
+    console.log('Рендерим шаблончик');
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
     // Заполняем
-    const cardFooter = this.self.querySelector('.product-card__footer') as HTMLElement;
+    console.log('Заполняем');
     if (this.props.isActive) {
       // Карточка активного товара (в корзине)
       // кнопка минуса
       const minusButtonProps: QuantityButtonProps = {
-        id: `${this.props.id}__minusButton`, // Id для идентификации
+        id: `${this.props.id}__minus-button`, // Id для идентификации
         text: '-', // text для отображения
         onSubmit: () => {
           console.log('-1');
         }, // Функция при нажатии
       };
-      const minusButton = new QuantityButton(cardFooter, minusButtonProps);
+      console.log(
+        `Рендерим кнопку минуса для карточки товара, вызываем конструктор для QuantityButton со следующими пропсами: ${JSON.stringify(minusButtonProps)}`,
+      );
+      const minustButtonWrapper = this.self.querySelector(
+        '.product-card__minus-button__wrapper',
+      ) as HTMLElement;
+      const minusButton = new QuantityButton(minustButtonWrapper, minusButtonProps);
       minusButton.render(); // рендерим кнопку минус
-      // текст по центру
-      const cardFooterContainer = `
-      <div class="product__card__footer__container">
-        <span class="product-card__amount">${this.props.amount} шт.</span>
-        <span class="product-card__total-price">${this.props.price} ₽</span>
-      </div>
-      `;
-      cardFooter.insertAdjacentHTML('beforeend', cardFooterContainer); // рендерим текст по центру
-    } else {
-      // текст слева
-      const cardFooterContainer = `
-        <span class="product-card__price">${this.props.price} ₽</span>
-      `;
-      cardFooter.insertAdjacentHTML('beforeend', cardFooterContainer); // рендерим текст слева
     }
     // Кнопка плюс
     const plusButtonProps: QuantityButtonProps = {
-      id: `${this.props.id}__plusButton`, // Id для идентификации
+      id: `${this.props.id}__plus-button`, // Id для идентификации
       text: '+', // text для отображения
       onSubmit: () => {
         console.log('+1');
       }, // Функция при нажатии
     };
-    const plusButton = new QuantityButton(cardFooter, plusButtonProps);
+    console.log(
+      `Рендерим кнопку плюса для карточки товара, вызываем конструктор для QuantityButton со следующими пропсами: ${JSON.stringify(plusButtonProps)}`,
+    );
+    const plusButtonWrapper = this.self.querySelector(
+      '.product-card__plus-button__wrapper',
+    ) as HTMLElement;
+    const plusButton = new QuantityButton(plusButtonWrapper, plusButtonProps);
     plusButton.render(); // рендерим кнопку плюс
   }
 
   remove() {
     const element = this.self;
-    const plusButton = document.getElementById(`${this.props.id}__minusButton`);
+    const plusButton = document.getElementById(`${this.props.id}__minus-button`);
     plusButton.remove();
-    const minusButton = document.getElementById(`${this.props.id}__plusButton`);
+    const minusButton = document.getElementById(`${this.props.id}__plus-button`);
     minusButton.remove();
     element.remove();
   }

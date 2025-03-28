@@ -9,6 +9,7 @@ const isProduction = process.env.NODE_ENV === "production";
 
 const stylesHandler = isProduction ? MiniCssExtractPlugin.loader : "style-loader";
 
+
 const config = {
     devServer: {
         watchFiles: path.resolve(__dirname, 'public/src'),

@@ -14,14 +14,14 @@
     justify-content: left;
 
     &:hover {
-        background-color: $light-grey;
+        background-color: #F2F2F2;
     }
 }
 .category_active {
-    background-color: $orange;
+    background-color: #FF4D00;
     color: #fff;
 
     &:hover {
-        background-color: $dark-orange;
+        background-color: #C23A00;
     }
 }

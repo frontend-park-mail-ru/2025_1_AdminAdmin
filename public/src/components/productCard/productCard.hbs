@@ -1,6 +1,18 @@
-<div class="product-card{{#if activeClass}}{{ product-card_active}}{{/if}}" id="{{id}}">
+<div class="product-card {{#if isActive}}product-card_active{{/if}}" id="{{id}}">
     <img src={{image}} alt="product_image">
     <span>{{name}}</span>
     <div class="product-card__footer">
+        {{#if isActive}}
+        <div class="product-card__minus-button__wrapper">
+        </div>
+        <div class="product-card__footer-container">
+            <span class="product-card__amount">{{amount}} шт.</span>
+            <span class="product-card__total-price">{{price}} ₽</span>
+        </div>
+        {{else}}
+        <span class="product-card__price">{{price}} ₽</span>
+        {{/if}}
+        <div class="product-card__plus-button__wrapper">
+        </div>
     </div>
 </div>

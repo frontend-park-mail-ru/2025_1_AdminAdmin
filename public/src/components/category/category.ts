@@ -5,8 +5,7 @@ export interface CategoryProps {
   // ? - необязательное поле
   id: string; // Идентификатор категории
   name: string; // Название категории
-  isActive?: boolean; // true - категория активна
-  onSubmit?: () => void; // Функция при нажатии
+  onSubmit?: (clickedCategory: Category) => void; // Функция при нажатии
 }
 
 /**
@@ -31,11 +30,12 @@ export class Category {
     this.props = {
       id: props.id,
       name: props.name,
-      isActive: props.isActive ?? false,
       onSubmit: props.onSubmit ?? undefined,
     };
     this.clickHandler = this.handleClick.bind(this);
-    //console.log(`Создан элемент класса Category со следующими пропсами: ${this.props}`)
+    console.log(
+      `Создан элемент класса Category со следующими пропсами: ${JSON.stringify(this.props)}`,
+    );
   }
 
   /**
@@ -45,7 +45,7 @@ export class Category {
   get self(): HTMLElement {
     const element = document.getElementById(this.props.id);
     if (!element) {
-      throw new Error(`Error: can't find category with id=${this.props.id}`);
+      throw new Error(`Category: can't find category with id=${this.props.id}`);
     }
     return element as HTMLElement;
     // Возвращаем as HTMLElement потому что querySelector возвращает null или HTMLElement, но мы сделали проверку null
@@ -56,16 +56,12 @@ export class Category {
    */
   render(): void {
     if (!template) {
-      throw new Error('Error: category template not found');
+      throw new Error('Category: category template not found');
     }
     // Рендерим шаблончик с данными
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
-    /*
-    const template = window.Handlebars.templates['category.hbs'];
-    const html = template(this.#props);
-    this.#parent.insertAdjacentHTML('beforeend', html);
-    */
+    this.self.addEventListener('click', this.clickHandler);
   }
 
   /**
@@ -73,18 +69,11 @@ export class Category {
    * @private
    */
   handleClick(event: Event): void {
+    console.log(`Category: Нажали категорию ${this.props.name}`);
     event.preventDefault();
     if (this.props.onSubmit !== undefined) {
-      this.props.onSubmit();
+      this.props.onSubmit(this);
     }
-    this.updateStyle();
-    /*
-    event.preventDefault();
-    if (this.#props.onSubmit !== undefined) {
-      this.#props.onSubmit();
-    }
-    this.updateStyle();
-    */
   }
 
   /**
@@ -92,11 +81,15 @@ export class Category {
    */
   updateStyle(): void {
     const element = this.self;
-    if (this.props.isActive) {
-      element.classList.add('category_active');
-    } else {
+    if (element.classList.contains('category_active')) {
       element.classList.remove('category_active');
+    } else {
+      element.classList.add('category_active');
     }
+  }
+
+  get getProps(): CategoryProps {
+    return this.props;
   }
 
   /**

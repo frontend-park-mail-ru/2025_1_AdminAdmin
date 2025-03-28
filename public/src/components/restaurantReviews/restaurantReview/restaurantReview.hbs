@@ -1,4 +1,13 @@
 <div class="restaurant-review" id="{{id}}">
     <span id="restaurant-review__text">“{{text}}”</span>
-    <span id="restaurant-review__detail">{{generateStars rating}} {{author}} {{date}}</span>
+    <div class="restaurant-review__details">
+        <div class="restaurant-review__rating_stars">
+            <div class="restaurant-review__rating_stars__background">
+                <div class="restaurant-review__rating_stars__foreground">
+                </div>
+            </div>
+        </div>
+        <span>{{author}}</span>
+        <span>{{date}}</span>
+    </div>
 </div>

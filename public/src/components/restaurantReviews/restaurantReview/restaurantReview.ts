@@ -24,6 +24,9 @@ export class RestaurantReview {
    * @param {Object} props - Словарь данных для определения свойств отзыв ресторана
    */
   constructor(parent: HTMLElement, props: RestaurantReviewProps) {
+    if (!parent) {
+      throw new Error('Review: no parent!');
+    }
     this.parent = parent;
     this.props = {
       id: props.id,
@@ -32,6 +35,9 @@ export class RestaurantReview {
       author: props.author,
       date: props.date,
     };
+    console.log(
+      `Создан элемент класса RestaurantReview со следующими пропсами: ${JSON.stringify(this.props)}`,
+    );
   }
 
   /**
@@ -56,6 +62,13 @@ export class RestaurantReview {
     // Рендерим шаблончик
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
+    const ratingInStars = this.self.querySelector(
+      '.restaurant-review__rating_stars__foreground',
+    ) as HTMLElement;
+    if (!ratingInStars) {
+      throw new Error(`Error: can't find rating in stars`);
+    }
+    ratingInStars.style.width = `${(this.props.rating / 5) * 100}%`;
   }
 
   /**
@@ -66,9 +79,3 @@ export class RestaurantReview {
     element.remove();
   }
 }
-
-import Handlebars from 'handlebars';
-
-Handlebars.registerHelper('generateStars', function (score) {
-  return '★'.repeat(Math.floor(score));
-});

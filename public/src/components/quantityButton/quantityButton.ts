@@ -26,6 +26,7 @@ export class QuantityButton extends Button {
   constructor(parent: HTMLElement, props: QuantityButtonProps) {
     // Вызов родительского конструктора
     super(parent, props);
+    console.log(props);
 
     if (this.props.text !== '+' && this.props.text !== '-') {
       // Предупреждение
