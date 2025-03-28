@@ -1,4 +1,5 @@
 import { router } from '../../modules/routing';
+
 import template from './restaurantCard.hbs';
 
 interface RestaurantProps {

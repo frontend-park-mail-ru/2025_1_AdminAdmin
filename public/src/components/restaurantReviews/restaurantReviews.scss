@@ -1,0 +1,102 @@
+// Блок отзывов
+.restaurant-reviews {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  text-align: left;
+  grid-column: 2 / span 10;
+
+  // Заголовок блока отзывов
+  &__header {
+    font-size: 24px;
+    font-weight: bold;
+    margin-left: 5px;
+    color: black;
+  }
+
+  // Основное тело блока отзывов
+  &__body {
+    display: grid;
+    grid-template-areas: 'rating reviews reviews reviews details';
+    gap: 20px;
+    align-items: center;
+    padding: 10px 0;
+    border: 2px solid #f2f2f2;
+    border-radius: 15px;
+  }
+
+  // Секция рейтинга
+  &__rating {
+    // Контейнер
+    &-container {
+      grid-area: rating;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      justify-content: center;
+      text-align: center;
+    }
+    // Числовое значение
+    &_score {
+      font-size: 35px;
+    }
+    // В звездах
+    &_stars {
+      font-size: 24px;
+      
+      &__background { // Пустые, белые звезды
+        position: relative;
+        display: inline-block;
+ 
+        &::before {
+          content: "★★★★★";
+          color: #f2f2f2;
+        }
+      }
+      &__foreground { // Заполненные, золотые звезды
+        position: absolute;
+        left: 0px;
+        top: 0px;
+
+        width: 0%; // По умолчанию рейтинг 0
+        overflow: hidden;
+
+        &::before {
+          content: "★★★★★";
+          color: gold;
+        }
+      }
+    }
+    // Количество оценок
+    &_amount {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  }
+
+  // Секция отзывов
+  &__reviews-container {
+    margin-left: 40px;
+    grid-area: reviews;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  // Секция деталей 
+  &__details-container {
+    grid-area: details;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  button {
+    border-radius: 20px;
+    width: fit-content;
+    font-size: 14px;
+    margin-top: 5px;
+    height: 35px;
+  }
+}

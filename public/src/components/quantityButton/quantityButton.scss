@@ -1,0 +1,73 @@
+/* Тк наследуюсь от кнопки эти свойства тоже применятся
+.button {
+  cursor: pointer;
+  padding: 5px 15px;
+  border: none;
+  align-items: center;
+  justify-content: center;
+}
+*/
+.quantity-button {
+    padding: 0px;
+    width: 32px;
+    height: 32px;
+    background-color: #fff;
+    border-radius: 50%;
+    border: 2px solid #FF4D00; // Цвет границы
+    position: relative;
+
+    &:hover { // При наведении на кнопку
+        background-color: #FF4D00;
+    }
+
+    // Рисую +
+    &_plus {
+        &::before { // Горизонтальная прямая (-)
+            content: '';
+            position: absolute;
+            background-color: #000000;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 2px;
+        }
+
+        &::after { // Вериткальная прямая (|)
+            content: '';
+            position: absolute;
+            background-color: #000000;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 16px;
+        }
+
+        &:hover { // + при наведении
+            &::before,
+            &::after {
+                background-color: #fff;
+            }
+        }
+    }
+    //  Рисую -
+    &_minus {
+        &::before { // Горизонтальная прямая
+            content: '';
+            position: absolute;
+            background-color: #000000;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 2px;
+        }
+
+        &:hover { // - при наведении
+            &::before {
+                background-color: #fff;
+            }
+        }
+    }
+}

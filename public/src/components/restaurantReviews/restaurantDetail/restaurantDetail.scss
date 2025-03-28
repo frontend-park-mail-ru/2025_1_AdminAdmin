@@ -1,0 +1,29 @@
+/* Деталь ресторана */
+.restaurant-detail {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.restaurant-detail img {
+  height: 30px;
+  object-fit: contain;
+}
+
+/* Контейнер для текста */
+.restaurant-detail__container {
+  margin-left: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.restaurant-detail__text_main {
+  font-size: 14px;
+  color: black;
+}
+
+.restaurant-detail__text_description {
+  font-size: 12px;
+  color: #686868;
+}

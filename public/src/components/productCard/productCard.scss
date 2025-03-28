@@ -1,0 +1,69 @@
+// Класс карточки товара
+.product-card {
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  background-color: #fff;
+  position: relative;
+
+  // Товар в корзине или при наведении на карточку
+  &_active,
+  &:hover {
+    background-color: #f2f2f2;
+  }
+
+  // Картинка в карточке
+  img {
+    width: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+
+  // Общие свойства для текста в карточке
+  span {
+    margin-left: 10px;
+    font-size: 12px;
+  }
+
+  // Класс нижнего блока в карточке
+  &__footer {
+    margin-top: 20px;
+    padding: 0 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+
+    // Общие свойства для текста внизу карточки
+    span {
+      margin: 0;
+    }
+
+    // Контейнер для текста активной карточки (количество + общая стоимость)
+    &-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      justify-content: center;
+
+      // Общие свойства для количества и общей стоимости
+      span {
+        margin-left: 0px;
+        text-align: center;
+      }
+    }
+  }
+
+  &__total-price {
+    color: #686868;
+  }
+
+  &__amount,
+  &__price {
+    font-weight: bold;
+  }
+}
