@@ -4,6 +4,7 @@ import Header from '../components/header/header';
 import auxHeader from '../components/auxHeader/auxHeader';
 import { AuthPage } from '../pages/authPage/authPage';
 import { userStore } from '../store/userStore';
+import { Toast } from '../components/toast/toast';
 
 interface RouteConfig {
   href: string;
@@ -19,6 +20,7 @@ class Router {
   private parent: HTMLElement;
   private readonly headerElement: HTMLElement;
   private readonly pageElement: HTMLElement;
+  private readonly toastBoxElement: HTMLElement;
   private currentHeader: Header | auxHeader | null = null;
   private currentPage: RestaurantList | RestaurantPage | AuthPage | null = null;
   private readonly routes: Record<string, RouteConfig>;
@@ -31,11 +33,16 @@ class Router {
     this.parent = parent;
 
     this.headerElement = document.createElement('div');
+    this.headerElement.classList.add('header');
     this.pageElement = document.createElement('main');
     this.pageElement.style.paddingTop = '50px';
 
+    this.toastBoxElement = document.createElement('div');
+    this.toastBoxElement.classList.add('toastBox');
+
     this.parent.appendChild(this.headerElement);
     this.parent.appendChild(this.pageElement);
+    this.parent.appendChild(this.toastBoxElement);
 
     this.routes = {
       home: {

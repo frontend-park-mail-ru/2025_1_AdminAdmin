@@ -1,0 +1,38 @@
+.map_modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &__content {
+    width: 60%;
+    background-color: var(--white);
+    border-radius: 20px;
+    padding: 20px;
+  }
+
+  #form__line_search {
+    height: 45px;
+    position: relative;
+  }
+
+  &__header {
+    font-weight: bold;
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  &__subheader {
+    font-size: 14px;
+    color: var(--dark-gray);
+    margin-bottom: 40px;
+  }
+}
+
+

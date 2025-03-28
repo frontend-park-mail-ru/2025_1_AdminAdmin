@@ -3,6 +3,8 @@ import { userStore } from '../../store/userStore';
 import { Logo } from '../logo/logo';
 import { Button } from '../button/button';
 import template from './header.hbs';
+import { toasts } from '../../modules/toasts';
+import MapModal from '../../pages/mapModal/mapModal';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -14,6 +16,7 @@ export default class Header {
   private loginButton!: Button;
   private logoutButton!: Button;
   private readonly handleScrollBound: () => void;
+  private readonly clickHandler: (event: Event) => void;
 
   /**
    * Создает экземпляр заголовка.
@@ -24,6 +27,22 @@ export default class Header {
     this.parent = parent;
     this.handleScrollBound = this.handleScroll.bind(this);
     userStore.subscribe(() => this.updateAuthState());
+
+    this.clickHandler = this.handleClick.bind(this);
+  }
+
+  private handleClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
+
+    if (target.closest('.header__location_select_button')) {
+      dropdown.style.display = 'block';
+    } else if (target.closest('.header__location_dropdown_button')) {
+      const modalMap = new MapModal();
+      modalMap.render();
+    } else if (dropdown && !target.closest('.header__location_dropdown')) {
+      dropdown.style.display = 'none';
+    }
   }
 
   /**
@@ -39,6 +58,7 @@ export default class Header {
    */
   render(): void {
     this.parent.innerHTML = template();
+    this.parent.classList.add('main_header');
     const headerElement = this.self;
     if (!headerElement) return;
 
@@ -60,15 +80,15 @@ export default class Header {
     this.logoutButton = new Button(buttonContainer, {
       id: 'logout_button',
       text: 'Выход',
-      onSubmit: () => {
-        userStore.logout();
-      },
+      onSubmit: this.handleLogout.bind(this),
     });
     this.logoutButton.render();
 
     this.updateAuthState();
 
     window.addEventListener('scroll', this.handleScrollBound);
+    document.addEventListener('click', this.clickHandler);
+
     this.handleScroll();
   }
 
@@ -81,9 +101,9 @@ export default class Header {
     if (!headerElement) return;
 
     if (window.scrollY > 0) {
-      headerElement.classList.add('header--scrolled');
+      headerElement.classList.add('scrolled');
     } else {
-      headerElement.classList.remove('header--scrolled');
+      headerElement.classList.remove('scrolled');
     }
   }
 
@@ -114,6 +134,19 @@ export default class Header {
   }
 
   /**
+   * Обработчик выхода пользователя.
+   * Осуществляет выход и отображает сообщение.
+   */
+  private async handleLogout(): Promise<void> {
+    try {
+      await userStore.logout();
+      toasts.success('Вы успешно вышли из системы');
+    } catch (error) {
+      toasts.error(error.message);
+    }
+  }
+
+  /**
    * Удаляет заголовок со страницы и снимает обработчики событий.
    */
   remove(): void {
@@ -121,6 +154,8 @@ export default class Header {
     this.loginButton?.remove();
     this.logoutButton?.remove();
     this.parent.innerHTML = '';
+    this.parent.classList.remove('main_header');
     window.removeEventListener('scroll', this.handleScrollBound);
+    document.removeEventListener('click', this.clickHandler);
   }
 }

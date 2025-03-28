@@ -133,13 +133,9 @@ class UserStore {
    * Выход пользователя
    */
   async logout(): Promise<void> {
-    try {
-      await AppUserRequests.Logout();
-      this.dispatch({ type: UserActions.LOGOUT_SUCCESS });
-      router.goToPage('home');
-    } catch (err) {
-      console.error('Ошибка при попытке выхода:', err);
-    }
+    await AppUserRequests.Logout();
+    this.dispatch({ type: UserActions.LOGOUT_SUCCESS });
+    router.goToPage('home');
   }
 
   /**
