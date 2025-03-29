@@ -1,5 +1,4 @@
 .form__input {
-  position: relative;
   color: black;
   display: flex;
   flex-direction: column;
@@ -17,20 +16,6 @@
   }
 
   input {
-    height: 45px;
-    border-radius: var(--border-radius);
-    border: 2px solid transparent;
-    background-color: var(--light-grey);
-    color: var(--dark-gray);
-    padding-left: 10px;
-    padding-right: 20px;
-    transition: border 0.3s ease;
-
-    &:focus {
-      border: 2px solid var(--dark-gray);
-      outline: none;
-    }
-
     &.error {
       border: 2px solid var(--orange);
       background-color: var(--pink);

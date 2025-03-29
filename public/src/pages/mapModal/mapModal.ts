@@ -1,8 +1,7 @@
 import { FormInput } from '../../components/formInput/formInput';
-import { suggestsContainer } from '../../components/suggestsContainer/suggestsContainer';
+import { SuggestsContainer } from '../../components/suggestsContainer/suggestsContainer';
 import { Button } from '../../components/button/button';
 import template from './mapModal.hbs';
-import config from './mapModalConfig';
 import type { YMapLocationRequest } from 'ymaps3';
 import { YMap, YMapDefaultSchemeLayer } from '../../lib/ymaps';
 
@@ -10,7 +9,7 @@ import { YMap, YMapDefaultSchemeLayer } from '../../lib/ymaps';
  * Класс, представляющий форму логина.
  */
 export default class MapModal {
-  private searchInput: FormInput;
+  private suggestsContainer: SuggestsContainer;
   private submitBtn: Button;
   private readonly closeEventHandler: (event: Event) => void;
 
@@ -36,35 +35,34 @@ export default class MapModal {
   /**
    * Рендеринг модального окна
    */
-  async render(): Promise<void> {
+  render() {
     const modalHTML = template();
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-    const searchContainer = document.getElementById('form__line_search')!;
+    const searchContainer: HTMLElement = document.querySelector('.map_modal__search_container');
 
-    this.searchInput = new FormInput(searchContainer, config.inputs.searchInput);
-    this.searchInput.render();
+    this.suggestsContainer = new SuggestsContainer(searchContainer);
+    this.suggestsContainer.render();
 
-    suggestsContainer.render(this.searchInput);
+    const formLineSearch = document.getElementById('form__line_search');
 
-    this.submitBtn = new Button(searchContainer, {
-      ...config.buttons.submitBtn,
+    this.submitBtn = new Button(formLineSearch, {
+      id: 'form__line__search_button',
+      text: 'ОК',
+      disabled: true,
+      style: 'dark big',
     });
     this.submitBtn.render();
     document.body.style.overflow = 'hidden';
-
     this.addCloseEventListener();
   }
 
   /**
-   * Добавляет обработчик события для закрытия модального окна
+   * Очистка модального окна и снятие обработчиков
    */
   private addCloseEventListener(): void {
-    const modal = this.self;
-    if (modal) {
-      modal.addEventListener('click', this.closeEventHandler);
-    }
+    this.self.addEventListener('click', this.closeEventHandler);
   }
 
   /**
@@ -81,20 +79,11 @@ export default class MapModal {
     }
   }
 
-  /**
-   * Очистка модального окна и снятие обработчиков
-   */
   remove(): void {
-    const modal = this.self;
     document.body.style.overflow = '';
-    if (modal) {
-      modal.removeEventListener('click', this.closeEventHandler);
-    }
-
-    this.searchInput.remove();
+    this.self.removeEventListener('click', this.closeEventHandler);
     this.submitBtn.remove();
-    if (modal) {
-      modal.remove();
-    }
+    this.suggestsContainer.remove();
+    this.self.remove();
   }
 }

@@ -1,26 +1,39 @@
 import template from './suggestsContainer.hbs';
 import { I_Suggest } from '../../modules/ymapsRequests';
 import { Suggest } from '../suggest/suggest';
-import { FormInput } from '../formInput/formInput';
+import { geoSuggestRequest } from '../../modules/ymapsRequests';
+import debounce from '../../modules/debounce';
 
-class SuggestsContainer {
+export class SuggestsContainer {
   private suggests: Suggest[] = [];
-  private parentInput: FormInput | null = null;
+  private readonly parent: HTMLElement;
+  private readonly parentInput: HTMLInputElement;
+  private readonly debouncedOnInput: (value: string) => void;
 
-  constructor() {}
+  constructor(parent: HTMLElement) {
+    this.parent = parent;
+    this.parentInput = this.parent.querySelector('input') as HTMLInputElement | null;
+    this.debouncedOnInput = debounce(this.onInput.bind(this), 250);
 
-  render(parentInput: FormInput) {
-    this.parentInput = parentInput;
+    if (this.parentInput) {
+      this.parentInput.addEventListener('input', (event) =>
+        this.debouncedOnInput((event.target as HTMLInputElement).value),
+      );
+      this.parentInput.addEventListener('blur', this.onBlur.bind(this));
+      this.parentInput.addEventListener('focus', this.immitateInput.bind(this));
+    }
+  }
+
+  render() {
     const html = template();
-    const parent = parentInput.self;
-    parent.insertAdjacentHTML('beforeend', html);
+    this.parent.insertAdjacentHTML('beforeend', html);
   }
 
   private get self(): HTMLElement | null {
     return document.querySelector('.suggest_box');
   }
 
-  show(props: I_Suggest): void {
+  private show(props: I_Suggest): void {
     const parent = this.self;
     if (!parent) {
       console.error('Suggest container not found!');
@@ -46,12 +59,7 @@ class SuggestsContainer {
   }
 
   private handleSuggestClick(address: string, tags: string[]) {
-    if (!this.parentInput) {
-      console.error('No parent input assigned');
-      return;
-    }
-
-    this.parentInput.input.value = address;
+    this.parentInput.value = address;
 
     const finalTags = ['house', 'business', 'office', 'hotel'];
     const isFinalAddress = tags.some((tag) => finalTags.includes(tag));
@@ -61,9 +69,57 @@ class SuggestsContainer {
       return;
     }
 
+    this.immitateInput();
+  }
+
+  private immitateInput() {
     const event = new Event('input', { bubbles: true });
-    this.parentInput.input.dispatchEvent(event);
+    this.parentInput.dispatchEvent(event);
+  }
+
+  private async onInput(value: string) {
+    this.clear();
+    if (!value) {
+      return;
+    }
+
+    try {
+      const suggestsResponse = await geoSuggestRequest(value);
+
+      if (suggestsResponse.status !== 200) {
+        console.error(`Ошибка API: ${suggestsResponse.status}`);
+        return;
+      }
+
+      const suggests = Array.isArray(suggestsResponse.results) ? suggestsResponse.results : [];
+
+      if (!suggests.length) {
+        console.warn('Пустой массив результатов');
+        return;
+      }
+
+      for (let suggest of suggests) {
+        console.log(suggest);
+        this.show(suggest);
+      }
+    } catch (error) {
+      console.error('Ошибка запроса:', error);
+    }
+  }
+
+  private onBlur() {
+    setTimeout(() => {
+      this.clear();
+    }, 200);
+  }
+
+  remove() {
+    if (this.parentInput) {
+      this.parentInput.removeEventListener('input', (event) =>
+        this.debouncedOnInput((event.target as HTMLInputElement).value),
+      );
+      this.parentInput.removeEventListener('blur', this.onBlur);
+      this.parentInput.removeEventListener('focus', this.immitateInput);
+    }
   }
 }
-
-export const suggestsContainer = new SuggestsContainer();

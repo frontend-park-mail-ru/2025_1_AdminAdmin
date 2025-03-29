@@ -35,13 +35,14 @@ export default class Header {
     const target = event.target as HTMLElement;
     const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
 
+    if (dropdown) {
+      dropdown.style.display = 'none';
+    }
+
     if (target.closest('.header__location_select_button')) {
       dropdown.style.display = 'block';
     } else if (target.closest('.header__location_dropdown_button')) {
-      const modalMap = new MapModal();
-      modalMap.render();
-    } else if (dropdown && !target.closest('.header__location_dropdown')) {
-      dropdown.style.display = 'none';
+      router.goToPage('mapModal');
     }
   }
 

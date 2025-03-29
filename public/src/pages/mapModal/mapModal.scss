@@ -19,7 +19,6 @@
 
   #form__line_search {
     height: 45px;
-    position: relative;
   }
 
   &__header {
@@ -32,6 +31,25 @@
     font-size: 14px;
     color: var(--dark-gray);
     margin-bottom: 40px;
+  }
+
+  &__search_container {
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    input {
+      padding-left: 35px;
+      width: 100%;
+    }
+  }
+
+  &__search_icon {
+    position: absolute;
+    left: 10px;
+    height: 20px;
+    width: auto;
   }
 }
 

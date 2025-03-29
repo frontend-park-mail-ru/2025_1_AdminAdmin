@@ -4,12 +4,13 @@ import Header from '../components/header/header';
 import auxHeader from '../components/auxHeader/auxHeader';
 import { AuthPage } from '../pages/authPage/authPage';
 import { userStore } from '../store/userStore';
-import { Toast } from '../components/toast/toast';
+import MapModal from '../pages/mapModal/mapModal';
 
 interface RouteConfig {
   href: string;
   class: new (...args: any[]) => any;
-  header: new (parent: HTMLElement) => any;
+  header?: new (parent: HTMLElement) => any;
+  isModal?: boolean;
   options?: boolean;
 }
 
@@ -23,6 +24,7 @@ class Router {
   private readonly toastBoxElement: HTMLElement;
   private currentHeader: Header | auxHeader | null = null;
   private currentPage: RestaurantList | RestaurantPage | AuthPage | null = null;
+  private currentModal: MapModal | null;
   private readonly routes: Record<string, RouteConfig>;
 
   /**
@@ -65,6 +67,12 @@ class Router {
         href: '/register',
         class: AuthPage,
         header: auxHeader,
+        options: false,
+      },
+      mapModal: {
+        href: '/address',
+        class: MapModal,
+        isModal: true,
         options: false,
       },
     };
@@ -110,23 +118,31 @@ class Router {
       return;
     }
 
-    if (!(this.currentHeader instanceof pageData.header)) {
-      this.currentHeader?.remove();
-      this.currentHeader = new pageData.header(this.headerElement);
-      this.currentHeader.render();
-    }
+    this.currentModal?.remove();
 
-    if (shouldPushState) {
-      const newPath = id ? `${pageData.href}${id}` : pageData.href;
-      history.pushState(id ? { id } : {}, '', newPath);
-    }
+    if (pageData.isModal) {
+      this.currentModal = new pageData.class();
+      this.currentModal.render();
+      return;
+    } else {
+      if (!(this.currentHeader instanceof pageData.header)) {
+        this.currentHeader?.remove();
+        this.currentHeader = new pageData.header(this.headerElement);
+        this.currentHeader.render();
+      }
 
-    if (!(this.currentPage instanceof pageData.class)) {
-      this.currentPage?.remove();
-      this.currentPage = new pageData.class(this.pageElement, id);
-    }
+      if (shouldPushState) {
+        const newPath = id ? `${pageData.href}${id}` : pageData.href;
+        history.pushState(id ? { id } : {}, '', newPath);
+      }
 
-    this.currentPage.render(pageData.options);
+      if (!(this.currentPage instanceof pageData.class)) {
+        this.currentPage?.remove();
+        this.currentPage = new pageData.class(this.pageElement, id);
+      }
+
+      this.currentPage.render(pageData.options);
+    }
   }
 
   /**
