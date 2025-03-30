@@ -5,6 +5,7 @@ import { Button } from '../button/button';
 import template from './header.hbs';
 import { toasts } from '../../modules/toasts';
 import MapModal from '../../pages/mapModal/mapModal';
+import ModalController from '../../modules/modalController';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -17,6 +18,7 @@ export default class Header {
   private logoutButton!: Button;
   private readonly handleScrollBound: () => void;
   private readonly clickHandler: (event: Event) => void;
+  private modalController: ModalController;
 
   /**
    * Создает экземпляр заголовка.
@@ -25,6 +27,7 @@ export default class Header {
    */
   constructor(parent: HTMLElement) {
     this.parent = parent;
+    this.modalController = new ModalController();
     this.handleScrollBound = this.handleScroll.bind(this);
     userStore.subscribe(() => this.updateAuthState());
 
@@ -42,7 +45,8 @@ export default class Header {
     if (target.closest('.header__location_select_button')) {
       dropdown.style.display = 'block';
     } else if (target.closest('.header__location_dropdown_button')) {
-      router.goToPage('mapModal');
+      const mapModal = new MapModal();
+      this.modalController.openModal(mapModal);
     }
   }
 
@@ -156,6 +160,7 @@ export default class Header {
     this.logoutButton?.remove();
     this.parent.innerHTML = '';
     this.parent.classList.remove('main_header');
+    this.modalController.remove();
     window.removeEventListener('scroll', this.handleScrollBound);
     document.removeEventListener('click', this.clickHandler);
   }

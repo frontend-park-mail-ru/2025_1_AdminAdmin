@@ -17,9 +17,7 @@ export default class MapModal {
    * Конструктор класса
    * @constructor
    */
-  constructor() {
-    this.closeEventHandler = this.handleClose.bind(this);
-  }
+  constructor() {}
 
   /**
    * Получение HTML элемента формы
@@ -27,6 +25,10 @@ export default class MapModal {
    */
   private get self(): HTMLElement | null {
     return document.querySelector('.map_modal');
+  }
+
+  get window(): HTMLElement | null {
+    return document.querySelector('.map_modal__content');
   }
 
   private get map(): HTMLElement | null {
@@ -40,7 +42,7 @@ export default class MapModal {
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-    const searchContainer: HTMLElement = document.querySelector('.map_modal__search_container');
+    const searchContainer = document.querySelector<HTMLElement>('.map_modal__search_container');
 
     this.suggestsContainer = new SuggestsContainer(searchContainer);
     this.suggestsContainer.render();
@@ -55,28 +57,6 @@ export default class MapModal {
     });
     this.submitBtn.render();
     document.body.style.overflow = 'hidden';
-    this.addCloseEventListener();
-  }
-
-  /**
-   * Очистка модального окна и снятие обработчиков
-   */
-  private addCloseEventListener(): void {
-    this.self.addEventListener('click', this.closeEventHandler);
-  }
-
-  /**
-   * Обработчик закрытия модалки
-   * Удаляет модалку при клике на неё
-   */
-  private handleClose(event: Event): void {
-    const modal = this.self;
-    if (modal) {
-      const target = event.target as HTMLElement;
-      if (target === modal) {
-        this.remove();
-      }
-    }
   }
 
   remove(): void {

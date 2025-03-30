@@ -4,13 +4,11 @@ import Header from '../components/header/header';
 import auxHeader from '../components/auxHeader/auxHeader';
 import { AuthPage } from '../pages/authPage/authPage';
 import { userStore } from '../store/userStore';
-import MapModal from '../pages/mapModal/mapModal';
 
 interface RouteConfig {
   href: string;
   class: new (...args: any[]) => any;
-  header?: new (parent: HTMLElement) => any;
-  isModal?: boolean;
+  header: new (parent: HTMLElement) => any;
   options?: boolean;
 }
 
@@ -24,7 +22,6 @@ class Router {
   private readonly toastBoxElement: HTMLElement;
   private currentHeader: Header | auxHeader | null = null;
   private currentPage: RestaurantList | RestaurantPage | AuthPage | null = null;
-  private currentModal: MapModal | null;
   private readonly routes: Record<string, RouteConfig>;
 
   /**
@@ -33,19 +30,15 @@ class Router {
    */
   constructor(parent: HTMLElement) {
     this.parent = parent;
-
     this.headerElement = document.createElement('div');
     this.headerElement.classList.add('header');
     this.pageElement = document.createElement('main');
     this.pageElement.style.paddingTop = '50px';
-
     this.toastBoxElement = document.createElement('div');
     this.toastBoxElement.classList.add('toastBox');
-
     this.parent.appendChild(this.headerElement);
     this.parent.appendChild(this.pageElement);
     this.parent.appendChild(this.toastBoxElement);
-
     this.routes = {
       home: {
         href: '/',
@@ -69,19 +62,12 @@ class Router {
         header: auxHeader,
         options: false,
       },
-      mapModal: {
-        href: '/address',
-        class: MapModal,
-        isModal: true,
-        options: false,
-      },
     };
 
     userStore.checkUser();
     window.addEventListener('popstate', this.handleRouteChange.bind(this));
     this.handleRouteChange();
   }
-
   /**
    * Обработчик изменения маршрута.
    * Определяет текущий путь и перенаправляет на соответствующую страницу.
@@ -89,12 +75,10 @@ class Router {
    */
   private handleRouteChange(): void {
     const currentPath = window.location.pathname;
-
     if (currentPath === '/') {
       this.goToPage('home', null, false);
       return;
     }
-
     for (const [page, { href }] of Object.entries(this.routes).slice(1)) {
       if (currentPath.startsWith(href)) {
         const id = currentPath.split('/')[2] || null;
@@ -103,7 +87,6 @@ class Router {
       }
     }
   }
-
   /**
    * Переход на указанную страницу.
    * @param {string} page - Имя страницы, указанное в `routes`.
@@ -112,37 +95,28 @@ class Router {
    */
   goToPage(page: string, id: string | null = null, shouldPushState: boolean = true): void {
     const pageData = this.routes[page];
-
     if (!pageData) {
       console.error(`Page "${page}" not found in routes.`);
       return;
     }
 
-    this.currentModal?.remove();
-
-    if (pageData.isModal) {
-      this.currentModal = new pageData.class();
-      this.currentModal.render();
-      return;
-    } else {
-      if (!(this.currentHeader instanceof pageData.header)) {
-        this.currentHeader?.remove();
-        this.currentHeader = new pageData.header(this.headerElement);
-        this.currentHeader.render();
-      }
-
-      if (shouldPushState) {
-        const newPath = id ? `${pageData.href}${id}` : pageData.href;
-        history.pushState(id ? { id } : {}, '', newPath);
-      }
-
-      if (!(this.currentPage instanceof pageData.class)) {
-        this.currentPage?.remove();
-        this.currentPage = new pageData.class(this.pageElement, id);
-      }
-
-      this.currentPage.render(pageData.options);
+    if (!(this.currentHeader instanceof pageData.header)) {
+      this.currentHeader?.remove();
+      this.currentHeader = new pageData.header(this.headerElement);
+      this.currentHeader.render();
     }
+
+    if (shouldPushState) {
+      const newPath = id ? `${pageData.href}${id}` : pageData.href;
+      history.pushState(id ? { id } : {}, '', newPath);
+    }
+
+    if (!(this.currentPage instanceof pageData.class)) {
+      this.currentPage?.remove();
+      this.currentPage = new pageData.class(this.pageElement, id);
+    }
+
+    this.currentPage.render(pageData.options);
   }
 
   /**
@@ -153,10 +127,8 @@ class Router {
     this.parent.innerHTML = '';
   }
 }
-
 /** @type {Router | null} */
 let router: Router | null = null;
-
 /**
  * Инициализирует маршрутизацию.
  * @param {HTMLElement} parent - Родительский элемент, в который будет встраиваться приложение.
@@ -168,5 +140,4 @@ export function initRouting(parent: HTMLElement): Router {
   }
   return router;
 }
-
 export { router };

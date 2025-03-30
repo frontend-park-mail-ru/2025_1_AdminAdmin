@@ -12,7 +12,7 @@ export class SuggestsContainer {
 
   constructor(parent: HTMLElement) {
     this.parent = parent;
-    this.parentInput = this.parent.querySelector('input') as HTMLInputElement | null;
+    this.parentInput = this.parent.querySelector('input');
     this.debouncedOnInput = debounce(this.onInput.bind(this), 250);
 
     if (this.parentInput) {
@@ -118,8 +118,8 @@ export class SuggestsContainer {
       this.parentInput.removeEventListener('input', (event) =>
         this.debouncedOnInput((event.target as HTMLInputElement).value),
       );
-      this.parentInput.removeEventListener('blur', this.onBlur);
-      this.parentInput.removeEventListener('focus', this.immitateInput);
+      this.parentInput.removeEventListener('blur', this.onBlur.bind(this));
+      this.parentInput.removeEventListener('focus', this.immitateInput.bind(this));
     }
   }
 }

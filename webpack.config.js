@@ -93,7 +93,7 @@ const config = {
         }),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.DefinePlugin({
-            "process.env.YANDEX_API_KEY": JSON.stringify(process.env.YANDEX_API_KEY),
+            "process.env.GEOSUGGEST_API_KEY": JSON.stringify(process.env.GEOSUGGEST_API_KEY),
         }),
     ],
     experiments: {

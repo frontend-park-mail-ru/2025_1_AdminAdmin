@@ -1,4 +1,12 @@
-const API_KEY = 'ce676c0d-0aa1-4e6b-af0b-d299e5fee694';
+const BASE_URL = 'https://suggest-maps.yandex.ru/v1/suggest';
+const API_KEY = process.env.GEOSUGGEST_API_KEY || ''; // Убедимся, что API-ключ не undefined
+const DEFAULT_PARAMS = {
+  lang: 'ru',
+  ll: '37.6173,55.7558',
+  print_address: '1',
+  org_address_kind: 'house',
+  attrs: 'uri',
+};
 
 interface Highlight {
   begin: number;
@@ -52,9 +60,13 @@ export type { GeoSuggestResponse, I_Suggest, Highlight, Address, Distance, Subti
  */
 
 export const geoSuggestRequest = async <T = any>(value: string): Promise<GeoSuggestResponse> => {
-  const queryUrl = new URL(
-    `https://suggest-maps.yandex.ru/v1/suggest?apikey=${API_KEY}&text=${value}&lang=ru&ll=37.6173,55.7558&print_address=1&org_address_kind=house&attrs=uri`,
-  );
+  const queryParams = new URLSearchParams({
+    apikey: API_KEY.trim(), // Очищаем от лишних пробелов/символов
+    text: value,
+    ...DEFAULT_PARAMS, // Добавляем остальные параметры
+  });
+
+  const queryUrl = `${BASE_URL}?${queryParams.toString()}`; // Собираем URL вручную
 
   try {
     const response = await fetch(queryUrl.toString());
