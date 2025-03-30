@@ -1,11 +1,20 @@
-const BASE_URL = 'https://suggest-maps.yandex.ru/v1/suggest';
-const API_KEY = process.env.GEOSUGGEST_API_KEY || ''; // Убедимся, что API-ключ не undefined
-const DEFAULT_PARAMS = {
-  lang: 'ru',
-  ll: '37.6173,55.7558',
-  print_address: '1',
-  org_address_kind: 'house',
-  attrs: 'uri',
+const URLparams = {
+  geoSuggest: {
+    BASE_URL: 'https://suggest-maps.yandex.ru/v1/suggest',
+    API_KEY: process.env.GEOSUGGEST_API_KEY,
+    DEFAULT_PARAMS: {
+      lang: 'ru',
+      ll: '37.6173,55.7558',
+      print_address: '1',
+      org_address_kind: 'house',
+      attrs: 'uri',
+    },
+  },
+  geoCoder: {
+    BASE_URL: 'https://geocode-maps.yandex.ru/v1/',
+    API_KEY: process.env.GEOCODER_API_KEY,
+    format: 'json',
+  },
 };
 
 interface Highlight {
@@ -43,7 +52,7 @@ interface I_Suggest {
   tags?: string[];
   distance?: Distance;
   address?: Address;
-  uri?: string;
+  uri: string;
 }
 
 interface GeoSuggestResponse {
@@ -51,38 +60,63 @@ interface GeoSuggestResponse {
   results: I_Suggest[];
 }
 
+interface GeoCoderResponse {
+  status: number;
+  result?: string;
+  error?: string;
+}
+
 export type { GeoSuggestResponse, I_Suggest, Highlight, Address, Distance, Subtitle, Title };
 
 /**
  * Выполняет HTTP-запрос к API геосаджеста.
+ * @param value Запрос
  * @returns {Promise<GeoSuggestResponse>}
- * @param value
  */
-
-export const geoSuggestRequest = async <T = any>(value: string): Promise<GeoSuggestResponse> => {
-  const queryParams = new URLSearchParams({
-    apikey: API_KEY.trim(), // Очищаем от лишних пробелов/символов
+export const geoSuggestRequest = async (value: string): Promise<GeoSuggestResponse> => {
+  const params = new URLSearchParams({
+    apikey: URLparams.geoSuggest.API_KEY.trim(),
     text: value,
-    ...DEFAULT_PARAMS, // Добавляем остальные параметры
+    ...URLparams.geoSuggest.DEFAULT_PARAMS,
   });
 
-  const queryUrl = `${BASE_URL}?${queryParams.toString()}`; // Собираем URL вручную
+  try {
+    const response = await fetch(`${URLparams.geoSuggest.BASE_URL}?${params.toString()}`);
+    if (!response.ok) throw new Error(`Ошибка запроса: ${response.status}`);
+
+    const data = await response.json();
+    return { status: response.status, results: data?.results || [] };
+  } catch (error) {
+    return { status: 503, results: error.message };
+  }
+};
+
+/**
+ * Выполняет HTTP-запрос к API геокодера.
+ * @param uri
+ * @returns {Promise<GeoCoderResponse>}
+ */
+export const geoCoderRequest = async (uri: string): Promise<GeoCoderResponse> => {
+  const params = new URLSearchParams({
+    apikey: URLparams.geoCoder.API_KEY.trim(),
+    uri: uri,
+    format: URLparams.geoCoder.format,
+  });
 
   try {
-    const response = await fetch(queryUrl.toString());
-    const contentType = response.headers.get('Content-Type') || '';
+    const response = await fetch(`${URLparams.geoCoder.BASE_URL}?${params.toString()}`);
+    if (!response.ok) throw new Error(`Ошибка запроса: ${response.status}`);
 
-    let body: any;
-    try {
-      if (contentType.includes('application/json')) {
-        body = await response.json();
-      }
-    } catch {
-      body = null;
-    }
+    const data = await response.json();
 
-    return { status: response.status, results: body?.results };
-  } catch (err) {
-    return { status: 503, results: err.message };
+    const geoObject = data.response?.GeoObjectCollection?.featureMember?.[0]?.GeoObject;
+    const position = geoObject?.Point?.pos || null;
+
+    return {
+      status: response.status,
+      result: position,
+    };
+  } catch (error) {
+    return { status: 503, error: error.message };
   }
 };

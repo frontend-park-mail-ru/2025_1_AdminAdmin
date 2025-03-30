@@ -94,6 +94,7 @@ const config = {
         new webpack.HotModuleReplacementPlugin(),
         new webpack.DefinePlugin({
             "process.env.GEOSUGGEST_API_KEY": JSON.stringify(process.env.GEOSUGGEST_API_KEY),
+            "process.env.GEOCODER_API_KEY": JSON.stringify(process.env.GEOCODER_API_KEY),
         }),
     ],
     experiments: {

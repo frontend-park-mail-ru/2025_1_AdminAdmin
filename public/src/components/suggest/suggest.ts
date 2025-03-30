@@ -10,10 +10,16 @@ export class Suggest {
   private readonly subtitle: string;
   private readonly distance: number | null;
   private readonly address: string | null;
-  private readonly onClick: (text: string, tags: string[]) => void;
+  private readonly uri: string;
+  private readonly onClick: (text: string, tags: string[], uri: string) => void;
   private readonly clickHandler: (event: Event) => void;
 
-  constructor(parent: HTMLElement, id: string, props: I_Suggest, onClick: (text: string) => void) {
+  constructor(
+    parent: HTMLElement,
+    id: string,
+    props: I_Suggest,
+    onClick: (text: string, tags: string[], uri: string) => void,
+  ) {
     this.parent = parent;
     this.id = id;
     this.text = props.title.text;
@@ -22,6 +28,7 @@ export class Suggest {
     this.subtitle = props.subtitle ? props.subtitle.text : '';
     this.distance = props.distance ? props.distance.value : null;
     this.address = props.address ? props.address.formatted_address : null;
+    this.uri = props.uri;
     this.onClick = onClick;
 
     this.clickHandler = this.handleClick.bind(this);
@@ -60,7 +67,7 @@ export class Suggest {
 
   private handleClick() {
     if (this.onClick) {
-      this.onClick(this.address || '', this.tags);
+      this.onClick(this.address || '', this.tags, this.uri);
     }
   }
 

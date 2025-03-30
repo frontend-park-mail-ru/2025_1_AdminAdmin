@@ -41,7 +41,6 @@ export default class ModalController {
     if (this.currentModal === modal) {
       this.currentModal.remove();
       this.currentModal = null;
-      history.pushState({}, '', window.location.pathname);
       document.removeEventListener('click', this.clickOutsideHandler);
     }
   }
