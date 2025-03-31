@@ -61,7 +61,7 @@ const config = {
                 ],
             },
             {
-                test: /\.(png|jpg|jpeg|gif)$/i,
+                test: /\.(png|jpg|jpeg|svg|gif)$/i,
                 type: 'asset/resource',
             },
             {

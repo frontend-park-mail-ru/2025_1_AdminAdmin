@@ -20,7 +20,7 @@ export default class ModalController {
   }
 
   private handleClickOutside(event: MouseEvent): void {
-    if (this.currentModal && !this.currentModal.window.contains(event.target as Node)) {
+    if (this.currentModal && event.target === this.currentModal.closeElem) {
       this.closeModal(this.currentModal);
     }
   }

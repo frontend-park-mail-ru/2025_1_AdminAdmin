@@ -2,9 +2,14 @@ import { SuggestsContainer } from '../../components/suggestsContainer/suggestsCo
 import { Button } from '../../components/button/button';
 import template from './mapModal.hbs';
 import { YMap, YMapDefaultSchemeLayer } from '../../lib/ymaps';
-import { geoCoderRequest, geoSuggestRequest } from '../../modules/ymapsRequests';
+import {
+  geoCoderRequest,
+  geoCoderRequestByCoords,
+  geoSuggestRequest,
+} from '../../modules/ymapsRequests';
 import debounce from '../../modules/debounce';
-import { YMapDefaultMarker } from '@yandex/ymaps3-default-ui-theme';
+import { YMapDefaultMarker, YMapZoomControl } from '@yandex/ymaps3-default-ui-theme';
+import { toasts } from '../../modules/toasts';
 
 /**
  * Класс, представляющий модальное окно карты.
@@ -16,6 +21,7 @@ export default class MapModal {
   private readonly debouncedOnInput: (value: string) => void;
   private map: any;
   private marker: any;
+  private markerElement: HTMLImageElement;
 
   /**
    * Конструктор класса
@@ -37,8 +43,8 @@ export default class MapModal {
     return document.getElementById('map_modal__input') as HTMLInputElement;
   }
 
-  get window(): HTMLElement | null {
-    return document.querySelector('.map_modal__content');
+  get closeElem(): HTMLElement | null {
+    return document.querySelector('.map_modal__close_icon');
   }
 
   /**
@@ -53,7 +59,7 @@ export default class MapModal {
 
     this.suggestsContainer = new SuggestsContainer(
       searchContainer,
-      this.handleAddressSelect.bind(this),
+      this.handleSuggestClick.bind(this),
     );
     this.suggestsContainer.render();
 
@@ -65,6 +71,7 @@ export default class MapModal {
       disabled: true,
       style: 'dark big',
     });
+
     this.submitBtn.render();
     document.body.style.overflow = 'hidden';
 
@@ -77,6 +84,10 @@ export default class MapModal {
     }
 
     this.createMap();
+
+    this.markerElement = document.createElement('img');
+    this.markerElement.src = './src/assets/map_location.png';
+    this.markerElement.className = 'map_modal__marker';
   }
 
   private createMap() {
@@ -90,9 +101,22 @@ export default class MapModal {
     this.map.addChild(new YMapDefaultSchemeLayer({}));
     this.map.addChild(new ymaps3.YMapDefaultFeaturesLayer({ zIndex: 1800 }));
 
+    const controls = new ymaps3.YMapControls({
+      position: 'top left',
+      orientation: 'vertical',
+    });
+
+    controls.addChild(
+      new YMapZoomControl({
+        easing: 'linear',
+      }),
+    );
+
+    this.map.addChild(controls);
+
     const mapListener = new ymaps3.YMapListener({
       layer: 'any',
-      onClick: this.handleMapClick.bind(this),
+      onClick: this.clickCallback.bind(this),
     });
 
     this.map.addChild(mapListener);
@@ -100,22 +124,27 @@ export default class MapModal {
     document.querySelector('.ymaps3x0--map-copyrights')?.remove();
   }
 
-  private handleMapClick(event: { event: { coordinates: [number, number] } }) {
-    console.log(event);
-    if (!event || !event.event || !event.event.coordinates) return;
-    const [lon, lat] = event.event.coordinates;
-
-    if (this.marker) {
-      this.map.removeChild(this.marker);
+  private async clickCallback(object: any, event: { coordinates: [number, number] }) {
+    if (this.map.zoom < 15) {
+      return;
     }
 
-    this.marker = new YMapDefaultMarker({
-      coordinates: [lon, lat],
-      color: 'red',
-      iconName: 'checkpoint',
-    });
+    const [longitude, latitude] = event.coordinates;
+    const geoCoderResponse = await geoCoderRequestByCoords(longitude, latitude);
+    if (geoCoderResponse.status !== 200) {
+      console.error(`Ошибка API: ${geoCoderResponse.status}`);
+      return;
+    }
 
-    this.map.addChild(this.marker);
+    if (!geoCoderResponse.result) {
+      toasts.error('Поблизости ничего нет...');
+      return;
+    }
+
+    const addressText = geoCoderResponse.result.metaDataProperty.GeocoderMetaData.text;
+    this.input.value = addressText.split(', ').slice(1).join(', ');
+
+    this.addNewMarker(event.coordinates);
   }
 
   private immitateInput() {
@@ -123,7 +152,7 @@ export default class MapModal {
     this.input.dispatchEvent(event);
   }
 
-  private async handleAddressSelect(address: string, tags: string[], uri: string): Promise<void> {
+  private async handleSuggestClick(address: string, tags: string[], uri: string): Promise<void> {
     this.input.value = address;
 
     const finalTags = ['house', 'business', 'office', 'hotel'];
@@ -142,7 +171,7 @@ export default class MapModal {
       return;
     }
 
-    const point = geoCoderResponse.result.split(' ').map(Number);
+    const point = geoCoderResponse.result.Point.pos.split(' ').map(Number);
     const [lon, lat] = point;
 
     this.map.setLocation({
@@ -152,15 +181,20 @@ export default class MapModal {
       easing: 'ease-in-out',
     });
 
+    this.addNewMarker([lon, lat]);
+  }
+
+  private addNewMarker([lon, lat]: [number, number]): void {
     if (this.marker) {
       this.map.removeChild(this.marker);
     }
 
-    this.marker = new YMapDefaultMarker({
-      coordinates: [lon, lat],
-      color: 'red',
-      iconName: 'checkpoint',
-    });
+    this.marker = new ymaps3.YMapMarker(
+      {
+        coordinates: [lon, lat],
+      },
+      this.markerElement,
+    );
 
     this.map.addChild(this.marker);
   }
