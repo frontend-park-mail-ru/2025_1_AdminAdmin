@@ -15,6 +15,7 @@ export default class MapModal {
   private readonly closeEventHandler: (event: Event) => void;
   private readonly debouncedOnInput: (value: string) => void;
   private map: any;
+  private marker: any;
 
   /**
    * Конструктор класса
@@ -89,7 +90,32 @@ export default class MapModal {
     this.map.addChild(new YMapDefaultSchemeLayer({}));
     this.map.addChild(new ymaps3.YMapDefaultFeaturesLayer({ zIndex: 1800 }));
 
+    const mapListener = new ymaps3.YMapListener({
+      layer: 'any',
+      onClick: this.handleMapClick.bind(this),
+    });
+
+    this.map.addChild(mapListener);
+
     document.querySelector('.ymaps3x0--map-copyrights')?.remove();
+  }
+
+  private handleMapClick(event: { event: { coordinates: [number, number] } }) {
+    console.log(event);
+    if (!event || !event.event || !event.event.coordinates) return;
+    const [lon, lat] = event.event.coordinates;
+
+    if (this.marker) {
+      this.map.removeChild(this.marker);
+    }
+
+    this.marker = new YMapDefaultMarker({
+      coordinates: [lon, lat],
+      color: 'red',
+      iconName: 'checkpoint',
+    });
+
+    this.map.addChild(this.marker);
   }
 
   private immitateInput() {
@@ -126,13 +152,17 @@ export default class MapModal {
       easing: 'ease-in-out',
     });
 
-    this.map.addChild(
-      new YMapDefaultMarker({
-        coordinates: [lon, lat],
-        color: 'red',
-        iconName: 'checkpoint',
-      }),
-    );
+    if (this.marker) {
+      this.map.removeChild(this.marker);
+    }
+
+    this.marker = new YMapDefaultMarker({
+      coordinates: [lon, lat],
+      color: 'red',
+      iconName: 'checkpoint',
+    });
+
+    this.map.addChild(this.marker);
   }
 
   private async onInput(value: string) {
@@ -140,12 +170,13 @@ export default class MapModal {
     this.submitBtn.disable();
 
     if (!value) {
-      this.map.update({
+      this.map.setLocation({
         center: [37.588144, 55.733842],
         zoom: 10,
-        duration: 100,
-        easing: 'ease-in-out',
       });
+      if (this.marker) {
+        this.map.removeChild(this.marker);
+      }
       return;
     }
 
