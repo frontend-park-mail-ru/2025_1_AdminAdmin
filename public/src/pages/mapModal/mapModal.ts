@@ -8,11 +8,7 @@ import {
   geoSuggestRequest,
 } from '../../modules/ymapsRequests';
 import debounce from '../../modules/debounce';
-import {
-  YMapDefaultMarker,
-  YMapGeolocationControl,
-  YMapZoomControl,
-} from '@yandex/ymaps3-default-ui-theme';
+import { YMapGeolocationControl, YMapZoomControl } from '@yandex/ymaps3-default-ui-theme';
 import { toasts } from '../../modules/toasts';
 
 /**
@@ -111,25 +107,25 @@ export default class MapModal {
       orientation: 'vertical',
     });
 
-    const geolocationControl = new YMapGeolocationControl({
-      onGeolocatePosition: async (position) => {
-        await this.handleGeoCoderResponse([position[0], position[1]]);
-      },
-      onGeolocateError: () => {
-        console.error('Geolocation failed');
-      },
-      source: 'geolocation-source',
-      easing: 'linear',
-      duration: 1000,
-      zoom: 18,
-      positionOptions: {
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0,
-      },
-    });
-
-    this.controls.addChild(geolocationControl);
+    this.controls.addChild(
+      new YMapGeolocationControl({
+        onGeolocatePosition: async (position) => {
+          await this.handleGeoCoderRequest([position[0], position[1]]);
+        },
+        onGeolocateError: () => {
+          console.error('Geolocation failed');
+        },
+        source: 'geolocation-source',
+        easing: 'linear',
+        duration: 1000,
+        zoom: 18,
+        positionOptions: {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0,
+        },
+      }),
+    );
 
     this.controls.addChild(
       new YMapZoomControl({
@@ -155,10 +151,10 @@ export default class MapModal {
     }
 
     const [longitude, latitude] = event.coordinates;
-    await this.handleGeoCoderResponse([longitude, latitude]);
+    await this.handleGeoCoderRequest([longitude, latitude]);
   }
 
-  private async handleGeoCoderResponse([longitude, latitude]: [number, number]) {
+  private async handleGeoCoderRequest([longitude, latitude]: [number, number]) {
     const geoCoderResponse = await geoCoderRequestByCoords(longitude, latitude);
     if (geoCoderResponse.status !== 200) {
       console.error(`Ошибка API: ${geoCoderResponse.status}`);
@@ -294,15 +290,6 @@ export default class MapModal {
 
     if (this.suggestsContainer) {
       this.suggestsContainer.clear();
-    }
-
-    if (this.marker && this.map) {
-      this.map.removeChild(this.marker);
-      this.marker = null;
-    }
-
-    if (this.controls) {
-      this.map.removeChild(this.controls);
     }
 
     if (this.map) {
