@@ -8,7 +8,11 @@ import {
   geoSuggestRequest,
 } from '../../modules/ymapsRequests';
 import debounce from '../../modules/debounce';
-import { YMapDefaultMarker, YMapZoomControl } from '@yandex/ymaps3-default-ui-theme';
+import {
+  YMapDefaultMarker,
+  YMapGeolocationControl,
+  YMapZoomControl,
+} from '@yandex/ymaps3-default-ui-theme';
 import { toasts } from '../../modules/toasts';
 
 /**
@@ -22,6 +26,7 @@ export default class MapModal {
   private map: any;
   private marker: any;
   private markerElement: HTMLImageElement;
+  private controls: any;
 
   /**
    * Конструктор класса
@@ -101,18 +106,38 @@ export default class MapModal {
     this.map.addChild(new YMapDefaultSchemeLayer({}));
     this.map.addChild(new ymaps3.YMapDefaultFeaturesLayer({ zIndex: 1800 }));
 
-    const controls = new ymaps3.YMapControls({
-      position: 'top left',
+    this.controls = new ymaps3.YMapControls({
+      position: 'left',
       orientation: 'vertical',
     });
 
-    controls.addChild(
+    const geolocationControl = new YMapGeolocationControl({
+      onGeolocatePosition: async (position) => {
+        await this.handleGeoCoderResponse([position[0], position[1]]);
+      },
+      onGeolocateError: () => {
+        console.error('Geolocation failed');
+      },
+      source: 'geolocation-source',
+      easing: 'linear',
+      duration: 1000,
+      zoom: 18,
+      positionOptions: {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0,
+      },
+    });
+
+    this.controls.addChild(geolocationControl);
+
+    this.controls.addChild(
       new YMapZoomControl({
         easing: 'linear',
       }),
     );
 
-    this.map.addChild(controls);
+    this.map.addChild(this.controls);
 
     const mapListener = new ymaps3.YMapListener({
       layer: 'any',
@@ -130,6 +155,10 @@ export default class MapModal {
     }
 
     const [longitude, latitude] = event.coordinates;
+    await this.handleGeoCoderResponse([longitude, latitude]);
+  }
+
+  private async handleGeoCoderResponse([longitude, latitude]: [number, number]) {
     const geoCoderResponse = await geoCoderRequestByCoords(longitude, latitude);
     if (geoCoderResponse.status !== 200) {
       console.error(`Ошибка API: ${geoCoderResponse.status}`);
@@ -144,7 +173,7 @@ export default class MapModal {
     const addressText = geoCoderResponse.result.metaDataProperty.GeocoderMetaData.text;
     this.input.value = addressText.split(', ').slice(1).join(', ');
 
-    this.addNewMarker(event.coordinates);
+    this.addNewMarker([longitude, latitude]);
   }
 
   private immitateInput() {
@@ -245,15 +274,40 @@ export default class MapModal {
 
   remove(): void {
     document.body.style.overflow = '';
-    this.input.removeEventListener('input', (event) =>
-      this.debouncedOnInput((event.target as HTMLInputElement).value),
-    );
-    this.input.removeEventListener('blur', this.onBlur.bind(this));
-    this.input.removeEventListener('focus', this.immitateInput.bind(this));
-    this.self.removeEventListener('click', this.closeEventHandler);
-    this.submitBtn.remove();
-    this.suggestsContainer.clear();
-    this.map.destroy();
-    this.self.remove();
+
+    if (this.input) {
+      this.input.removeEventListener('input', (event) =>
+        this.debouncedOnInput((event.target as HTMLInputElement).value),
+      );
+      this.input.removeEventListener('blur', this.onBlur.bind(this));
+      this.input.removeEventListener('focus', this.immitateInput.bind(this));
+    }
+
+    if (this.self) {
+      this.self.removeEventListener('click', this.closeEventHandler);
+      this.self.remove();
+    }
+
+    if (this.submitBtn) {
+      this.submitBtn.remove();
+    }
+
+    if (this.suggestsContainer) {
+      this.suggestsContainer.clear();
+    }
+
+    if (this.marker && this.map) {
+      this.map.removeChild(this.marker);
+      this.marker = null;
+    }
+
+    if (this.controls) {
+      this.map.removeChild(this.controls);
+    }
+
+    if (this.map) {
+      this.map.destroy();
+      this.map = null;
+    }
   }
 }
