@@ -4,12 +4,17 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import webpack from 'webpack';
 import ImageMinimizerPlugin from 'image-minimizer-webpack-plugin';
+import * as dotenv from "dotenv";
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const isProduction = process.env.NODE_ENV === "production";
 
 const stylesHandler = isProduction ? MiniCssExtractPlugin.loader : "style-loader";
+
+dotenv.config();
 
 const config = {
     target: 'web',
@@ -58,7 +63,7 @@ const config = {
                 ],
             },
             {
-                test: /\.(png|jpg|jpeg|gif)$/i,
+                test: /\.(png|jpg|jpeg|svg|gif)$/i,
                 type: 'asset/resource',
             },
             {
@@ -89,6 +94,16 @@ const config = {
             filename: 'index.html',
         }),
         new webpack.HotModuleReplacementPlugin(),
+        new webpack.DefinePlugin({
+            "process.env.GEOSUGGEST_API_KEY": JSON.stringify(process.env.GEOSUGGEST_API_KEY),
+            "process.env.GEOCODER_API_KEY": JSON.stringify(process.env.GEOCODER_API_KEY),
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: path.resolve(__dirname, 'public/src/assets'), to: path.resolve(__dirname, 'dist/src/assets') }
+            ]
+        }),
+
     ],
     experiments: {
         topLevelAwait: true,
