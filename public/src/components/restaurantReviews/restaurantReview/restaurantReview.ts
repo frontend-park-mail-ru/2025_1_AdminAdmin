@@ -3,11 +3,11 @@ import template from './restaurantReview.hbs';
 // Структура класса отзыва ресторана (нужно для конструктора)
 export interface RestaurantReviewProps {
   // ? - необязательное поле
-  id: string; // Id для идентификации | Обязательное поле
-  text?: string; // Текст отзыва         | Может быть не задано (как оценка, а не отзыв)
+  id: string; // Id для идентификации     | Обязательное поле
+  text?: string; // Текст отзыва          | Может быть не задано (как оценка, а не отзыв)
   rating: number; // Поставленная оценка  | Обязательное поле
   author: string; // Автор отзыва         | Обязательное поле
-  date: string; // Дата отзыва          | Обязательное поле
+  date: string; // Дата отзыва            | Обязательное поле
 }
 
 /**
@@ -35,9 +35,6 @@ export class RestaurantReview {
       author: props.author,
       date: props.date,
     };
-    console.log(
-      `Создан элемент класса RestaurantReview со следующими пропсами: ${JSON.stringify(this.props)}`,
-    );
   }
 
   /**

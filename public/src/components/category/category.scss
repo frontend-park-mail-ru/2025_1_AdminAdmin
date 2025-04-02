@@ -1,11 +1,10 @@
-.category{
+.category {
     display: flex;
     cursor: pointer;
-	padding: 5px 15px;
+    padding: 5px 15px;
     border: none;
-    align-items: center;        /* Выравнивание по вертикали по центру */
-    justify-content: center;    /* Выравнивание по горизонтали по центру */
-    /* --- */
+    align-items: center;
+    justify-content: center;
     border-radius: 10px;
     font-size: 16px;
     color: black;
@@ -16,12 +15,13 @@
     &:hover {
         background-color: #F2F2F2;
     }
-}
-.category_active {
-    background-color: #FF4D00;
-    color: #fff;
 
-    &:hover {
-        background-color: #C23A00;
+    &_active {
+        background-color: #FF4D00;
+        color: #fff;
+
+        &:hover {
+            background-color: #C23A00;
+        }
     }
 }

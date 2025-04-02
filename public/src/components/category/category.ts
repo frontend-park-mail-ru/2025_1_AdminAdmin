@@ -33,9 +33,6 @@ export class Category {
       onSubmit: props.onSubmit ?? undefined,
     };
     this.clickHandler = this.handleClick.bind(this);
-    console.log(
-      `Создан элемент класса Category со следующими пропсами: ${JSON.stringify(this.props)}`,
-    );
   }
 
   /**
@@ -69,7 +66,6 @@ export class Category {
    * @private
    */
   handleClick(event: Event): void {
-    console.log(`Category: Нажали категорию ${this.props.name}`);
     event.preventDefault();
     if (this.props.onSubmit !== undefined) {
       this.props.onSubmit(this);
@@ -79,7 +75,7 @@ export class Category {
   /**
    * Обновляет стиль категории
    */
-  updateStyle(): void {
+  toggleSelectedState(): void {
     const element = this.self;
     if (element.classList.contains('category_active')) {
       element.classList.remove('category_active');
@@ -88,7 +84,7 @@ export class Category {
     }
   }
 
-  get getProps(): CategoryProps {
+  getProps(): CategoryProps {
     return this.props;
   }
 

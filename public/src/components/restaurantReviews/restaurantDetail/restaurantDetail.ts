@@ -50,7 +50,6 @@ export class RestaurantDetail {
       mainText: props.mainText,
       addText: props.addText || null,
     };
-    console.log(`Создан элемент класса RestaurantDetail со следующими пропсами: ${this.props}`);
   }
 
   /**

@@ -1,4 +1,3 @@
-import { cli } from 'webpack';
 import { Category, CategoryProps } from '../category/category';
 
 import template from './categories.hbs';
@@ -35,9 +34,6 @@ export class Categories {
       activeCategoryId: props.activeCategoryId ?? props.categoriesList[0]?.id ?? null,
       onChange: props.onChange || undefined,
     };
-    console.log(
-      `Создан элемент класса Categories со следующими пропсами: ${JSON.stringify(this.props)}`,
-    );
   }
 
   /**
@@ -53,7 +49,7 @@ export class Categories {
     // Возвращаем as HTMLElement потому что querySelector возвращает null или HTMLElement, но мы сделали проверку null
   }
 
-  get getProps(): CategoriesProps {
+  getProps(): CategoriesProps {
     return this.props;
   }
 
@@ -62,17 +58,16 @@ export class Categories {
    * @private
    */
   handleChange(clickedCategory: Category): void {
-    console.log(`Передали в Categories категорию ${Category}`);
     if (this.props.onChange) {
       // Если задан калбек
-      const clickedCategoryId = clickedCategory.getProps.id;
+      const clickedCategoryId = clickedCategory.getProps().id;
       if (clickedCategoryId !== this.props.activeCategoryId) {
         this.categoriesComponentsList
-          .find((category) => category.getProps.id === this.props.activeCategoryId)
-          .updateStyle();
-        clickedCategory.updateStyle();
+          .find((category) => category.getProps().id === this.props.activeCategoryId)
+          .toggleSelectedState();
+        clickedCategory.toggleSelectedState();
         this.props.activeCategoryId = clickedCategoryId;
-        this.props.onChange(clickedCategory.getProps.name);
+        this.props.onChange(clickedCategory.getProps().name);
       }
     }
   }
@@ -91,21 +86,14 @@ export class Categories {
     this.props.categoriesList.forEach((categoryProps) => {
       categoryProps.onSubmit = this.handleChange.bind(this);
       // Создаем и рендерим категорию
-      console.log(
-        `Рендерим категорию, вызываем конструктор для Category со следующими пропсами: ${JSON.stringify(categoryProps)}`,
-      );
       this.categoriesComponentsList.push(new Category(this.self, categoryProps));
-      console.log(this.categoriesComponentsList);
       this.categoriesComponentsList[this.categoriesComponentsList.length - 1].render();
-      console.log(`Отрендерили категорию`);
       if (categoryProps.id === this.props.activeCategoryId) {
-        console.log(`Нашли активную категорию`);
-        this.categoriesComponentsList[this.categoriesComponentsList.length - 1].updateStyle();
+        this.categoriesComponentsList[
+          this.categoriesComponentsList.length - 1
+        ].toggleSelectedState();
       }
     });
-    console.log(
-      `Создан следующий список категорий: ${JSON.stringify(this.categoriesComponentsList)}`,
-    );
   }
 
   /**

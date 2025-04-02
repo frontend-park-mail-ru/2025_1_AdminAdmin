@@ -28,28 +28,33 @@
   align-items: start;
   grid-column: 2 / span 10;
 }
+
 // Обертка для блока категорий
 .product-categories__wrapper {
   grid-area: categories;
 }
+
 // Блок с карточками
 .product-cards {
   grid-area: cards;
   display: flex;
   flex-direction: column;
   gap: 50px;
+
+  // Стили для заголовка
+  &__header {
+    font-size: 32px;
+    font-weight: bold;
+  }
+
+  // Стили для основного тела с карточками
+  &__body {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
 }
-// Стили для заголовка
-.product-cards__header {
-  font-size: 32px;
-  font-weight: bold;
-}
-// Стили для основного тела с карточками
-.product-cards__body {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
+
 // Блок корзины
 .cart__wrapper {
   grid-area: cart;

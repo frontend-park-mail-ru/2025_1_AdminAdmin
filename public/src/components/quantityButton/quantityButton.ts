@@ -13,9 +13,7 @@ export interface QuantityButtonProps extends ButtonProps {
  * Класс кнопки изменения количества
  */
 export class QuantityButton extends Button {
-  protected parent: HTMLElement;
-  protected props: QuantityButtonProps;
-  protected clickHandler: (event: Event) => void;
+  declare protected props: QuantityButtonProps;
 
   /**
    *Создает экземпляр кнопки изменения количества
@@ -26,14 +24,16 @@ export class QuantityButton extends Button {
   constructor(parent: HTMLElement, props: QuantityButtonProps) {
     // Вызов родительского конструктора
     super(parent, props);
-    console.log(props);
+    this.props = {
+      ...this.props,
+      isPlus: props.text === '+',
+      isMinus: props.text === '-',
+    };
 
     if (this.props.text !== '+' && this.props.text !== '-') {
       // Предупреждение
       console.warn(`QuantityButton: invalid text=${this.props.text} must be '+' or '-'`);
     }
-    this.props.isPlus = props.text === '+';
-    this.props.isMinus = props.text === '-';
   }
 
   /**

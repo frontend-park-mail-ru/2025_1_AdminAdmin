@@ -102,7 +102,7 @@ export default class RestaurantPage {
         {
           id: 'product1',
           name: 'Воппер',
-          isActive: true,
+          inCart: true,
           price: 529.99,
           amount: 2,
         } as ProductCardProps,
@@ -119,7 +119,7 @@ export default class RestaurantPage {
         {
           id: 'product4',
           name: 'Воппер',
-          isActive: true,
+          inCart: true,
           price: 529.99,
           amount: 2,
         } as ProductCardProps,
@@ -156,9 +156,6 @@ export default class RestaurantPage {
         ],
       } as CategoriesProps,
     } as RestaurantPageProps;
-    console.log(
-      `Создан элемент класса RestaurantPage со следующими пропсами: ${JSON.stringify(this.props)}`,
-    );
   }
 
   /**
@@ -193,9 +190,6 @@ export default class RestaurantPage {
       if (!restaurantDetails) {
         throw new Error(`RestaurantPage: Ресторан с ID ${this.props.id} не найден!`);
       }
-      console.log(
-        `Для ресторана с id=${this.props.id} из БД получили следующие данные: ${JSON.stringify(restaurantDetails)}`,
-      );
       this.props.restaurantHeaderProps = {
         name: restaurantDetails.name,
         description: restaurantDetails.description,
@@ -207,26 +201,18 @@ export default class RestaurantPage {
         icon: restaurantDetails.icon,
       };
       // Генерируем HTML
-      console.log('Рендерим шаблончик');
       this.parent.innerHTML = template();
       // Заполняем
-      console.log('Заоплняем компонентами');
       // Рендерим хедер (шапка + название)
       const restaurantHeaderWrapper = this.self.querySelector(
         '.restaurant-header__wrapper',
       ) as HTMLElement;
-      console.log(
-        `Рендерим хедер на странице ресторана, вызываем конструктор для RestaurantHeader со следующими пропсами: ${JSON.stringify(this.props.restaurantHeaderProps)}`,
-      );
       const restaurantHeaderComponent = new RestaurantHeader(
         restaurantHeaderWrapper,
         this.props.restaurantHeaderProps,
       );
       restaurantHeaderComponent.render();
       // Рендерим блок отзывов (общая оценка + отзывы + адрес и время работы)
-      console.log(
-        `Рендерим блок отзывов на странице ресторана, вызываем конструктор для RestaurantReviews со следующими пропсами: ${JSON.stringify(this.props.restaurantReviewsProps)}`,
-      );
       const restaurantReviewsWrapper = this.self.querySelector(
         '.restaurant-reviews__wrapper',
       ) as HTMLElement;
@@ -236,9 +222,6 @@ export default class RestaurantPage {
       );
       restaurantReviewsComponent.render();
       // Рендерим блок категорий
-      console.log(
-        `Рендерим блок категорий товаров на странице ресторана, вызываем конструктор для Categories со следующими пропсами: ${JSON.stringify(this.props.productCategoriesProps)}`,
-      );
       const categoriesWrapper = this.self.querySelector(
         '.product-categories__wrapper',
       ) as HTMLElement;
@@ -248,16 +231,15 @@ export default class RestaurantPage {
       );
       categoriesComponent.render();
       this.handleCategory(
-        categoriesComponent.getProps.categoriesList.find(
-          (catergory) => catergory.id === categoriesComponent.getProps.activeCategoryId,
-        )?.name,
+        categoriesComponent
+          .getProps()
+          .categoriesList.find(
+            (catergory) => catergory.id === categoriesComponent.getProps().activeCategoryId,
+          )?.name,
       );
       // Рендерим карточки
       const productCardsBody = this.self.querySelector('.product-cards__body') as HTMLElement;
       this.props.productsProps.forEach((productCardProps) => {
-        console.log(
-          `Рендерим карточку товара, вызываем конструктор для ProductCard со следующими пропсами: ${JSON.stringify(productCardProps)}`,
-        );
         const productCardComponent = new ProductCard(productCardsBody, productCardProps);
         productCardComponent.render();
       });

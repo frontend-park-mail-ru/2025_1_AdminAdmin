@@ -8,7 +8,7 @@ export interface ProductCardProps {
   id?: string; // Идентификатор карточки                          | если не задан, то product-card-${name}
   image?: string; // Картинка продукта                            | если не задан, то whopper.png
   name: string; // Название товара                                | обязательное поле
-  isActive?: boolean; // true - карточка активна (есть в корзине) | если не задан, то false
+  inCart?: boolean; // true - карточка активна (есть в корзине)   | если не задан, то false
   price?: number; // Цена товара (за единицу или общая)           | если не задан, то 0
   amount?: number; // Количество товара в корзине                 | если не задан, то 0)
 }
@@ -34,7 +34,7 @@ export class ProductCard {
       id: props.id || `product-card-${props.name}`,
       image: props.image || '/src/assets/whopper.png',
       name: props.name,
-      isActive: props.isActive ?? false,
+      inCart: props.inCart ?? false,
       price: props.price ?? 0,
       amount: props.amount ?? 0,
     };
@@ -50,18 +50,15 @@ export class ProductCard {
     if (!Number.isInteger(this.props.amount)) {
       throw new Error(`ProductCard: amount=${this.props.amount} must be int!`);
     }
-    if (this.props.isActive && this.props.amount === 0) {
+    if (this.props.inCart && this.props.amount === 0) {
       // Предупреждение
-      console.warn(`ProductCard: isActive=true but amount=0. Now isActive=false!`);
-      this.props.isActive = false;
+      console.warn(`ProductCard: inCart=true, but amount=0. Now inCart=false!`);
+      this.props.inCart = false;
     }
-    if (this.props.isActive) {
+    if (this.props.inCart) {
       // Если карточка в корзине, то в price конечная сумма
       this.props.price *= this.props.amount;
     }
-    console.log(
-      `Создан элемент класса productCard со следующими пропсами: ${JSON.stringify(this.props)}`,
-    );
   }
 
   /**
@@ -80,17 +77,14 @@ export class ProductCard {
    * Отображает карточку товара на странице
    */
   render(): void {
-    console.log(this.props);
     if (!template) {
       throw new Error('Error: productCard template not found');
     }
     // Рендерим шаблончик с данными
-    console.log('Рендерим шаблончик');
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
     // Заполняем
-    console.log('Заполняем');
-    if (this.props.isActive) {
+    if (this.props.inCart) {
       // Карточка активного товара (в корзине)
       // кнопка минуса
       const minusButtonProps: QuantityButtonProps = {
@@ -100,9 +94,6 @@ export class ProductCard {
           console.log('-1');
         }, // Функция при нажатии
       };
-      console.log(
-        `Рендерим кнопку минуса для карточки товара, вызываем конструктор для QuantityButton со следующими пропсами: ${JSON.stringify(minusButtonProps)}`,
-      );
       const minustButtonWrapper = this.self.querySelector(
         '.product-card__minus-button__wrapper',
       ) as HTMLElement;
@@ -117,9 +108,6 @@ export class ProductCard {
         console.log('+1');
       }, // Функция при нажатии
     };
-    console.log(
-      `Рендерим кнопку плюса для карточки товара, вызываем конструктор для QuantityButton со следующими пропсами: ${JSON.stringify(plusButtonProps)}`,
-    );
     const plusButtonWrapper = this.self.querySelector(
       '.product-card__plus-button__wrapper',
     ) as HTMLElement;

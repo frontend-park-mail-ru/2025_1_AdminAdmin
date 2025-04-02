@@ -7,10 +7,6 @@ import {
 import { RatingProps } from '../../components/restaurantHeader/restaurantHeader';
 import { Button, ButtonProps } from '../button/button';
 
-import Handlebars from 'handlebars';
-Handlebars.registerHelper('generateStars', function (score) {
-  return '⭐'.repeat(Math.floor(score));
-});
 import template from './restaurantReviews.hbs';
 
 export interface RestaurantReviewsProps {
@@ -75,9 +71,6 @@ export class RestaurantReviews {
     } else {
       this.props.reviewsList = props.reviewsList.slice();
     }
-    console.log(
-      `Создан элемент класса RestaurantReviews со следующими пропсами: ${JSON.stringify(this.props)}`,
-    );
   }
 
   /**
@@ -101,7 +94,6 @@ export class RestaurantReviews {
       throw new Error('Error: restaurant-reviews template not found');
     }
     // Рендерим шаблончик с данными
-    console.log('Рендерим шаблончик');
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
     const ratingInStars = this.self.querySelector(
@@ -111,17 +103,12 @@ export class RestaurantReviews {
       throw new Error(`Error: can't find rating in stars`);
     }
     ratingInStars.style.width = `${(this.props.rating.score / 5) * 100}%`;
-    console.log(ratingInStars.style.width);
     // Заполняем
-    console.log('Рендерим компонентами');
     const reviewsContainer = this.self.querySelector(
       '.restaurant-reviews__reviews-container',
     ) as HTMLElement;
     // Рендерим отзывы ресторана
     this.props.reviewsList.forEach((reviewProps) => {
-      console.log(
-        `Рендерим отзывы ресторана, вызываем конструктор для RestaurantReview со следующими пропсами: ${JSON.stringify(reviewProps)}`,
-      );
       const reviewComponent = new RestaurantReview(reviewsContainer, reviewProps);
       reviewComponent.render();
     });
@@ -130,9 +117,6 @@ export class RestaurantReviews {
       id: 'more-reviews-button', // Id для идентификации
       text: 'Больше', // text для отображения
     };
-    console.log(
-      `Рендерим кнопку больше, вызываем конструктор для Button со следующими пропсами: ${JSON.stringify(moreReviewsProps)}`,
-    );
     const moreReviews = new Button(reviewsContainer, moreReviewsProps);
     moreReviews.render();
     const detailsContainer = this.self.querySelector(
@@ -149,9 +133,6 @@ export class RestaurantReviews {
         ? `До ${this.props.hours.close}`
         : `До ${this.props.hours.open}`,
     };
-    console.log(
-      `Рендерим время работы ресторана, вызываем конструктор для RestaurantDetail со следующими пропсами: ${JSON.stringify(hoursProps)}`,
-    );
     const hours = new RestaurantDetail(detailsContainer, hoursProps);
     hours.render();
     // Рендерим адрес ресторана
@@ -163,9 +144,6 @@ export class RestaurantReviews {
       mainText: this.props.address.city,
       addText: this.props.address.street,
     };
-    console.log(
-      `Рендерим адрес ресторана, вызываем конструктор для RestaurantDetail со следующими пропсами: ${JSON.stringify(addressProps)}`,
-    );
     const address = new RestaurantDetail(detailsContainer, addressProps);
     address.render();
   }
