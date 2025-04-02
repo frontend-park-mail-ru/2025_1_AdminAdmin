@@ -25,9 +25,13 @@
   },
   "homepage": "https://github.com/frontend-park-mail-ru/2025_1_AdminAdmin#readme",
   "dependencies": {
+    "@yandex/ymaps3-default-ui-theme": "^0.0.19",
+    "copy-webpack-plugin": "^13.0.0",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "handlebars": "^4.7.8",
-    "handlebars-loader": "^1.7.3"
+    "handlebars-loader": "^1.7.3",
+    "process": "^0.11.10"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
