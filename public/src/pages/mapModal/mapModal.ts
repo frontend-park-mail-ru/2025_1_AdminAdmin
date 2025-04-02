@@ -1,25 +1,35 @@
-import { FormInput } from '../../components/formInput/formInput';
-import { suggestsContainer } from '../../components/suggestsContainer/suggestsContainer';
+import { SuggestsContainer } from '../../components/suggestsContainer/suggestsContainer';
 import { Button } from '../../components/button/button';
 import template from './mapModal.hbs';
-import config from './mapModalConfig';
-import type { YMapLocationRequest } from 'ymaps3';
 import { YMap, YMapDefaultSchemeLayer } from '../../lib/ymaps';
+import {
+  geoCoderRequest,
+  geoCoderRequestByCoords,
+  geoSuggestRequest,
+} from '../../modules/ymapsRequests';
+import debounce from '../../modules/debounce';
+import { YMapGeolocationControl, YMapZoomControl } from '@yandex/ymaps3-default-ui-theme';
+import { toasts } from '../../modules/toasts';
 
 /**
- * Класс, представляющий форму логина.
+ * Класс, представляющий модальное окно карты.
  */
 export default class MapModal {
-  private searchInput: FormInput;
+  private suggestsContainer: SuggestsContainer;
   private submitBtn: Button;
   private readonly closeEventHandler: (event: Event) => void;
+  private readonly debouncedOnInput: (value: string) => void;
+  private map: any;
+  private marker: any;
+  private markerElement: HTMLImageElement;
+  private controls: any;
 
   /**
    * Конструктор класса
    * @constructor
    */
   constructor() {
-    this.closeEventHandler = this.handleClose.bind(this);
+    this.debouncedOnInput = debounce(this.onInput.bind(this), 250);
   }
 
   /**
@@ -30,71 +40,261 @@ export default class MapModal {
     return document.querySelector('.map_modal');
   }
 
-  private get map(): HTMLElement | null {
-    return document.querySelector('.map');
+  private get input(): HTMLInputElement | null {
+    return document.getElementById('map_modal__input') as HTMLInputElement;
   }
+
+  get closeElem(): HTMLElement | null {
+    return document.querySelector('.map_modal__close_icon');
+  }
+
   /**
    * Рендеринг модального окна
    */
-  async render(): Promise<void> {
+  render() {
     const modalHTML = template();
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-    const searchContainer = document.getElementById('form__line_search')!;
+    const searchContainer = document.querySelector<HTMLElement>('.map_modal__search_container');
 
-    this.searchInput = new FormInput(searchContainer, config.inputs.searchInput);
-    this.searchInput.render();
+    this.suggestsContainer = new SuggestsContainer(
+      searchContainer,
+      this.handleSuggestClick.bind(this),
+    );
+    this.suggestsContainer.render();
 
-    suggestsContainer.render(this.searchInput.self);
+    const formLineSearch = document.getElementById('form__line_search');
 
-    this.submitBtn = new Button(searchContainer, {
-      ...config.buttons.submitBtn,
+    this.submitBtn = new Button(formLineSearch, {
+      id: 'form__line__search_button',
+      text: 'ОК',
+      disabled: true,
+      style: 'dark big',
     });
+
     this.submitBtn.render();
     document.body.style.overflow = 'hidden';
 
-    this.addCloseEventListener();
-  }
-
-  /**
-   * Добавляет обработчик события для закрытия модального окна
-   */
-  private addCloseEventListener(): void {
-    const modal = this.self;
-    if (modal) {
-      modal.addEventListener('click', this.closeEventHandler);
+    if (this.input) {
+      this.input.addEventListener('input', (event) =>
+        this.debouncedOnInput((event.target as HTMLInputElement).value),
+      );
+      this.input.addEventListener('blur', this.onBlur.bind(this));
+      this.input.addEventListener('focus', this.immitateInput.bind(this));
     }
+
+    this.createMap();
+
+    this.markerElement = document.createElement('img');
+    this.markerElement.src = './src/assets/map_location.png';
+    this.markerElement.className = 'map_modal__marker';
   }
 
-  /**
-   * Обработчик закрытия модалки
-   * Удаляет модалку при клике на неё
-   */
-  private handleClose(event: Event): void {
-    const modal = this.self;
-    if (modal) {
-      const target = event.target as HTMLElement;
-      if (target === modal) {
-        this.remove();
+  private createMap() {
+    this.map = new YMap(document.getElementById('map'), {
+      location: {
+        center: [37.588144, 55.733842],
+        zoom: 10,
+      },
+    });
+
+    this.map.addChild(new YMapDefaultSchemeLayer({}));
+    this.map.addChild(new ymaps3.YMapDefaultFeaturesLayer({ zIndex: 1800 }));
+
+    this.controls = new ymaps3.YMapControls({
+      position: 'left',
+      orientation: 'vertical',
+    });
+
+    this.controls.addChild(
+      new YMapGeolocationControl({
+        onGeolocatePosition: async (position) => {
+          await this.handleGeoCoderRequest([position[0], position[1]]);
+        },
+        onGeolocateError: () => {
+          console.error('Geolocation failed');
+        },
+        source: 'geolocation-source',
+        easing: 'linear',
+        duration: 1000,
+        zoom: 18,
+        positionOptions: {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0,
+        },
+      }),
+    );
+
+    this.controls.addChild(
+      new YMapZoomControl({
+        easing: 'linear',
+      }),
+    );
+
+    this.map.addChild(this.controls);
+
+    const mapListener = new ymaps3.YMapListener({
+      layer: 'any',
+      onClick: this.clickCallback.bind(this),
+    });
+
+    this.map.addChild(mapListener);
+
+    document.querySelector('.ymaps3x0--map-copyrights')?.remove();
+  }
+
+  private async clickCallback(object: any, event: { coordinates: [number, number] }) {
+    if (this.map.zoom < 15) {
+      return;
+    }
+
+    const [longitude, latitude] = event.coordinates;
+    await this.handleGeoCoderRequest([longitude, latitude]);
+  }
+
+  private async handleGeoCoderRequest([longitude, latitude]: [number, number]) {
+    const geoCoderResponse = await geoCoderRequestByCoords(longitude, latitude);
+    if (geoCoderResponse.status !== 200) {
+      console.error(`Ошибка API: ${geoCoderResponse.status}`);
+      return;
+    }
+
+    if (!geoCoderResponse.result) {
+      toasts.error('Поблизости ничего нет...');
+      return;
+    }
+
+    const addressText = geoCoderResponse.result.metaDataProperty.GeocoderMetaData.text;
+    this.input.value = addressText.split(', ').slice(1).join(', ');
+
+    this.addNewMarker([longitude, latitude]);
+  }
+
+  private immitateInput() {
+    const event = new Event('input', { bubbles: true });
+    this.input.dispatchEvent(event);
+  }
+
+  private async handleSuggestClick(address: string, tags: string[], uri: string): Promise<void> {
+    this.input.value = address;
+
+    const finalTags = ['house', 'business', 'office', 'hotel'];
+    const isFinalAddress = tags.some((tag) => finalTags.includes(tag));
+
+    if (!isFinalAddress) {
+      this.input.focus();
+      return;
+    }
+
+    setTimeout(() => this.suggestsContainer.clear(), 100);
+    this.submitBtn.enable();
+    const geoCoderResponse = await geoCoderRequest(uri);
+    if (geoCoderResponse.status !== 200 || !geoCoderResponse.result) {
+      console.error(`Ошибка API: ${geoCoderResponse.status}`);
+      return;
+    }
+
+    const point = geoCoderResponse.result.Point.pos.split(' ').map(Number);
+    const [lon, lat] = point;
+
+    this.map.setLocation({
+      center: point,
+      zoom: 18,
+      duration: 100,
+      easing: 'ease-in-out',
+    });
+
+    this.addNewMarker([lon, lat]);
+  }
+
+  private addNewMarker([lon, lat]: [number, number]): void {
+    if (this.marker) {
+      this.map.removeChild(this.marker);
+    }
+
+    this.marker = new ymaps3.YMapMarker(
+      {
+        coordinates: [lon, lat],
+      },
+      this.markerElement,
+    );
+
+    this.map.addChild(this.marker);
+  }
+
+  private async onInput(value: string) {
+    this.suggestsContainer.clear();
+    this.submitBtn.disable();
+
+    if (!value) {
+      this.map.setLocation({
+        center: [37.588144, 55.733842],
+        zoom: 10,
+      });
+      if (this.marker) {
+        this.map.removeChild(this.marker);
       }
+      return;
+    }
+
+    try {
+      const suggestsResponse = await geoSuggestRequest(value);
+
+      if (suggestsResponse.status !== 200) {
+        console.error(`Ошибка API: ${suggestsResponse.status}`);
+        return;
+      }
+
+      const suggests = Array.isArray(suggestsResponse.results) ? suggestsResponse.results : [];
+
+      if (!suggests.length) {
+        console.warn('Пустой массив результатов');
+        return;
+      }
+
+      for (let suggest of suggests) {
+        this.suggestsContainer.show(suggest);
+      }
+    } catch (error) {
+      console.error('Ошибка запроса:', error);
     }
   }
 
-  /**
-   * Очистка модального окна и снятие обработчиков
-   */
+  private onBlur() {
+    setTimeout(() => {
+      this.suggestsContainer.clear();
+    }, 200);
+  }
+
   remove(): void {
-    const modal = this.self;
     document.body.style.overflow = '';
-    if (modal) {
-      modal.removeEventListener('click', this.closeEventHandler);
+
+    if (this.input) {
+      this.input.removeEventListener('input', (event) =>
+        this.debouncedOnInput((event.target as HTMLInputElement).value),
+      );
+      this.input.removeEventListener('blur', this.onBlur.bind(this));
+      this.input.removeEventListener('focus', this.immitateInput.bind(this));
     }
 
-    this.searchInput.remove();
-    this.submitBtn.remove();
-    if (modal) {
-      modal.remove();
+    if (this.self) {
+      this.self.removeEventListener('click', this.closeEventHandler);
+      this.self.remove();
+    }
+
+    if (this.submitBtn) {
+      this.submitBtn.remove();
+    }
+
+    if (this.suggestsContainer) {
+      this.suggestsContainer.clear();
+    }
+
+    if (this.map) {
+      this.map.destroy();
+      this.map = null;
     }
   }
 }

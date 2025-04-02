@@ -11,7 +11,7 @@
   align-items: center;
 
   &__content {
-    width: 60%;
+    width: 50%;
     background-color: var(--white);
     border-radius: 20px;
     padding: 20px;
@@ -19,19 +19,63 @@
 
   #form__line_search {
     height: 45px;
-    position: relative;
   }
 
   &__header {
     font-weight: bold;
     font-size: 24px;
     margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__close_icon {
+    width: 20px;
+    height: 20px;
+
+    &:hover {
+      opacity: 0.6;
+    }
   }
 
   &__subheader {
     font-size: 14px;
     color: var(--dark-gray);
     margin-bottom: 40px;
+  }
+
+  &__search_container {
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    input {
+      padding-left: 35px;
+      width: 100%;
+    }
+  }
+
+  &__search_icon {
+    position: absolute;
+    left: 10px;
+    height: 20px;
+    width: auto;
+  }
+
+  &__map {
+    margin-top: 25px;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+  }
+
+  &__marker {
+    height: 60px;
+    position: relative;
+    left: -29px;
+    top: -57px;
   }
 }
 

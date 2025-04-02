@@ -4,7 +4,6 @@ import Header from '../components/header/header';
 import auxHeader from '../components/auxHeader/auxHeader';
 import { AuthPage } from '../pages/authPage/authPage';
 import { userStore } from '../store/userStore';
-import { Toast } from '../components/toast/toast';
 
 interface RouteConfig {
   href: string;
@@ -31,19 +30,15 @@ class Router {
    */
   constructor(parent: HTMLElement) {
     this.parent = parent;
-
     this.headerElement = document.createElement('div');
     this.headerElement.classList.add('header');
     this.pageElement = document.createElement('main');
     this.pageElement.style.paddingTop = '50px';
-
     this.toastBoxElement = document.createElement('div');
     this.toastBoxElement.classList.add('toastBox');
-
     this.parent.appendChild(this.headerElement);
     this.parent.appendChild(this.pageElement);
     this.parent.appendChild(this.toastBoxElement);
-
     this.routes = {
       home: {
         href: '/',
@@ -73,7 +68,6 @@ class Router {
     window.addEventListener('popstate', this.handleRouteChange.bind(this));
     this.handleRouteChange();
   }
-
   /**
    * Обработчик изменения маршрута.
    * Определяет текущий путь и перенаправляет на соответствующую страницу.
@@ -81,12 +75,10 @@ class Router {
    */
   private handleRouteChange(): void {
     const currentPath = window.location.pathname;
-
     if (currentPath === '/') {
       this.goToPage('home', null, false);
       return;
     }
-
     for (const [page, { href }] of Object.entries(this.routes).slice(1)) {
       if (currentPath.startsWith(href)) {
         const id = currentPath.split('/')[2] || null;
@@ -95,7 +87,6 @@ class Router {
       }
     }
   }
-
   /**
    * Переход на указанную страницу.
    * @param {string} page - Имя страницы, указанное в `routes`.
@@ -104,7 +95,6 @@ class Router {
    */
   goToPage(page: string, id: string | null = null, shouldPushState: boolean = true): void {
     const pageData = this.routes[page];
-
     if (!pageData) {
       console.error(`Page "${page}" not found in routes.`);
       return;
@@ -137,10 +127,8 @@ class Router {
     this.parent.innerHTML = '';
   }
 }
-
 /** @type {Router | null} */
 let router: Router | null = null;
-
 /**
  * Инициализирует маршрутизацию.
  * @param {HTMLElement} parent - Родительский элемент, в который будет встраиваться приложение.
@@ -152,5 +140,4 @@ export function initRouting(parent: HTMLElement): Router {
   }
   return router;
 }
-
 export { router };

@@ -56,6 +56,14 @@ export class Button {
     }
   }
 
+  enable() {
+    this.self.removeAttribute('disabled');
+  }
+
+  disable() {
+    this.self.setAttribute('disabled', '');
+  }
+
   /**
    * Рендерит кнопку в родительский элемент.
    */

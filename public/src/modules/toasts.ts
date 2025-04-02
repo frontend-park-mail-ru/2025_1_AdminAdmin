@@ -3,6 +3,7 @@ import { Toast } from '../components/toast/toast';
 export const TOAST_TYPE = {
   SUCCESS: 'success',
   ERROR: 'error',
+  INFO: 'info',
 };
 
 export class Toasts {
@@ -40,6 +41,10 @@ export class Toasts {
 
   public error(message: string): void {
     this.show(TOAST_TYPE.ERROR, message);
+  }
+
+  public info(message: string): void {
+    this.show(TOAST_TYPE.INFO, message);
   }
 }
 
