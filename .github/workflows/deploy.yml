@@ -36,6 +36,9 @@ jobs:
       - name: Сборка проекта
         run: npm run build
 
+      - name: Очистка папки на сервере
+        run: ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "sudo rm -rf /opt/public/*"
+
       - name: Деплой на сервер
         uses: appleboy/scp-action@v0.1.7
         with:
