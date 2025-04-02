@@ -26,6 +26,13 @@ jobs:
       - name: Установка зависимостей
         run: npm install
 
+      - name: Создание env файла
+        run: |
+          touch .env
+          echo GEOSUGGEST_API_KEY=${{ secrets.GEOSUGGEST_API_KEY }} >> .env
+          echo GEOCODER_API_KEY=${{ secrets.GEOCODER_API_KEY }} >> .env
+          cat .env
+
       - name: Сборка проекта
         run: npm run build
 
