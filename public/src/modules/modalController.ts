@@ -2,10 +2,10 @@ import MapModal from '../pages/mapModal/mapModal';
 
 export default class ModalController {
   private currentModal: MapModal | null = null;
-  private readonly clickOutsideHandler: (event: MouseEvent) => void;
+  private readonly clickCloseHandler: (event: MouseEvent) => void;
 
   constructor() {
-    this.clickOutsideHandler = this.handleClickOutside.bind(this);
+    this.clickCloseHandler = this.handleClickOutside.bind(this);
     window.addEventListener('popstate', this.handlePopState.bind(this));
   }
 
@@ -13,10 +13,6 @@ export default class ModalController {
     if (this.currentModal) {
       this.closeModal(this.currentModal);
     }
-  }
-
-  private getModalHash(modal: MapModal): string {
-    return `#modal-${modal.constructor.name}`;
   }
 
   private handleClickOutside(event: MouseEvent): void {
@@ -31,23 +27,22 @@ export default class ModalController {
     }
 
     this.currentModal = modal;
-    history.pushState({}, '', this.getModalHash(modal));
     modal.render();
 
-    document.addEventListener('click', this.clickOutsideHandler);
+    document.addEventListener('click', this.clickCloseHandler);
   }
 
   closeModal(modal: MapModal): void {
     if (this.currentModal === modal) {
       this.currentModal.remove();
       this.currentModal = null;
-      document.removeEventListener('click', this.clickOutsideHandler);
+      document.removeEventListener('click', this.clickCloseHandler);
     }
   }
 
   remove(): void {
     window.removeEventListener('popstate', this.handlePopState.bind(this));
-    document.removeEventListener('click', this.clickOutsideHandler);
+    document.removeEventListener('click', this.clickCloseHandler);
 
     if (this.currentModal) {
       this.closeModal(this.currentModal);
