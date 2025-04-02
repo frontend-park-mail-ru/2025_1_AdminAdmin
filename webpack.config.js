@@ -5,6 +5,8 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import webpack from 'webpack';
 import ImageMinimizerPlugin from 'image-minimizer-webpack-plugin';
 import * as dotenv from "dotenv";
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -96,6 +98,12 @@ const config = {
             "process.env.GEOSUGGEST_API_KEY": JSON.stringify(process.env.GEOSUGGEST_API_KEY),
             "process.env.GEOCODER_API_KEY": JSON.stringify(process.env.GEOCODER_API_KEY),
         }),
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: path.resolve(__dirname, 'public/src/assets'), to: path.resolve(__dirname, 'dist/src/assets') }
+            ]
+        }),
+
     ],
     experiments: {
         topLevelAwait: true,
