@@ -1,0 +1,27 @@
+.category {
+    display: flex;
+    cursor: pointer;
+    padding: 5px 15px;
+    border: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 16px;
+    color: black;
+    background-color: #fff;
+    height: 35px;
+    justify-content: left;
+
+    &:hover {
+        background-color: #F2F2F2;
+    }
+
+    &_active {
+        background-color: #FF4D00;
+        color: #fff;
+
+        &:hover {
+            background-color: #C23A00;
+        }
+    }
+}
