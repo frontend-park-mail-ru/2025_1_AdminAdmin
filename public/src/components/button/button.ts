@@ -1,7 +1,6 @@
 import template from './button.hbs';
 
 export interface ButtonProps {
-  // ? - необязательное поле
   id: string;
   text: string;
   style?: string;
@@ -11,7 +10,6 @@ export interface ButtonProps {
 }
 
 export class Button {
-  // Изменил с "private readonly" на "protected" для наследования
   protected parent: HTMLElement;
   protected clickHandler: (event: Event) => void;
   protected props: ButtonProps;
@@ -74,9 +72,6 @@ export class Button {
    * Рендерит кнопку в родительский элемент.
    */
   render(): void {
-    if (!template) {
-      throw new Error('Error: button template not found');
-    }
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
 
@@ -100,7 +95,7 @@ export class Button {
   remove(): void {
     const button = this.self;
     if (button) {
-      button.removeEventListener('click', this.clickHandler); // Удаляем обработчик
+      button.removeEventListener('click', this.clickHandler);
       button.remove();
     }
   }

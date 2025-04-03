@@ -1,7 +1,14 @@
 import { SuggestsContainer } from '../../components/suggestsContainer/suggestsContainer';
 import { Button } from '../../components/button/button';
 import template from './mapModal.hbs';
-import { YMap, YMapDefaultSchemeLayer } from '../../lib/ymaps';
+import {
+  YMap,
+  YMapDefaultSchemeLayer,
+  YMapDefaultFeaturesLayer,
+  YMapControls,
+  YMapListener,
+  YMapMarker,
+} from '../../lib/ymaps';
 import {
   geoCoderRequest,
   geoCoderRequestByCoords,
@@ -100,9 +107,9 @@ export default class MapModal {
     });
 
     this.map.addChild(new YMapDefaultSchemeLayer({}));
-    this.map.addChild(new ymaps3.YMapDefaultFeaturesLayer({ zIndex: 1800 }));
+    this.map.addChild(new YMapDefaultFeaturesLayer({ zIndex: 1800 }));
 
-    this.controls = new ymaps3.YMapControls({
+    this.controls = new YMapControls({
       position: 'left',
       orientation: 'vertical',
     });
@@ -135,7 +142,7 @@ export default class MapModal {
 
     this.map.addChild(this.controls);
 
-    const mapListener = new ymaps3.YMapListener({
+    const mapListener = new YMapListener({
       layer: 'any',
       onClick: this.clickCallback.bind(this),
     });
@@ -214,7 +221,7 @@ export default class MapModal {
       this.map.removeChild(this.marker);
     }
 
-    this.marker = new ymaps3.YMapMarker(
+    this.marker = new YMapMarker(
       {
         coordinates: [lon, lat],
       },
@@ -279,11 +286,6 @@ export default class MapModal {
       this.input.removeEventListener('focus', this.immitateInput.bind(this));
     }
 
-    if (this.self) {
-      this.self.removeEventListener('click', this.closeEventHandler);
-      this.self.remove();
-    }
-
     if (this.submitBtn) {
       this.submitBtn.remove();
     }
@@ -295,6 +297,11 @@ export default class MapModal {
     if (this.map) {
       this.map.destroy();
       this.map = null;
+    }
+
+    if (this.self) {
+      this.self.removeEventListener('click', this.closeEventHandler);
+      this.self.remove();
     }
   }
 }
