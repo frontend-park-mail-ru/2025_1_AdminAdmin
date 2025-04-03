@@ -20,7 +20,7 @@
       grid-area: header__location;
 
       &_select_button {
-        width: 100%;
+        width: 300px;
         text-align: left;
         background-color: var(--black);
         color: var(--white);
@@ -41,6 +41,7 @@
           background-color: var(--light-grey);
           color: var(--black);
           background-image: url("./src/assets/location.png");
+          background-size: 25px 25px;
           &:hover {
             background-color: var(--grey);
           }

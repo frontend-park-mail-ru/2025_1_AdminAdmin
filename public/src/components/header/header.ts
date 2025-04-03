@@ -29,7 +29,7 @@ export default class Header {
     this.parent = parent;
     this.modalController = new ModalController();
     this.handleScrollBound = this.handleScroll.bind(this);
-    userStore.subscribe(() => this.updateAuthState());
+    userStore.subscribe(() => this.updateHeaderState());
 
     this.clickHandler = this.handleClick.bind(this);
   }
@@ -89,7 +89,7 @@ export default class Header {
     });
     this.logoutButton.render();
 
-    this.updateAuthState();
+    this.updateHeaderState();
 
     window.addEventListener('scroll', this.handleScrollBound);
     document.addEventListener('click', this.clickHandler);
@@ -116,7 +116,7 @@ export default class Header {
    * Обновляет состояние аутентификации в заголовке.
    * Показывает или скрывает кнопки входа/выхода в зависимости от состояния пользователя.
    */
-  private updateAuthState(): void {
+  private updateHeaderState(): void {
     const loginButton = this.loginButton?.self;
     const logoutButton = this.logoutButton?.self;
     const loginContainer = document.querySelector('.header__login') as HTMLElement;
@@ -136,6 +136,24 @@ export default class Header {
         loginContainer.textContent = '';
       }
     }
+
+    debugger;
+    const activeAddress = userStore.getActiveAddress();
+    if (activeAddress) {
+      this.setButtonAddress(activeAddress);
+      this.modalController.closeModal();
+    }
+  }
+
+  private setButtonAddress(activeAddress: string) {
+    const locationButton = this.parent.querySelector(
+      '.header__location_select_button',
+    ) as HTMLDivElement;
+    if (!locationButton.classList.contains('selected')) {
+      locationButton.classList.add('selected');
+    }
+
+    locationButton.innerText = activeAddress;
   }
 
   /**
