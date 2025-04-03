@@ -176,6 +176,19 @@ class UserRequests {
       throw new Error('not authorized');
     }
   };
+
+  AddAddress = async (address: string): Promise<{ message: string }> => {
+    const { status, body } = await baseRequest<{ message: string } & { error?: string }>(
+      methods.POST,
+      this.baseUrl + '/add_address',
+    );
+
+    if (status === 200) {
+      return body;
+    } else {
+      throw new Error('not authorized');
+    }
+  };
 }
 
 // RestaurantsRequests class

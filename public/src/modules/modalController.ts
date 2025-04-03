@@ -10,21 +10,17 @@ export default class ModalController {
   }
 
   private handlePopState(): void {
-    if (this.currentModal) {
-      this.closeModal(this.currentModal);
-    }
+    this.closeModal();
   }
 
   private handleClickOutside(event: MouseEvent): void {
     if (this.currentModal && event.target === this.currentModal.closeElem) {
-      this.closeModal(this.currentModal);
+      this.closeModal();
     }
   }
 
   openModal(modal: MapModal): void {
-    if (this.currentModal) {
-      this.closeModal(this.currentModal);
-    }
+    this.closeModal();
 
     this.currentModal = modal;
     modal.render();
@@ -32,8 +28,8 @@ export default class ModalController {
     document.addEventListener('click', this.clickCloseHandler);
   }
 
-  closeModal(modal: MapModal): void {
-    if (this.currentModal === modal) {
+  closeModal(): void {
+    if (this.currentModal) {
       this.currentModal.remove();
       this.currentModal = null;
       document.removeEventListener('click', this.clickCloseHandler);
@@ -44,8 +40,6 @@ export default class ModalController {
     window.removeEventListener('popstate', this.handlePopState.bind(this));
     document.removeEventListener('click', this.clickCloseHandler);
 
-    if (this.currentModal) {
-      this.closeModal(this.currentModal);
-    }
+    this.closeModal();
   }
 }

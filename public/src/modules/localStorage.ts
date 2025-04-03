@@ -43,6 +43,22 @@ export function saveToLocalStorage(headers: Headers): void {
   }
 }
 
+export function saveActiveAddressToLocalStorage(address: string): void {
+  try {
+    window.localStorage.setItem('Address', address);
+  } catch (err) {
+    console.error('Ошибка сохранения адреса в localStorage:', err);
+  }
+}
+
+export function getActiveAddressFromLocalStorage(): string {
+  try {
+    return window.localStorage.getItem('Address');
+  } catch (err) {
+    console.error('Ошибка получения адреса из localStorage:', err);
+  }
+}
+
 /**
  * Очищает токены из localStorage
  */

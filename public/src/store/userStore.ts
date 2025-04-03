@@ -1,11 +1,17 @@
 import { createStore } from './store';
 import { router } from '../modules/routing';
 import { AppUserRequests } from '../modules/ajax';
+import {
+  getActiveAddressFromLocalStorage,
+  saveActiveAddressToLocalStorage,
+} from '../modules/localStorage';
 
 interface UserState {
   login: string;
   avatarUrl: string;
   isAuth: boolean;
+  activeAddress: string;
+  addresses: string[];
 }
 
 interface LoginPayload {
@@ -30,6 +36,8 @@ const initialUserState: UserState = {
   login: '',
   avatarUrl: '/src/assets/avatar.png',
   isAuth: false,
+  activeAddress: getActiveAddressFromLocalStorage(),
+  addresses: [],
 };
 
 const userReducer = (state = initialUserState, action: Action): UserState => {
@@ -56,6 +64,18 @@ const userReducer = (state = initialUserState, action: Action): UserState => {
         login: action.payload.login,
       };
 
+    case UserActions.ADD_ADDRESS_SUCCESS:
+      return {
+        ...state,
+        addresses: [...state.addresses, action.payload],
+      };
+
+    case UserActions.SET_ADDRESS:
+      return {
+        ...state,
+        activeAddress: action.payload,
+      };
+
     default:
       return state;
   }
@@ -66,6 +86,8 @@ export const UserActions = {
   REGISTER_SUCCESS: 'REGISTER_SUCCESS',
   LOGOUT_SUCCESS: 'LOGOUT_SUCCESS',
   CHECK_SUCCESS: 'CHECK_SUCCESS',
+  ADD_ADDRESS_SUCCESS: 'ADD_ADDRESS_SUCCESS',
+  SET_ADDRESS: 'SET_ADDRESS',
 };
 
 class UserStore {
@@ -81,6 +103,10 @@ class UserStore {
    */
   isAuth(): boolean {
     return this.store.getState().isAuth;
+  }
+
+  getActiveAddress(): string {
+    return this.store.getState().activeAddress;
   }
 
   /**
@@ -157,6 +183,27 @@ class UserStore {
     } catch (err) {
       console.error('Ошибка при проверке пользователя:', err.message);
     }
+  }
+
+  async addAddress(address: string): Promise<void> {
+    try {
+      const res = await AppUserRequests.AddAddress(address);
+      this.dispatch({
+        type: UserActions.ADD_ADDRESS_SUCCESS,
+        payload: { address: address },
+      });
+    } catch (err) {
+      console.error('Ошибка при добавлении адреса:', err.message);
+    }
+  }
+
+  setAddress(address: string) {
+    saveActiveAddressToLocalStorage(address);
+
+    this.dispatch({
+      type: UserActions.SET_ADDRESS,
+      payload: address,
+    });
   }
 
   /**

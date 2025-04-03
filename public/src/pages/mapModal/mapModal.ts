@@ -17,6 +17,7 @@ import {
 import debounce from '../../modules/debounce';
 import { YMapGeolocationControl, YMapZoomControl } from '@yandex/ymaps3-default-ui-theme';
 import { toasts } from '../../modules/toasts';
+import { userStore } from '../../store/userStore';
 
 /**
  * Класс, представляющий модальное окно карты.
@@ -78,6 +79,9 @@ export default class MapModal {
       text: 'ОК',
       disabled: true,
       style: 'dark big',
+      onSubmit: () => {
+        userStore.setAddress(this.input.value);
+      },
     });
 
     this.submitBtn.render();
@@ -173,8 +177,10 @@ export default class MapModal {
       return;
     }
 
-    const addressText = geoCoderResponse.result.metaDataProperty.GeocoderMetaData.text;
-    this.input.value = addressText.split(', ').slice(1).join(', ');
+    const address = geoCoderResponse.result.metaDataProperty.GeocoderMetaData;
+    this.input.value = address.text.split(', ').slice(1).join(', ');
+
+    this.checkFinalAddresss([address.kind]);
 
     this.addNewMarker([longitude, latitude]);
   }
@@ -187,16 +193,9 @@ export default class MapModal {
   private async handleSuggestClick(address: string, tags: string[], uri: string): Promise<void> {
     this.input.value = address;
 
-    const finalTags = ['house', 'business', 'office', 'hotel'];
-    const isFinalAddress = tags.some((tag) => finalTags.includes(tag));
-
-    if (!isFinalAddress) {
-      this.input.focus();
-      return;
-    }
+    this.checkFinalAddresss(tags);
 
     setTimeout(() => this.suggestsContainer.clear(), 100);
-    this.submitBtn.enable();
     const geoCoderResponse = await geoCoderRequest(uri);
     if (geoCoderResponse.status !== 200 || !geoCoderResponse.result) {
       console.error(`Ошибка API: ${geoCoderResponse.status}`);
@@ -214,6 +213,18 @@ export default class MapModal {
     });
 
     this.addNewMarker([lon, lat]);
+  }
+
+  private checkFinalAddresss(tags: string[]) {
+    const finalTags = ['house', 'business', 'office', 'hotel'];
+    const isFinalAddress = tags.some((tag) => finalTags.includes(tag));
+
+    if (!isFinalAddress) {
+      this.input.focus();
+      return;
+    }
+
+    this.submitBtn.enable();
   }
 
   private addNewMarker([lon, lat]: [number, number]): void {
