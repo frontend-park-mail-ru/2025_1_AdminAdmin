@@ -4,10 +4,13 @@ import {
   RestaurantDetailProps,
   ImageProps,
 } from './restaurantDetail/restaurantDetail';
-import { RatingProps } from '../../components/restaurantHeader/restaurantHeader';
-import { Button, ButtonProps } from '../button/button';
+import { RatingProps } from '@components/restaurantHeader/restaurantHeader';
+import { Button, ButtonProps } from '@components/button/button';
 
 import template from './restaurantReviews.hbs';
+
+import locationImg from '@assets/location.png';
+import clockImg from '@assets/clock.png';
 
 export interface RestaurantReviewsProps {
   rating: RatingProps; // Рейтинг (в числовом виде с количеством оценок)
@@ -55,14 +58,14 @@ export class RestaurantReviews {
         open: props.hours.open,
         close: props.hours.close,
         image: {
-          src: props.hours.image?.src || '/src/assets/clock.png',
+          src: props.hours.image?.src || clockImg,
         },
       },
       address: {
         city: props.address.city,
         street: props.address.street,
         image: {
-          src: props.address.image?.src || '/src/assets/location.png',
+          src: props.address.image?.src || locationImg,
         },
       },
     };
@@ -126,7 +129,7 @@ export class RestaurantReviews {
     const hoursProps: RestaurantDetailProps = {
       id: 'restaurant__hours',
       image: {
-        src: '/src/assets/clock.png',
+        src: clockImg,
       },
       mainText: this.props.hours.status ? 'Открыто' : 'Закрыто',
       addText: this.props.hours.status
@@ -139,7 +142,7 @@ export class RestaurantReviews {
     const addressProps: RestaurantDetailProps = {
       id: 'restaurant__address',
       image: {
-        src: '/src/assets/location.png',
+        src: locationImg,
       },
       mainText: this.props.address.city,
       addText: this.props.address.street,

@@ -1,6 +1,7 @@
-import { QuantityButton, QuantityButtonProps } from '../quantityButton/quantityButton';
+import { QuantityButton, QuantityButtonProps } from '@components/quantityButton/quantityButton';
 
 import template from './productCard.hbs';
+import whopperImg from '@assets/whopper.png';
 
 // Структура класса карточки
 export interface ProductCardProps {
@@ -32,7 +33,7 @@ export class ProductCard {
     this.parent = parent;
     this.props = {
       id: props.id || `product-card-${props.name}`,
-      image: props.image || '/src/assets/whopper.png',
+      image: props.image || whopperImg,
       name: props.name,
       inCart: props.inCart ?? false,
       price: props.price ?? 0,

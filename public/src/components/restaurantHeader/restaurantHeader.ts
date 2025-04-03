@@ -1,4 +1,6 @@
 import template from './restaurantHeader.hbs';
+import restaurantHeaderImg from '@assets/header.png';
+import burgerKingImg from '@assets/burgerking.png';
 
 // Структура класса рейтинга
 export interface RatingProps {
@@ -39,8 +41,8 @@ export class RestaurantHeader {
         score: props.rating.score ?? 0,
         amount: props.rating.amount ?? 0,
       },
-      background: props.background || '/src/assets/header.png',
-      icon: props.icon || '/src/assets/burgerking.png',
+      background: props.background || restaurantHeaderImg,
+      icon: props.icon || burgerKingImg,
     };
   }
 

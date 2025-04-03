@@ -1,4 +1,4 @@
-import MapModal from '../pages/mapModal/mapModal';
+import MapModal from '@pages/mapModal/mapModal';
 
 export default class ModalController {
   private currentModal: MapModal | null = null;

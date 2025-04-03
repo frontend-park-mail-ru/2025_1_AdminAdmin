@@ -1,6 +1,8 @@
-import { router } from '../../modules/routing';
+import { router } from '@modules/routing';
 
 import template from './restaurantCard.hbs';
+
+import burgerKingImg from '@assets/burgerking.png';
 
 interface RestaurantProps {
   id: string;
@@ -46,7 +48,7 @@ export class RestaurantCard {
         score: props.rating,
         amount: props.amount,
       },
-      image: props.image || '/src/assets/burgerking.png',
+      image: props.image || burgerKingImg,
     };
   }
 

@@ -1,9 +1,8 @@
-import { router } from '../../modules/routing';
-import { userStore } from '../../store/userStore';
-import { FormInput } from '../formInput/formInput';
-import { Button } from '../button/button';
+import { userStore } from '@store/userStore';
+import { FormInput } from '@components/formInput/formInput';
+import { Button } from '@components//button/button';
 import template from './loginForm.hbs';
-import { toasts } from '../../modules/toasts';
+import { toasts } from '@modules/toasts';
 
 /**
  * Класс, представляющий форму логина.

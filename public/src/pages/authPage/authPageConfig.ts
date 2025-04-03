@@ -1,22 +1,15 @@
-import {
-  ValidateLogin,
-  ValidateName,
-  ValidatePassword,
-  ValidatePhone,
-} from '../../modules/validation.ts';
+import { ValidateLogin, ValidateName, ValidatePassword, ValidatePhone } from '@modules/validation';
 
 export default {
   buttons: {
     login: {
       id: 'form__tab_login',
       text: 'Вход',
-      icon: '/src/assets/user.png',
       style: 'form__button',
     },
     register: {
       id: 'form__tab_register',
       text: 'Регистрация',
-      icon: '/src/assets/password.png',
       style: 'form__button',
     },
   },

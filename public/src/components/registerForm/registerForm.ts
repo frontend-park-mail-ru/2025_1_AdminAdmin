@@ -1,9 +1,8 @@
-import { FormInput } from '../formInput/formInput';
-import { Button } from '../button/button';
-import { Select } from '../select/select';
-import { userStore } from '../../store/userStore';
-import { router } from '../../modules/routing';
-import { toasts } from '../../modules/toasts';
+import { FormInput } from '@components/formInput/formInput';
+import { Button } from '@components/button/button';
+import { Select } from '@components/select/select';
+import { userStore } from '@store/userStore';
+import { toasts } from '@modules/toasts';
 import template from './registerForm.hbs';
 
 /**

@@ -1,9 +1,9 @@
-import RestaurantList from '../pages/restaurantList/restaurantList';
-import RestaurantPage from '../pages/restaurantPage/restaurantPage';
-import Header from '../components/header/header';
-import auxHeader from '../components/auxHeader/auxHeader';
-import { AuthPage } from '../pages/authPage/authPage';
-import { userStore } from '../store/userStore';
+import RestaurantList from '@pages/restaurantList/restaurantList';
+import RestaurantPage from '@pages/restaurantPage/restaurantPage';
+import Header from '@components/header/header';
+import auxHeader from '@components/auxHeader/auxHeader';
+import { AuthPage } from '@pages/authPage/authPage';
+import { userStore } from '@store/userStore';
 
 interface RouteConfig {
   href: string;

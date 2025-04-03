@@ -2,19 +2,19 @@ import {
   RatingProps,
   RestaurantHeader,
   RestaurantHeaderProps,
-} from '../../components/restaurantHeader/restaurantHeader';
+} from '@components/restaurantHeader/restaurantHeader';
 import {
   RestaurantReviews,
   RestaurantReviewsProps,
-} from '../../components/restaurantReviews/restaurantReviews';
-import { Categories, CategoriesProps } from '../../components/categories/categories';
-import { ProductCard, ProductCardProps } from '../../components/productCard/productCard';
-import { AppRestaurantRequests } from '../../modules/ajax';
+} from '@components/restaurantReviews/restaurantReviews';
+import { Categories, CategoriesProps } from '@components/categories/categories';
+import { ProductCard, ProductCardProps } from '@components/productCard/productCard';
+import { AppRestaurantRequests } from '@modules/ajax';
 
 import template from './restaurantPage.hbs';
-import { RestaurantReviewProps } from '../../components/restaurantReviews/restaurantReview/restaurantReview';
-import { RestaurantDetailProps } from '../../components/restaurantReviews/restaurantDetail/restaurantDetail';
-import { CategoryProps } from '../../components/category/category';
+import { RestaurantReviewProps } from '@components/restaurantReviews/restaurantReview/restaurantReview';
+import { RestaurantDetailProps } from '@components/restaurantReviews/restaurantDetail/restaurantDetail';
+import { CategoryProps } from '@components/category/category';
 
 interface RestaurantPageProps {
   id: string; // id ресторана

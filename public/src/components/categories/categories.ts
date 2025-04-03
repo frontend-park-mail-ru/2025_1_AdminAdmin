@@ -1,4 +1,4 @@
-import { Category, CategoryProps } from '../category/category';
+import { Category, CategoryProps } from '@components/category/category';
 
 import template from './categories.hbs';
 
