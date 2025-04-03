@@ -137,7 +137,6 @@ export default class Header {
       }
     }
 
-    debugger;
     const activeAddress = userStore.getActiveAddress();
     if (activeAddress) {
       this.setButtonAddress(activeAddress);
