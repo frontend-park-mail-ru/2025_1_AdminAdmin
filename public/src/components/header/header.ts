@@ -145,12 +145,10 @@ export default class Header {
   }
 
   private setButtonAddress(activeAddress: string) {
-    const locationButton = this.parent.querySelector(
+    const locationButton: HTMLDivElement = this.parent.querySelector(
       '.header__location_select_button',
-    ) as HTMLDivElement;
-    if (!locationButton.classList.contains('selected')) {
-      locationButton.classList.add('selected');
-    }
+    );
+    locationButton.classList.add('selected');
 
     locationButton.innerText = activeAddress;
   }
