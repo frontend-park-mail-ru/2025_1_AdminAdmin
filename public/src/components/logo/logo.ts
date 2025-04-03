@@ -55,6 +55,6 @@ export class Logo {
    */
   remove() {
     document.removeEventListener('click', this.clickHandler);
-    this.parent.innerHTML = '';
+    document.querySelector('.logo').remove();
   }
 }
