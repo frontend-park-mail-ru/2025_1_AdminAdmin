@@ -37,7 +37,7 @@ jobs:
         run: npm run build
 
       - name: Очистка папки на сервере
-        run: "sudo rm -rf /opt/public/*"
+        run: sudo rm -rf /opt/public/*
 
       - name: Деплой на сервер
         uses: appleboy/scp-action@v0.1.7
@@ -48,3 +48,4 @@ jobs:
           source: "dist/*"
           target: "/opt/public"
           strip_components: 1
+          overwrite: true
