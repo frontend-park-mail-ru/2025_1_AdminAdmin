@@ -220,8 +220,22 @@ class RestaurantsRequests {
    * @param id - Идентификатор ресторана
    * @returns {Promise<any>}
    */
-  Get = async (id: number): Promise<any> => {
+  Get = async (id: string): Promise<any> => {
     const { status, body } = await baseRequest<any>(methods.GET, this.baseUrl + '/' + id, null);
+
+    if (status === 200) {
+      return body;
+    } else {
+      throw new Error(body.message);
+    }
+  };
+
+  GetProductsByRestaurant = async (id: string): Promise<any> => {
+    const { status, body } = await baseRequest<any>(
+      methods.GET,
+      this.baseUrl + '/' + id + '/products',
+      null,
+    );
 
     if (status === 200) {
       return body;
