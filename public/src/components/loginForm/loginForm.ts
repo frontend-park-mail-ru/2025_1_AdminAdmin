@@ -52,7 +52,6 @@ export default class LoginForm {
     try {
       await userStore.login({ login, password });
       toasts.success('Вы успешно вошли в систему!');
-      router.goToPage('home');
     } catch (err) {
       const errorMessage = err.message || 'Неверный логин или пароль';
       this.setError(errorMessage);
