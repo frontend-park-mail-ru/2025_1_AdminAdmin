@@ -279,11 +279,6 @@ export default class MapModal {
       this.input.removeEventListener('focus', this.immitateInput.bind(this));
     }
 
-    if (this.self) {
-      this.self.removeEventListener('click', this.closeEventHandler);
-      this.self.remove();
-    }
-
     if (this.submitBtn) {
       this.submitBtn.remove();
     }
@@ -295,6 +290,11 @@ export default class MapModal {
     if (this.map) {
       this.map.destroy();
       this.map = null;
+    }
+
+    if (this.self) {
+      this.self.removeEventListener('click', this.closeEventHandler);
+      this.self.remove();
     }
   }
 }
