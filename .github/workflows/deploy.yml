@@ -36,11 +36,8 @@ jobs:
       - name: Сборка проекта
         run: npm run build
 
-      - name: Добавление сервера в known_hosts
-        run: ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-
       - name: Очистка папки на сервере
-        run: ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "sudo rm -rf /opt/public/*"
+        run: "sudo rm -rf /opt/public/*"
 
       - name: Деплой на сервер
         uses: appleboy/scp-action@v0.1.7
