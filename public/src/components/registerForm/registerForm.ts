@@ -164,7 +164,7 @@ export default class RegisterForm {
     const loginContainer = document.getElementById('form__line__register_login')!;
     const passwordContainer = document.getElementById('form__line__register_password')!;
     const rPasswordContainer = document.getElementById('form__line__repeat_password')!;
-    const buttonContainer = document.getElementById('form__line_register_button')!;
+    const buttonContainer = document.getElementById('form__line_register_button_container')!;
 
     this.fNameInput = new FormInput(firstLastNameContainer, this.config.inputs.fName);
     this.fNameInput.render();
