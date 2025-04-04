@@ -1,5 +1,5 @@
-import { SuggestsContainer } from '../../components/suggestsContainer/suggestsContainer';
-import { Button } from '../../components/button/button';
+import { SuggestsContainer } from '@components/suggestsContainer/suggestsContainer';
+import { Button } from '@components/button/button';
 import template from './mapModal.hbs';
 import {
   YMap,
@@ -8,16 +8,18 @@ import {
   YMapControls,
   YMapListener,
   YMapMarker,
-} from '../../lib/ymaps';
+} from '@//lib/ymaps';
 import {
   geoCoderRequest,
   geoCoderRequestByCoords,
   geoSuggestRequest,
-} from '../../modules/ymapsRequests';
-import debounce from '../../modules/debounce';
+} from '@modules/ymapsRequests';
+import debounce from '@modules/debounce';
 import { YMapGeolocationControl, YMapZoomControl } from '@yandex/ymaps3-default-ui-theme';
-import { toasts } from '../../modules/toasts';
-import { userStore } from '../../store/userStore';
+import { toasts } from '@modules/toasts';
+import { userStore } from '@store/userStore';
+
+import mapLocationImg from '@assets/map_location.png';
 
 /**
  * Класс, представляющий модальное окно карты.
@@ -98,7 +100,7 @@ export default class MapModal {
     this.createMap();
 
     this.markerElement = document.createElement('img');
-    this.markerElement.src = './src/assets/map_location.png';
+    this.markerElement.src = mapLocationImg;
     this.markerElement.className = 'map_modal__marker';
   }
 

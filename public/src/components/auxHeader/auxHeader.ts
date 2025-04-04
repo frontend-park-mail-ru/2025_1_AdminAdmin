@@ -1,4 +1,5 @@
-import { Logo } from '../logo/logo';
+import { Logo } from '@components/logo/logo';
+import logoImg from '@assets/logo.png';
 
 /**
  * Класс AuxHeader представляет заголовок страниц логина и авторизации.
@@ -21,7 +22,7 @@ export default class AuxHeader {
    */
   render(): void {
     this.parent.classList.add('aux_header');
-    this.logo = new Logo(this.parent, '/src/assets/logo.png');
+    this.logo = new Logo(this.parent, logoImg);
     this.logo.render();
   }
 

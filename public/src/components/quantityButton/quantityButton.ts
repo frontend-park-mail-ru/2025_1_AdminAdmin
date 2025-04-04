@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from '../button/button';
+import { Button, ButtonProps } from '@components/button/button';
 
 import template from './quantityButton.hbs';
 

@@ -133,6 +133,14 @@ const config = {
         ],
     },
     resolve: {
+        alias: {
+            '@': path.resolve(__dirname, 'public/src'),
+            '@components': path.resolve(__dirname, 'public/src/components'),
+            '@modules': path.resolve(__dirname, 'public/src/modules'),
+            '@pages': path.resolve(__dirname, 'public/src/pages'),
+            '@assets': path.resolve(__dirname, 'public/src/assets'),
+            '@store': path.resolve(__dirname, 'public/src/store'),
+        },
         extensions: ['.tsx', '.ts', '.js', '.scss', '.css'],
     },
 };

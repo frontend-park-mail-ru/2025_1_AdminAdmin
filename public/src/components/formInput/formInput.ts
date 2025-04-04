@@ -1,4 +1,6 @@
 import template from './formInput.hbs';
+import eyeOpen from '@assets/eye.png';
+import eyeClosed from '@assets/hide.png';
 
 interface FormInputProps {
   id: string;
@@ -80,11 +82,11 @@ export class FormInput {
     if (input) {
       if (input.type === 'password') {
         input.type = 'text';
-        eyeImg.src = '/src/assets/eye.png';
+        eyeImg.src = eyeOpen;
         eyeImg.alt = 'eye open';
       } else {
         input.type = 'password';
-        eyeImg.src = '/src/assets/hide.png';
+        eyeImg.src = eyeClosed;
         eyeImg.alt = 'eye closed';
       }
     }

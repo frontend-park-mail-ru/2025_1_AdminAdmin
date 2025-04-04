@@ -1,4 +1,4 @@
-import { QuantityButton, QuantityButtonProps } from '../quantityButton/quantityButton';
+import { QuantityButton, QuantityButtonProps } from '@components/quantityButton/quantityButton';
 import template from './productCard.hbs';
 
 // Структура класса карточки

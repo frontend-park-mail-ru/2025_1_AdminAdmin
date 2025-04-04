@@ -1,6 +1,6 @@
-import { AppRestaurantRequests } from '../../modules/ajax';
-import { RestaurantCard } from '../../components/restaurantCard/restaurantCard';
-import throttle from '../../modules/throttle';
+import { AppRestaurantRequests } from '@modules/ajax';
+import { RestaurantCard } from '@components/restaurantCard/restaurantCard';
+import throttle from '@modules/throttle';
 import template from './restaurantList.hbs';
 
 // Константы

@@ -29,7 +29,7 @@
         border-radius: var(--border-radius);
         border: none;
         cursor: pointer;
-        background-image: url("./src/assets/navigation.png");
+        background-image: url("~@assets/navigation.png");
         background-repeat: no-repeat;
         background-position: right 10px center;
         background-size: 15px 15px;
@@ -40,7 +40,7 @@
         &.selected {
           background-color: var(--light-grey);
           color: var(--black);
-          background-image: url("./src/assets/location.png");
+          background-image: url("~@assets/location.png");
           background-size: 25px 25px;
           &:hover {
             background-color: var(--grey);
@@ -68,7 +68,7 @@
           cursor: pointer;
           padding: 7px;
           font-size: 15px;
-          background-image: url("./src/assets/right-arrow.png");
+          background-image: url("~@assets/right-arrow.png");
           background-repeat: no-repeat;
           background-position: right 10px center;
           background-size: 20px 20px;

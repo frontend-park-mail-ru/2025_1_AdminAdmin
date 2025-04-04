@@ -1,5 +1,5 @@
 import template from './suggest.hbs';
-import { Highlight, I_Suggest } from '../../modules/ymapsRequests';
+import { Highlight, I_Suggest } from '@modules/ymapsRequests';
 
 export class Suggest {
   private readonly parent: HTMLElement;

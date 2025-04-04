@@ -1,11 +1,12 @@
-import { router } from '../../modules/routing';
-import { userStore } from '../../store/userStore';
-import { Logo } from '../logo/logo';
-import { Button } from '../button/button';
+import { router } from '@modules/routing';
+import { userStore } from '@store/userStore';
+import { Logo } from '@components/logo/logo';
+import { Button } from '@components/button/button';
 import template from './header.hbs';
-import { toasts } from '../../modules/toasts';
-import MapModal from '../../pages/mapModal/mapModal';
-import ModalController from '../../modules/modalController';
+import { toasts } from '@modules/toasts';
+import MapModal from '@pages/mapModal/mapModal';
+import ModalController from '@modules/modalController';
+import logoImg from '@assets/logo.png';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -67,7 +68,7 @@ export default class Header {
     const headerElement = this.self;
     if (!headerElement) return;
 
-    this.logo = new Logo(headerElement, '/src/assets/logo.png');
+    this.logo = new Logo(headerElement, logoImg);
     this.logo.render();
 
     const buttonContainer = document.querySelector('.header__buttons') as HTMLElement;

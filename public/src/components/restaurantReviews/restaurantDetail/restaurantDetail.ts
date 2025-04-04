@@ -1,4 +1,5 @@
 import template from './restaurantDetail.hbs';
+import detailImg from '@assets/detail.png';
 
 // Структура изображения (нужно для структуры детали)
 export interface ImageProps {
@@ -37,7 +38,7 @@ export class RestaurantDetail {
       id: props.id,
       image: {
         // В src записываем путь до картинки если он задан, иначе detail.png
-        src: props.image?.src || '/src/assets/detail.png',
+        src: props.image?.src || detailImg,
         // В alt записываем текст если не подгрузилась картинка или название файла (.../[название файла].[расширение]) если задано правильно, иначе detail
         alt:
           props.image?.alt ||

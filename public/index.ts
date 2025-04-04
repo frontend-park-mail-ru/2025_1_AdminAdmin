@@ -1,6 +1,6 @@
 import './index.scss'
 
-import { initRouting } from './src/modules/routing';
+import { initRouting } from '@modules/routing';
 
 const rootElement = document.getElementById('root');
 

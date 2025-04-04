@@ -1,4 +1,4 @@
-import { Toast } from '../components/toast/toast';
+import { Toast } from '@components/toast/toast';
 
 export const TOAST_TYPE = {
   SUCCESS: 'success',

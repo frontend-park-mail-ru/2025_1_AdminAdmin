@@ -1,10 +1,10 @@
 import { createStore } from './store';
-import { router } from '../modules/routing';
-import { AppUserRequests } from '../modules/ajax';
+import { router } from '@modules/routing';
+import { AppUserRequests } from '@modules/ajax';
 import {
   getActiveAddressFromLocalStorage,
   saveActiveAddressToLocalStorage,
-} from '../modules/localStorage';
+} from '@modules/localStorage';
 
 interface UserState {
   login: string;
@@ -34,7 +34,7 @@ interface Action {
 
 const initialUserState: UserState = {
   login: '',
-  avatarUrl: '/src/assets/avatar.png',
+  avatarUrl: '@assets/avatar.png',
   isAuth: false,
   activeAddress: getActiveAddressFromLocalStorage(),
   addresses: [],

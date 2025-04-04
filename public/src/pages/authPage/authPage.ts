@@ -1,10 +1,10 @@
-import { Button } from '../../components/button/button';
+import { Button } from '@components/button/button';
 import config from './authPageConfig';
-import LoginForm from '../../components/loginForm/loginForm';
-import RegisterForm from '../../components/registerForm/registerForm';
-import { router } from '../../modules/routing';
+import LoginForm from '@components/loginForm/loginForm';
+import RegisterForm from '@components/registerForm/registerForm';
+import { router } from '@modules/routing';
 import template from './authPage.hbs';
-import { userStore } from '../../store/userStore';
+import { userStore } from '@store/userStore';
 
 /**
  * Класс страницы авторизации
