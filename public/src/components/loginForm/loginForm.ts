@@ -91,7 +91,7 @@ export default class LoginForm {
 
     const loginContainer = document.getElementById('form__line_login')!;
     const passwordContainer = document.getElementById('form__line_password')!;
-    const buttonContainer = document.getElementById('form__line_login_button')!;
+    const buttonContainer = document.getElementById('form__line_login_button_container')!;
 
     this.loginInput = new FormInput(loginContainer, this.config.inputs.login);
     this.loginInput.render();

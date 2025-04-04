@@ -1,4 +1,8 @@
-import { addToHeaders, clearLocalStorage, saveToLocalStorage } from './localStorage';
+import {
+  getAuthTokensFromLocalStorage,
+  clearLocalStorage,
+  storeAuthTokensFromResponse,
+} from './localStorage';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -41,10 +45,9 @@ const baseRequest = async <T = any>(
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      ...getAuthTokensFromLocalStorage(),
     },
   };
-
-  addToHeaders(options as any);
 
   if (data) options.body = JSON.stringify(data);
 
@@ -67,7 +70,7 @@ const baseRequest = async <T = any>(
     }
 
     try {
-      saveToLocalStorage(response.headers);
+      storeAuthTokensFromResponse(response.headers);
     } catch (err) {
       console.error(err);
     }
@@ -220,8 +223,22 @@ class RestaurantsRequests {
    * @param id - Идентификатор ресторана
    * @returns {Promise<any>}
    */
-  Get = async (id: number): Promise<any> => {
+  Get = async (id: string): Promise<any> => {
     const { status, body } = await baseRequest<any>(methods.GET, this.baseUrl + '/' + id, null);
+
+    if (status === 200) {
+      return body;
+    } else {
+      throw new Error(body.message);
+    }
+  };
+
+  GetProductsByRestaurant = async (id: string): Promise<any> => {
+    const { status, body } = await baseRequest<any>(
+      methods.GET,
+      this.baseUrl + '/' + id + '/products',
+      null,
+    );
 
     if (status === 200) {
       return body;

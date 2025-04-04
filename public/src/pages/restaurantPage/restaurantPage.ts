@@ -29,9 +29,7 @@ interface RestaurantRequestProps {
   name: string;
   description: string;
   type: string;
-  rating: {
-    score: number;
-  };
+  rating: number;
   background: string;
   icon: string;
 }
@@ -55,105 +53,12 @@ export default class RestaurantPage {
     this.parent = parent;
     this.props = {
       id: id,
-      // Прибиваю временные значения
       restaurantHeaderProps: {
         name: '', // Обязательное поле
       } as RestaurantHeaderProps, // Пустой объект для хедера (заполню потом)
-      // Для остальных тоже лучше пустые сделать а потом заполнять, но пока так
-      restaurantReviewsProps: {
-        rating: {
-          score: 5,
-          amount: 100,
-        } as RatingProps,
-        reviewsList: [
-          {
-            id: 'review1',
-            text: '1-ый отзыв',
-            rating: 1,
-            author: 'Автор1',
-            date: '01.01.25',
-          } as RestaurantReviewProps,
-          {
-            id: 'review2',
-            text: '2-ой отзыв',
-            rating: 2,
-            author: 'Автор2',
-            date: '02.02.25',
-          } as RestaurantReviewProps,
-          {
-            id: '3',
-            text: '3-ий отзыв (не виден)',
-            rating: 3,
-            author: 'Автор3',
-            date: '03.03.25',
-          } as RestaurantReviewProps,
-        ],
-        hours: {
-          status: true, // Статус ресторана (1 - открыто, 0 - закрыто)
-          open: '10:00', // Время открытия
-          close: '18:00', // Время закрытия
-        },
-        address: {
-          city: 'Москва',
-          street: 'Дмитровское ш., 13А, 127434',
-        },
-      } as RestaurantReviewsProps,
-      productsProps: [
-        {
-          id: 'product1',
-          name: 'Воппер',
-          inCart: true,
-          price: 529.99,
-          amount: 2,
-        } as ProductCardProps,
-        {
-          id: 'product2',
-          name: 'Воппер',
-          price: 529.99,
-        } as ProductCardProps,
-        {
-          id: 'product3',
-          name: 'Воппер',
-          price: 529.99,
-        } as ProductCardProps,
-        {
-          id: 'product4',
-          name: 'Воппер',
-          inCart: true,
-          price: 529.99,
-          amount: 2,
-        } as ProductCardProps,
-        {
-          id: 'product5',
-          name: 'Воппер',
-          price: 529.99,
-        } as ProductCardProps,
-        {
-          id: 'product6',
-          name: 'Воппер',
-          price: 529.99,
-        } as ProductCardProps,
-      ],
+
       productCategoriesProps: {
         onChange: this.handleCategory.bind(this),
-        categoriesList: [
-          {
-            id: 'category1',
-            name: 'Популярное',
-          } as CategoryProps,
-          {
-            id: 'category2',
-            name: 'Новинки',
-          } as CategoryProps,
-          {
-            id: 'category3',
-            name: 'Кинг комбо',
-          } as CategoryProps,
-          {
-            id: 'category4',
-            name: 'Боксы',
-          } as CategoryProps,
-        ],
       } as CategoriesProps,
     } as RestaurantPageProps;
   }
@@ -176,32 +81,12 @@ export default class RestaurantPage {
    * Запрашивает данные ресторана по ID и отображает их на странице.
    */
   async render(): Promise<void> {
-    if (!template) {
-      throw new Error('Error: restaurant page template not found');
-    }
     try {
-      // Получаем список всех ресторанов
-      const restaurants: Array<RestaurantRequestProps> = await AppRestaurantRequests.GetAll();
-      if (!Array.isArray(restaurants)) {
-        throw new Error('RestaurantPage: Нет ресторанов!');
-      }
-      // Ищем ресторан по ID. Получаем его данные
-      const restaurantDetails = restaurants.find((r) => r.id === this.props.id);
-      if (!restaurantDetails) {
-        throw new Error(`RestaurantPage: Ресторан с ID ${this.props.id} не найден!`);
-      }
-      this.props.restaurantHeaderProps = {
-        name: restaurantDetails.name,
-        description: restaurantDetails.description,
-        type: restaurantDetails.type,
-        rating: {
-          score: restaurantDetails.rating.score,
-        },
-        background: restaurantDetails.background,
-        icon: restaurantDetails.icon,
-      };
+      this.props.restaurantHeaderProps = await AppRestaurantRequests.Get(this.props.id);
+
       // Генерируем HTML
       this.parent.innerHTML = template();
+
       // Заполняем
       // Рендерим хедер (шапка + название)
       const restaurantHeaderWrapper = this.self.querySelector(
@@ -211,24 +96,32 @@ export default class RestaurantPage {
         restaurantHeaderWrapper,
         this.props.restaurantHeaderProps,
       );
+
       restaurantHeaderComponent.render();
-      // Рендерим блок отзывов (общая оценка + отзывы + адрес и время работы)
-      const restaurantReviewsWrapper = this.self.querySelector(
+
+      /*      // Рендерим блок отзывов (общая оценка + отзывы + адрес и время работы)
+      const restaurantReviewsWrapper : HTMLElement = this.self.querySelector(
         '.restaurant-reviews__wrapper',
-      ) as HTMLElement;
+      )
+
       const restaurantReviewsComponent = new RestaurantReviews(
         restaurantReviewsWrapper,
-        this.props.restaurantReviewsProps,
+        this.props.restaurantHeaderProps.rating,
       );
-      restaurantReviewsComponent.render();
-      // Рендерим блок категорий
-      const categoriesWrapper = this.self.querySelector(
+      restaurantReviewsComponent.render();*/
+
+      this.props.productsProps = await AppRestaurantRequests.GetProductsByRestaurant(this.props.id);
+
+      /*      // Рендерим блок категорий
+      const categoriesWrapper : HTMLElement = this.self.querySelector(
         '.product-categories__wrapper',
-      ) as HTMLElement;
+      );
+
       const categoriesComponent = new Categories(
         categoriesWrapper,
         this.props.productCategoriesProps,
       );
+
       categoriesComponent.render();
       this.handleCategory(
         categoriesComponent
@@ -236,7 +129,8 @@ export default class RestaurantPage {
           .categoriesList.find(
             (catergory) => catergory.id === categoriesComponent.getProps().activeCategoryId,
           )?.name,
-      );
+      );*/
+
       // Рендерим карточки
       const productCardsBody = this.self.querySelector('.product-cards__body') as HTMLElement;
       this.props.productsProps.forEach((productCardProps) => {
