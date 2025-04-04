@@ -4,30 +4,34 @@ export interface RequestOptions {
 
 /**
  * Добавляет токены из localStorage в заголовки запроса
- * @param options Объект с параметрами запроса
  */
-export function addToHeaders(options: RequestOptions): void {
-  if (!options.headers) {
-    options.headers = {};
+
+export function getAuthTokensFromLocalStorage(): Record<string, string> {
+  const tokens: Record<string, string> = {};
+
+  try {
+    const jwt = window.localStorage.getItem('Authorization');
+    const csrf = window.localStorage.getItem('X-CSRF-Token');
+
+    if (jwt) {
+      tokens.Authorization = jwt;
+    }
+
+    if (csrf) {
+      tokens['X-CSRF-Token'] = csrf;
+    }
+  } catch (err) {
+    console.error('Ошибка извлечения токенов из localStorage:', err);
   }
 
-  const jwt = window.localStorage.getItem('Authorization');
-  const csrf = window.localStorage.getItem('X-CSRF-Token');
-
-  if (jwt) {
-    options.headers.Authorization = jwt;
-  }
-
-  if (csrf) {
-    options.headers['X-CSRF-Token'] = csrf;
-  }
+  return tokens;
 }
 
 /**
- * Сохраняет токены из заголовков ответа в localStorage
+ * Извлекает токены из заголовков ответа и сохраняет их в localStorage.
  * @param headers Заголовки ответа
  */
-export function saveToLocalStorage(headers: Headers): void {
+export function storeAuthTokensFromResponse(headers: Headers): void {
   try {
     const newJWT = headers.get('Authorization');
     if (newJWT) {

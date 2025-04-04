@@ -1,4 +1,8 @@
-import { addToHeaders, clearLocalStorage, saveToLocalStorage } from './localStorage';
+import {
+  getAuthTokensFromLocalStorage,
+  clearLocalStorage,
+  storeAuthTokensFromResponse,
+} from './localStorage';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -41,10 +45,9 @@ const baseRequest = async <T = any>(
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      ...getAuthTokensFromLocalStorage(),
     },
   };
-
-  addToHeaders(options as any);
 
   if (data) options.body = JSON.stringify(data);
 
@@ -67,7 +70,7 @@ const baseRequest = async <T = any>(
     }
 
     try {
-      saveToLocalStorage(response.headers);
+      storeAuthTokensFromResponse(response.headers);
     } catch (err) {
       console.error(err);
     }
