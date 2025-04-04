@@ -61,7 +61,6 @@ export class ProductCard {
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
 
-    debugger;
     // Кнопка уменьшения количества
     const minusButtonWrapper = this.self.querySelector(
       '.product-card__minus-button__wrapper',
