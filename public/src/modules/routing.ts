@@ -4,6 +4,7 @@ import Header from '@components/header/header';
 import auxHeader from '@components/auxHeader/auxHeader';
 import { AuthPage } from '@pages/authPage/authPage';
 import { userStore } from '@store/userStore';
+import NotFoundPage from '@pages/404/404';
 
 interface RouteConfig {
   href: string;
@@ -62,6 +63,11 @@ class Router {
         header: auxHeader,
         options: false,
       },
+      notFound: {
+        href: '/404',
+        class: NotFoundPage,
+        header: auxHeader,
+      },
     };
 
     userStore.checkUser();
@@ -86,6 +92,8 @@ class Router {
         return;
       }
     }
+
+    this.goToPage('notFound', null, false);
   }
   /**
    * Переход на указанную страницу.

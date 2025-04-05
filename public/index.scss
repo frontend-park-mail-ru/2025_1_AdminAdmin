@@ -25,6 +25,7 @@
 @use './src/pages/authPage/authPage' as *;
 @use './src/pages/restaurantPage/restaurantPage' as *;
 @use './src/pages/mapModal/mapModal' as *;
+@use 'src/pages/404/404' as *;
 
 @import '~@yandex/ymaps3-default-ui-theme/dist/esm/index.css';
 
