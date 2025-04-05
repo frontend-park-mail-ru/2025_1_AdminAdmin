@@ -40,7 +40,6 @@
 
   & a {
     color: var(--orange);
-    border-bottom: 1px solid transparent;
     cursor: pointer;
 
     &:hover {
@@ -49,35 +48,35 @@
   }
 
   &__mug {
-    background: #3f2616;
+    background: var(--brown);
     position: relative;
     margin: 0;
     width: 170px;
     height: 150px;
     border-radius: 50%;
     box-shadow:
-            0 0 0 10px #442918,
-            0 0 0 25px #3c2415,
-            0 0 0 42px #e4e6b2,
-            0 0 0 53px #eff0d1,
-            0 0 0 55px var(--orange),
-            0 0 0 65px #eff0d1,
-            0 120px 0 -25px #3c2415,
-            100px 70px 0 -25px #3c2415,
-            80px 140px 0 -10px #3c2415,
-            0px 210px 0 -55px #3c2415,
-            20px 250px 0 -65px #3c2415;
+            0 0 0 10px var(--light-brown),
+            0 0 0 25px var(--light-yellow),
+            0 0 0 42px var(--light-yellow-light),
+            0 0 0 53px var(--orange),
+            0 0 0 55px var(--light-yellow-light),
+            0 0 0 65px var(--light-yellow-light),
+            0 120px 0 -25px var(--light-brown),
+            100px 70px 0 -25px var(--light-brown),
+            80px 140px 0 -10px var(--light-brown),
+            0px 210px 0 -55px var(--light-brown),
+            20px 250px 0 -65px var(--light-brown);
 
     &::before {
       content: "";
       position: absolute;
-      background: #eff0d1;
+      background: var(--light-yellow-light);
       height: 80px;
       width: 60px;
       top: -85px;
       right: -75px;
       border-radius: 5px;
-      box-shadow: inset 0px 50px 0 0px #eff0d1;
+      box-shadow: inset 0px 50px 0 0px var(--light-yellow-light);
       transform: rotate(45deg);
     }
 
@@ -87,7 +86,7 @@
       height: 20px;
       border-radius: 50%;
       position: absolute;
-      border: 3px solid #77665c;
+      border: 3px solid var(--grey);
       left: 0;
       right: 0;
       top: 0;

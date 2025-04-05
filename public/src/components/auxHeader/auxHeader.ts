@@ -5,7 +5,7 @@ import logoImg from '@assets/logo.png';
  * Класс AuxHeader представляет заголовок страниц логина и авторизации.
  */
 export default class AuxHeader {
-  private parent: HTMLElement;
+  private readonly parent: HTMLElement;
   private logo?: Logo;
 
   /**

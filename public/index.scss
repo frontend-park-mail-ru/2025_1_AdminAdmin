@@ -19,6 +19,7 @@
 @use './src/components/categories/categories.scss' as *;
 @use './src/components/productCard/productCard.scss' as *;
 @use './src/components/suggestsContainer/suggestsContainer' as *;
+@use './src/components/cart/cart' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;
@@ -43,6 +44,10 @@
   --green: #008000;
   --border-radius: 15px;
   --blue: #2196F3;
+  --brown: #3f2616;
+  --light-brown: #442918;
+  --light-yellow: #e4e6b2;
+  --light-yellow-light: #eff0d1;
 }
 
 body {
