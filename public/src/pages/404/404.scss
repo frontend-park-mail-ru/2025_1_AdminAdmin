@@ -1,0 +1,108 @@
+.error-page {
+  height: calc(100vh - 50px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &__number-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 auto;
+    max-width: 700px;
+  }
+
+  &__number {
+    font-size: 25em;
+    color: var(--white);
+    -webkit-text-stroke: 10px var(--orange);
+
+    &--left {
+      margin-right: 2%;
+      z-index: -1;
+    }
+
+    &--right {
+      margin-left: 2%;
+      z-index: -1;
+    }
+  }
+
+  &__number-sm {
+    display: none;
+  }
+
+  &__message {
+    font-size: 1.5em;
+    margin-top: 90px;
+    text-align: center;
+  }
+
+  & a {
+    text-decoration: none;
+    color: var(--orange);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--dark-orange);
+    }
+  }
+
+  &__mug {
+    background: var(--brown);
+    position: relative;
+    margin: 0;
+    width: 170px;
+    height: 150px;
+    border-radius: 50%;
+    box-shadow:
+            0 0 0 10px var(--light-brown),
+            0 0 0 25px var(--light-yellow),
+            0 0 0 42px var(--light-yellow-light),
+            0 0 0 53px var(--orange),
+            0 0 0 55px var(--light-yellow-light),
+            0 0 0 65px var(--light-yellow-light),
+            0 120px 0 -25px var(--light-brown),
+            100px 70px 0 -25px var(--light-brown),
+            80px 140px 0 -10px var(--light-brown),
+            0px 210px 0 -55px var(--light-brown),
+            20px 250px 0 -65px var(--light-brown);
+
+    &::before {
+      content: "";
+      position: absolute;
+      background: var(--light-yellow-light);
+      height: 80px;
+      width: 60px;
+      top: -85px;
+      right: -75px;
+      border-radius: 5px;
+      box-shadow: inset 0px 50px 0 0px var(--light-yellow-light);
+      transform: rotate(45deg);
+    }
+
+    &::after {
+      content: "";
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      position: absolute;
+      border: 3px solid var(--grey);
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+      opacity: 0.2;
+      animation: error-page__rings 3s ease-out infinite;
+    }
+  }
+}
+
+@keyframes error-page__rings {
+  to {
+    width: 150px;
+    height: 150px;
+    opacity: 0;
+  }
+}

@@ -1,4 +1,5 @@
 import template from './404.hbs';
+import { router } from '@modules/routing';
 
 /**
  * Класс 404 страницы
@@ -20,7 +21,7 @@ export default class NotFoundPage {
    * @returns {HTMLElement} - ссылка на объект
    */
   get self(): HTMLElement {
-    const element = document.querySelector('.not-found-page');
+    const element = document.querySelector('.error-page');
     if (!element) {
       throw new Error(`Error: can't find 404 page`);
     }
@@ -46,7 +47,6 @@ export default class NotFoundPage {
    * Удаляет 404 страницу и очищает содержимое родительского элемента.
    */
   remove() {
-    const element = this.self;
-    element.remove();
+    this.self.remove();
   }
 }

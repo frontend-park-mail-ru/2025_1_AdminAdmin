@@ -25,6 +25,7 @@
 @use './src/pages/authPage/authPage' as *;
 @use './src/pages/restaurantPage/restaurantPage' as *;
 @use './src/pages/mapModal/mapModal' as *;
+@use 'src/pages/404/404' as *;
 
 @import '~@yandex/ymaps3-default-ui-theme/dist/esm/index.css';
 
@@ -42,6 +43,10 @@
   --green: #008000;
   --border-radius: 15px;
   --blue: #2196F3;
+  --brown: #3f2616;
+  --light-brown: #442918;
+  --light-yellow: #e4e6b2;
+  --light-yellow-light: #eff0d1;
 }
 
 body {
