@@ -41,20 +41,12 @@ export default class NotFoundPage {
     } catch (error) {
       console.error('Error rendering 404 page:', error);
     }
-
-    const goHomeLink = this.self.querySelector('a');
-    this.self.addEventListener('click', this.handleClick);
   }
-
-  private handleClick = () => {
-    router.goToPage('home');
-  };
 
   /**
    * Удаляет 404 страницу и очищает содержимое родительского элемента.
    */
   remove() {
-    this.self.removeEventListener('click', this.handleClick);
     this.self.remove();
   }
 }
