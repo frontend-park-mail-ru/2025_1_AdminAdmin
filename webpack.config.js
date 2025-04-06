@@ -64,14 +64,11 @@ const config = {
             },
             {
                 test: /\.(png|jpg|jpeg|svg|gif)$/i,
-                type: 'asset/resource',
+                type: 'asset/inline',
             },
             {
                 test: /\.ico$/,
-                type: 'asset/resource',
-                generator: {
-                    filename: path.join('icons', '[name].[contenthash][ext]'),
-                },
+                type: 'asset/inline',
             },
             {
                 test: /\.hbs$/,
