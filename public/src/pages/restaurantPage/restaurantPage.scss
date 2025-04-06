@@ -1,6 +1,5 @@
 // Класс тела страницы
 .restaurant-page__body {
-  margin-top: 40px;
   width: 100%;
   padding: 0;
   display: grid;
@@ -22,40 +21,35 @@
 .restaurant-products {
   margin-top: 60px;
   display: grid;
-  grid-template-columns: 1fr 3fr 1fr;
+  grid-template-columns: 1fr 4fr 1.2fr;
   grid-template-areas: "categories cards cart";
   gap: 20px;
   align-items: start;
   grid-column: 2 / span 10;
+  min-height: 300vh;
 }
 
 // Обертка для блока категорий
 .product-categories__wrapper {
   grid-area: categories;
+  top: calc(var(--header-height) + 20px);
+  position: sticky;
 }
 
 // Блок с карточками
-.product-cards {
+.product-cards__body {
   grid-area: cards;
-  display: flex;
-  flex-direction: column;
-  gap: 50px;
-
-  // Стили для заголовка
-  &__header {
-    font-size: 32px;
-    font-weight: bold;
-  }
-
-  // Стили для основного тела с карточками
-  &__body {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-  }
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
 }
 
 // Блок корзины
 .cart__wrapper {
   grid-area: cart;
+  align-self: start;
+  top: calc(var(--header-height) + 20px);
+  position: sticky;
 }
+
+

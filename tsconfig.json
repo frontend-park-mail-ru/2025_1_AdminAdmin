@@ -22,7 +22,8 @@
       "@modules/*": ["public/src/modules/*"],
       "@pages/*": ["public/src/pages/*"],
       "@assets/*": ["public/src/assets/*"],
-      "@store/*": ["public/src/store/*"]
+      "@store/*": ["public/src/store/*"],
+      "@myTypes/*": ["public/src/myTypes/*"],
     },
     "lib": ["dom", "WebWorker", "ESNext"]
   },

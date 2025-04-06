@@ -4,10 +4,10 @@
 @use './src/components/select/select' as *;
 @use './src/components/restaurantReviews/restaurantReview/restaurantReview.scss' as *;
 @use './src/components/restaurantReviews/restaurantDetail/restaurantDetail.scss' as *;
-@use './src/components/category/category.scss' as *;
 @use './src/components/quantityButton/quantityButton.scss' as *;
 @use './src/components/toast/toast' as *;
 @use './src/components/suggest/suggest' as *;
+@use './src/components/categories/categoryHeader/categoryHeader' as *;
 
 /* Импорт сложных компонентов */
 @use './src/components/header/header' as *;
@@ -18,7 +18,10 @@
 @use './src/components/restaurantReviews/restaurantReviews.scss' as *;
 @use './src/components/categories/categories.scss' as *;
 @use './src/components/productCard/productCard.scss' as *;
+@use './src/components/productCard/cartCard/cartCard.scss' as *;
 @use './src/components/suggestsContainer/suggestsContainer' as *;
+@use './src/components/cart/cart' as *;
+@use 'src/components/confirmRestaurantModal/confirmRestaurantModal' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;
@@ -47,6 +50,7 @@
   --light-brown: #442918;
   --light-yellow: #e4e6b2;
   --light-yellow-light: #eff0d1;
+  --header-height: 50px;
 }
 
 body {
@@ -54,10 +58,6 @@ body {
   font-size: 12px;
   margin: 0;
   background-color: var(--white);
-}
-
-.root {
-  overflow-y: auto;
 }
 
 .header {
@@ -72,7 +72,7 @@ body {
   left: 0;
   z-index: 10;
   background-color: white;
-  height: 50px;
+  height: var(--header-height);
   transition: box-shadow 0.3s ease;
 }
 

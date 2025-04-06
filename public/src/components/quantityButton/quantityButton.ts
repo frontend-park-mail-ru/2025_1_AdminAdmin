@@ -52,7 +52,7 @@ export class QuantityButton extends Button {
       const styles = this.props.style.split(' ');
       quantityButtonComponent.classList.add(...styles);
     }
-    quantityButtonComponent.disabled = this.props.disabled; // Если disabled, то скрываем кнопку
+    quantityButtonComponent.disabled = this.props.disabled;
     quantityButtonComponent.addEventListener('click', this.clickHandler);
   }
 }

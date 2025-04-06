@@ -1,39 +1,25 @@
-import { Category, CategoryProps } from '@components/category/category';
-
+import { Button, ButtonProps } from '@components/button/button';
+import { CategoryHeader } from '@components/categories/categoryHeader/categoryHeader';
 import template from './categories.hbs';
-
-// Структура класса категорий (нужно для конструктора)
-export interface CategoriesProps {
-  // ? - необязательное поле
-  categoriesList: Array<CategoryProps>;
-  activeCategoryId?: string | null; // Ссылка на активную категорию
-  onChange?: (categoryName: string) => void; // Калбек функция при изменении
-}
 
 /**
  * Класс категорий
  */
 export class Categories {
-  protected parent: HTMLElement; // Родитель (где вызывается)
-  protected props: CategoriesProps; // Свойства
-  protected categoriesComponentsList: Array<Category> = []; // Список компонентов категорий
+  private parent: HTMLElement; // Родитель (где вызывается)
+  private readonly cardsComponent: HTMLElement; // Родитель (где вызывается)
+  private categoryElements: Array<{ button: Button; header: CategoryHeader }> = []; // Список пар кнопок и хедеров
+  private activeCategoryId: number | null = null;
 
   /**
    * Создает экземпляр группы категорий.
    * @constructor
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться список категорий
-   * @param {CategoriesProps} props - Словарь данных для определения свойств списка категорий
+   * @param cardsComponent
    */
-  constructor(parent: HTMLElement, props: CategoriesProps) {
-    if (!parent) {
-      throw new Error('Categories: no parent!');
-    }
+  constructor(parent: HTMLElement, cardsComponent: HTMLElement) {
     this.parent = parent;
-    this.props = {
-      categoriesList: props.categoriesList,
-      activeCategoryId: props.activeCategoryId ?? props.categoriesList[0]?.id ?? null,
-      onChange: props.onChange || undefined,
-    };
+    this.cardsComponent = cardsComponent;
   }
 
   /**
@@ -46,30 +32,6 @@ export class Categories {
       throw new Error(`Error: can't find categories`);
     }
     return element as HTMLElement;
-    // Возвращаем as HTMLElement потому что querySelector возвращает null или HTMLElement, но мы сделали проверку null
-  }
-
-  getProps(): CategoriesProps {
-    return this.props;
-  }
-
-  /**
-   * Обработчик нажатия на категорию.
-   * @private
-   */
-  handleChange(clickedCategory: Category): void {
-    if (this.props.onChange) {
-      // Если задан калбек
-      const clickedCategoryId = clickedCategory.getProps().id;
-      if (clickedCategoryId !== this.props.activeCategoryId) {
-        this.categoriesComponentsList
-          .find((category) => category.getProps().id === this.props.activeCategoryId)
-          .toggleSelectedState();
-        clickedCategory.toggleSelectedState();
-        this.props.activeCategoryId = clickedCategoryId;
-        this.props.onChange(clickedCategory.getProps().name);
-      }
-    }
   }
 
   /**
@@ -79,21 +41,73 @@ export class Categories {
     if (!template) {
       throw new Error('Error: categories template not found');
     }
-    // Рендерим шаблончик с данными
-    const html = template(this.props);
+    // Рендерим шаблон с данными
+    const html = template();
     this.parent.insertAdjacentHTML('beforeend', html);
-    // Заполняем
-    this.props.categoriesList.forEach((categoryProps) => {
-      categoryProps.onSubmit = this.handleChange.bind(this);
-      // Создаем и рендерим категорию
-      this.categoriesComponentsList.push(new Category(this.self, categoryProps));
-      this.categoriesComponentsList[this.categoriesComponentsList.length - 1].render();
-      if (categoryProps.id === this.props.activeCategoryId) {
-        this.categoriesComponentsList[
-          this.categoriesComponentsList.length - 1
-        ].toggleSelectedState();
-      }
-    });
+
+    const hashCategoryId = parseInt(window.location.hash.replace('#category-', ''), 10);
+    if (!isNaN(hashCategoryId)) {
+      this.activeCategoryId = hashCategoryId;
+    } else {
+      this.activeCategoryId = null;
+    }
+  }
+
+  addCategory(category: string): void {
+    const categoryId = this.categoryElements.length;
+
+    const buttonProps: ButtonProps = {
+      id: `category-${categoryId}`,
+      text: category,
+      style: 'categories__button',
+      onSubmit: () => this.handleCategoryClick(categoryId),
+    };
+
+    // Создаем и рендерим хедер категории
+    const header = new CategoryHeader(this.cardsComponent, category, categoryId);
+    header.render();
+
+    const newCategoryButton = new Button(this.self, buttonProps);
+    newCategoryButton.render();
+
+    this.categoryElements.push({ button: newCategoryButton, header });
+
+    if (this.activeCategoryId === null) {
+      newCategoryButton.self.classList.add('button_active');
+      this.activeCategoryId = categoryId;
+    } else if (this.activeCategoryId === this.categoryElements.length - 1) {
+      newCategoryButton.self.classList.add('button_active');
+      this.handleCategoryClick(this.activeCategoryId);
+    }
+  }
+
+  /**
+   * Обработчик нажатия на категорию.
+   */
+  handleCategoryClick(categoryId: number): void {
+    const targetHeader = document.getElementById(`category-header-${categoryId}`);
+    if (targetHeader) {
+      targetHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      const currentUrl = window.location.href.split('#')[0];
+      history.pushState(null, '', `${currentUrl}#category-${categoryId}`);
+    }
+
+    if (this.activeCategoryId === categoryId) {
+      return;
+    }
+
+    const previousCategoryButton = this.categoryElements[this.activeCategoryId!]?.button;
+    if (previousCategoryButton) {
+      previousCategoryButton.self.classList.remove('button_active');
+    }
+
+    const currentCategoryButton = this.categoryElements[categoryId]?.button;
+    if (currentCategoryButton) {
+      currentCategoryButton.self.classList.add('button_active');
+    }
+
+    this.activeCategoryId = categoryId;
   }
 
   /**
@@ -101,10 +115,12 @@ export class Categories {
    */
   remove(): void {
     const element = this.self;
-    while (this.categoriesComponentsList.length > 0) {
-      this.categoriesComponentsList.pop().remove();
+    for (const { button, header } of this.categoryElements) {
+      button.remove();
+      header.remove();
     }
-    element.remove();
-    // Снять обработчики
+
+    element.innerHTML = '';
+    this.categoryElements = [];
   }
 }

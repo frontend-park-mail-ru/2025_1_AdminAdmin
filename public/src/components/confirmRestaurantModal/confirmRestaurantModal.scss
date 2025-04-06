@@ -1,0 +1,60 @@
+.confirm_restaurant_modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &__content {
+    background-color: white;
+    padding: 32px;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 400px;
+    text-align: left;
+  }
+
+  &__title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 12px;
+
+    .highlight {
+      color: #000;
+    }
+  }
+
+  &__subtitle {
+    font-size: 14px;
+    color: var(--dark-gray);
+    margin-bottom: 24px;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+
+    button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 500;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .confirm_restaurant_modal__cancel {
+      background-color: var(--light-gray);
+      color: var(--black);
+    }
+
+    .confirm_restaurant_modal__submit {
+      background-color: var(--black);
+      color: white;
+    }
+  }
+}

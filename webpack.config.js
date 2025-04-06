@@ -140,6 +140,7 @@ const config = {
             '@pages': path.resolve(__dirname, 'public/src/pages'),
             '@assets': path.resolve(__dirname, 'public/src/assets'),
             '@store': path.resolve(__dirname, 'public/src/store'),
+            '@myTypes': path.resolve(__dirname, 'public/src/myTypes'),
         },
         extensions: ['.tsx', '.ts', '.js', '.scss', '.css'],
     },

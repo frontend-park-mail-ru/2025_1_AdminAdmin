@@ -3,11 +3,14 @@ import {
   clearLocalStorage,
   storeAuthTokensFromResponse,
 } from './localStorage';
+import { RestaurantResponse } from '@myTypes/orderTypes';
 
 export interface ResponseData<T = any> {
   status: number;
   body: T;
 }
+
+type ErrorResponse = { message: string };
 
 const isDebug = false;
 
@@ -105,7 +108,7 @@ class UserRequests {
       };
     }
 
-    throw new Error(body.error ?? 'Unknown error');
+    throw new Error(body.error ?? 'Что-то пошло не так...');
   };
 
   /**
@@ -223,27 +226,17 @@ class RestaurantsRequests {
    * @param id - Идентификатор ресторана
    * @returns {Promise<any>}
    */
-  Get = async (id: string): Promise<any> => {
-    const { status, body } = await baseRequest<any>(methods.GET, this.baseUrl + '/' + id, null);
-
-    if (status === 200) {
-      return body;
-    } else {
-      throw new Error(body.message);
-    }
-  };
-
-  GetProductsByRestaurant = async (id: string): Promise<any> => {
-    const { status, body } = await baseRequest<any>(
+  Get = async (id: string): Promise<RestaurantResponse> => {
+    const { status, body } = await baseRequest<RestaurantResponse | ErrorResponse>(
       methods.GET,
-      this.baseUrl + '/' + id + '/products',
+      this.baseUrl + '/' + id,
       null,
     );
 
     if (status === 200) {
-      return body;
+      return body as RestaurantResponse;
     } else {
-      throw new Error(body.message);
+      throw new Error((body as ErrorResponse).message ?? 'Unknown error');
     }
   };
 }

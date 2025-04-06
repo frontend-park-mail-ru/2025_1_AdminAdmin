@@ -12,6 +12,7 @@
   border-radius: var(--border-radius);
 
   &_inactive {
+    color: var(--white);
     background-color: var(--dark-gray);
 
     &:hover {
@@ -20,6 +21,7 @@
   }
 
   &[disabled] {
+    color: var(--white);
     cursor: not-allowed;
     opacity: 0.5;
     background-color: var(--dark-gray);
@@ -32,6 +34,7 @@
 
   &.button_active {
     background-color: var(--orange);
+    color: var(--white);
   }
 
   &.dark {
@@ -55,5 +58,12 @@
   height: 45px;
   border-radius: 25px;
   width: 100%;
-  color: white;
+}
+
+.categories__button {
+  justify-content: flex-start;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 18px;
+  background-color: var(--white);
 }

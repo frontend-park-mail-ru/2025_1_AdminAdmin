@@ -1,10 +1,5 @@
 import { RestaurantReview, RestaurantReviewProps } from './restaurantReview/restaurantReview';
-import {
-  RestaurantDetail,
-  RestaurantDetailProps,
-  ImageProps,
-} from './restaurantDetail/restaurantDetail';
-import { RatingProps } from '@components/restaurantHeader/restaurantHeader';
+import { RestaurantDetail, RestaurantDetailProps } from './restaurantDetail/restaurantDetail';
 import { Button, ButtonProps } from '@components/button/button';
 
 import template from './restaurantReviews.hbs';
@@ -12,22 +7,14 @@ import template from './restaurantReviews.hbs';
 import locationImg from '@assets/location.png';
 import clockImg from '@assets/clock.png';
 
+import type { WorkingMode } from '@myTypes/orderTypes';
+
 export interface RestaurantReviewsProps {
-  rating: RatingProps; // Рейтинг (в числовом виде с количеством оценок)
-  reviewsList?: Array<RestaurantReviewProps>; // Список ресторанов
-  hours?: {
-    // Время работы ресторана
-    status: boolean; // 1 - открыто, 0 - закрыто
-    open: string; // Время открытия
-    close: string; // Время закрытия
-    image?: ImageProps; // Иконка часов
-  };
-  address?: {
-    // Адрес ресторана
-    city: string; // Город
-    street: string; // Адрес
-    image?: ImageProps; // Иконка адреса
-  };
+  rating: number;
+  rating_count: string;
+  reviews_list?: Array<RestaurantReviewProps>;
+  working_mode: WorkingMode;
+  address: string;
 }
 
 /**
@@ -43,37 +30,27 @@ export class RestaurantReviews {
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться блок отзывов на ресторан.
    * @param {Object} props - Словарь данных для определения свойств блока отзывов на ресторан
    */
-  constructor(parent: HTMLElement, props: RestaurantReviewsProps) {
+  constructor(
+    parent: HTMLElement,
+    props: {
+      rating: number;
+      rating_count: number;
+      reviews_list?: Array<RestaurantReviewProps>;
+      working_mode: WorkingMode;
+      address: string;
+    },
+  ) {
     if (!parent) {
       throw new Error('RestaurantReviews: no parent!');
     }
     this.parent = parent;
     this.props = {
-      rating: {
-        score: props.rating.score ?? 0,
-        amount: props.rating.amount ?? 0,
-      },
-      hours: {
-        status: props.hours.status,
-        open: props.hours.open,
-        close: props.hours.close,
-        image: {
-          src: props.hours.image?.src || clockImg,
-        },
-      },
-      address: {
-        city: props.address.city,
-        street: props.address.street,
-        image: {
-          src: props.address.image?.src || locationImg,
-        },
-      },
+      rating: props.rating,
+      rating_count: this.getRatingText(props.rating_count),
+      reviews_list: props?.reviews_list || null,
+      working_mode: props.working_mode,
+      address: props.address,
     };
-    if (props.reviewsList.length >= 2) {
-      this.props.reviewsList = props.reviewsList.slice(0, 2);
-    } else {
-      this.props.reviewsList = props.reviewsList.slice();
-    }
   }
 
   /**
@@ -105,50 +82,110 @@ export class RestaurantReviews {
     if (!ratingInStars) {
       throw new Error(`Error: can't find rating in stars`);
     }
-    ratingInStars.style.width = `${(this.props.rating.score / 5) * 100}%`;
+    ratingInStars.style.width = `${(this.props.rating / 5) * 100}%`;
     // Заполняем
     const reviewsContainer = this.self.querySelector(
       '.restaurant-reviews__reviews-container',
     ) as HTMLElement;
     // Рендерим отзывы ресторана
-    this.props.reviewsList.forEach((reviewProps) => {
-      const reviewComponent = new RestaurantReview(reviewsContainer, reviewProps);
-      reviewComponent.render();
-    });
-    // Рендерим кнопку "Больше"
-    const moreReviewsProps: ButtonProps = {
-      id: 'more-reviews-button', // Id для идентификации
-      text: 'Больше', // text для отображения
-    };
-    const moreReviews = new Button(reviewsContainer, moreReviewsProps);
-    moreReviews.render();
+    if (this.props.reviews_list) {
+      this.props.reviews_list.forEach((reviewProps) => {
+        const reviewComponent = new RestaurantReview(reviewsContainer, reviewProps);
+        reviewComponent.render();
+      });
+      // Рендерим кнопку "Больше"
+      const moreReviewsProps: ButtonProps = {
+        id: 'more-reviews-button', // Id для идентификации
+        text: 'Больше', // text для отображения
+      };
+      const moreReviews = new Button(reviewsContainer, moreReviewsProps);
+      moreReviews.render();
+    } else {
+      const noReviews: HTMLDivElement = this.self.querySelector('.restaurant-reviews__no_reviews');
+      noReviews.style.display = 'block';
+    }
+
     const detailsContainer = this.self.querySelector(
       '.restaurant-reviews__details-container',
     ) as HTMLElement;
+
+    // Рендерим адрес ресторана
+    const fullAddress = this.props.address;
+    const addressParts = fullAddress.split(',');
+    const city = addressParts[0]?.trim();
+    const streetAndNumber = addressParts.slice(1).join(',').trim();
+
+    const addressProps: RestaurantDetailProps = {
+      id: 'restaurant__address',
+      image: {
+        src: locationImg,
+      },
+      mainText: streetAndNumber,
+      addText: city,
+    };
+
+    const address = new RestaurantDetail(detailsContainer, addressProps);
+    address.render();
+
     // Рендерим время работы ресторана
     const hoursProps: RestaurantDetailProps = {
       id: 'restaurant__hours',
       image: {
         src: clockImg,
       },
-      mainText: this.props.hours.status ? 'Открыто' : 'Закрыто',
-      addText: this.props.hours.status
-        ? `До ${this.props.hours.close}`
-        : `До ${this.props.hours.open}`,
+      mainText: this.getOpenStatus() ? 'Открыто' : 'Закрыто',
+      addText: this.getOpenStatus()
+        ? `До ${this.props.working_mode.to}`
+        : `До ${this.props.working_mode.from}`,
     };
+
     const hours = new RestaurantDetail(detailsContainer, hoursProps);
     hours.render();
-    // Рендерим адрес ресторана
-    const addressProps: RestaurantDetailProps = {
-      id: 'restaurant__address',
-      image: {
-        src: locationImg,
-      },
-      mainText: this.props.address.city,
-      addText: this.props.address.street,
-    };
-    const address = new RestaurantDetail(detailsContainer, addressProps);
-    address.render();
+  }
+
+  getRatingText(ratingCount: number): string {
+    const lastDigit = ratingCount % 10;
+    const lastTwoDigits = ratingCount % 100;
+
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+      return `${ratingCount} оценок`;
+    }
+
+    if (lastDigit === 1) {
+      return `${ratingCount} оценка`;
+    }
+
+    if (lastDigit >= 2 && lastDigit <= 4) {
+      return `${ratingCount} оценки`;
+    }
+
+    return `${ratingCount} оценок`;
+  }
+
+  /**
+   * Проверяет, открыт ли ресторан в данный момент.
+   * @returns {boolean} - true, если ресторан открыт, иначе false.
+   */
+  private getOpenStatus(): boolean {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    const { from, to } = this.props.working_mode;
+
+    if (currentHour > from && currentHour < to) {
+      return true;
+    }
+
+    if (currentHour === from && currentMinute >= 0) {
+      return true;
+    }
+
+    if (currentHour === to && currentMinute === 0) {
+      return false;
+    }
+
+    return false;
   }
 
   /**
@@ -166,9 +203,9 @@ export class RestaurantReviews {
     moreButtonElement.remove();
     // Снять обработчик событий;
     const hoursElement = document.getElementById('restaurant__hours');
-    hoursElement.remove;
+    hoursElement.remove();
     const addressElement = document.getElementById('restaurant__hours');
-    addressElement.remove;
+    addressElement.remove();
     element.remove();
   }
 }
