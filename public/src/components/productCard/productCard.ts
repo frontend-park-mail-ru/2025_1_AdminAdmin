@@ -117,7 +117,6 @@ export class ProductCard {
         this.onSubmit,
         this.onCancel,
       );
-      debugger;
       this.modalController.openModal(confirmRestaurantModal);
     }
   }

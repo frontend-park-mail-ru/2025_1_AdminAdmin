@@ -31,7 +31,6 @@ export class ConfirmRestaurantModal {
       previousRestaurant: this.previousRestaurant,
     });
 
-    debugger;
     document.body.insertAdjacentHTML('beforeend', html);
     document.body.style.overflow = 'hidden';
 

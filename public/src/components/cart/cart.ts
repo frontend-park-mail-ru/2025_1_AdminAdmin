@@ -23,7 +23,6 @@ export default class Cart {
   }
 
   private updateCards(): void {
-    console.log(orderStore.getState());
     if (!this.container) return;
 
     if (
