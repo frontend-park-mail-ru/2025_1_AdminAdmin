@@ -98,7 +98,7 @@ export class ProductCard {
   }
 
   private incrementAmount() {
-    if (!orderStore.getState().restaurantId) {
+    if (!orderStore.getState().totalPrice) {
       orderStore.setRestaurant(this.restaurantId, this.restaurantName);
     }
 
