@@ -3,7 +3,7 @@ import {
   clearLocalStorage,
   storeAuthTokensFromResponse,
 } from './localStorage';
-import { RestaurantResponse } from '@myTypes/orderTypes';
+import { RestaurantResponse } from '@myTypes/restaurantTypes';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -84,7 +84,6 @@ const baseRequest = async <T = any>(
   }
 };
 
-// UserRequests class
 class UserRequests {
   private baseUrl = '/auth';
 
@@ -197,7 +196,6 @@ class UserRequests {
   };
 }
 
-// RestaurantsRequests class
 class RestaurantsRequests {
   baseUrl = '/restaurants';
 
@@ -241,5 +239,58 @@ class RestaurantsRequests {
   };
 }
 
+class CartRequests {
+  private baseUrl = '/cart';
+
+  /**
+   * Добавляет товар в корзину.
+   * @param idProduct - Идентификатор товара
+   * @returns {Promise<void>}
+   */
+  AddProduct = async (idProduct: string): Promise<void> => {
+    const { status, body } = await baseRequest<void | ErrorResponse>(
+      methods.GET,
+      `${this.baseUrl}/add/${idProduct}`,
+    );
+
+    if (status !== 200) {
+      throw new Error((body as ErrorResponse).message ?? 'Failed to add product to cart');
+    }
+  };
+
+  /**
+   * Обновляет количество товара в корзине. Если количество 0, товар удаляется.
+   * @param idProduct - Идентификатор товара
+   * @param quantity - Новое количество товара
+   * @returns {Promise<void>}
+   */
+  UpdateProductQuantity = async (idProduct: string, quantity: number): Promise<void> => {
+    const { status, body } = await baseRequest<void | ErrorResponse>(
+      methods.POST,
+      `${this.baseUrl}/update/${idProduct}`,
+      { quantity },
+    );
+
+    if (status !== 200) {
+      throw new Error((body as ErrorResponse).message ?? 'Failed to update product quantity');
+    }
+  };
+
+  /**
+   * Получает текущую корзину.
+   * @returns {Promise<any>}
+   */
+  GetCart = async (): Promise<any> => {
+    const { status, body } = await baseRequest<any>(methods.GET, this.baseUrl);
+
+    if (status === 200) {
+      return body;
+    } else {
+      throw new Error((body as ErrorResponse).message ?? 'Failed to fetch cart');
+    }
+  };
+}
+
 export const AppRestaurantRequests = new RestaurantsRequests();
 export const AppUserRequests = new UserRequests();
+export const AppCartRequests = new CartRequests();
