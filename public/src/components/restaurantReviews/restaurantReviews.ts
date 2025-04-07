@@ -7,7 +7,7 @@ import template from './restaurantReviews.hbs';
 import locationImg from '@assets/location.png';
 import clockImg from '@assets/clock.png';
 
-import type { WorkingMode } from '@myTypes/orderTypes';
+import type { WorkingMode } from '@myTypes/restaurantTypes';
 
 export interface RestaurantReviewsProps {
   rating: number;

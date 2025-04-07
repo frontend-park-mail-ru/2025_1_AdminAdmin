@@ -1,6 +1,6 @@
 import template from './cartCard.hbs';
 import { orderStore } from '@store/orderStore';
-import { Product } from '@myTypes/orderTypes';
+import { Product } from '@myTypes/restaurantTypes';
 import { QuantityControls } from '@components/quantityControls/quantityControls';
 
 /**

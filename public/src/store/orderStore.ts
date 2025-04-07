@@ -1,5 +1,6 @@
 import { createStore } from './store';
-import { Product } from '@myTypes/orderTypes';
+import { Product } from '@myTypes/restaurantTypes';
+import { userStore } from '@store/userStore';
 
 interface OrderAction {
   type: string;
@@ -139,6 +140,10 @@ class OrderStore {
   }
 
   setProductAmount(productId: string, amount: number): void {
+    if (amount === 0) {
+      this.removeProduct(productId);
+      return;
+    }
     const updatedProducts = this.store
       .getState()
       .products.map((p) => (p.product.id === productId ? { ...p, amount } : p));

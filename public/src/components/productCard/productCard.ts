@@ -3,7 +3,7 @@ import template from './productCard.hbs';
 import { orderStore } from '@store/orderStore';
 import ModalController from '@modules/modalController';
 import { ConfirmRestaurantModal } from '@components/confirmRestaurantModal/confirmRestaurantModal';
-import { Product } from '@myTypes/orderTypes';
+import { Product } from '@myTypes/restaurantTypes';
 
 /**
  * Класс карточки товара

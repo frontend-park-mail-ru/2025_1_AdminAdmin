@@ -11,7 +11,7 @@ import { AppRestaurantRequests } from '@modules/ajax';
 import template from './restaurantPage.hbs';
 import { RestaurantReviewProps } from '@components/restaurantReviews/restaurantReview/restaurantReview';
 import { RestaurantDetailProps } from '@components/restaurantReviews/restaurantDetail/restaurantDetail';
-import type { RestaurantResponse, WorkingMode, Category, Product } from '@myTypes/orderTypes';
+import type { RestaurantResponse, WorkingMode, Category, Product } from '@myTypes/restaurantTypes';
 
 /**
  * Класс, представляющий страницу конкретного ресторана.
