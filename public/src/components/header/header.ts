@@ -69,10 +69,8 @@ export default class Header {
   render(): void {
     this.parent.innerHTML = template();
     this.parent.classList.add('main_header');
-    const headerElement = this.self;
-    if (!headerElement) return;
 
-    this.logo = new Logo(headerElement, logoImg);
+    this.logo = new Logo(this.self.querySelector('.header__logo'), logoImg);
     this.logo.render();
 
     const buttonContainer = document.querySelector('.header__buttons') as HTMLElement;

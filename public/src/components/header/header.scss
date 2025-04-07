@@ -1,8 +1,8 @@
 .main_header {
   display: grid;
   grid-template-areas:
-        ". header__logo header__logo header__location header__location . . .  . header__buttons header__buttons .";
-  grid-template-columns: repeat(12, 1fr);
+    ". header__logo header__location header__buttons .";
+  grid-template-columns: 0.5fr 2fr 7fr 2fr 0.5fr;
   align-items: center;
 
   &.scrolled {
@@ -18,6 +18,10 @@
       height: 35px;
       justify-content: flex-end;
       padding-right: 20px;
+    }
+
+    &__logo {
+      grid-area: header__logo;
     }
 
     &__location {
