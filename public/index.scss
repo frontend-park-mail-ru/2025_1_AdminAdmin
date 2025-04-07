@@ -61,6 +61,13 @@ body {
   background-color: var(--white);
 }
 
+img {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 .header {
   box-sizing: border-box;
   width: 100%;

@@ -2,6 +2,8 @@ import template from './cartCard.hbs';
 import { orderStore } from '@store/orderStore';
 import { Product } from '@myTypes/restaurantTypes';
 import { QuantityControls } from '@components/quantityControls/quantityControls';
+import exports from 'webpack';
+import keepOriginalOrder = exports.util.comparators.keepOriginalOrder;
 
 /**
  * Класс карточки товара
@@ -11,6 +13,7 @@ export class CartCard {
   private readonly props: Product;
   private amount: number = 0;
   private quantityControls: QuantityControls;
+  private binClickHandler: () => void;
 
   /**
    * Создает экземпляр карточки товара.
@@ -57,8 +60,11 @@ export class CartCard {
     const html = template({ total_price: total_price, ...this.props });
     this.parent.insertAdjacentHTML('beforeend', html);
 
+    const quantityControlsWrapper: HTMLDivElement = this.self.querySelector(
+      '.cart-card__quantity-controls-wrapper',
+    );
     this.quantityControls = new QuantityControls(
-      this.self,
+      quantityControlsWrapper,
       this.props.id,
       this.amount,
       this.incrementAmount.bind(this),
@@ -67,6 +73,10 @@ export class CartCard {
     );
 
     this.quantityControls.render();
+
+    const binIcon = this.self.querySelector('.cart-card__bin_icon') as HTMLElement;
+    this.binClickHandler = () => orderStore.removeProduct(this.props.id);
+    binIcon.addEventListener('click', this.binClickHandler);
   }
 
   private incrementAmount() {
@@ -89,6 +99,9 @@ export class CartCard {
   remove() {
     debugger;
     this.quantityControls.remove();
+
+    const binIcon = this.self.querySelector('.cart-card__bin_icon') as HTMLElement;
+    binIcon.removeEventListener('click', this.binClickHandler);
 
     const element = this.self;
     element.remove();
