@@ -122,7 +122,6 @@ class Router {
     }
 
     if (!(this.currentPage instanceof pageData.class) || (id && this.currentId !== id)) {
-      debugger;
       this.currentPage?.remove();
       this.currentPage = new pageData.class(this.pageElement, id);
       this.currentId = id;

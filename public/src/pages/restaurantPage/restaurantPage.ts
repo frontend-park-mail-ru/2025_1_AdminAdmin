@@ -116,28 +116,9 @@ export default class RestaurantPage {
       const cartWrapper: HTMLElement = this.self.querySelector('.cart__wrapper');
       this.cartComponent = new Cart(cartWrapper, this.props.id);
       this.cartComponent.render();
-      this.makeFixed(cartWrapper, categoriesWrapper);
     } catch (error) {
       console.error('Error rendering restaurant page:', error);
     }
-  }
-
-  makeFixed(cartWrapper: HTMLElement, categoriesWrapper: HTMLElement): void {
-    window.addEventListener('scroll', () => {
-      const scrollTop = window.scrollY;
-
-      if (scrollTop > cartWrapper.offsetTop) {
-        cartWrapper.classList.add('fixed');
-      } else {
-        cartWrapper.classList.remove('fixed');
-      }
-
-      if (scrollTop > categoriesWrapper.offsetTop) {
-        categoriesWrapper.classList.add('fixed');
-      } else {
-        categoriesWrapper.classList.remove('fixed');
-      }
-    });
   }
 
   /**

@@ -4,6 +4,7 @@ export interface ButtonProps {
   id: string;
   text: string;
   style?: string;
+  insert?: InsertPosition;
   onSubmit?: () => void;
   disabled?: boolean;
   type?: string;
@@ -29,6 +30,7 @@ export class Button {
       id: props.id,
       text: props.text,
       style: props.style,
+      insert: props.insert || 'beforeend',
       onSubmit: props.onSubmit,
       disabled: props.disabled || false,
       type: props.type,
@@ -73,7 +75,7 @@ export class Button {
    */
   render(): void {
     const html = template(this.props);
-    this.parent.insertAdjacentHTML('beforeend', html);
+    this.parent.insertAdjacentHTML(this.props.insert, html);
 
     if (!this.parent) {
       throw new Error('Button: invalid self!');
@@ -130,7 +132,7 @@ export class Button {
   show(): void {
     const button = this.self;
     if (button) {
-      button.style.display = 'block';
+      button.style.display = 'flex';
     }
   }
 

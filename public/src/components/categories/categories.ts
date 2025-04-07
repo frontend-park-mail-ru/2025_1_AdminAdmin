@@ -72,12 +72,16 @@ export class Categories {
 
     this.categoryElements.push({ button: newCategoryButton, header });
 
-    if (this.activeCategoryId === null) {
+    if (
+      this.activeCategoryId === null ||
+      this.activeCategoryId === this.categoryElements.length - 1
+    ) {
       newCategoryButton.self.classList.add('button_active');
-      this.activeCategoryId = categoryId;
-    } else if (this.activeCategoryId === this.categoryElements.length - 1) {
-      newCategoryButton.self.classList.add('button_active');
-      this.handleCategoryClick(this.activeCategoryId);
+      if (this.activeCategoryId === null) {
+        this.activeCategoryId = categoryId;
+      } else {
+        this.handleCategoryClick(this.activeCategoryId);
+      }
     }
   }
 
