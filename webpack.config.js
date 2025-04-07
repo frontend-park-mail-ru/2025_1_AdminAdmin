@@ -64,11 +64,17 @@ const config = {
             },
             {
                 test: /\.(png|jpg|jpeg|svg|gif)$/i,
-                type: 'asset/inline',
+                type: 'asset/resource',
+                generator: {
+                    filename: 'src/assets/[name][ext][query]'
+                }
             },
             {
                 test: /\.ico$/,
-                type: 'asset/inline',
+                type: 'asset/resource',
+                generator: {
+                    filename: 'src/assets/[name][ext][query]'
+                }
             },
             {
                 test: /\.hbs$/,
