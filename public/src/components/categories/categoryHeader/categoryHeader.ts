@@ -5,7 +5,7 @@ import template from './categoryHeader.hbs';
 export class CategoryHeader {
   private parent: HTMLElement;
   private readonly text: string;
-  private readonly id: number;
+  readonly id: number;
 
   /**
    * Создает заголовок категории
@@ -32,10 +32,22 @@ export class CategoryHeader {
   }
 
   /**
+   * Ссылка на объект
+   * @returns {HTMLElement} - ссылка на объект
+   */
+  get self(): HTMLElement {
+    const element = document.getElementById(`category-header-${this.id}`);
+    if (!element) {
+      throw new Error(`Error: can't find categories`);
+    }
+    return element as HTMLElement;
+  }
+
+  /**
    * Удаление заголовка
    */
   remove(): void {
-    const element = document.getElementById(`category-header-${this.id}`);
+    const element = this.self;
     if (element) {
       element.remove();
     }
