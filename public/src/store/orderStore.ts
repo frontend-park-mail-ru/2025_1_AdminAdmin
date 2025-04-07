@@ -28,31 +28,12 @@ const initialOrderState: OrderState = {
 const orderReducer = (state = initialOrderState, action: OrderAction): OrderState => {
   switch (action.type) {
     case OrderActions.ADD_PRODUCT:
-      return {
-        ...state,
-        products: [...state.products, action.payload],
-      };
-
     case OrderActions.REMOVE_PRODUCT:
+    case OrderActions.SET_PRODUCT_AMOUNT:
       return {
         ...state,
-        products: state.products.filter((p) => p.product.id !== action.payload),
-      };
-
-    case OrderActions.INCREMENT_PRODUCT_AMOUNT:
-      return {
-        ...state,
-        products: state.products.map((p) =>
-          p.product.id === action.payload ? { ...p, amount: p.amount + 1 } : p,
-        ),
-      };
-
-    case OrderActions.DECREMENT_PRODUCT_AMOUNT:
-      return {
-        ...state,
-        products: state.products.map((p) =>
-          p.product.id === action.payload ? { ...p, amount: p.amount - 1 } : p,
-        ),
+        products: action.payload.products,
+        totalPrice: action.payload.totalPrice,
       };
 
     case OrderActions.SET_RESTAURANT:
@@ -60,20 +41,6 @@ const orderReducer = (state = initialOrderState, action: OrderAction): OrderStat
         ...state,
         restaurantId: action.payload.restaurantId,
         restaurantName: action.payload.restaurantName,
-      };
-
-    case OrderActions.SET_PRODUCT_AMOUNT:
-      return {
-        ...state,
-        products: state.products.map((p) =>
-          p.product.id === action.payload.productId ? { ...p, amount: action.payload.amount } : p,
-        ),
-      };
-
-    case OrderActions.UPDATE_TOTAL_PRICE:
-      return {
-        ...state,
-        totalPrice: action.payload,
       };
 
     case OrderActions.CLEAR_ORDER:
@@ -92,7 +59,6 @@ export const OrderActions = {
   SET_RESTAURANT: 'SET_RESTAURANT',
   SET_PRODUCT_AMOUNT: 'SET_PRODUCT_AMOUNT',
   CLEAR_ORDER: 'CLEAR_ORDER',
-  UPDATE_TOTAL_PRICE: '__UPDATE_TOTAL_PRICE__',
 };
 
 class OrderStore {
@@ -102,33 +68,41 @@ class OrderStore {
     this.store = createStore(orderReducer);
   }
 
-  /**
-   * Добавляет товар в заказ, если его нет, или обновляет количество, если он уже есть
-   */
-  private addOrUpdateProduct(product: Product, amount: number): void {
-    const existing = this.store.getState().products.find((p) => p.product.id === product.id);
-
-    if (existing) {
-      this.setProductAmount(product.id, existing.amount + amount);
-    } else {
-      this.addProduct(product, amount);
-    }
+  private calculateTotalPrice(products: OrderProduct[]): number {
+    return products.reduce((sum, { product, amount }) => sum + product.price * amount, 0);
   }
 
-  /**
-   * Добавляет товар в заказ
-   */
-  addProduct(product: Product, amount: number): void {
+  private addOrUpdateProduct(product: Product, amount: number): void {
+    const state = this.store.getState();
+    const existing = state.products.find((p) => p.product.id === product.id);
+
+    let updatedProducts: OrderProduct[];
+    if (existing) {
+      updatedProducts = state.products.map((p) =>
+        p.product.id === product.id ? { ...p, amount: p.amount + amount } : p,
+      );
+    } else {
+      updatedProducts = [...state.products, { product, amount }];
+    }
+
+    const totalPrice = this.calculateTotalPrice(updatedProducts);
+
     this.store.dispatch({
       type: OrderActions.ADD_PRODUCT,
-      payload: { product, amount },
+      payload: { products: updatedProducts, totalPrice },
     });
-    this.recalculateTotalPrice();
   }
 
-  /**
-   * Устанавливает ресторан (id и имя)
-   */
+  addProduct(product: Product, amount: number): void {
+    const products = [...this.store.getState().products, { product, amount }];
+    const totalPrice = this.calculateTotalPrice(products);
+
+    this.store.dispatch({
+      type: OrderActions.ADD_PRODUCT,
+      payload: { products, totalPrice },
+    });
+  }
+
   setRestaurant(restaurantId: string, restaurantName: string): void {
     this.store.dispatch({
       type: OrderActions.SET_RESTAURANT,
@@ -136,100 +110,75 @@ class OrderStore {
     });
   }
 
-  /**
-   * Увеличивает количество товара на 1, если его нет в заказе, добавляет
-   */
   incrementProductAmount(product: Product): void {
     this.addOrUpdateProduct(product, 1);
-    this.recalculateTotalPrice();
   }
 
-  /**
-   * Уменьшает количество товара на 1, если его количество меньше 1, удаляет товар
-   */
   decrementProductAmount(product: Product): void {
+    const state = this.store.getState();
     const productId = product.id;
-    const existing = this.store.getState().products.find((p) => p.product.id === productId);
+    const existing = state.products.find((p) => p.product.id === productId);
 
-    if (!existing) {
-      return;
-    }
+    if (!existing) return;
 
+    let updatedProducts: OrderProduct[];
     if (existing.amount <= 1) {
-      this.removeProduct(productId);
+      updatedProducts = state.products.filter((p) => p.product.id !== productId);
     } else {
-      this.setProductAmount(productId, existing.amount - 1);
+      updatedProducts = state.products.map((p) =>
+        p.product.id === productId ? { ...p, amount: p.amount - 1 } : p,
+      );
     }
-    this.recalculateTotalPrice();
-  }
 
-  /**
-   * Устанавливает количество товара
-   */
-  setProductAmount(productId: string, amount: number): void {
-    this.store.dispatch({
-      type: OrderActions.SET_PRODUCT_AMOUNT,
-      payload: { productId, amount },
-    });
-    this.recalculateTotalPrice();
-  }
+    const totalPrice = this.calculateTotalPrice(updatedProducts);
 
-  /**
-   * Удаляет товар из заказа
-   */
-  removeProduct(productId: string): void {
     this.store.dispatch({
       type: OrderActions.REMOVE_PRODUCT,
-      payload: productId,
+      payload: { products: updatedProducts, totalPrice },
     });
-    this.recalculateTotalPrice();
   }
 
-  /**
-   * Очищает заказ
-   */
+  setProductAmount(productId: string, amount: number): void {
+    const updatedProducts = this.store
+      .getState()
+      .products.map((p) => (p.product.id === productId ? { ...p, amount } : p));
+
+    const totalPrice = this.calculateTotalPrice(updatedProducts);
+
+    this.store.dispatch({
+      type: OrderActions.SET_PRODUCT_AMOUNT,
+      payload: { products: updatedProducts, totalPrice },
+    });
+  }
+
+  removeProduct(productId: string): void {
+    const updatedProducts = this.store
+      .getState()
+      .products.filter((p) => p.product.id !== productId);
+
+    const totalPrice = this.calculateTotalPrice(updatedProducts);
+
+    this.store.dispatch({
+      type: OrderActions.REMOVE_PRODUCT,
+      payload: { products: updatedProducts, totalPrice },
+    });
+  }
+
   clearOrder(): void {
     this.store.dispatch({
       type: OrderActions.CLEAR_ORDER,
     });
-    this.recalculateTotalPrice();
   }
 
-  /**
-   * Получает состояние заказа
-   */
   getState(): OrderState {
     return this.store.getState();
   }
 
-  /**
-   * Получает количество товара по его id
-   */
   getProductAmountById(productId: string): number {
     const product = this.store.getState().products.find((p) => p.product.id === productId);
     return product ? product.amount : 0;
   }
 
-  /**
-   * Пересчитывает итоговую цену заказа
-   */
-  private recalculateTotalPrice(): void {
-    const { products } = this.store.getState();
-    const totalPrice = products.reduce(
-      (sum, { product, amount }) => sum + product.price * amount,
-      0,
-    );
-
-    this.store.dispatch({
-      type: '__UPDATE_TOTAL_PRICE__',
-      payload: totalPrice,
-    });
-  }
-
-  /**
-   * Подписывает listener на изменение состояния
-   * @param {Function} listener
-   */
   subscribe(listener: () => void): () => void {
     return this.store.subscribe(listener);
   }

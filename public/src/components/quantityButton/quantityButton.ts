@@ -27,10 +27,10 @@ export class QuantityButton extends Button {
     this.props = {
       ...this.props,
       isPlus: props.text === '+',
-      isMinus: props.text === '-',
+      isMinus: props.text === '−',
     };
 
-    if (this.props.text !== '+' && this.props.text !== '-') {
+    if (this.props.text !== '+' && this.props.text !== '−') {
       // Предупреждение
       console.warn(`QuantityButton: invalid text=${this.props.text} must be '+' or '-'`);
     }

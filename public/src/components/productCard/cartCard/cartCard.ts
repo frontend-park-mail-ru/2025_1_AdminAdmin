@@ -1,9 +1,7 @@
-import { QuantityButton, QuantityButtonProps } from '@components/quantityButton/quantityButton';
 import template from './cartCard.hbs';
 import { orderStore } from '@store/orderStore';
-import ModalController from '@modules/modalController';
-import { ConfirmRestaurantModal } from '@components/confirmRestaurantModal/confirmRestaurantModal';
 import { Product } from '@myTypes/orderTypes';
+import { QuantityControls } from '@components/quantityControls/quantityControls';
 
 /**
  * Класс карточки товара
@@ -12,6 +10,7 @@ export class CartCard {
   private parent: HTMLElement;
   private readonly props: Product;
   private amount: number = 0;
+  private quantityControls: QuantityControls;
 
   /**
    * Создает экземпляр карточки товара.
@@ -57,6 +56,17 @@ export class CartCard {
     const total_price = this.amount * this.props.price;
     const html = template({ total_price: total_price, ...this.props });
     this.parent.insertAdjacentHTML('beforeend', html);
+
+    this.quantityControls = new QuantityControls(
+      this.self,
+      this.props.id,
+      this.amount,
+      this.incrementAmount.bind(this),
+      this.decrementAmount.bind(this),
+      this.setAmount.bind(this),
+    );
+
+    this.quantityControls.render();
   }
 
   private incrementAmount() {
@@ -67,10 +77,19 @@ export class CartCard {
     orderStore.decrementProductAmount(this.props);
   }
 
+  private setAmount(amount: number) {
+    if (amount !== this.amount) {
+      orderStore.setProductAmount(this.props.id, amount);
+    }
+  }
+
   /**
    * Удаляет карточку товара
    */
   remove() {
+    debugger;
+    this.quantityControls.remove();
+
     const element = this.self;
     element.remove();
   }

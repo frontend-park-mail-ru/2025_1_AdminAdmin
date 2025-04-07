@@ -23,6 +23,7 @@ export default class Cart {
   }
 
   private updateCards(): void {
+    debugger;
     if (!this.container) return;
 
     if (

@@ -76,7 +76,8 @@ export class ProductCard {
 
     const minusButton = new QuantityButton(minusButtonWrapper, {
       id: `${this.props.id}__minus-button`,
-      text: '-',
+      style: 'card-quantity-button',
+      text: '−',
       onSubmit: this.decrementAmount.bind(this),
     });
 
@@ -88,6 +89,7 @@ export class ProductCard {
     ) as HTMLElement;
     const plusButton = new QuantityButton(plusButtonWrapper, {
       id: `${this.props.id}__plus-button`,
+      style: 'card-quantity-button',
       text: '+',
       onSubmit: this.incrementAmount.bind(this),
     });

@@ -21,7 +21,8 @@
 @use './src/components/productCard/cartCard/cartCard.scss' as *;
 @use './src/components/suggestsContainer/suggestsContainer' as *;
 @use './src/components/cart/cart' as *;
-@use 'src/components/confirmRestaurantModal/confirmRestaurantModal' as *;
+@use './src/components/confirmRestaurantModal/confirmRestaurantModal' as *;
+@use './src/components/quantityControls/quantityControls' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;
