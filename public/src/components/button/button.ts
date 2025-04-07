@@ -112,4 +112,35 @@ export class Button {
       button.classList.add(newClass);
     }
   }
+
+  /**
+   * Изменяет текст кнопки.
+   * @param newText - Новый текст, который будет установлен на кнопке.
+   */
+  setText(newText: string): void {
+    const button = this.self;
+    if (button) {
+      button.textContent = newText;
+    }
+  }
+
+  /**
+   * Показывает кнопку, устанавливая display в block.
+   */
+  show(): void {
+    const button = this.self;
+    if (button) {
+      button.style.display = 'block';
+    }
+  }
+
+  /**
+   * Скрывает кнопку, устанавливая display в none.
+   */
+  hide(): void {
+    const button = this.self;
+    if (button) {
+      button.style.display = 'none';
+    }
+  }
 }

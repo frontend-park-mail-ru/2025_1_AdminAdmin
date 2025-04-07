@@ -5,6 +5,7 @@ import auxHeader from '@components/auxHeader/auxHeader';
 import { AuthPage } from '@pages/authPage/authPage';
 import { userStore } from '@store/userStore';
 import NotFoundPage from '@pages/404/404';
+import authPageConfig from '@pages/authPage/authPageConfig';
 
 interface RouteConfig {
   href: string;
@@ -23,6 +24,7 @@ class Router {
   private readonly toastBoxElement: HTMLElement;
   private currentHeader: Header | auxHeader | null = null;
   private currentPage: RestaurantList | RestaurantPage | AuthPage | null = null;
+  private currentId: string | null = null;
   private readonly routes: Record<string, RouteConfig>;
 
   /**
@@ -119,9 +121,11 @@ class Router {
       history.pushState(id ? { id } : {}, '', newPath);
     }
 
-    if (!(this.currentPage instanceof pageData.class)) {
+    if (!(this.currentPage instanceof pageData.class) || (id && this.currentId !== id)) {
+      debugger;
       this.currentPage?.remove();
       this.currentPage = new pageData.class(this.pageElement, id);
+      this.currentId = id;
     }
 
     this.currentPage.render(pageData.options);
