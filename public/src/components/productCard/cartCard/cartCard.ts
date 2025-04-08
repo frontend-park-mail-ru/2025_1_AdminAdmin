@@ -97,7 +97,6 @@ export class CartCard {
    * Удаляет карточку товара
    */
   remove() {
-    debugger;
     this.quantityControls.remove();
 
     const binIcon = this.self.querySelector('.cart-card__bin_icon') as HTMLElement;
