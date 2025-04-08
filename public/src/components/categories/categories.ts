@@ -6,9 +6,9 @@ import template from './categories.hbs';
  * Класс категорий
  */
 export class Categories {
-  private parent: HTMLElement; // Родитель (где вызывается)
-  private readonly cardsComponent: HTMLElement; // Родитель (где вызывается)
-  private categoryElements: Array<{ button: Button; header: CategoryHeader }> = []; // Список пар кнопок и хедеров
+  private parent: HTMLElement;
+  private readonly cardsComponent: HTMLElement;
+  private categoryElements: Array<{ button: Button; header: CategoryHeader }> = [];
   private activeCategoryId: number | null = null;
 
   /**
@@ -41,7 +41,7 @@ export class Categories {
     if (!template) {
       throw new Error('Error: categories template not found');
     }
-    // Рендерим шаблон с данными
+
     const html = template();
     this.parent.insertAdjacentHTML('beforeend', html);
 
@@ -51,6 +51,7 @@ export class Categories {
     } else {
       this.activeCategoryId = null;
     }
+    window.addEventListener('scroll', this.scrollHandler.bind(this));
   }
 
   addCategory(category: string): void {
@@ -63,7 +64,6 @@ export class Categories {
       onSubmit: () => this.handleCategoryClick(categoryId),
     };
 
-    // Создаем и рендерим хедер категории
     const header = new CategoryHeader(this.cardsComponent, category, categoryId);
     header.render();
 
@@ -110,6 +110,41 @@ export class Categories {
     this.activeCategoryId = categoryId;
   }
 
+  private scrollHandler(): void {
+    let closestHeaderId: number | null = null;
+    let closestDistance = Infinity;
+
+    for (const { header } of this.categoryElements) {
+      const headerElement = header.self;
+      if (!headerElement) continue;
+
+      const rect = headerElement.getBoundingClientRect();
+      const distance = Math.abs(rect.top);
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestHeaderId = header.id;
+      }
+    }
+
+    if (closestHeaderId !== null && closestHeaderId !== this.activeCategoryId) {
+      this.updateActiveCategory(closestHeaderId);
+    }
+  }
+
+  private updateActiveCategory(newCategoryId: number): void {
+    const prevButton = this.categoryElements[this.activeCategoryId]?.button;
+    const newButton = this.categoryElements[newCategoryId]?.button;
+
+    if (prevButton) prevButton.self.classList.remove('button_active');
+    if (newButton) newButton.self.classList.add('button_active');
+
+    this.activeCategoryId = newCategoryId;
+
+    const currentUrl = window.location.href.split('#')[0];
+    history.replaceState(null, '', `${currentUrl}#category-${newCategoryId}`);
+  }
+
   /**
    * Удаляет категории со страницы
    */
@@ -119,6 +154,7 @@ export class Categories {
       button.remove();
       header.remove();
     }
+    window.removeEventListener('scroll', this.scrollHandler.bind(this));
 
     element.innerHTML = '';
     this.categoryElements = [];
