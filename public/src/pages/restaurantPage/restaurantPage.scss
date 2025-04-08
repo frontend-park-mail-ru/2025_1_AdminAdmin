@@ -1,44 +1,28 @@
 // Класс тела страницы
 .restaurant-page__body {
-  width: 100%;
-  padding: 0;
+  margin-top: 20px;
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 20px;
-}
-
-// Обертка для хедера (шапка + название)
-.restaurant-header__wrapper {
-  grid-column: 2 / span 10;
-}
-
-// Обертка для блока отзывов (общая оценка + отзывы + адрес и время работы)
-.restaurant-reviews__wrapper {
-  grid-column: 2 / span 10;
-}
-
-// Блок с товарами (категории, карточки товаров, корзина)
-.restaurant-products {
-  margin-top: 60px;
-  display: grid;
-  grid-template-columns: 1fr 4fr 1.2fr;
-  grid-template-areas: "categories cards cart";
+  grid-template-columns: 0.5fr 1.5fr 7.5fr 2fr 0.5fr;
   gap: 20px;
   align-items: start;
-  grid-column: 2 / span 10;
   min-height: 300vh;
 }
 
 // Обертка для блока категорий
 .product-categories__wrapper {
-  grid-area: categories;
-  top: calc(var(--header-height) + 20px);
+  grid-column: 2 / span 1;
   position: sticky;
+  top: calc(var(--header-height) + 20px);
+}
+
+// Основной контент
+.restaurant-page__main {
+  grid-column: 3 / span 1;
 }
 
 // Блок с карточками
 .product-cards__body {
-  grid-area: cards;
+  margin-top: 40px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
@@ -46,10 +30,7 @@
 
 // Блок корзины
 .cart__wrapper {
-  grid-area: cart;
-  align-self: start;
-  top: calc(var(--header-height) + 20px);
+  grid-column: 4 / span 1;
   position: sticky;
+  top: calc(var(--header-height) + 20px);
 }
-
-

@@ -98,19 +98,10 @@ export class ProductCard {
   }
 
   private incrementAmount() {
-    this.checkRestaurant();
-    orderStore.incrementProductAmount(this.props);
-  }
-
-  private decrementAmount() {
-    orderStore.decrementProductAmount(this.props);
-  }
-
-  private checkRestaurant() {
-    if (!orderStore.getState().restaurantId) {
+    if (!orderStore.getState().totalPrice) {
       orderStore.setRestaurant(this.restaurantId, this.restaurantName);
-      return;
     }
+
     if (orderStore.getState().restaurantId !== this.restaurantId) {
       this.modalController = new ModalController();
       const confirmRestaurantModal = new ConfirmRestaurantModal(
@@ -120,7 +111,13 @@ export class ProductCard {
         this.onCancel,
       );
       this.modalController.openModal(confirmRestaurantModal);
+    } else {
+      orderStore.incrementProductAmount(this.props);
     }
+  }
+
+  private decrementAmount() {
+    orderStore.decrementProductAmount(this.props);
   }
 
   private onSubmit = () => {

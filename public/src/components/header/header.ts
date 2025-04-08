@@ -7,6 +7,7 @@ import { toasts } from '@modules/toasts';
 import MapModal from '@pages/mapModal/mapModal';
 import ModalController from '@modules/modalController';
 import logoImg from '@assets/logo.png';
+import { orderStore } from '@store/orderStore';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -15,12 +16,14 @@ import logoImg from '@assets/logo.png';
 export default class Header {
   private parent: HTMLElement;
   private logo!: Logo;
+  private cartButton: Button;
   private loginButton!: Button;
   private logoutButton!: Button;
   private readonly handleScrollBound: () => void;
   private readonly clickHandler: (event: Event) => void;
   private modalController: ModalController;
-  private unsubscribeFromStore: (() => void) | null = null;
+  private unsubscribeFromUserStore: (() => void) | null = null;
+  private unsubscribeFromOrderStore: (() => void) | null = null;
 
   /**
    * Создает экземпляр заголовка.
@@ -31,8 +34,8 @@ export default class Header {
     this.parent = parent;
     this.modalController = new ModalController();
     this.handleScrollBound = this.handleScroll.bind(this);
-    this.unsubscribeFromStore = userStore.subscribe(() => this.updateHeaderState());
-
+    this.unsubscribeFromUserStore = userStore.subscribe(() => this.updateHeaderState());
+    this.unsubscribeFromOrderStore = orderStore.subscribe(() => this.updateHeaderState());
     this.clickHandler = this.handleClick.bind(this);
   }
 
@@ -66,14 +69,24 @@ export default class Header {
   render(): void {
     this.parent.innerHTML = template();
     this.parent.classList.add('main_header');
-    const headerElement = this.self;
-    if (!headerElement) return;
 
-    this.logo = new Logo(headerElement, logoImg);
+    this.logo = new Logo(this.self.querySelector('.header__logo'), logoImg);
     this.logo.render();
 
     const buttonContainer = document.querySelector('.header__buttons') as HTMLElement;
     if (!buttonContainer) return;
+
+    this.cartButton = new Button(buttonContainer, {
+      id: 'cart_button',
+      style: 'dark',
+      text: '0',
+      onSubmit: () => {
+        const restaurantId = orderStore.getState().restaurantId;
+        if (restaurantId) router.goToPage('restaurantPage', restaurantId);
+      },
+    });
+
+    this.cartButton.render();
 
     this.loginButton = new Button(buttonContainer, {
       id: 'login_button',
@@ -119,20 +132,18 @@ export default class Header {
    * Показывает или скрывает кнопки входа/выхода в зависимости от состояния пользователя.
    */
   private updateHeaderState(): void {
-    const loginButton = this.loginButton?.self;
-    const logoutButton = this.logoutButton?.self;
     const loginContainer = document.querySelector('.header__login') as HTMLElement;
 
     if (userStore.isAuth()) {
-      if (loginButton) loginButton.style.display = 'none';
-      if (logoutButton) logoutButton.style.display = 'block';
+      this.loginButton.hide();
+      this.logoutButton.show();
 
       if (loginContainer) {
         loginContainer.textContent = userStore.getState().login || '';
       }
     } else {
-      if (loginButton) loginButton.style.display = 'block';
-      if (logoutButton) logoutButton.style.display = 'none';
+      this.loginButton.show();
+      this.logoutButton.hide();
 
       if (loginContainer) {
         loginContainer.textContent = '';
@@ -143,6 +154,13 @@ export default class Header {
     if (activeAddress) {
       this.setButtonAddress(activeAddress);
       this.modalController.closeModal();
+    }
+
+    if (orderStore.getState().totalPrice) {
+      this.cartButton.setText(orderStore.getState().totalPrice + '₽');
+      this.cartButton.show();
+    } else {
+      this.cartButton.hide();
     }
   }
 
@@ -175,14 +193,19 @@ export default class Header {
     this.logo?.remove();
     this.loginButton?.remove();
     this.logoutButton?.remove();
+    this.cartButton.remove();
     this.parent.innerHTML = '';
     this.parent.classList.remove('main_header');
     this.modalController.remove();
     window.removeEventListener('scroll', this.handleScrollBound);
     document.removeEventListener('click', this.clickHandler);
-    if (this.unsubscribeFromStore) {
-      this.unsubscribeFromStore();
-      this.unsubscribeFromStore = null;
+    if (this.unsubscribeFromUserStore) {
+      this.unsubscribeFromUserStore();
+      this.unsubscribeFromUserStore = null;
+    }
+    if (this.unsubscribeFromOrderStore) {
+      this.unsubscribeFromOrderStore();
+      this.unsubscribeFromOrderStore = null;
     }
   }
 }

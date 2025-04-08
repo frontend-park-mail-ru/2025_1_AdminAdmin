@@ -1,6 +1,7 @@
 import { createStore } from './store';
 import { Product } from '@myTypes/restaurantTypes';
 import { userStore } from '@store/userStore';
+import { AppCartRequests } from '@modules/ajax';
 
 interface OrderAction {
   type: string;
@@ -55,8 +56,6 @@ const orderReducer = (state = initialOrderState, action: OrderAction): OrderStat
 export const OrderActions = {
   ADD_PRODUCT: 'ADD_PRODUCT',
   REMOVE_PRODUCT: 'REMOVE_PRODUCT',
-  INCREMENT_PRODUCT_AMOUNT: 'INCREMENT_PRODUCT_AMOUNT',
-  DECREMENT_PRODUCT_AMOUNT: 'DECREMENT_PRODUCT_AMOUNT',
   SET_RESTAURANT: 'SET_RESTAURANT',
   SET_PRODUCT_AMOUNT: 'SET_PRODUCT_AMOUNT',
   CLEAR_ORDER: 'CLEAR_ORDER',
@@ -76,26 +75,23 @@ class OrderStore {
   private addOrUpdateProduct(product: Product, amount: number): void {
     const state = this.store.getState();
     const existing = state.products.find((p) => p.product.id === product.id);
-
-    let updatedProducts: OrderProduct[];
     if (existing) {
-      updatedProducts = state.products.map((p) =>
-        p.product.id === product.id ? { ...p, amount: p.amount + amount } : p,
-      );
+      this.setProductAmount(existing.product.id, existing.amount + amount);
     } else {
-      updatedProducts = [...state.products, { product, amount }];
+      this.addProduct(product);
     }
-
-    const totalPrice = this.calculateTotalPrice(updatedProducts);
-
-    this.store.dispatch({
-      type: OrderActions.ADD_PRODUCT,
-      payload: { products: updatedProducts, totalPrice },
-    });
   }
 
-  addProduct(product: Product, amount: number): void {
-    const products = [...this.store.getState().products, { product, amount }];
+  async addProduct(product: Product): Promise<void> {
+    if (userStore.isAuth()) {
+      try {
+        await AppCartRequests.AddProduct(product.id);
+      } catch (error) {
+        console.error('Ошибка при добавлении продукта', error);
+      }
+    }
+
+    const products = [...this.store.getState().products, { product, amount: 1 }];
     const totalPrice = this.calculateTotalPrice(products);
 
     this.store.dispatch({
@@ -116,34 +112,23 @@ class OrderStore {
   }
 
   decrementProductAmount(product: Product): void {
-    const state = this.store.getState();
-    const productId = product.id;
-    const existing = state.products.find((p) => p.product.id === productId);
-
-    if (!existing) return;
-
-    let updatedProducts: OrderProduct[];
-    if (existing.amount <= 1) {
-      updatedProducts = state.products.filter((p) => p.product.id !== productId);
-    } else {
-      updatedProducts = state.products.map((p) =>
-        p.product.id === productId ? { ...p, amount: p.amount - 1 } : p,
-      );
-    }
-
-    const totalPrice = this.calculateTotalPrice(updatedProducts);
-
-    this.store.dispatch({
-      type: OrderActions.REMOVE_PRODUCT,
-      payload: { products: updatedProducts, totalPrice },
-    });
+    this.addOrUpdateProduct(product, -1);
   }
 
-  setProductAmount(productId: string, amount: number): void {
-    if (amount === 0) {
+  async setProductAmount(productId: string, amount: number): Promise<void> {
+    if (amount <= 0) {
       this.removeProduct(productId);
       return;
     }
+
+    if (userStore.isAuth()) {
+      try {
+        await AppCartRequests.UpdateProductQuantity(productId, amount);
+      } catch (error) {
+        console.error('Ошибка при добавлении продукта', error);
+      }
+    }
+
     const updatedProducts = this.store
       .getState()
       .products.map((p) => (p.product.id === productId ? { ...p, amount } : p));
@@ -156,7 +141,15 @@ class OrderStore {
     });
   }
 
-  removeProduct(productId: string): void {
+  async removeProduct(productId: string): Promise<void> {
+    if (userStore.isAuth()) {
+      try {
+        await AppCartRequests.UpdateProductQuantity(productId, 0);
+      } catch (error) {
+        console.error('Ошибка при удалении продукта', error);
+      }
+    }
+
     const updatedProducts = this.store
       .getState()
       .products.filter((p) => p.product.id !== productId);
