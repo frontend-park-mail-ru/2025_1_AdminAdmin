@@ -11,6 +11,10 @@ export default [
         Handlebars: 'readonly',
       },
     },
+    rules: {
+      'no-debugger': 'error',
+      'no-console': ['error', { allow: ['warn', 'error'] }],
+    },
   },
   pluginJs.configs.recommended,
   eslintConfigPrettier,
