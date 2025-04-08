@@ -1,3 +1,5 @@
+import { OrderState } from '@store/orderStore';
+
 export interface RequestOptions {
   headers?: Record<string, string>;
 }
@@ -67,6 +69,28 @@ export function getActiveAddressFromLocalStorage(): string {
  * Очищает токены из localStorage
  */
 export function clearLocalStorage(): void {
-  window.localStorage.removeItem('Authorization');
-  window.localStorage.removeItem('X-CSRF-Token');
+  try {
+    window.localStorage.removeItem('Authorization');
+    window.localStorage.removeItem('X-CSRF-Token');
+  } catch (err) {
+    console.error('Ошибка при очистке localstorage', err);
+  }
+}
+
+export function setCart(cart: OrderState): void {
+  try {
+    window.localStorage.setItem('Cart', JSON.stringify(cart));
+  } catch (err) {
+    console.error('Ошибка сохранения в localStorage:', err);
+  }
+}
+
+export function getCart(): OrderState | null {
+  try {
+    const raw = window.localStorage.getItem('Cart');
+    return raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    console.error('Ошибка чтения из localStorage:', err);
+    return null;
+  }
 }

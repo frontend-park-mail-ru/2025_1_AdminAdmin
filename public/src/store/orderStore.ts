@@ -2,6 +2,7 @@ import { createStore } from './store';
 import { Product } from '@myTypes/restaurantTypes';
 import { userStore } from '@store/userStore';
 import { AppCartRequests } from '@modules/ajax';
+import { getCart, setCart } from '@modules/localStorage';
 
 interface OrderAction {
   type: string;
@@ -13,7 +14,7 @@ interface OrderProduct {
   amount: number;
 }
 
-interface OrderState {
+export interface OrderState {
   restaurantId: string | null;
   restaurantName: string | null;
   products: OrderProduct[];
@@ -66,6 +67,25 @@ class OrderStore {
 
   constructor() {
     this.store = createStore(orderReducer);
+
+    const localCart = getCart();
+    if (localCart && !userStore.isAuth()) {
+      this.store.dispatch({
+        type: OrderActions.SET_RESTAURANT,
+        payload: {
+          restaurantId: localCart.restaurantId,
+          restaurantName: localCart.restaurantName,
+        },
+      });
+
+      this.store.dispatch({
+        type: OrderActions.ADD_PRODUCT,
+        payload: {
+          products: localCart.products,
+          totalPrice: localCart.totalPrice,
+        },
+      });
+    }
   }
 
   private calculateTotalPrice(products: OrderProduct[]): number {
@@ -98,6 +118,8 @@ class OrderStore {
       type: OrderActions.ADD_PRODUCT,
       payload: { products, totalPrice },
     });
+
+    this.saveToLocalStorageIfGuest();
   }
 
   setRestaurant(restaurantId: string, restaurantName: string): void {
@@ -105,6 +127,8 @@ class OrderStore {
       type: OrderActions.SET_RESTAURANT,
       payload: { restaurantId, restaurantName },
     });
+
+    this.saveToLocalStorageIfGuest();
   }
 
   incrementProductAmount(product: Product): void {
@@ -139,6 +163,8 @@ class OrderStore {
       type: OrderActions.SET_PRODUCT_AMOUNT,
       payload: { products: updatedProducts, totalPrice },
     });
+
+    this.saveToLocalStorageIfGuest();
   }
 
   async removeProduct(productId: string): Promise<void> {
@@ -160,12 +186,16 @@ class OrderStore {
       type: OrderActions.REMOVE_PRODUCT,
       payload: { products: updatedProducts, totalPrice },
     });
+
+    this.saveToLocalStorageIfGuest();
   }
 
   clearOrder(): void {
     this.store.dispatch({
       type: OrderActions.CLEAR_ORDER,
     });
+
+    this.saveToLocalStorageIfGuest();
   }
 
   getState(): OrderState {
@@ -175,6 +205,12 @@ class OrderStore {
   getProductAmountById(productId: string): number {
     const product = this.store.getState().products.find((p) => p.product.id === productId);
     return product ? product.amount : 0;
+  }
+
+  private saveToLocalStorageIfGuest(): void {
+    if (!userStore.isAuth()) {
+      setCart(this.store.getState());
+    }
   }
 
   subscribe(listener: () => void): () => void {
