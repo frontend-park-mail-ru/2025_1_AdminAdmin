@@ -8,66 +8,38 @@
 }
 */
 .quantity-button {
-    padding: 0px;
-    width: 32px;
-    height: 32px;
-    background-color: #fff;
-    border-radius: 50%;
-    border: 2px solid #FF4D00; // Цвет границы
-    position: relative;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Times New Roman", serif;
 
-    &:hover { // При наведении на кнопку
-        background-color: #FF4D00;
-    }
-
-    // Рисую +
-    &_plus {
-        &::before { // Горизонтальная прямая (-)
-            content: '';
-            position: absolute;
-            background-color: #000000;
-            transform: translate(-50%, -50%);
-            top: 50%;
-            left: 50%;
-            width: 16px;
-            height: 2px;
-        }
-
-        &::after { // Вериткальная прямая (|)
-            content: '';
-            position: absolute;
-            background-color: #000000;
-            transform: translate(-50%, -50%);
-            top: 50%;
-            left: 50%;
-            width: 2px;
-            height: 16px;
-        }
-
-        &:hover { // + при наведении
-            &::before,
-            &::after {
-                background-color: #fff;
-            }
+    &.card-quantity-button {
+        width: 45px;
+        height: 45px;
+        background-color: #fff;
+        border-radius: 50%;
+        border: 2px solid var(--orange);
+        font-size: 40px;
+        &:hover {
+            background-color: var(--orange);
+            color: var(--white);
         }
     }
-    //  Рисую -
-    &_minus {
-        &::before { // Горизонтальная прямая
-            content: '';
-            position: absolute;
-            background-color: #000000;
-            transform: translate(-50%, -50%);
-            top: 50%;
-            left: 50%;
-            width: 16px;
-            height: 2px;
-        }
 
-        &:hover { // - при наведении
-            &::before {
-                background-color: #fff;
-            }
+    &.cart-card-quantity-button {
+        height: 100%;
+        padding-left: 5px;
+        padding-right: 5px;
+        background-color: var(--light-grey);
+        box-sizing: border-box;
+        border: none;
+        font-size: 20px;
+        width: 30%;
+
+        &:hover {
+            background-color: var(--dark-gray);
+            color: var(--white);
         }
     }
 }

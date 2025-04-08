@@ -6,13 +6,18 @@
   flex-direction: column;
   gap: 10px;
   justify-content: center;
-  background-color: #fff;
+  background-color: var(--white);
   position: relative;
+  transition: background-color 0.3s ease;
 
   // Товар в корзине или при наведении на карточку
-  &_active,
+  &.active,
   &:hover {
-    background-color: #f2f2f2;
+    background-color: var(--light-grey);
+  }
+
+  &__weight {
+    color: var(--dark-gray);
   }
 
   // Картинка в карточке
@@ -24,8 +29,12 @@
 
   // Общие свойства для текста в карточке
   span {
+    font-size: 16px;
     margin-left: 10px;
-    font-size: 12px;
+  }
+
+  &__header {
+    display: flex;
   }
 
   // Класс нижнего блока в карточке
@@ -52,18 +61,23 @@
 
       // Общие свойства для количества и общей стоимости
       span {
-        margin-left: 0px;
+        margin-left: 0;
         text-align: center;
       }
     }
   }
 
   &__total-price {
-    color: #686868;
+    color: var(--dark-gray);
   }
 
-  &__amount,
   &__price {
     font-weight: bold;
+  }
+
+  &__amount {
+    font-weight: bold;
+    font-size: 14px;
+    padding-bottom: 5px;
   }
 }

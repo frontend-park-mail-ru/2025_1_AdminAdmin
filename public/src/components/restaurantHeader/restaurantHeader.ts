@@ -2,22 +2,18 @@ import template from './restaurantHeader.hbs';
 import restaurantHeaderImg from '@assets/header.png';
 import burgerKingImg from '@assets/burgerking.png';
 
-// Структура класса рейтинга
-export interface RatingProps {
-  // ? - необязательное поле
-  score?: number; // Числовая оценка    | Если не задан, то 0
-  amount?: number; // Количество оценок  | Если не задан, то 0
-}
 // Структура класса хедера ресторана
 export interface RestaurantHeaderProps {
-  // ? - необязательное поле
-  name: string; // Название ресторана       | Обязательное поле
-  description?: string; // Описание ресторана       | Если не задано, то "Описание ресторана"
-  type?: string; // Кухня ресторана          | Если не задано, то "Кухня ресторана"
-  rating?: RatingProps; // Общий рейтинг ресторана  | Если не задано, то {score: 0, amount: 0}
-  background?: string; // Фон шапки                | Если не задано, то header.png
-  icon?: string; // Иконка ресторана         | Если не задано, то burgerking.png
+  name: string;
+  banner_url: string;
+  description?: string;
+  tags: string[];
+  rating: number;
+  rating_count: number;
+  background?: string;
+  icon?: string;
 }
+
 /**
  * Класс хедера ресторана (шапка с названием и описанием)
  */
@@ -36,11 +32,10 @@ export class RestaurantHeader {
     this.props = {
       name: props.name,
       description: props.description ?? 'Описание ресторана',
-      type: props.type ?? 'Кухня ресторана',
-      rating: {
-        score: props.rating.score ?? 0,
-        amount: props.rating.amount ?? 0,
-      },
+      tags: props.tags ?? ['Кухня ресторана'],
+      rating: props.rating ?? 0,
+      rating_count: props.rating_count ?? 0,
+      banner_url: props.banner_url,
       background: props.background || restaurantHeaderImg,
       icon: props.icon || burgerKingImg,
     };

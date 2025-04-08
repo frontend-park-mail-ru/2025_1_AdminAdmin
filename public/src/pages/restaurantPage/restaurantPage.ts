@@ -1,45 +1,28 @@
 import {
-  RatingProps,
   RestaurantHeader,
   RestaurantHeaderProps,
 } from '@components/restaurantHeader/restaurantHeader';
-import {
-  RestaurantReviews,
-  RestaurantReviewsProps,
-} from '@components/restaurantReviews/restaurantReviews';
-import { Categories, CategoriesProps } from '@components/categories/categories';
-import { ProductCard, ProductCardProps } from '@components/productCard/productCard';
+import { RestaurantReviews } from '@components/restaurantReviews/restaurantReviews';
+import { Categories } from '@components/categories/categories';
+import { ProductCard } from '@components/productCard/productCard';
+import Cart from '@components/cart/cart';
 import { AppRestaurantRequests } from '@modules/ajax';
 
 import template from './restaurantPage.hbs';
 import { RestaurantReviewProps } from '@components/restaurantReviews/restaurantReview/restaurantReview';
 import { RestaurantDetailProps } from '@components/restaurantReviews/restaurantDetail/restaurantDetail';
-import { CategoryProps } from '@components/category/category';
-
-interface RestaurantPageProps {
-  id: string; // id ресторана
-  restaurantHeaderProps: RestaurantHeaderProps; // Данные для хедера ресторана
-  restaurantReviewsProps: RestaurantReviewsProps; // Данные отзывов
-  productCategoriesProps: CategoriesProps; // Данные категорий
-  productsProps: Array<ProductCardProps>; // Данные товаров
-}
-
-interface RestaurantRequestProps {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
-  rating: number;
-  background: string;
-  icon: string;
-}
+import type { RestaurantResponse, WorkingMode, Category, Product } from '@myTypes/restaurantTypes';
 
 /**
  * Класс, представляющий страницу конкретного ресторана.
  */
 export default class RestaurantPage {
   private parent: HTMLElement;
-  private props: RestaurantPageProps;
+  private readonly id: string;
+  private props: RestaurantResponse;
+  private cartComponent: Cart;
+  private categoriesComponent: Categories;
+  private productCards: ProductCard[] = [];
 
   /**
    * Создает экземпляр страницы ресторана.
@@ -51,16 +34,7 @@ export default class RestaurantPage {
       throw new Error('RestaurantPage: no parent!');
     }
     this.parent = parent;
-    this.props = {
-      id: id,
-      restaurantHeaderProps: {
-        name: '', // Обязательное поле
-      } as RestaurantHeaderProps, // Пустой объект для хедера (заполню потом)
-
-      productCategoriesProps: {
-        onChange: this.handleCategory.bind(this),
-      } as CategoriesProps,
-    } as RestaurantPageProps;
+    this.id = id;
   }
 
   /**
@@ -82,7 +56,7 @@ export default class RestaurantPage {
    */
   async render(): Promise<void> {
     try {
-      this.props.restaurantHeaderProps = await AppRestaurantRequests.Get(this.props.id);
+      this.props = await AppRestaurantRequests.Get(this.id);
 
       // Генерируем HTML
       this.parent.innerHTML = template();
@@ -92,64 +66,89 @@ export default class RestaurantPage {
       const restaurantHeaderWrapper = this.self.querySelector(
         '.restaurant-header__wrapper',
       ) as HTMLElement;
-      const restaurantHeaderComponent = new RestaurantHeader(
-        restaurantHeaderWrapper,
-        this.props.restaurantHeaderProps,
-      );
+
+      const restaurantHeaderComponent = new RestaurantHeader(restaurantHeaderWrapper, {
+        name: this.props.name,
+        banner_url: this.props.banner_url,
+        rating: this.props.rating,
+        rating_count: this.props.rating_count,
+        tags: this.props.tags,
+      });
 
       restaurantHeaderComponent.render();
 
-      /*      // Рендерим блок отзывов (общая оценка + отзывы + адрес и время работы)
-      const restaurantReviewsWrapper : HTMLElement = this.self.querySelector(
+      const restaurantReviewsWrapper: HTMLElement = this.self.querySelector(
         '.restaurant-reviews__wrapper',
-      )
-
-      const restaurantReviewsComponent = new RestaurantReviews(
-        restaurantReviewsWrapper,
-        this.props.restaurantHeaderProps.rating,
       );
-      restaurantReviewsComponent.render();*/
 
-      this.props.productsProps = await AppRestaurantRequests.GetProductsByRestaurant(this.props.id);
+      const restaurantReviewsComponent = new RestaurantReviews(restaurantReviewsWrapper, {
+        rating: this.props.rating,
+        rating_count: this.props.rating_count,
+        address: this.props.address,
+        working_mode: this.props.working_mode,
+      });
+      restaurantReviewsComponent.render();
 
-      /*      // Рендерим блок категорий
-      const categoriesWrapper : HTMLElement = this.self.querySelector(
+      const categoriesWrapper: HTMLElement = this.self.querySelector(
         '.product-categories__wrapper',
       );
 
-      const categoriesComponent = new Categories(
-        categoriesWrapper,
-        this.props.productCategoriesProps,
-      );
-
-      categoriesComponent.render();
-      this.handleCategory(
-        categoriesComponent
-          .getProps()
-          .categoriesList.find(
-            (catergory) => catergory.id === categoriesComponent.getProps().activeCategoryId,
-          )?.name,
-      );*/
-
-      // Рендерим карточки
       const productCardsBody = this.self.querySelector('.product-cards__body') as HTMLElement;
-      this.props.productsProps.forEach((productCardProps) => {
-        const productCardComponent = new ProductCard(productCardsBody, productCardProps);
-        productCardComponent.render();
+
+      this.categoriesComponent = new Categories(categoriesWrapper, productCardsBody);
+
+      this.categoriesComponent.render();
+
+      this.props.categories.forEach((category) => {
+        this.categoriesComponent.addCategory(category.name);
+        category.products.forEach((product) => {
+          const productCardComponent = new ProductCard(
+            productCardsBody,
+            this.props.id,
+            this.props.name,
+            product,
+          );
+          productCardComponent.render();
+          this.productCards.push(productCardComponent);
+        });
       });
+
+      const cartWrapper: HTMLElement = this.self.querySelector('.cart__wrapper');
+      this.cartComponent = new Cart(cartWrapper, this.props.id);
+      this.cartComponent.render();
+      this.makeFixed(cartWrapper, categoriesWrapper);
     } catch (error) {
       console.error('Error rendering restaurant page:', error);
     }
   }
 
-  handleCategory(categoryName: string): void {
-    this.self.querySelector('.product-cards__header').textContent = `Категория: ${categoryName}`;
+  makeFixed(cartWrapper: HTMLElement, categoriesWrapper: HTMLElement): void {
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+
+      if (scrollTop > cartWrapper.offsetTop) {
+        cartWrapper.classList.add('fixed');
+      } else {
+        cartWrapper.classList.remove('fixed');
+      }
+
+      if (scrollTop > categoriesWrapper.offsetTop) {
+        categoriesWrapper.classList.add('fixed');
+      } else {
+        categoriesWrapper.classList.remove('fixed');
+      }
+    });
   }
 
   /**
    * Удаляет страницу ресторана и очищает содержимое родительского элемента.
    */
   remove(): void {
+    this.productCards.forEach((productCard) => productCard.remove());
+    this.productCards = [];
+
+    this.categoriesComponent?.remove();
+    this.cartComponent?.remove();
     this.parent.innerHTML = '';
   }
 }

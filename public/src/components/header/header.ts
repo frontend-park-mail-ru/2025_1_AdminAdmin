@@ -20,6 +20,7 @@ export default class Header {
   private readonly handleScrollBound: () => void;
   private readonly clickHandler: (event: Event) => void;
   private modalController: ModalController;
+  private unsubscribeFromStore: (() => void) | null = null;
 
   /**
    * Создает экземпляр заголовка.
@@ -30,7 +31,7 @@ export default class Header {
     this.parent = parent;
     this.modalController = new ModalController();
     this.handleScrollBound = this.handleScroll.bind(this);
-    userStore.subscribe(() => this.updateHeaderState());
+    this.unsubscribeFromStore = userStore.subscribe(() => this.updateHeaderState());
 
     this.clickHandler = this.handleClick.bind(this);
   }
@@ -179,5 +180,9 @@ export default class Header {
     this.modalController.remove();
     window.removeEventListener('scroll', this.handleScrollBound);
     document.removeEventListener('click', this.clickHandler);
+    if (this.unsubscribeFromStore) {
+      this.unsubscribeFromStore();
+      this.unsubscribeFromStore = null;
+    }
   }
 }

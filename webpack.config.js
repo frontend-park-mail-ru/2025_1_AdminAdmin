@@ -65,13 +65,16 @@ const config = {
             {
                 test: /\.(png|jpg|jpeg|svg|gif)$/i,
                 type: 'asset/resource',
+                generator: {
+                    filename: 'src/assets/[name][ext][query]'
+                }
             },
             {
                 test: /\.ico$/,
                 type: 'asset/resource',
                 generator: {
-                    filename: path.join('icons', '[name].[contenthash][ext]'),
-                },
+                    filename: 'src/assets/[name][ext][query]'
+                }
             },
             {
                 test: /\.hbs$/,
@@ -140,6 +143,7 @@ const config = {
             '@pages': path.resolve(__dirname, 'public/src/pages'),
             '@assets': path.resolve(__dirname, 'public/src/assets'),
             '@store': path.resolve(__dirname, 'public/src/store'),
+            '@myTypes': path.resolve(__dirname, 'public/src/myTypes'),
         },
         extensions: ['.tsx', '.ts', '.js', '.scss', '.css'],
     },

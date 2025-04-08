@@ -6,6 +6,12 @@
   flex-direction: column;
   justify-content: center;
   text-align: left;
+  border-radius: 10px;
+  padding: 5px;
+
+  &:hover {
+    background-color: var(--light-grey);
+  }
 
   img {
     margin-bottom: 5px;

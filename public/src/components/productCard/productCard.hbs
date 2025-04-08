@@ -1,17 +1,17 @@
-<div class="product-card {{#if isActive}}product-card_active{{/if}}" id="{{id}}">
-    <img src={{image}} alt="product_image">
-    <span>{{name}}</span>
+<div class="product-card" id="{{id}}">
+    <img src="https://doordashers.ru:8443/images_restaurant/{{image_url}}" alt="{{name}}" />
+    <div class="product-card__header">
+        <span>{{name}}</span>
+        <span class="product-card__weight">{{weight}} г</span>
+    </div>
     <div class="product-card__footer">
         <div class="product-card__minus-button__wrapper">
         </div>
-        {{#if isActive}}
         <div class="product-card__footer-container">
-            <span class="product-card__amount">{{amount}} шт.</span>
-            <span class="product-card__total-price">{{price}} ₽</span>
+            <div class="product-card__amount"></div>
+            <span class="product-card__total-price"></span>
         </div>
-        {{else}}
         <span class="product-card__price">{{price}} ₽</span>
-        {{/if}}
         <div class="product-card__plus-button__wrapper">
         </div>
     </div>

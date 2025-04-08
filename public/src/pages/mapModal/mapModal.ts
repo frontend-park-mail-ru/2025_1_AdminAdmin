@@ -308,7 +308,9 @@ export default class MapModal {
     }
 
     if (this.map) {
-      this.map.destroy();
+      try {
+        this.map.destroy();
+      } catch {}
       this.map = null;
     }
 

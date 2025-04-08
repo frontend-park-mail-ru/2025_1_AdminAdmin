@@ -210,8 +210,8 @@ class UserStore {
    * Подписывает listener на изменение состояния
    * @param {Function} listener
    */
-  subscribe(listener: () => void): void {
-    this.store.subscribe(listener);
+  subscribe(listener: () => void): () => void {
+    return this.store.subscribe(listener);
   }
 }
 
