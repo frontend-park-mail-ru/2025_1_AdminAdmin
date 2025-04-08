@@ -67,25 +67,63 @@ class OrderStore {
 
   constructor() {
     this.store = createStore(orderReducer);
+  }
+
+  async init() {
+    if (userStore.isAuth()) {
+      try {
+        const remoteCart = await AppCartRequests.GetCart();
+        if (remoteCart) {
+          this.store.dispatch({
+            type: OrderActions.SET_RESTAURANT,
+            payload: {
+              restaurantId: remoteCart.restaurantId,
+              restaurantName: remoteCart.restaurantName,
+            },
+          });
+
+          this.store.dispatch({
+            type: OrderActions.ADD_PRODUCT,
+            payload: {
+              products: remoteCart.products,
+              totalPrice: this.calculateTotalPrice(remoteCart.products),
+            },
+          });
+          return;
+        }
+      } catch (error) {
+        console.error('Ошибка при получении корзины', error);
+      }
+    }
 
     const localCart = getCart();
-    if (localCart && !userStore.isAuth()) {
-      this.store.dispatch({
-        type: OrderActions.SET_RESTAURANT,
-        payload: {
-          restaurantId: localCart.restaurantId,
-          restaurantName: localCart.restaurantName,
-        },
-      });
+    if (!localCart) return;
 
-      this.store.dispatch({
-        type: OrderActions.ADD_PRODUCT,
-        payload: {
-          products: localCart.products,
-          totalPrice: localCart.totalPrice,
-        },
-      });
+    if (userStore.isAuth()) {
+      for (const product of localCart.products) {
+        await AppCartRequests.UpdateProductQuantity(
+          product.product.id,
+          product.amount,
+          localCart.restaurantId,
+        );
+      }
     }
+
+    this.store.dispatch({
+      type: OrderActions.SET_RESTAURANT,
+      payload: {
+        restaurantId: localCart.restaurantId,
+        restaurantName: localCart.restaurantName,
+      },
+    });
+
+    this.store.dispatch({
+      type: OrderActions.ADD_PRODUCT,
+      payload: {
+        products: localCart.products,
+        totalPrice: localCart.totalPrice,
+      },
+    });
   }
 
   private calculateTotalPrice(products: OrderProduct[]): number {
@@ -105,7 +143,7 @@ class OrderStore {
   async addProduct(product: Product): Promise<void> {
     if (userStore.isAuth()) {
       try {
-        await AppCartRequests.AddProduct(product.id);
+        await AppCartRequests.UpdateProductQuantity(product.id, 1, this.getState().restaurantId);
       } catch (error) {
         console.error('Ошибка при добавлении продукта', error);
       }
@@ -147,7 +185,11 @@ class OrderStore {
 
     if (userStore.isAuth()) {
       try {
-        await AppCartRequests.UpdateProductQuantity(productId, amount);
+        await AppCartRequests.UpdateProductQuantity(
+          productId,
+          amount,
+          this.getState().restaurantId,
+        );
       } catch (error) {
         console.error('Ошибка при добавлении продукта', error);
       }
@@ -170,7 +212,7 @@ class OrderStore {
   async removeProduct(productId: string): Promise<void> {
     if (userStore.isAuth()) {
       try {
-        await AppCartRequests.UpdateProductQuantity(productId, 0);
+        await AppCartRequests.UpdateProductQuantity(productId, 0, this.getState().restaurantId);
       } catch (error) {
         console.error('Ошибка при удалении продукта', error);
       }
@@ -219,3 +261,4 @@ class OrderStore {
 }
 
 export const orderStore = new OrderStore();
+await orderStore.init();

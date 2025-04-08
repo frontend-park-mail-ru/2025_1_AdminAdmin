@@ -140,7 +140,7 @@ class UserRequests {
 
     const { status, body } = response;
 
-    if (status === 201) {
+    if (status === 200) {
       return {
         id: body.id,
         login: body.login,
@@ -243,32 +243,24 @@ class CartRequests {
   private baseUrl = '/cart';
 
   /**
-   * Добавляет товар в корзину.
-   * @param idProduct - Идентификатор товара
-   * @returns {Promise<void>}
-   */
-  AddProduct = async (idProduct: string): Promise<void> => {
-    const { status, body } = await baseRequest<ErrorResponse | null>(
-      methods.GET,
-      `${this.baseUrl}/add/${idProduct}`,
-    );
-
-    if (status !== 200) {
-      throw new Error((body as ErrorResponse)?.message ?? 'Failed to add product to cart');
-    }
-  };
-
-  /**
    * Обновляет количество товара в корзине. Если количество 0, товар удаляется.
    * @param idProduct - Идентификатор товара
-   * @param quantity - Новое количество товара
+   * @param amount
+   * @param restaurantId
    * @returns {Promise<void>}
    */
-  UpdateProductQuantity = async (idProduct: string, quantity: number): Promise<void> => {
+  UpdateProductQuantity = async (
+    idProduct: string,
+    amount: number,
+    restaurantId: string,
+  ): Promise<void> => {
     const { status, body } = await baseRequest<ErrorResponse | null>(
       methods.POST,
       `${this.baseUrl}/update/${idProduct}`,
-      { quantity },
+      {
+        restaurantId,
+        amount,
+      },
     );
 
     if (status !== 200) {
