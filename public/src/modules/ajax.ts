@@ -3,7 +3,7 @@ import {
   clearLocalStorage,
   storeAuthTokensFromResponse,
 } from './localStorage';
-import { RestaurantResponse } from '@myTypes/orderTypes';
+import { RestaurantResponse } from '@myTypes/restaurantTypes';
 
 export interface ResponseData<T = any> {
   status: number;
