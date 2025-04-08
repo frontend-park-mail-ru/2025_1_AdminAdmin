@@ -1,9 +1,7 @@
 .main_header {
-  display: grid;
   grid-template-areas:
     ". header__logo header__location header__buttons .";
-  grid-template-columns: 0.5fr 3fr 6fr 2fr 0.5fr;
-  align-items: center;
+  grid-template-columns: 0.5fr 2fr 7fr 2fr 0.5fr;
 
   &.scrolled {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
