@@ -1,5 +1,4 @@
 import MapModal from '@pages/mapModal/mapModal';
-import { ConfirmRestaurantModal } from '@components/confirmRestaurantModal/confirmRestaurantModal';
 
 interface Modal {
   render(): void;

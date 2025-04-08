@@ -10,7 +10,9 @@ export interface ResponseData<T = any> {
   body: T;
 }
 
-type ErrorResponse = { message: string };
+interface ErrorResponse {
+  message: string;
+}
 
 const isDebug = false;
 
@@ -23,9 +25,7 @@ const methods = Object.freeze({
   PUT: 'PUT',
 });
 
-interface RequestParams {
-  [key: string]: string;
-}
+type RequestParams = Record<string, string>;
 
 /**
  * Выполняет базовый HTTP-запрос.
@@ -182,7 +182,7 @@ class UserRequests {
     }
   };
 
-  AddAddress = async (address: string): Promise<{ message: string }> => {
+  /*  AddAddress = async (address: string): Promise<{ message: string }> => {
     const { status, body } = await baseRequest<{ message: string } & { error?: string }>(
       methods.POST,
       this.baseUrl + '/add_address',
@@ -193,7 +193,7 @@ class UserRequests {
     } else {
       throw new Error('not authorized');
     }
-  };
+  };*/
 }
 
 class RestaurantsRequests {
@@ -248,13 +248,13 @@ class CartRequests {
    * @returns {Promise<void>}
    */
   AddProduct = async (idProduct: string): Promise<void> => {
-    const { status, body } = await baseRequest<void | ErrorResponse>(
+    const { status, body } = await baseRequest<ErrorResponse | null>(
       methods.GET,
       `${this.baseUrl}/add/${idProduct}`,
     );
 
     if (status !== 200) {
-      throw new Error((body as ErrorResponse).message ?? 'Failed to add product to cart');
+      throw new Error((body as ErrorResponse)?.message ?? 'Failed to add product to cart');
     }
   };
 
@@ -265,14 +265,14 @@ class CartRequests {
    * @returns {Promise<void>}
    */
   UpdateProductQuantity = async (idProduct: string, quantity: number): Promise<void> => {
-    const { status, body } = await baseRequest<void | ErrorResponse>(
+    const { status, body } = await baseRequest<ErrorResponse | null>(
       methods.POST,
       `${this.baseUrl}/update/${idProduct}`,
       { quantity },
     );
 
     if (status !== 200) {
-      throw new Error((body as ErrorResponse).message ?? 'Failed to update product quantity');
+      throw new Error((body as ErrorResponse)?.message ?? 'Failed to update product quantity');
     }
   };
 

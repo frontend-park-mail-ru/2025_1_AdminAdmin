@@ -274,7 +274,7 @@ export default class MapModal {
         return;
       }
 
-      for (let suggest of suggests) {
+      for (const suggest of suggests) {
         this.suggestsContainer.show(suggest);
       }
     } catch (error) {
@@ -310,7 +310,9 @@ export default class MapModal {
     if (this.map) {
       try {
         this.map.destroy();
-      } catch {}
+      } catch (error) {
+        console.error('Ошибка при уничтожении карты:', error);
+      }
       this.map = null;
     }
 

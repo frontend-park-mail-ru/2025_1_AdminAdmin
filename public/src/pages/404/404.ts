@@ -1,5 +1,4 @@
 import template from './404.hbs';
-import { router } from '@modules/routing';
 
 /**
  * Класс 404 страницы

@@ -157,7 +157,7 @@ export default class Header {
     }
 
     if (orderStore.getState().totalPrice) {
-      this.cartButton.setText(orderStore.getState().totalPrice + '₽');
+      this.cartButton.setText(orderStore.getState().totalPrice + ' ₽');
       this.cartButton.show();
     } else {
       this.cartButton.hide();

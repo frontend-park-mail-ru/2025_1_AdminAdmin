@@ -1,8 +1,7 @@
 // Класс тела страницы
 .restaurant-page__body {
-  margin-top: 20px;
   display: grid;
-  grid-template-columns: 0.5fr 1.5fr 7.5fr 2fr 0.5fr;
+  grid-template-columns: 0.5fr 1.5fr 7fr 2.5fr 0.5fr;
   gap: 20px;
   align-items: start;
   min-height: 300vh;
@@ -12,11 +11,12 @@
 .product-categories__wrapper {
   grid-column: 2 / span 1;
   position: sticky;
-  top: calc(var(--header-height) + 20px);
+  top: calc(var(--real-header-height) + 20px);
 }
 
 // Основной контент
 .restaurant-page__main {
+  padding-top: 20px;
   grid-column: 3 / span 1;
 }
 
@@ -32,5 +32,5 @@
 .cart__wrapper {
   grid-column: 4 / span 1;
   position: sticky;
-  top: calc(var(--header-height) + 20px);
+  top: calc(var(--real-header-height) + 20px);
 }

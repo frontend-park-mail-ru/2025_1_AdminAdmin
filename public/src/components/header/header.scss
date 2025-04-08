@@ -2,7 +2,7 @@
   display: grid;
   grid-template-areas:
     ". header__logo header__location header__buttons .";
-  grid-template-columns: 0.5fr 2fr 7fr 2fr 0.5fr;
+  grid-template-columns: 0.5fr 3fr 6fr 2fr 0.5fr;
   align-items: center;
 
   &.scrolled {
@@ -15,25 +15,26 @@
       grid-area: header__buttons;
       display: flex;
       gap: 5px;
-      height: 35px;
+      height: 100%;
       justify-content: flex-end;
-      padding-right: 20px;
     }
 
     &__logo {
+      height: 100%;
       grid-area: header__logo;
     }
 
     &__location {
       grid-area: header__location;
+      height: 100%;
 
       &_select_button {
-        width: 300px;
+        width: 40%;
         text-align: left;
         background-color: var(--black);
         color: var(--white);
         padding: 0 10px;
-        height: 35px;
+        height: 100%;
         border-radius: var(--border-radius);
         border: none;
         cursor: pointer;
@@ -75,7 +76,7 @@
           align-items: center;
           cursor: pointer;
           padding: 7px;
-          font-size: 15px;
+          font-size: 120%;
           background-image: url("~@assets/right-arrow.png");
           background-repeat: no-repeat;
           background-position: right 10px center;

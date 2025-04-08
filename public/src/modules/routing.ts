@@ -5,7 +5,6 @@ import auxHeader from '@components/auxHeader/auxHeader';
 import { AuthPage } from '@pages/authPage/authPage';
 import { userStore } from '@store/userStore';
 import NotFoundPage from '@pages/404/404';
-import authPageConfig from '@pages/authPage/authPageConfig';
 
 interface RouteConfig {
   href: string;
@@ -36,7 +35,6 @@ class Router {
     this.headerElement = document.createElement('div');
     this.headerElement.classList.add('header');
     this.pageElement = document.createElement('main');
-    this.pageElement.style.paddingTop = '50px';
     this.toastBoxElement = document.createElement('div');
     this.toastBoxElement.classList.add('toastBox');
     this.parent.appendChild(this.headerElement);
@@ -103,7 +101,7 @@ class Router {
    * @param {string | null} [id=null] - Идентификатор ресурса, если требуется.
    * @param {boolean} [shouldPushState=true] - Нужно ли обновлять `history.pushState`.
    */
-  goToPage(page: string, id: string | null = null, shouldPushState: boolean = true): void {
+  goToPage(page: string, id: string | null = null, shouldPushState = true): void {
     const pageData = this.routes[page];
     if (!pageData) {
       console.error(`Page "${page}" not found in routes.`);

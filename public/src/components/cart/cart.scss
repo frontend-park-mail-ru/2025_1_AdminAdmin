@@ -1,6 +1,6 @@
 .cart {
   border-radius: var(--border-radius) var(--border-radius) 0 0;
-  height: calc(100vh - (var(--header-height) + 20px));
+  height: calc(100vh - (var(--real-header-height) + 20px));
   box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);
   padding: 15px 10px 10px 10px;
   box-sizing: border-box;

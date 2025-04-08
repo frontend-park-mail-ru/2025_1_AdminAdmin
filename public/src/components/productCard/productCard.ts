@@ -14,7 +14,7 @@ export class ProductCard {
   private readonly restaurantName: string;
   private readonly props: Product;
   private modalController: ModalController;
-  private amount: number = -1;
+  private amount = -1;
   private unsubscribeFromStore: (() => void) | null = null;
   private minusButton: QuantityButton;
   private plusButton: QuantityButton;
@@ -89,7 +89,6 @@ export class ProductCard {
     });
 
     this.plusButton.render();
-
     this.updateState();
   }
 
