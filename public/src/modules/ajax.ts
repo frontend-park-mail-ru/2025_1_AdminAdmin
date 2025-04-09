@@ -14,9 +14,7 @@ interface ErrorResponse {
   message: string;
 }
 
-const isDebug = false;
-
-const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? '127.0.0.1' : 'doordashers.ru'}:8443/api`;
+const baseUrl = 'https://doordashers.ru/api';
 
 const methods = Object.freeze({
   POST: 'POST',
@@ -244,22 +242,22 @@ class CartRequests {
 
   /**
    * Обновляет количество товара в корзине. Если количество 0, товар удаляется.
-   * @param idProduct - Идентификатор товара
-   * @param amount
-   * @param restaurantId
    * @returns {Promise<void>}
+   * @param product_id
+   * @param quantity
+   * @param restaurant_id
    */
   UpdateProductQuantity = async (
-    idProduct: string,
-    amount: number,
-    restaurantId: string,
+    product_id: string,
+    quantity: number,
+    restaurant_id: string,
   ): Promise<void> => {
     const { status, body } = await baseRequest<ErrorResponse | null>(
       methods.POST,
-      `${this.baseUrl}/update/${idProduct}`,
+      `${this.baseUrl}/update/${product_id}`,
       {
-        restaurantId,
-        amount,
+        quantity,
+        restaurant_id,
       },
     );
 
