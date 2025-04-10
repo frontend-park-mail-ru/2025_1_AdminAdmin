@@ -38,11 +38,9 @@ export class FormInput {
     if (document.getElementById(props.id)) {
       throw new Error('FormInput: this id is already used!');
     }
-    console.log(`Зашли в конструктор formInput`);
     this.parent = parent;
     this.inputHandler = this.handleInput.bind(this);
     this.eyeClickHandler = this.handleClick.bind(this);
-    console.log(`Начинаем задвать пропсы`);
     this.props = {
       id: props.id,
       label: props.label || '',
@@ -53,24 +51,19 @@ export class FormInput {
       validator: props.validator,
       onInput: props.onInput,
     };
-    console.log(`Задали пропсы: ${JSON.stringify(this.props)}`);
   }
 
   render(): void {
-    console.log(`Рендерим шаблончик`);
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
-    console.log(`Проверка: нет label`);
     if (!this.props.label) {
       const labelElement: HTMLElement = this.self?.querySelector('.form__input-head');
       if (labelElement) labelElement.remove();
     }
-    console.log(`Проверка: нет error`);
     if (!this.props.error) {
       const errorElement: HTMLElement = this.self?.querySelector('.form__error');
       if (errorElement) errorElement.style.display = 'none';
     }
-    console.log(`Проверка: пароль`);
     if (this.props.type === 'password') {
       const eyeIcon = this.self?.querySelector('.form__input__eye-icon') as HTMLElement;
       if (eyeIcon) {

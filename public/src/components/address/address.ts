@@ -62,7 +62,6 @@ export class Address {
     this.components = {
       buttons: [],
     };
-    console.log('Button: Заполнили пропсы, добавляем листенеры');
     this.clickHandler = this.handleClick.bind(this);
     this.hoverHandler = this.handleHover.bind(this);
   }

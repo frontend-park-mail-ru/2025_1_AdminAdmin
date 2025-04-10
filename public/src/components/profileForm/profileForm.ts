@@ -33,7 +33,6 @@ export class ProfileForm {
   constructor(parent: HTMLElement, config: any) {
     this.parent = parent;
     this.config = config;
-    console.log(`Создали компонент формы профиля`);
   }
 
   /**
@@ -97,7 +96,6 @@ export class ProfileForm {
       throw new Error('Error: profile-form template not found');
     }
     this.parent.innerHTML = template();
-    console.log(`Отрендерили шаблончик, заполняем`);
     const containers = {
       formInput: {
         firstName: document.getElementById('profile-edit-form__first-name'),
@@ -113,8 +111,6 @@ export class ProfileForm {
         throw new Error(`ProfileForm: container for "${key}" not found`);
       }
     });
-    console.log(`Определили контейнеры`);
-    console.log(`Создаем комопнент`);
     this.components = {
       formInput: {
         firstName: new FormInput(containers.formInput.firstName, this.config.inputs.firstName),

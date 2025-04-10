@@ -37,7 +37,6 @@ export class ProfileTableRow {
     if (!parent) {
       throw new Error('TableRow: no parent!');
     }
-    console.log('ProfileTableRow: Прошли проверки в конструкторе');
     this.parent = parent;
     this.props = {
       id: props.id,
@@ -68,7 +67,6 @@ export class ProfileTableRow {
         } as ImageProps;
       }
     }
-    console.log('Записали пропсы');
     this.clickHandler = this.handleClick.bind(this);
   }
 

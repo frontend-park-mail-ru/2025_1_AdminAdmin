@@ -76,10 +76,8 @@ export class Button {
    * Рендерит кнопку в родительский элемент.
    */
   render(): void {
-    console.log(`Рендерится кнопка со следующими пропсами ${this.props}`);
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
-    console.log(`Отрендерили шаблончик`);
 
     if (!this.parent) {
       throw new Error('Button: invalid self!');

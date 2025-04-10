@@ -128,9 +128,6 @@ export default class ProfilePage {
         ],
       } as ProfileTableProps,
     } as ProfilePageProps;
-    console.log(
-      `Создан элемент класса ProfilePage со следующими пропсами: ${JSON.stringify(this.props)}`,
-    );
     this.components = {
       addresses: [],
     };
@@ -159,62 +156,40 @@ export default class ProfilePage {
     }
     try {
       // Генерируем HTML
-      console.log('Рендерим шаблончик');
       const html = template(this.props.data);
       this.parent.insertAdjacentHTML('beforeend', html);
       // Заполняем
-      console.log('Заполняем компонентами');
       // Если оставляем категории то тут рендерим категории, у них свой враппер
       // Рендерим блок изменения данных профиля
       const profileFormElement = this.self.querySelector('.profile-data__body') as HTMLElement;
-      console.log(`Рендерим комопнент формы`);
       const profileFormComponent = new ProfileForm(profileFormElement, config);
-      console.log(`Успешно создали компонент, теперь рендерим его`);
       profileFormComponent.render();
-      console.log(`Успешно отрендерили, добавляем в список компонентов страницы`);
       this.components.profileForm = profileFormComponent;
-      console.log(`Успешно добавили в список компонентов страницы`);
       // Ренденрим блок изменения/удаления/добавления адресов
       const profileAddressBody = this.self.querySelector('.profile-address__body') as HTMLElement;
       const profileAddressesWrapper = profileAddressBody.querySelector(
         '.profile-address__addresses__wrapper',
       ) as HTMLElement;
       this.props.addresses.forEach((props) => {
-        console.log(`Рендерим Address со следующими пропсами ${JSON.stringify(props)}`);
         const addressComponent = new Address(profileAddressesWrapper, props);
-        console.log(`Компонент успешно создался, рендерим его`);
         addressComponent.render();
-        console.log(`Успешно отрендерили`);
         this.components.addresses.push(addressComponent);
-        console.log(`Добавили в массив комопнентов address`);
       });
       const addAddressButtonProps = {
         id: 'profile-page__address-add',
         text: 'Добавить',
         onSubmit: () => console.log('TODO: Добавить модалку добавления адреса'),
       } as ButtonProps;
-      console.log(
-        `Рендерим Button со следующими пропсами ${JSON.stringify(addAddressButtonProps)}`,
-      );
       const addAddressButtonComponent = new Button(profileAddressBody, addAddressButtonProps);
-      console.log(`Компонент успешно создался, рендерим его`);
       addAddressButtonComponent.render();
-      console.log(`Успешно отрендерили`);
       this.components.addAddressButton = addAddressButtonComponent;
-      console.log(`Добавили в массив комопнентов formInput`);
       // Рендерим блок таблицы заказов
       const profileTableWrapper = this.self.querySelector(
         '.profile-orders__table__wrapper',
       ) as HTMLElement;
-      console.log(
-        `Рендерим ProfileTable со следующими пропсами ${JSON.stringify(this.props.orders)}`,
-      );
       const ordersTableComponent = new ProfileTable(profileTableWrapper, this.props.orders);
-      console.log(`Компонент успешно создался, рендерим его`);
       ordersTableComponent.render();
-      console.log(`Успешно отрендерили`);
       this.components.ordersTable = ordersTableComponent;
-      console.log(`Добавили в массив комопнентов`);
     } catch (error) {
       console.error('Error rendering restaurant page:', error);
     }

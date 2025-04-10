@@ -32,7 +32,6 @@ export class Table {
       throw new Error('Table: this id is already used!');
     }
     if (props.rows.length > 0) {
-      console.log(`props rows: ${JSON.stringify(props.rows)}`);
       props.rows.forEach((rowProps) => {
         // Добавляем в компонент только непустые строки
         if (rowProps.cells.length > 0) {
@@ -40,7 +39,6 @@ export class Table {
           this.props.rows.push(rowProps);
         }
       });
-      console.log(`table rows: ${JSON.stringify(this.props.rows)}`);
     }
     if (!(props.headers.length > 0 || this.props.rows.length > 0)) {
       throw new Error('Table: must have rows or header!');
@@ -80,7 +78,6 @@ export class Table {
     this.parent.insertAdjacentHTML('beforeend', html);
     // Заполняем
     this.props.rows.forEach((props) => {
-      console.log(`Создаем новую строчку с пропсами ${JSON.stringify(props)}`);
       const rowProps = {
         id: props.id,
         onClick: props.onClick,
