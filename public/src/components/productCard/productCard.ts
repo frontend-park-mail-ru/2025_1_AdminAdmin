@@ -4,6 +4,8 @@ import { orderStore } from '@store/orderStore';
 import ModalController from '@modules/modalController';
 import { ConfirmRestaurantModal } from '@components/confirmRestaurantModal/confirmRestaurantModal';
 import { Product } from '@myTypes/restaurantTypes';
+import { userStore } from '@store/userStore';
+import MapModal from '@pages/mapModal/mapModal';
 
 /**
  * Класс карточки товара
@@ -93,6 +95,12 @@ export class ProductCard {
   }
 
   private incrementAmount() {
+    if (!userStore.getActiveAddress()) {
+      this.modalController = new ModalController();
+      const mapModal = new MapModal();
+      this.modalController.openModal(mapModal);
+    }
+
     if (!orderStore.getState().totalPrice) {
       orderStore.setRestaurant(this.restaurantId, this.restaurantName);
     }
@@ -176,6 +184,9 @@ export class ProductCard {
     const element = this.self;
     this.minusButton.remove();
     this.plusButton.remove();
+    if (this.modalController) {
+      this.modalController.remove();
+    }
     if (this.unsubscribeFromStore) {
       this.unsubscribeFromStore();
       this.unsubscribeFromStore = null;
