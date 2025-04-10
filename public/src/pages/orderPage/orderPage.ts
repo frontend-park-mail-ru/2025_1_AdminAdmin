@@ -3,6 +3,7 @@ import { FormInput } from '@components/formInput/formInput';
 import inputsConfig from './orderPageConfig';
 import { orderStore } from '@store/orderStore';
 import { CartCard } from '@components/productCard/cartCard/cartCard';
+import { userStore } from '@store/userStore';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -27,7 +28,8 @@ export default class OrderPage {
 
   render(): void {
     const restaurantName = orderStore.getState().restaurantName;
-    this.parent.innerHTML = template({ restaurantName: restaurantName });
+    const address = userStore.getActiveAddress();
+    this.parent.innerHTML = template({ restaurantName: restaurantName, address: address });
 
     const inputsContainer = document.getElementById('form__line_order-page_address');
 

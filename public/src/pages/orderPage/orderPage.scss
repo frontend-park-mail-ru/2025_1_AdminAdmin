@@ -6,8 +6,12 @@
   align-items: start;
   font-size: 18px;
 
-  h1,h3 {
+  h1,h3,h4 {
     margin-top: 0;
+  }
+
+  h3,h4 {
+    margin-bottom: 10px;
   }
 
   hr {
@@ -42,7 +46,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
 
       &__clear {
         display: flex;
