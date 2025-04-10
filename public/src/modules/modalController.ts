@@ -54,9 +54,6 @@ export default class ModalController {
 
   remove(): void {
     window.removeEventListener('popstate', this.handlePopState.bind(this));
-    document.removeEventListener('click', this.clickCloseHandler);
-    document.removeEventListener('keydown', this.keyDownHandler);
-
     this.closeModal();
   }
 }

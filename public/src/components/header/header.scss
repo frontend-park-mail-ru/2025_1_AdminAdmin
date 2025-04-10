@@ -39,7 +39,7 @@
         border-radius: var(--border-radius);
         border: none;
         cursor: pointer;
-        font-size: 120%;
+        font-size: 16px;
         background-image: url("~@assets/navigation.png");
         background-repeat: no-repeat;
         background-position: right 10px center;
@@ -78,7 +78,7 @@
           align-items: center;
           cursor: pointer;
           padding: 7px;
-          font-size: 120%;
+          font-size: 16px;
           background-image: url("~@assets/right-arrow.png");
           background-repeat: no-repeat;
           background-position: right 10px center;
