@@ -1,7 +1,6 @@
 import template from './cart.hbs';
 import { orderStore } from '@store/orderStore';
 import { CartCard } from '@components/productCard/cartCard/cartCard';
-import { Button } from '@components/button/button';
 /**
  * Класс cart представляет компонент корзины.
  */
@@ -9,7 +8,7 @@ export default class Cart {
   private readonly parent: HTMLElement;
   private readonly restaurantId: string;
   private container?: HTMLElement;
-  private cartCards: Array<CartCard> = [];
+  private cartCards: CartCard[] = [];
   private unsubscribeFromStore: (() => void) | null = null;
 
   constructor(parent: HTMLElement, restaurantId: string) {
@@ -41,7 +40,7 @@ export default class Cart {
     const cartEmpty: HTMLDivElement = this.container.querySelector('.cart__empty');
     const cartFooter: HTMLDivElement = this.self.querySelector('.cart-footer');
     const cartTotal: HTMLDivElement = this.self.querySelector('.cart__total');
-    cartTotal.textContent = `${totalPrice} ₽`;
+    cartTotal.textContent = totalPrice.toString();
 
     if (!products.length) {
       cartEmpty.style.display = 'flex';

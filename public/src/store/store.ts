@@ -1,4 +1,7 @@
-type T_Action = { type: string; [key: string]: any };
+interface T_Action {
+  type: string;
+  [key: string]: any;
+}
 type T_Reducer<Success = any, Action = T_Action> = (state: Success, action: Action) => Success;
 type T_Subscriber = () => void;
 

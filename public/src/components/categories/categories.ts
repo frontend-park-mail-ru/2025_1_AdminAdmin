@@ -8,7 +8,7 @@ import template from './categories.hbs';
 export class Categories {
   private parent: HTMLElement;
   private readonly cardsComponent: HTMLElement;
-  private categoryElements: Array<{ button: Button; header: CategoryHeader }> = [];
+  private categoryElements: { button: Button; header: CategoryHeader }[] = [];
   private activeCategoryId: number | null = null;
 
   /**
@@ -72,12 +72,16 @@ export class Categories {
 
     this.categoryElements.push({ button: newCategoryButton, header });
 
-    if (this.activeCategoryId === null) {
+    if (
+      this.activeCategoryId === null ||
+      this.activeCategoryId === this.categoryElements.length - 1
+    ) {
       newCategoryButton.self.classList.add('button_active');
-      this.activeCategoryId = categoryId;
-    } else if (this.activeCategoryId === this.categoryElements.length - 1) {
-      newCategoryButton.self.classList.add('button_active');
-      this.handleCategoryClick(this.activeCategoryId);
+      if (this.activeCategoryId === null) {
+        this.activeCategoryId = categoryId;
+      } else {
+        this.handleCategoryClick(this.activeCategoryId);
+      }
     }
   }
 
@@ -97,7 +101,7 @@ export class Categories {
       return;
     }
 
-    const previousCategoryButton = this.categoryElements[this.activeCategoryId!]?.button;
+    const previousCategoryButton = this.categoryElements[this.activeCategoryId]?.button;
     if (previousCategoryButton) {
       previousCategoryButton.self.classList.remove('button_active');
     }

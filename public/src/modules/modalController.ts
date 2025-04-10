@@ -1,5 +1,4 @@
 import MapModal from '@pages/mapModal/mapModal';
-import { ConfirmRestaurantModal } from '@components/confirmRestaurantModal/confirmRestaurantModal';
 
 interface Modal {
   render(): void;
@@ -55,9 +54,6 @@ export default class ModalController {
 
   remove(): void {
     window.removeEventListener('popstate', this.handlePopState.bind(this));
-    document.removeEventListener('click', this.clickCloseHandler);
-    document.removeEventListener('keydown', this.keyDownHandler);
-
     this.closeModal();
   }
 }

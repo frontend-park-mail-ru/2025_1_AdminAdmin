@@ -2,8 +2,6 @@ import template from './cartCard.hbs';
 import { orderStore } from '@store/orderStore';
 import { Product } from '@myTypes/restaurantTypes';
 import { QuantityControls } from '@components/quantityControls/quantityControls';
-import exports from 'webpack';
-import keepOriginalOrder = exports.util.comparators.keepOriginalOrder;
 
 /**
  * Класс карточки товара
@@ -11,7 +9,7 @@ import keepOriginalOrder = exports.util.comparators.keepOriginalOrder;
 export class CartCard {
   private parent: HTMLElement;
   private readonly props: Product;
-  private amount: number = 0;
+  private amount = 0;
   private quantityControls: QuantityControls;
   private binClickHandler: () => void;
 

@@ -12,7 +12,7 @@ import type { WorkingMode } from '@myTypes/restaurantTypes';
 export interface RestaurantReviewsProps {
   rating: number;
   rating_count: string;
-  reviews_list?: Array<RestaurantReviewProps>;
+  reviews_list?: RestaurantReviewProps[];
   working_mode: WorkingMode;
   address: string;
 }
@@ -35,7 +35,7 @@ export class RestaurantReviews {
     props: {
       rating: number;
       rating_count: number;
-      reviews_list?: Array<RestaurantReviewProps>;
+      reviews_list?: RestaurantReviewProps[];
       working_mode: WorkingMode;
       address: string;
     },

@@ -1,6 +1,7 @@
 import template from './formInput.hbs';
 import eyeOpen from '@assets/eye.png';
 import eyeClosed from '@assets/hide.png';
+import debounce from '@modules/debounce';
 
 interface FormInputProps {
   id: string;
@@ -15,8 +16,8 @@ interface FormInputProps {
 
 export class FormInput {
   private parent: HTMLElement;
-  private readonly inputHandler: () => void;
   private readonly eyeClickHandler: () => void;
+  private readonly debouncedOnInput: (value: string) => void;
   private readonly props: FormInputProps;
 
   get self(): HTMLElement | null {
@@ -32,7 +33,6 @@ export class FormInput {
       throw new Error('FormInput: no parent!');
     }
     this.parent = parent;
-    this.inputHandler = this.handleInput.bind(this);
     this.eyeClickHandler = this.handleClick.bind(this);
 
     this.props = {
@@ -45,6 +45,8 @@ export class FormInput {
       validator: props.validator,
       onInput: props.onInput,
     };
+
+    this.debouncedOnInput = debounce(this.onInput.bind(this), 100);
   }
 
   render(): void {
@@ -72,7 +74,9 @@ export class FormInput {
 
     const input = this.input;
     if (input) {
-      input.addEventListener('input', this.inputHandler);
+      input.addEventListener('input', (event) =>
+        this.debouncedOnInput((event.target as HTMLInputElement).value),
+      );
     }
   }
 
@@ -92,7 +96,7 @@ export class FormInput {
     }
   }
 
-  private handleInput(): void {
+  private onInput(): void {
     const value = this.input?.value.trim() || '';
     this.props.onInput?.(value);
     this.checkValue();
@@ -137,7 +141,9 @@ export class FormInput {
   remove(): void {
     const input = this.input;
     if (input) {
-      input.removeEventListener('input', this.inputHandler);
+      input.removeEventListener('input', (event) =>
+        this.debouncedOnInput((event.target as HTMLInputElement).value),
+      );
     }
     const eyeIcon = this.self?.querySelector('.form__input__eye-icon') as HTMLElement;
     if (eyeIcon) {

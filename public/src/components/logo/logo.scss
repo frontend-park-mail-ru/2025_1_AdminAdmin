@@ -6,7 +6,7 @@
   cursor: pointer;
 
   img {
-    height: 35px;
+    height: var(--header-height);
     object-fit: contain;
   }
 }

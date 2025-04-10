@@ -1,7 +1,4 @@
-import {
-  RestaurantHeader,
-  RestaurantHeaderProps,
-} from '@components/restaurantHeader/restaurantHeader';
+import { RestaurantHeader } from '@components/restaurantHeader/restaurantHeader';
 import { RestaurantReviews } from '@components/restaurantReviews/restaurantReviews';
 import { Categories } from '@components/categories/categories';
 import { ProductCard } from '@components/productCard/productCard';
@@ -9,9 +6,7 @@ import Cart from '@components/cart/cart';
 import { AppRestaurantRequests } from '@modules/ajax';
 
 import template from './restaurantPage.hbs';
-import { RestaurantReviewProps } from '@components/restaurantReviews/restaurantReview/restaurantReview';
-import { RestaurantDetailProps } from '@components/restaurantReviews/restaurantDetail/restaurantDetail';
-import type { RestaurantResponse, WorkingMode, Category, Product } from '@myTypes/restaurantTypes';
+import type { RestaurantResponse } from '@myTypes/restaurantTypes';
 
 /**
  * Класс, представляющий страницу конкретного ресторана.
@@ -116,28 +111,9 @@ export default class RestaurantPage {
       const cartWrapper: HTMLElement = this.self.querySelector('.cart__wrapper');
       this.cartComponent = new Cart(cartWrapper, this.props.id);
       this.cartComponent.render();
-      this.makeFixed(cartWrapper, categoriesWrapper);
     } catch (error) {
       console.error('Error rendering restaurant page:', error);
     }
-  }
-
-  makeFixed(cartWrapper: HTMLElement, categoriesWrapper: HTMLElement): void {
-    window.addEventListener('scroll', () => {
-      const scrollTop = window.scrollY;
-
-      if (scrollTop > cartWrapper.offsetTop) {
-        cartWrapper.classList.add('fixed');
-      } else {
-        cartWrapper.classList.remove('fixed');
-      }
-
-      if (scrollTop > categoriesWrapper.offsetTop) {
-        categoriesWrapper.classList.add('fixed');
-      } else {
-        categoriesWrapper.classList.remove('fixed');
-      }
-    });
   }
 
   /**

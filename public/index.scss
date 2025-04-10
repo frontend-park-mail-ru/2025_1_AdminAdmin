@@ -51,11 +51,12 @@
   --light-brown: #442918;
   --light-yellow: #e4e6b2;
   --light-yellow-light: #eff0d1;
-  --header-height: 50px;
+  --header-height: 5vh;
+  --real-header-height: calc(var(--header-height) + var(--header-height) / 5);
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: Calibri, sans-serif;
   font-size: 12px;
   margin: 0;
   background-color: var(--white);
@@ -69,9 +70,8 @@ img {
 }
 
 .header {
-  box-sizing: border-box;
+  padding: calc(var(--header-height) / 5);
   width: 100%;
-  padding: 0;
   display: grid;
   gap: 20px;
   align-items: center;
@@ -82,6 +82,10 @@ img {
   background-color: white;
   height: var(--header-height);
   transition: box-shadow 0.3s ease;
+}
+
+main {
+  padding-top: var(--real-header-height);
 }
 
 .toastBox {

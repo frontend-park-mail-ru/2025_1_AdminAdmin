@@ -8,6 +8,8 @@
   justify-content: center;
   transition: background-color 0.3s ease;
   height: 100%;
+  width: 100%;
+  font-size: 16px;
   background-color: var(--light-grey);
   border-radius: var(--border-radius);
 
@@ -49,7 +51,6 @@
 
   &.big {
     width: 150px;
-    font-size: 16px;
   }
 }
 

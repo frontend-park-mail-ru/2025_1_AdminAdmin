@@ -14,8 +14,10 @@ export class ProductCard {
   private readonly restaurantName: string;
   private readonly props: Product;
   private modalController: ModalController;
-  private amount: number = 0;
+  private amount = -1;
   private unsubscribeFromStore: (() => void) | null = null;
+  private minusButton: QuantityButton;
+  private plusButton: QuantityButton;
 
   /**
    * Создает экземпляр карточки товара.
@@ -61,40 +63,33 @@ export class ProductCard {
     if (!template) {
       throw new Error('Error: productCard template not found');
     }
-    this.amount = orderStore.getProductAmountById(this.props.id);
 
     // Рендерим шаблончик с данными
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
 
-    this.toggleState();
-
     // Кнопка уменьшения количества
-    const minusButtonWrapper = this.self.querySelector(
-      '.product-card__minus-button__wrapper',
-    ) as HTMLElement;
+    const footerContainer = this.self.querySelector('.product-card__footer') as HTMLDivElement;
 
-    const minusButton = new QuantityButton(minusButtonWrapper, {
+    this.minusButton = new QuantityButton(footerContainer, {
       id: `${this.props.id}__minus-button`,
       style: 'card-quantity-button',
-      text: '−',
+      insert: 'afterbegin',
+      isPlus: false,
       onSubmit: this.decrementAmount.bind(this),
     });
 
-    minusButton.render();
+    this.minusButton.render();
 
-    // Кнопка увеличения количества
-    const plusButtonWrapper = this.self.querySelector(
-      '.product-card__plus-button__wrapper',
-    ) as HTMLElement;
-    const plusButton = new QuantityButton(plusButtonWrapper, {
+    this.plusButton = new QuantityButton(footerContainer, {
       id: `${this.props.id}__plus-button`,
       style: 'card-quantity-button',
-      text: '+',
+      isPlus: true,
       onSubmit: this.incrementAmount.bind(this),
     });
 
-    plusButton.render();
+    this.plusButton.render();
+    this.updateState();
   }
 
   private incrementAmount() {
@@ -133,39 +128,42 @@ export class ProductCard {
 
   private updateState() {
     const storeAmount = orderStore.getProductAmountById(this.props.id);
-    if (storeAmount != this.amount) {
-      this.amount = storeAmount;
-      this.toggleState();
+    if (storeAmount === this.amount) {
+      return;
     }
-  }
 
-  toggleState() {
-    // Кнопка уменьшения количества
-    const minusButtonWrapper = this.self.querySelector(
-      '.product-card__minus-button__wrapper',
-    ) as HTMLElement;
+    this.amount = storeAmount;
 
-    const footerContainer: HTMLDivElement = this.self.querySelector(
+    const footerContainer = this.self.querySelector(
       '.product-card__footer-container',
-    );
-    const priceContainer: HTMLDivElement = this.self.querySelector('.product-card__price');
+    ) as HTMLDivElement;
+
+    const priceContainer = this.self.querySelector('.product-card__price') as HTMLDivElement;
 
     if (!this.amount) {
       this.self.classList.remove('active');
-      minusButtonWrapper.style.display = 'none';
+      this.minusButton.hide();
       footerContainer.style.display = 'none';
       priceContainer.style.display = 'block';
     } else {
-      const amountContainer: HTMLDivElement = this.self.querySelector('.product-card__amount');
-      const totalPriceContainer: HTMLDivElement = this.self.querySelector(
-        '.product-card__total-price',
-      );
+      const amountValue = this.self.querySelector(
+        '.product-card__amount .amount-value',
+      ) as HTMLSpanElement;
 
-      amountContainer.innerText = this.amount.toString() + ' шт';
-      totalPriceContainer.innerText = (this.props.price * this.amount).toString() + ' ₽';
+      const totalPriceValue = this.self.querySelector(
+        '.product-card__total-price .total-price-value',
+      ) as HTMLDivElement;
+
+      if (amountValue) {
+        amountValue.textContent = this.amount.toString();
+      }
+
+      if (totalPriceValue) {
+        totalPriceValue.textContent = (this.props.price * this.amount).toString();
+      }
 
       this.self.classList.add('active');
-      minusButtonWrapper.style.display = 'block';
+      this.minusButton.show();
       footerContainer.style.display = 'flex';
       priceContainer.style.display = 'none';
     }
@@ -176,8 +174,8 @@ export class ProductCard {
    */
   remove() {
     const element = this.self;
-    document.getElementById(`${this.props.id}__minus-button`)?.remove();
-    document.getElementById(`${this.props.id}__plus-button`)?.remove();
+    this.minusButton.remove();
+    this.plusButton.remove();
     if (this.unsubscribeFromStore) {
       this.unsubscribeFromStore();
       this.unsubscribeFromStore = null;

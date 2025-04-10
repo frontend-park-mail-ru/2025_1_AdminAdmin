@@ -185,7 +185,7 @@ class UserStore {
     }
   }
 
-  async addAddress(address: string): Promise<void> {
+  /*  async addAddress(address: string): Promise<void> {
     try {
       const res = await AppUserRequests.AddAddress(address);
       this.dispatch({
@@ -195,7 +195,7 @@ class UserStore {
     } catch (err) {
       console.error('Ошибка при добавлении адреса:', err.message);
     }
-  }
+  }*/
 
   setAddress(address: string) {
     saveActiveAddressToLocalStorage(address);

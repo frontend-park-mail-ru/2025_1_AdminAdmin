@@ -75,8 +75,12 @@ export class Suggest {
    * Возвращает HTML элемент компонента
    * @returns {HTMLElement}
    */
-  get self(): HTMLElement {
-    return document.getElementById(this.id)!;
+  get self(): HTMLButtonElement | null {
+    const element = document.getElementById(this.id);
+    if (!element) {
+      throw new Error(`Error: can't find suggest element with id ${this.id}`);
+    }
+    return element as HTMLButtonElement;
   }
 
   /**

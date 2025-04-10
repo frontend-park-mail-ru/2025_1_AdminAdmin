@@ -73,10 +73,13 @@ export default class Header {
     this.logo = new Logo(this.self.querySelector('.header__logo'), logoImg);
     this.logo.render();
 
-    const buttonContainer = document.querySelector('.header__buttons') as HTMLElement;
-    if (!buttonContainer) return;
+    const authButtonContainer = document.querySelector('.header__auth_buttons') as HTMLElement;
+    if (!authButtonContainer) return;
 
-    this.cartButton = new Button(buttonContainer, {
+    const cartButtonContainer = document.querySelector('.header__cart_button') as HTMLElement;
+    if (!cartButtonContainer) return;
+
+    this.cartButton = new Button(cartButtonContainer, {
       id: 'cart_button',
       style: 'dark',
       text: '0',
@@ -88,7 +91,7 @@ export default class Header {
 
     this.cartButton.render();
 
-    this.loginButton = new Button(buttonContainer, {
+    this.loginButton = new Button(authButtonContainer, {
       id: 'login_button',
       text: 'Вход',
       onSubmit: () => {
@@ -97,7 +100,7 @@ export default class Header {
     });
     this.loginButton.render();
 
-    this.logoutButton = new Button(buttonContainer, {
+    this.logoutButton = new Button(authButtonContainer, {
       id: 'logout_button',
       text: 'Выход',
       onSubmit: this.handleLogout.bind(this),
@@ -157,7 +160,7 @@ export default class Header {
     }
 
     if (orderStore.getState().totalPrice) {
-      this.cartButton.setText(orderStore.getState().totalPrice + '₽');
+      this.cartButton.setText(orderStore.getState().totalPrice + ' ₽');
       this.cartButton.show();
     } else {
       this.cartButton.hide();

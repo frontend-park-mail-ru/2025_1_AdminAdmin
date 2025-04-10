@@ -37,9 +37,21 @@ export class QuantityControls {
   }
 
   private handleInputChange = (): void => {
-    if (this.input.value.length > 3) {
-      this.input.value = this.input.value.slice(0, 3);
+    const value = this.input.value;
+
+    const parsed = parseInt(value, 10);
+
+    if (isNaN(parsed)) {
+      this.input.value = '';
+      return;
     }
+
+    if (parsed > 999) {
+      this.input.value = parsed.toString().slice(0, 3);
+      return;
+    }
+
+    this.input.value = parsed.toString();
   };
 
   private handleInputBlur = (): void => {
@@ -67,8 +79,7 @@ export class QuantityControls {
     this.minusButton = new QuantityButton(this.self, {
       id: `${this.id}__quantity_controls__minus-button`,
       style: 'cart-card-quantity-button',
-      text: '−',
-      isMinus: true,
+      isPlus: false,
       onSubmit: this.onDecrement.bind(this),
     });
     this.minusButton.render();
@@ -85,7 +96,6 @@ export class QuantityControls {
     this.plusButton = new QuantityButton(this.self, {
       id: `${this.id}__quantity_controls__plus-button`,
       style: 'cart-card-quantity-button',
-      text: '+',
       isPlus: true,
       onSubmit: this.onIncrement.bind(this),
     });

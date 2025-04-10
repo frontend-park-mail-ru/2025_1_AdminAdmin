@@ -52,7 +52,8 @@ export class AuthPage {
       this.loginButton.render();
     }
 
-    isLoginPage ? this.renderLoginForm() : this.renderRegisterForm();
+    if (isLoginPage) this.renderLoginForm();
+    else this.renderRegisterForm();
   };
 
   /**

@@ -10,11 +10,11 @@ export interface ResponseData<T = any> {
   body: T;
 }
 
-type ErrorResponse = { message: string };
+interface ErrorResponse {
+  message: string;
+}
 
-const isDebug = false;
-
-const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? '127.0.0.1' : 'doordashers.ru'}:8443/api`;
+const baseUrl = 'https://doordashers.ru/api';
 
 const methods = Object.freeze({
   POST: 'POST',
@@ -23,9 +23,7 @@ const methods = Object.freeze({
   PUT: 'PUT',
 });
 
-interface RequestParams {
-  [key: string]: string;
-}
+type RequestParams = Record<string, string>;
 
 /**
  * Выполняет базовый HTTP-запрос.
@@ -140,7 +138,7 @@ class UserRequests {
 
     const { status, body } = response;
 
-    if (status === 201) {
+    if (status === 200) {
       return {
         id: body.id,
         login: body.login,
@@ -182,7 +180,7 @@ class UserRequests {
     }
   };
 
-  AddAddress = async (address: string): Promise<{ message: string }> => {
+  /*  AddAddress = async (address: string): Promise<{ message: string }> => {
     const { status, body } = await baseRequest<{ message: string } & { error?: string }>(
       methods.POST,
       this.baseUrl + '/add_address',
@@ -193,7 +191,7 @@ class UserRequests {
     } else {
       throw new Error('not authorized');
     }
-  };
+  };*/
 }
 
 class RestaurantsRequests {
@@ -243,36 +241,28 @@ class CartRequests {
   private baseUrl = '/cart';
 
   /**
-   * Добавляет товар в корзину.
-   * @param idProduct - Идентификатор товара
-   * @returns {Promise<void>}
-   */
-  AddProduct = async (idProduct: string): Promise<void> => {
-    const { status, body } = await baseRequest<void | ErrorResponse>(
-      methods.GET,
-      `${this.baseUrl}/add/${idProduct}`,
-    );
-
-    if (status !== 200) {
-      throw new Error((body as ErrorResponse).message ?? 'Failed to add product to cart');
-    }
-  };
-
-  /**
    * Обновляет количество товара в корзине. Если количество 0, товар удаляется.
-   * @param idProduct - Идентификатор товара
-   * @param quantity - Новое количество товара
    * @returns {Promise<void>}
+   * @param product_id
+   * @param quantity
+   * @param restaurant_id
    */
-  UpdateProductQuantity = async (idProduct: string, quantity: number): Promise<void> => {
-    const { status, body } = await baseRequest<void | ErrorResponse>(
+  UpdateProductQuantity = async (
+    product_id: string,
+    quantity: number,
+    restaurant_id: string,
+  ): Promise<void> => {
+    const { status, body } = await baseRequest<ErrorResponse | null>(
       methods.POST,
-      `${this.baseUrl}/update/${idProduct}`,
-      { quantity },
+      `${this.baseUrl}/update/${product_id}`,
+      {
+        quantity,
+        restaurant_id,
+      },
     );
 
     if (status !== 200) {
-      throw new Error((body as ErrorResponse).message ?? 'Failed to update product quantity');
+      throw new Error((body as ErrorResponse)?.message ?? 'Failed to update product quantity');
     }
   };
 

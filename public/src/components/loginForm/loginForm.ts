@@ -89,23 +89,27 @@ export default class LoginForm {
   render() {
     this.parent.innerHTML = template();
 
-    const loginContainer = document.getElementById('form__line_login')!;
-    const passwordContainer = document.getElementById('form__line_password')!;
-    const buttonContainer = document.getElementById('form__line_login_button_container')!;
+    const loginContainer = document.getElementById('form__line_login');
+    const passwordContainer = document.getElementById('form__line_password');
+    const buttonContainer = document.getElementById('form__line_login_button_container');
 
-    this.loginInput = new FormInput(loginContainer, this.config.inputs.login);
-    this.loginInput.render();
+    if (loginContainer && passwordContainer && buttonContainer) {
+      this.loginInput = new FormInput(loginContainer, this.config.inputs.login);
+      this.loginInput.render();
 
-    this.passwordInput = new FormInput(passwordContainer, this.config.inputs.password);
-    this.passwordInput.render();
+      this.passwordInput = new FormInput(passwordContainer, this.config.inputs.password);
+      this.passwordInput.render();
 
-    this.submitBtn = new Button(buttonContainer, {
-      ...this.config.buttons.submitBtn,
-      onSubmit: () => {
-        this.validateData();
-      },
-    });
-    this.submitBtn.render();
+      this.submitBtn = new Button(buttonContainer, {
+        ...this.config.buttons.submitBtn,
+        onSubmit: () => {
+          this.validateData();
+        },
+      });
+      this.submitBtn.render();
+    } else {
+      console.error('Missing required DOM elements');
+    }
   }
 
   /**
