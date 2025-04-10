@@ -3,7 +3,6 @@ import { FormInput } from '@components/formInput/formInput';
 import inputsConfig from './orderPageConfig';
 import { orderStore } from '@store/orderStore';
 import { CartCard } from '@components/productCard/cartCard/cartCard';
-import { router } from '@modules/routing';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -16,7 +15,6 @@ export default class OrderPage {
       throw new Error('OrderPage: no parent!');
     }
     this.parent = parent;
-    this.unsubscribeFromStore = orderStore.subscribe(() => this.updateCards());
   }
 
   get self(): HTMLElement {
@@ -57,6 +55,7 @@ export default class OrderPage {
       this.inputs['orderPageComment'] = inputComponent;
     }
 
+    this.unsubscribeFromStore = orderStore.subscribe(() => this.updateCards());
     this.updateCards();
   }
 
@@ -81,7 +80,12 @@ export default class OrderPage {
     cartTotal.textContent = totalPrice.toString();
 
     if (!products.length) {
-      router.goToPage('home');
+      setTimeout(() => {
+        import('@modules/routing').then(({ router }) => {
+          router.goToPage('home');
+        });
+      }, 0);
+      return;
     }
 
     products.forEach(({ product, amount }) => {
