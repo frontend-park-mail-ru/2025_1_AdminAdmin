@@ -4,6 +4,7 @@ import Header from '../components/header/header';
 import auxHeader from '../components/auxHeader/auxHeader';
 import { AuthPage } from '../pages/authPage/authPage';
 import { userStore } from '../store/userStore';
+import ProfilePage from '../pages/profilePage/profilePage';
 
 interface RouteConfig {
   href: string;
@@ -60,6 +61,12 @@ class Router {
         href: '/register',
         class: AuthPage,
         header: auxHeader,
+        options: false,
+      },
+      profilePage: {
+        href: '/profile',
+        class: ProfilePage,
+        header: Header,
         options: false,
       },
     };

@@ -1,0 +1,9 @@
+<tr>
+    {{#each this}}
+    <td>
+        {{#if (eq this.type "string")}}
+        this.content
+        {{/if}}
+    </td>
+    {{/each}}
+</tr>

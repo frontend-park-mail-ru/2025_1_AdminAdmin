@@ -1,6 +1,6 @@
 import template from './button.hbs';
 
-interface ButtonProps {
+export interface ButtonProps {
   id: string;
   text: string;
   style?: string;
@@ -64,12 +64,22 @@ export class Button {
     this.self.setAttribute('disabled', '');
   }
 
+  show() {
+    this.self.style.opacity = '1';
+  }
+
+  hide() {
+    this.self.style.opacity = '0';
+  }
+
   /**
    * Рендерит кнопку в родительский элемент.
    */
   render(): void {
+    console.log(`Рендерится кнопка со следующими пропсами ${this.props}`);
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
+    console.log(`Отрендерили шаблончик`);
 
     if (!this.parent) {
       throw new Error('Button: invalid self!');

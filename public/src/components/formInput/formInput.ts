@@ -1,14 +1,14 @@
 import template from './formInput.hbs';
 
-interface FormInputProps {
-  id: string;
-  label?: string;
-  error?: string;
-  placeholder: string;
-  type: string;
-  required: boolean;
-  validator?: (value: string) => { result: boolean; message?: string };
-  onInput?: (value: string) => void;
+export interface FormInputProps {
+  id: string; // Идентификатор строки ввода
+  label: string; // Название поля (отображается сбоку от поля ввода)
+  error?: string; // Ошибка
+  placeholder?: string; // Начальное содержимое поля ввода
+  type?: string; // Тип поля ввода
+  required?: boolean; // true - обязательное поле, false - необязательное
+  validator?: (value: string) => { result: boolean; message?: string }; // Функция валидации
+  onInput?: (value: string) => void; // Функция при вводе
 }
 
 export class FormInput {
@@ -18,7 +18,13 @@ export class FormInput {
   private readonly props: FormInputProps;
 
   get self(): HTMLElement | null {
-    return document.getElementById(this.props.id);
+    const element = document.getElementById(this.props.id);
+    if (!element) {
+      throw new Error(`Error: can't find table`);
+    }
+    return element as HTMLElement;
+    // Возвращаем as HTMLElement потому что querySelector возвращает null или HTMLElement, но мы сделали проверку null
+    // return document.getElementById(this.props.id);
   }
 
   get input(): HTMLInputElement | null {
@@ -29,36 +35,42 @@ export class FormInput {
     if (!parent) {
       throw new Error('FormInput: no parent!');
     }
+    if (document.getElementById(props.id)) {
+      throw new Error('FormInput: this id is already used!');
+    }
+    console.log(`Зашли в конструктор formInput`);
     this.parent = parent;
     this.inputHandler = this.handleInput.bind(this);
     this.eyeClickHandler = this.handleClick.bind(this);
-
+    console.log(`Начинаем задвать пропсы`);
     this.props = {
       id: props.id,
       label: props.label || '',
       error: props.error || '',
       placeholder: props.placeholder,
-      type: props.type,
-      required: props.required,
+      type: props.type || 'text',
+      required: props.required ?? false,
       validator: props.validator,
       onInput: props.onInput,
     };
+    console.log(`Задали пропсы: ${JSON.stringify(this.props)}`);
   }
 
   render(): void {
+    console.log(`Рендерим шаблончик`);
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
-
+    console.log(`Проверка: нет label`);
     if (!this.props.label) {
       const labelElement: HTMLElement = this.self?.querySelector('.form__input-head');
       if (labelElement) labelElement.remove();
     }
-
+    console.log(`Проверка: нет error`);
     if (!this.props.error) {
       const errorElement: HTMLElement = this.self?.querySelector('.form__error');
       if (errorElement) errorElement.style.display = 'none';
     }
-
+    console.log(`Проверка: пароль`);
     if (this.props.type === 'password') {
       const eyeIcon = this.self?.querySelector('.form__input__eye-icon') as HTMLElement;
       if (eyeIcon) {

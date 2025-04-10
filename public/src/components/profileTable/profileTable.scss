@@ -1,0 +1,21 @@
+.profile-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    table-layout: fixed;
+    border-spacing: 0;
+    text-align: center;
+
+    thead {
+        tr:hover {
+            background-color: #fff;
+            cursor: default;
+        }
+    }
+
+    tbody:before {
+        content: ''; // Без контента не работает
+        display: block;
+        height: 10px; // Отступ между хедером и первой строкой
+    }
+}
