@@ -9,7 +9,6 @@ interface FormInputProps {
   error?: string;
   placeholder: string;
   type: string;
-  required: boolean;
   validator?: (value: string) => { result: boolean; message?: string };
   onInput?: (value: string) => void;
 }
@@ -41,7 +40,6 @@ export class FormInput {
       error: props.error || '',
       placeholder: props.placeholder,
       type: props.type,
-      required: props.required,
       validator: props.validator,
       onInput: props.onInput,
     };

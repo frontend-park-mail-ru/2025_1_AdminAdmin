@@ -53,6 +53,7 @@
 
   &__bin_icon {
     max-width: 70%;
+    max-height: 30px;
     filter: grayscale(100%) opacity(0.6);
     transition: filter 0.2s ease;
 
@@ -67,6 +68,6 @@
   }
 
   &__quantity-controls-wrapper {
-    max-width: 50%;
+    max-width: clamp(20%, 50%, 20%);
   }
 }
