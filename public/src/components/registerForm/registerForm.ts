@@ -209,7 +209,7 @@ export default class RegisterForm {
       });
       this.submitBtn.render();
     } else {
-      console.error('One or more required DOM elements are missing.');
+      console.error('Один или более DOM элементов отсутствуют');
     }
   }
 }
