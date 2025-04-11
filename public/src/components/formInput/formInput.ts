@@ -5,7 +5,7 @@ import debounce from '@modules/debounce';
 
 export interface FormInputProps {
   id: string; // Идентификатор строки ввода
-  label: string; // Название поля (отображается сбоку от поля ввода)
+  label?: string; // Название поля (отображается сбоку от поля ввода)
   error?: string; // Ошибка
   placeholder?: string; // Начальное содержимое поля ввода
   type?: string; // Тип поля ввода
@@ -27,7 +27,6 @@ export class FormInput {
     }
     return element as HTMLElement;
     // Возвращаем as HTMLElement потому что querySelector возвращает null или HTMLElement, но мы сделали проверку null
-    // return document.getElementById(this.props.id);
   }
 
   get input(): HTMLInputElement | null {
