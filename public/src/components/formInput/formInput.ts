@@ -14,6 +14,7 @@ interface FormInputProps {
   min?: number;
   max?: number;
   maxLength?: number;
+  movePlaceholderOnInput?: boolean;
 }
 
 export class FormInput {

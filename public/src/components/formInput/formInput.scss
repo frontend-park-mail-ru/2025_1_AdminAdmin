@@ -15,7 +15,22 @@
     width: 100%;
   }
 
+  label {
+    position: absolute;
+    color: var(--dark-gray);
+    padding: 0 10px;
+    transition: 0.2s ease;
+  }
+
   input {
+    &:focus + label,
+    &:valid + label {
+      font-size: 10px;
+      padding-bottom: 10px;
+      top: 3px;
+      left: 0px;
+    }
+
     &.error {
       border: 2px solid var(--orange);
       background-color: var(--pink);
