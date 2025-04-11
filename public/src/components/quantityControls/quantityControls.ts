@@ -61,7 +61,6 @@ export class QuantityControls {
     }
   };
 
-  // Новый метод для обработки нажатия Enter
   private handleInputKeydown = (event: KeyboardEvent): void => {
     if (event.key === 'Enter') {
       this.input.blur();

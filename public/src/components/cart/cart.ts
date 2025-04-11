@@ -1,6 +1,7 @@
 import template from './cart.hbs';
 import { orderStore } from '@store/orderStore';
 import { CartCard } from '@components/productCard/cartCard/cartCard';
+import { router } from '@modules/routing';
 /**
  * Класс cart представляет компонент корзины.
  */
@@ -67,11 +68,24 @@ export default class Cart {
     }
 
     this.updateCards();
+    const cartFooter = document.querySelector('.cart-footer');
+    if (cartFooter) {
+      cartFooter.addEventListener('click', this.handleClick.bind(this));
+    }
+  }
+
+  handleClick(): void {
+    router.goToPage('orderPage');
   }
 
   remove(): void {
     this.cartCards.forEach((card) => card.remove());
     this.cartCards = [];
+
+    const cartFooter = document.querySelector('.cart-footer');
+    if (cartFooter) {
+      cartFooter.removeEventListener('click', this.handleClick.bind(this));
+    }
 
     this.container?.remove();
     this.container = undefined;
