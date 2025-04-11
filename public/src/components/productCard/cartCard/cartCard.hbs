@@ -1,5 +1,10 @@
 <div class="cart-card" id="cart-card-{{id}}">
-    <img class="cart-card__product_icon" src="https://doordashers.ru/images_restaurant/{{image_url}}" alt="{{name}}" />
+    <img
+            class="cart-card__product_icon"
+            src="http://doordashers.ru/images_restaurant/{{image_url}}"
+            alt="{{name}}"
+            onerror="this.onerror=null; this.src='/src/assets/default_product.jpg';"
+    />
     <div class="cart-card__content">
         <span class="cart-card__content__name">{{name}}</span>
         <div class="cart-card__content__bottom">
@@ -8,7 +13,7 @@
             <span>•</span>
             <span class="cart-card__content__weight">{{weight}} г</span>
         </div>
-        <div class="cart-card__quantity-controls-wrapper"></div>
+        <div class="cart-card__content__quantity-controls-wrapper"></div>
     </div>
-    <img class="cart-card__bin_icon" src="/src/assets/bin.png" alt="bin icon" />
+    <img class="cart-card__bin_icon" src="/src/assets/close.png" alt="bin icon" />
 </div>

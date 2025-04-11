@@ -16,6 +16,7 @@ export class AuthPage {
   private loginButton?: Button;
   private registerButton?: Button;
 
+  private unsubscribeFromUserStore: (() => void) | null = null;
   private readonly loginFormSelector = '.authPage__login';
   private readonly registerFormSelector = '.authPage__register';
   private readonly formLineSelector = '.authPage__line';
@@ -27,7 +28,7 @@ export class AuthPage {
    */
   constructor(parent: HTMLElement) {
     this.parent = parent;
-    userStore.subscribe(() => this.updateAuthState());
+    this.unsubscribeFromUserStore = userStore.subscribe(() => this.updateAuthState());
   }
 
   /**
@@ -129,6 +130,11 @@ export class AuthPage {
    * Удаляет страницу и очищает содержимое родительского элемента.
    */
   remove(): void {
+    if (this.unsubscribeFromUserStore) {
+      this.unsubscribeFromUserStore();
+      this.unsubscribeFromUserStore = null;
+    }
+
     this.loginForm?.remove();
     this.registerForm?.remove();
     this.loginButton?.remove();

@@ -1,5 +1,9 @@
 <div class="product-card" id="{{id}}">
-    <img src="https://doordashers.ru/images_restaurant/{{image_url}}" alt="{{name}}" />
+    <img
+            src="http://doordashers.ru/images_restaurant/{{image_url}}"
+            alt="{{name}}"
+            onerror="this.onerror=null; this.src='/src/assets/default_product.jpg';"
+    />
 
     <div class="product-card__header">
         <span>{{name}}</span>

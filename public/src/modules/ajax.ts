@@ -1,9 +1,10 @@
 import {
-  getAuthTokensFromLocalStorage,
+  getCSRFFromLocalStorage,
   clearLocalStorage,
   storeAuthTokensFromResponse,
 } from './localStorage';
 import { RestaurantResponse } from '@myTypes/restaurantTypes';
+import { I_Cart } from '@myTypes/cartTypes';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -14,7 +15,9 @@ interface ErrorResponse {
   message: string;
 }
 
-const baseUrl = 'https://doordashers.ru/api';
+const isDebug = false;
+
+const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? 'localhost:5458' : 'doordashers.ru'}/api`;
 
 const methods = Object.freeze({
   POST: 'POST',
@@ -46,7 +49,7 @@ const baseRequest = async <T = any>(
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      ...getAuthTokensFromLocalStorage(),
+      ...getCSRFFromLocalStorage(),
     },
   };
 
@@ -270,13 +273,13 @@ class CartRequests {
    * Получает текущую корзину.
    * @returns {Promise<any>}
    */
-  GetCart = async (): Promise<any> => {
-    const { status, body } = await baseRequest<any>(methods.GET, this.baseUrl);
+  GetCart = async (): Promise<I_Cart> => {
+    const { status, body } = await baseRequest<I_Cart & ErrorResponse>(methods.GET, this.baseUrl);
 
     if (status === 200) {
       return body;
     } else {
-      throw new Error((body as ErrorResponse).message ?? 'Failed to fetch cart');
+      throw new Error(body.message ?? 'Failed to fetch cart');
     }
   };
 }

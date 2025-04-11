@@ -1,7 +1,7 @@
 import { QuantityButton } from '@components/quantityButton/quantityButton';
 import template from './productCard.hbs';
-import { orderStore } from '@store/orderStore';
-import ModalController from '@modules/modalController';
+import { cartStore } from '@store/cartStore';
+import { modalController } from '@modules/modalController';
 import { ConfirmRestaurantModal } from '@components/confirmRestaurantModal/confirmRestaurantModal';
 import { Product } from '@myTypes/restaurantTypes';
 import { userStore } from '@store/userStore';
@@ -12,10 +12,9 @@ import MapModal from '@pages/mapModal/mapModal';
  */
 export class ProductCard {
   private parent: HTMLElement;
-  private readonly restaurantId: string;
-  private readonly restaurantName: string;
+  private readonly restaurant_id: string;
+  private readonly restaurant_name: string;
   private readonly props: Product;
-  private modalController: ModalController;
   private amount = -1;
   private unsubscribeFromStore: (() => void) | null = null;
   private minusButton: QuantityButton;
@@ -33,8 +32,8 @@ export class ProductCard {
     if (!parent) {
       throw new Error('ProductCard: no parent!');
     }
-    this.restaurantId = restaurantId;
-    this.restaurantName = restaurantName;
+    this.restaurant_id = restaurantId;
+    this.restaurant_name = restaurantName;
     this.parent = parent;
     this.props = props;
     if (document.getElementById(this.props.id)) {
@@ -43,7 +42,7 @@ export class ProductCard {
     if (this.props.price < 0 || this.props.weight < 0) {
       throw new Error('ProductCard: price, and weight must be non-negative values!');
     }
-    this.unsubscribeFromStore = orderStore.subscribe(() => this.updateState());
+    this.unsubscribeFromStore = cartStore.subscribe(() => this.updateState());
   }
 
   /**
@@ -96,46 +95,45 @@ export class ProductCard {
 
   private incrementAmount() {
     if (!userStore.getActiveAddress()) {
-      this.modalController = new ModalController();
       const mapModal = new MapModal();
-      this.modalController.openModal(mapModal);
+      modalController.openModal(mapModal);
+      return;
     }
 
-    if (!orderStore.getState().totalPrice) {
-      orderStore.setRestaurant(this.restaurantId, this.restaurantName);
+    if (!cartStore.getState().total_price) {
+      cartStore.setRestaurant(this.restaurant_id, this.restaurant_name);
     }
 
-    if (orderStore.getState().restaurantId !== this.restaurantId) {
-      this.modalController = new ModalController();
+    if (cartStore.getState().restaurant_id !== this.restaurant_id) {
       const confirmRestaurantModal = new ConfirmRestaurantModal(
-        this.restaurantName,
-        orderStore.getState().restaurantName,
+        this.restaurant_name,
+        cartStore.getState().restaurant_name,
         this.onSubmit,
         this.onCancel,
       );
-      this.modalController.openModal(confirmRestaurantModal);
+      modalController.openModal(confirmRestaurantModal);
     } else {
-      orderStore.incrementProductAmount(this.props);
+      cartStore.incrementProductAmount(this.props);
     }
   }
 
   private decrementAmount() {
-    orderStore.decrementProductAmount(this.props);
+    cartStore.decrementProductAmount(this.props);
   }
 
   private onSubmit = () => {
-    orderStore.clearOrder();
-    orderStore.setRestaurant(this.restaurantId, this.restaurantName);
+    cartStore.clearCart();
+    cartStore.setRestaurant(this.restaurant_id, this.restaurant_name);
     this.incrementAmount();
-    this.modalController.closeModal();
+    modalController.closeModal();
   };
 
   private onCancel = () => {
-    this.modalController.closeModal();
+    modalController.closeModal();
   };
 
   private updateState() {
-    const storeAmount = orderStore.getProductAmountById(this.props.id);
+    const storeAmount = cartStore.getProductAmountById(this.props.id);
     if (storeAmount === this.amount) {
       return;
     }
@@ -184,9 +182,6 @@ export class ProductCard {
     const element = this.self;
     this.minusButton.remove();
     this.plusButton.remove();
-    if (this.modalController) {
-      this.modalController.remove();
-    }
     if (this.unsubscribeFromStore) {
       this.unsubscribeFromStore();
       this.unsubscribeFromStore = null;

@@ -1,21 +1,22 @@
 import template from './cart.hbs';
-import { orderStore } from '@store/orderStore';
+import { CartState, cartStore } from '@store/cartStore';
 import { CartCard } from '@components/productCard/cartCard/cartCard';
 import { router } from '@modules/routing';
+import { CartProduct } from '@myTypes/cartTypes';
 /**
  * Класс cart представляет компонент корзины.
  */
 export default class Cart {
   private readonly parent: HTMLElement;
-  private readonly restaurantId: string;
+  private readonly restaurant_id: string;
   private container?: HTMLElement;
   private cartCards: CartCard[] = [];
   private unsubscribeFromStore: (() => void) | null = null;
 
   constructor(parent: HTMLElement, restaurantId: string) {
     this.parent = parent;
-    this.restaurantId = restaurantId;
-    this.unsubscribeFromStore = orderStore.subscribe(() => this.updateCards());
+    this.restaurant_id = restaurantId;
+    this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
   }
 
   get self(): HTMLDivElement {
@@ -26,14 +27,14 @@ export default class Cart {
     if (!this.container) return;
 
     if (
-      orderStore.getState().restaurantId &&
-      orderStore.getState().restaurantId !== this.restaurantId
+      cartStore.getState().restaurant_id &&
+      cartStore.getState().restaurant_id !== this.restaurant_id
     )
       return;
 
-    const state = orderStore.getState();
-    const products = state.products;
-    const totalPrice = state.totalPrice;
+    const state: CartState = cartStore.getState();
+    const products: CartProduct[] = state.products;
+    const totalPrice: number = state.total_price;
 
     this.cartCards.forEach((card) => card.remove());
     this.cartCards = [];
@@ -51,11 +52,15 @@ export default class Cart {
       cartFooter.classList.remove('inactive');
     }
 
-    products.forEach(({ product, amount }) => {
-      const card = new CartCard(this.container, product, amount);
+    products.forEach((product) => {
+      const card = new CartCard(this.container, product);
       card.render();
       this.cartCards.push(card);
     });
+  }
+
+  private handleClear(): void {
+    cartStore.clearCart();
   }
 
   render(): void {
@@ -72,6 +77,11 @@ export default class Cart {
     if (cartFooter) {
       cartFooter.addEventListener('click', this.handleClick.bind(this));
     }
+
+    const bin = this.self.querySelector('.cart__header-right') as HTMLElement;
+    if (bin) {
+      bin.addEventListener('click', this.handleClear.bind(this));
+    }
   }
 
   handleClick(): void {
@@ -79,6 +89,11 @@ export default class Cart {
   }
 
   remove(): void {
+    const bin = this.self.querySelector('.cart__header-right') as HTMLElement;
+    if (bin) {
+      bin.removeEventListener('click', this.handleClear.bind(this));
+    }
+
     this.cartCards.forEach((card) => card.remove());
     this.cartCards = [];
 
