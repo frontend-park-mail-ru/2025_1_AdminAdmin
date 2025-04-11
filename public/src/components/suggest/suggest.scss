@@ -1,5 +1,10 @@
 .suggest-item {
   padding: 10px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--light-grey);
+  }
 
   .suggest-header {
     display: flex;

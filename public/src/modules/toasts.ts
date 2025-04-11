@@ -1,4 +1,4 @@
-import { Toast } from '../components/toast/toast';
+import { Toast } from '@components/toast/toast';
 
 export const TOAST_TYPE = {
   SUCCESS: 'success',
@@ -8,8 +8,6 @@ export const TOAST_TYPE = {
 
 export class Toasts {
   private toasts: Toast[] = [];
-
-  constructor() {}
 
   private get self(): HTMLElement | null {
     return document.querySelector('.toastBox');

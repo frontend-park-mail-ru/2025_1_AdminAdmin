@@ -1,10 +1,11 @@
-import RestaurantList from '../pages/restaurantList/restaurantList';
-import RestaurantPage from '../pages/restaurantPage/restaurantPage';
-import Header from '../components/header/header';
-import auxHeader from '../components/auxHeader/auxHeader';
-import { AuthPage } from '../pages/authPage/authPage';
-import { userStore } from '../store/userStore';
-import ProfilePage from '../pages/profilePage/profilePage';
+import RestaurantList from '@pages/restaurantList/restaurantList';
+import RestaurantPage from '@pages/restaurantPage/restaurantPage';
+import Header from '@components/header/header';
+import auxHeader from '@components/auxHeader/auxHeader';
+import { AuthPage } from '@pages/authPage/authPage';
+import { userStore } from '@store/userStore';
+import NotFoundPage from '@pages/404/404';
+import ProfilePage from '@pages/profilePage/profilePage';
 
 interface RouteConfig {
   href: string;
@@ -23,6 +24,7 @@ class Router {
   private readonly toastBoxElement: HTMLElement;
   private currentHeader: Header | auxHeader | null = null;
   private currentPage: RestaurantList | RestaurantPage | AuthPage | null = null;
+  private currentId: string | null = null;
   private readonly routes: Record<string, RouteConfig>;
 
   /**
@@ -34,7 +36,6 @@ class Router {
     this.headerElement = document.createElement('div');
     this.headerElement.classList.add('header');
     this.pageElement = document.createElement('main');
-    this.pageElement.style.paddingTop = '50px';
     this.toastBoxElement = document.createElement('div');
     this.toastBoxElement.classList.add('toastBox');
     this.parent.appendChild(this.headerElement);
@@ -69,6 +70,11 @@ class Router {
         header: Header,
         options: false,
       },
+      notFound: {
+        href: '/404',
+        class: NotFoundPage,
+        header: auxHeader,
+      },
     };
 
     userStore.checkUser();
@@ -93,6 +99,8 @@ class Router {
         return;
       }
     }
+
+    this.goToPage('notFound', null, false);
   }
   /**
    * Переход на указанную страницу.
@@ -100,7 +108,7 @@ class Router {
    * @param {string | null} [id=null] - Идентификатор ресурса, если требуется.
    * @param {boolean} [shouldPushState=true] - Нужно ли обновлять `history.pushState`.
    */
-  goToPage(page: string, id: string | null = null, shouldPushState: boolean = true): void {
+  goToPage(page: string, id: string | null = null, shouldPushState = true): void {
     const pageData = this.routes[page];
     if (!pageData) {
       console.error(`Page "${page}" not found in routes.`);
@@ -118,9 +126,10 @@ class Router {
       history.pushState(id ? { id } : {}, '', newPath);
     }
 
-    if (!(this.currentPage instanceof pageData.class)) {
+    if (!(this.currentPage instanceof pageData.class) || (id && this.currentId !== id)) {
       this.currentPage?.remove();
       this.currentPage = new pageData.class(this.pageElement, id);
+      this.currentId = id;
     }
 
     this.currentPage.render(pageData.options);

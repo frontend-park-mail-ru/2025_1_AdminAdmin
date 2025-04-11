@@ -2,13 +2,10 @@
 @use './src/components/button/button' as *;
 @use './src/components/logo/logo' as *;
 @use './src/components/select/select' as *;
-//@use './src/components/restaurantReviews/restaurantReview/restaurantReview.scss' as *;
-//@use './src/components/restaurantReviews/restaurantDetail/restaurantDetail.scss' as *;
-//@use './src/components/category/category.scss' as *;
-//@use './src/components/quantityButton/quantityButton.scss' as *;
 @use './src/components/toast/toast' as *;
 @use './src/components/suggest/suggest' as *;
 @use './src/components/profileTableRow/profileTableRow.scss' as *;
+@use './src/components/categories/categoryHeader/categoryHeader' as *;
 
 /* Импорт сложных компонентов */
 @use './src/components/header/header' as *;
@@ -16,13 +13,17 @@
 @use './src/components/restaurantCard/restaurantCard' as *;
 @use './src/components/formInput/formInput' as *;
 @use './src/components/restaurantHeader/restaurantHeader' as *;
-//@use './src/components/restaurantReviews/restaurantReviews.scss' as *;
-//@use './src/components/categories/categories.scss' as *;
-//@use './src/components/productCard/productCard.scss' as *;
+@use './src/components/restaurantReviews/restaurantReviews.scss' as *;
+@use './src/components/categories/categories.scss' as *;
+@use './src/components/productCard/productCard.scss' as *;
+@use './src/components/productCard/cartCard/cartCard.scss' as *;
 @use './src/components/suggestsContainer/suggestsContainer' as *;
 @use './src/components/address/address.scss' as *;
 @use './src/components/profileTable/profileTable.scss' as *;
 @use './src/components/profileForm/profileForm.scss' as *;
+@use './src/components/cart/cart' as *;
+@use './src/components/confirmRestaurantModal/confirmRestaurantModal' as *;
+@use './src/components/quantityControls/quantityControls' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;
@@ -30,6 +31,7 @@
 @use './src/pages/restaurantPage/restaurantPage' as *;
 @use './src/pages/profilePage/profilePage' as *;
 @use './src/pages/mapModal/mapModal' as *;
+@use 'src/pages/404/404' as *;
 
 @import '~@yandex/ymaps3-default-ui-theme/dist/esm/index.css';
 
@@ -47,24 +49,31 @@
   --green: #008000;
   --border-radius: 15px;
   --blue: #2196F3;
+  --brown: #3f2616;
+  --light-brown: #442918;
+  --light-yellow: #e4e6b2;
+  --light-yellow-light: #eff0d1;
+  --header-height: 5vh;
+  --real-header-height: calc(var(--header-height) + var(--header-height) / 5);
 }
 
-
 body {
-  font-family: Arial, sans-serif;
+  font-family: Calibri, sans-serif;
   font-size: 12px;
   margin: 0;
   background-color: var(--white);
 }
 
-.root {
-  overflow-y: auto;
+img {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .header {
-  box-sizing: border-box;
+  padding: calc(var(--header-height) / 5);
   width: 100%;
-  padding: 0;
   display: grid;
   gap: 20px;
   align-items: center;
@@ -72,9 +81,13 @@ body {
   top: 0;
   left: 0;
   z-index: 10;
+  height: var(--header-height);
   background-color: var(--white);
-  height: 50px;
   transition: box-shadow 0.3s ease;
+}
+
+main {
+  padding-top: var(--real-header-height);
 }
 
 .toastBox {

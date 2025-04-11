@@ -1,8 +1,36 @@
-.restaurantPage__body {
-  margin-top: 40px;
-  width: 100%;
-  padding: 0;
+// Класс тела страницы
+.restaurant-page__body {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: 0.5fr 1.5fr 7fr 2.5fr 0.5fr;
   gap: 20px;
+  align-items: start;
+  min-height: 300vh;
+}
+
+// Обертка для блока категорий
+.product-categories__wrapper {
+  grid-column: 2 / span 1;
+  position: sticky;
+  top: calc(var(--real-header-height) + 20px);
+}
+
+// Основной контент
+.restaurant-page__main {
+  padding-top: 20px;
+  grid-column: 3 / span 1;
+}
+
+// Блок с карточками
+.product-cards__body {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+// Блок корзины
+.cart__wrapper {
+  grid-column: 4 / span 1;
+  position: sticky;
+  top: calc(var(--real-header-height) + 20px);
 }

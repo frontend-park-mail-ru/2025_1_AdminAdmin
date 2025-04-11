@@ -1,9 +1,10 @@
-import { Button } from '../../components/button/button';
+import { Button } from '@components/button/button';
 import config from './authPageConfig';
-import LoginForm from '../../components/loginForm/loginForm';
-import RegisterForm from '../../components/registerForm/registerForm';
-import { router } from '../../modules/routing';
+import LoginForm from '@components/loginForm/loginForm';
+import RegisterForm from '@components/registerForm/registerForm';
+import { router } from '@modules/routing';
 import template from './authPage.hbs';
+import { userStore } from '@store/userStore';
 
 /**
  * Класс страницы авторизации
@@ -26,6 +27,7 @@ export class AuthPage {
    */
   constructor(parent: HTMLElement) {
     this.parent = parent;
+    userStore.subscribe(() => this.updateAuthState());
   }
 
   /**
@@ -50,7 +52,8 @@ export class AuthPage {
       this.loginButton.render();
     }
 
-    isLoginPage ? this.renderLoginForm() : this.renderRegisterForm();
+    if (isLoginPage) this.renderLoginForm();
+    else this.renderRegisterForm();
   };
 
   /**
@@ -115,6 +118,12 @@ export class AuthPage {
   toggleRegisterForm = (): void => {
     router.goToPage('registerPage');
   };
+
+  private updateAuthState(): void {
+    if (userStore.isAuth()) {
+      router.goToPage('home');
+    }
+  }
 
   /**
    * Удаляет страницу и очищает содержимое родительского элемента.

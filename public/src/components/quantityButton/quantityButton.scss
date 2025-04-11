@@ -1,0 +1,45 @@
+/* Тк наследуюсь от кнопки эти свойства тоже применятся
+.button {
+  cursor: pointer;
+  padding: 5px 15px;
+  border: none;
+  align-items: center;
+  justify-content: center;
+}
+*/
+.quantity-button {
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Times New Roman", serif;
+
+    &.card-quantity-button {
+        width: 45px;
+        height: 45px;
+        background-color: #fff;
+        border-radius: 50%;
+        border: 2px solid var(--orange);
+        font-size: 40px;
+        &:hover {
+            background-color: var(--orange);
+            color: var(--white);
+        }
+    }
+
+    &.cart-card-quantity-button {
+        height: 100%;
+        padding-left: 5px;
+        padding-right: 5px;
+        background-color: var(--light-grey);
+        box-sizing: border-box;
+        border: none;
+        font-size: 20px;
+        width: 30%;
+
+        &:hover {
+            background-color: var(--dark-gray);
+            color: var(--white);
+        }
+    }
+}

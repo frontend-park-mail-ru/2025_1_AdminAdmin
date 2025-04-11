@@ -1,6 +1,6 @@
 import template from './suggestsContainer.hbs';
-import { I_Suggest } from '../../modules/ymapsRequests';
-import { Suggest } from '../suggest/suggest';
+import { I_Suggest } from '@modules/ymapsRequests';
+import { Suggest } from '@components/suggest/suggest';
 
 export class SuggestsContainer {
   private suggests: Suggest[] = [];

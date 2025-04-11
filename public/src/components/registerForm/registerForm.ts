@@ -1,9 +1,8 @@
-import { FormInput } from '../formInput/formInput';
-import { Button } from '../button/button';
-import { Select } from '../select/select';
-import { userStore } from '../../store/userStore';
-import { router } from '../../modules/routing';
-import { toasts } from '../../modules/toasts';
+import { FormInput } from '@components/formInput/formInput';
+import { Button } from '@components/button/button';
+import { Select } from '@components/select/select';
+import { userStore } from '@store/userStore';
+import { toasts } from '@modules/toasts';
 import template from './registerForm.hbs';
 
 /**
@@ -76,7 +75,6 @@ export default class RegisterForm {
     try {
       await userStore.register({ firstName, lastName, phoneNumber, login, password });
       toasts.success('Вы успешно зарегистрировались!');
-      router.goToPage('home');
     } catch (err) {
       const errorMessage = err?.message || 'Непредвиденная ошибка';
       this.setError(errorMessage);
@@ -114,18 +112,21 @@ export default class RegisterForm {
   addPhoneMask() {
     this.phoneInputHandler = (e: Event) => {
       const input = e.target as HTMLInputElement;
-      let cursorPos = input.selectionStart!;
+      if (!input) return;
+      let cursorPos = input.selectionStart ?? 0;
       const oldLength = input.value.length;
       const digits = input.value.replace(/\D/g, '');
       const match = digits.match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
-      const formatted = !match![2]
-        ? match![1]
-        : `(${match![1]}) ${match![2]}${match![3] ? `-${match![3]}` : ''}`;
-      input.value = formatted;
+      if (match) {
+        const formatted = !match[2]
+          ? match[1]
+          : `(${match[1]}) ${match[2]}${match[3] ? `-${match[3]}` : ''}`;
+        input.value = formatted;
 
-      const newLength = formatted.length;
-      cursorPos += newLength - oldLength;
-      input.setSelectionRange(cursorPos, cursorPos);
+        const newLength = formatted.length;
+        cursorPos += newLength - oldLength;
+        input.setSelectionRange(cursorPos, cursorPos);
+      }
     };
 
     this.phoneInput.input.addEventListener('input', this.phoneInputHandler);
@@ -160,41 +161,55 @@ export default class RegisterForm {
   render() {
     this.parent.innerHTML = template(undefined);
 
-    const firstLastNameContainer = document.getElementById('form__line__firstname_lastname')!;
-    const phoneContainer = document.getElementById('form__line__phone')!;
-    const loginContainer = document.getElementById('form__line__register_login')!;
-    const passwordContainer = document.getElementById('form__line__register_password')!;
-    const rPasswordContainer = document.getElementById('form__line__repeat_password')!;
-    const buttonContainer = document.getElementById('form__line_register_button')!;
+    const firstLastNameContainer = document.getElementById('form__line__firstname_lastname');
+    const phoneContainer = document.getElementById('form__line__phone');
+    const loginContainer = document.getElementById('form__line__register_login');
+    const passwordContainer = document.getElementById('form__line__register_password');
+    const rPasswordContainer = document.getElementById('form__line__repeat_password');
+    const buttonContainer = document.getElementById('form__line_register_button_container');
 
-    this.fNameInput = new FormInput(firstLastNameContainer, this.config.inputs.fName);
-    this.fNameInput.render();
+    if (
+      firstLastNameContainer &&
+      phoneContainer &&
+      loginContainer &&
+      passwordContainer &&
+      rPasswordContainer &&
+      buttonContainer
+    ) {
+      this.fNameInput = new FormInput(firstLastNameContainer, this.config.inputs.fName);
+      this.fNameInput.render();
 
-    this.lNameInput = new FormInput(firstLastNameContainer, this.config.inputs.lName);
-    this.lNameInput.render();
+      this.lNameInput = new FormInput(firstLastNameContainer, this.config.inputs.lName);
+      this.lNameInput.render();
 
-    this.codeSelect = new Select(phoneContainer, this.config.selects.code);
-    this.codeSelect.render();
-    this.phoneInput = new FormInput(phoneContainer, this.config.inputs.phone);
-    this.phoneInput.render();
+      this.codeSelect = new Select(phoneContainer, this.config.selects.code);
+      this.codeSelect.render();
+      this.phoneInput = new FormInput(phoneContainer, this.config.inputs.phone);
+      this.phoneInput.render();
 
-    this.addPhoneMask();
+      this.addPhoneMask();
 
-    this.loginInput = new FormInput(loginContainer, this.config.inputs.login);
-    this.loginInput.render();
+      this.loginInput = new FormInput(loginContainer, this.config.inputs.login);
+      this.loginInput.render();
 
-    this.passwordInput = new FormInput(passwordContainer, this.config.inputs.password);
-    this.passwordInput.render();
+      this.passwordInput = new FormInput(passwordContainer, this.config.inputs.password);
+      this.passwordInput.render();
 
-    this.repeatPasswordInput = new FormInput(rPasswordContainer, this.config.inputs.repeatPassword);
-    this.repeatPasswordInput.render();
+      this.repeatPasswordInput = new FormInput(
+        rPasswordContainer,
+        this.config.inputs.repeatPassword,
+      );
+      this.repeatPasswordInput.render();
 
-    this.submitBtn = new Button(buttonContainer, {
-      ...this.config.buttons.submitBtn,
-      onSubmit: () => {
-        this.validateData();
-      },
-    });
-    this.submitBtn.render();
+      this.submitBtn = new Button(buttonContainer, {
+        ...this.config.buttons.submitBtn,
+        onSubmit: () => {
+          this.validateData();
+        },
+      });
+      this.submitBtn.render();
+    } else {
+      console.error('Один или более DOM элементов отсутствуют');
+    }
   }
 }

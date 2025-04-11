@@ -1,33 +1,39 @@
+import { OrderState } from '@store/orderStore';
+
 export interface RequestOptions {
   headers?: Record<string, string>;
 }
 
 /**
  * Добавляет токены из localStorage в заголовки запроса
- * @param options Объект с параметрами запроса
  */
-export function addToHeaders(options: RequestOptions): void {
-  if (!options.headers) {
-    options.headers = {};
+
+export function getAuthTokensFromLocalStorage(): Record<string, string> {
+  const tokens: Record<string, string> = {};
+
+  try {
+    const jwt = window.localStorage.getItem('Authorization');
+    const csrf = window.localStorage.getItem('X-CSRF-Token');
+
+    if (jwt) {
+      tokens.Authorization = jwt;
+    }
+
+    if (csrf) {
+      tokens['X-CSRF-Token'] = csrf;
+    }
+  } catch (err) {
+    console.error('Ошибка извлечения токенов из localStorage:', err);
   }
 
-  const jwt = window.localStorage.getItem('Authorization');
-  const csrf = window.localStorage.getItem('X-CSRF-Token');
-
-  if (jwt) {
-    options.headers.Authorization = jwt;
-  }
-
-  if (csrf) {
-    options.headers['X-CSRF-Token'] = csrf;
-  }
+  return tokens;
 }
 
 /**
- * Сохраняет токены из заголовков ответа в localStorage
+ * Извлекает токены из заголовков ответа и сохраняет их в localStorage.
  * @param headers Заголовки ответа
  */
-export function saveToLocalStorage(headers: Headers): void {
+export function storeAuthTokensFromResponse(headers: Headers): void {
   try {
     const newJWT = headers.get('Authorization');
     if (newJWT) {
@@ -43,10 +49,48 @@ export function saveToLocalStorage(headers: Headers): void {
   }
 }
 
+export function saveActiveAddressToLocalStorage(address: string): void {
+  try {
+    window.localStorage.setItem('Address', address);
+  } catch (err) {
+    console.error('Ошибка сохранения адреса в localStorage:', err);
+  }
+}
+
+export function getActiveAddressFromLocalStorage(): string {
+  try {
+    return window.localStorage.getItem('Address');
+  } catch (err) {
+    console.error('Ошибка получения адреса из localStorage:', err);
+  }
+}
+
 /**
  * Очищает токены из localStorage
  */
 export function clearLocalStorage(): void {
-  window.localStorage.removeItem('Authorization');
-  window.localStorage.removeItem('X-CSRF-Token');
+  try {
+    window.localStorage.removeItem('Authorization');
+    window.localStorage.removeItem('X-CSRF-Token');
+  } catch (err) {
+    console.error('Ошибка при очистке localstorage', err);
+  }
+}
+
+export function setCart(cart: OrderState): void {
+  try {
+    window.localStorage.setItem('Cart', JSON.stringify(cart));
+  } catch (err) {
+    console.error('Ошибка сохранения в localStorage:', err);
+  }
+}
+
+export function getCart(): OrderState | null {
+  try {
+    const raw = window.localStorage.getItem('Cart');
+    return raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    console.error('Ошибка чтения из localStorage:', err);
+    return null;
+  }
 }

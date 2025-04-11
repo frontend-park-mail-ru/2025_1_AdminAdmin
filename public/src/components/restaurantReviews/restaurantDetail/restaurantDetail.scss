@@ -1,0 +1,33 @@
+/* Деталь ресторана */
+.restaurant-detail {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  img {
+    height: 40px;
+    object-fit: contain;
+  }
+
+  /* Контейнер для текста */
+  &__container {
+    margin-left: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  &__text {
+    &_main {
+      font-size: 14px;
+      padding-bottom: 5px;
+      font-weight: bold;
+      color: black;
+    }
+
+    &_add {
+      font-size: 12px;
+      color: var(--dark-gray);
+    }
+  }
+}

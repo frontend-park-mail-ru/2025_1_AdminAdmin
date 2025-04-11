@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "./dist/",
+    "baseUrl": "./",
     "noImplicitAny": true,
     "module": "ESNext",
     "target": "ESNext",
@@ -15,7 +16,14 @@
     "paths": {
       "ymaps3": [
         "./node_modules/@yandex/ymaps3-types"
-      ]
+      ],
+      "@/*": ["public/src*"],
+      "@components/*": ["public/src/components/*"],
+      "@modules/*": ["public/src/modules/*"],
+      "@pages/*": ["public/src/pages/*"],
+      "@assets/*": ["public/src/assets/*"],
+      "@store/*": ["public/src/store/*"],
+      "@myTypes/*": ["public/src/myTypes/*"],
     },
     "lib": ["dom", "WebWorker", "ESNext"]
   },

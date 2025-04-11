@@ -1,0 +1,9 @@
+.category-header {
+  scroll-margin-top: calc(var(--header-height) + 20px);
+  grid-column: 1 / -1;
+  width: 100%;
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: var(--black);
+}

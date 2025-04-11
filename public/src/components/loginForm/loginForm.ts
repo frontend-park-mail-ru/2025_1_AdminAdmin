@@ -1,9 +1,8 @@
-import { router } from '../../modules/routing';
-import { userStore } from '../../store/userStore';
-import { FormInput } from '../formInput/formInput';
-import { Button } from '../button/button';
+import { userStore } from '@store/userStore';
+import { FormInput } from '@components/formInput/formInput';
+import { Button } from '@components//button/button';
 import template from './loginForm.hbs';
-import { toasts } from '../../modules/toasts';
+import { toasts } from '@modules/toasts';
 
 /**
  * Класс, представляющий форму логина.
@@ -52,7 +51,6 @@ export default class LoginForm {
     try {
       await userStore.login({ login, password });
       toasts.success('Вы успешно вошли в систему!');
-      router.goToPage('home');
     } catch (err) {
       const errorMessage = err.message || 'Неверный логин или пароль';
       this.setError(errorMessage);
@@ -91,23 +89,27 @@ export default class LoginForm {
   render() {
     this.parent.innerHTML = template();
 
-    const loginContainer = document.getElementById('form__line_login')!;
-    const passwordContainer = document.getElementById('form__line_password')!;
-    const buttonContainer = document.getElementById('form__line_login_button')!;
+    const loginContainer = document.getElementById('form__line_login');
+    const passwordContainer = document.getElementById('form__line_password');
+    const buttonContainer = document.getElementById('form__line_login_button_container');
 
-    this.loginInput = new FormInput(loginContainer, this.config.inputs.login);
-    this.loginInput.render();
+    if (loginContainer && passwordContainer && buttonContainer) {
+      this.loginInput = new FormInput(loginContainer, this.config.inputs.login);
+      this.loginInput.render();
 
-    this.passwordInput = new FormInput(passwordContainer, this.config.inputs.password);
-    this.passwordInput.render();
+      this.passwordInput = new FormInput(passwordContainer, this.config.inputs.password);
+      this.passwordInput.render();
 
-    this.submitBtn = new Button(buttonContainer, {
-      ...this.config.buttons.submitBtn,
-      onSubmit: () => {
-        this.validateData();
-      },
-    });
-    this.submitBtn.render();
+      this.submitBtn = new Button(buttonContainer, {
+        ...this.config.buttons.submitBtn,
+        onSubmit: () => {
+          this.validateData();
+        },
+      });
+      this.submitBtn.render();
+    } else {
+      console.error('Missing required DOM elements');
+    }
   }
 
   /**

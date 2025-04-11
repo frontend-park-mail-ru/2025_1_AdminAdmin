@@ -1,11 +1,14 @@
-type T_Action = { type: string; [key: string]: any };
+interface T_Action {
+  type: string;
+  [key: string]: any;
+}
 type T_Reducer<Success = any, Action = T_Action> = (state: Success, action: Action) => Success;
 type T_Subscriber = () => void;
 
 interface T_Store<Success = any, Action = T_Action> {
   getState: () => Success;
   dispatch: (action: Action | T_ThunkAction) => void;
-  subscribe: (cb: T_Subscriber) => void;
+  subscribe: (cb: T_Subscriber) => () => void;
 }
 
 type T_ThunkAction = (dispatch: T_Store['dispatch'], getState: T_Store['getState']) => void;
@@ -47,7 +50,12 @@ export const createStore = <Success, Action extends T_Action>(
      * Подписывается на изменения состояния хранилища.
      * @param {T_Subscriber} cb - Колбэк-функция, которая будет вызвана при изменении состояния
      */
-    subscribe: (cb: T_Subscriber) => subscribers.push(cb),
+    subscribe: (cb: T_Subscriber): (() => void) => {
+      subscribers.push(cb);
+      return () => {
+        subscribers = subscribers.filter((subscriber) => subscriber !== cb);
+      };
+    },
   };
 
   return store;

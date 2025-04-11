@@ -1,13 +1,20 @@
-import { addToHeaders, clearLocalStorage, saveToLocalStorage } from './localStorage';
+import {
+  getAuthTokensFromLocalStorage,
+  clearLocalStorage,
+  storeAuthTokensFromResponse,
+} from './localStorage';
+import { RestaurantResponse } from '@myTypes/restaurantTypes';
 
 export interface ResponseData<T = any> {
   status: number;
   body: T;
 }
 
-const isDebug = false;
+interface ErrorResponse {
+  message: string;
+}
 
-const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? '127.0.0.1' : 'doordashers.ru'}:8443/api`;
+const baseUrl = 'https://doordashers.ru/api';
 
 const methods = Object.freeze({
   POST: 'POST',
@@ -16,9 +23,7 @@ const methods = Object.freeze({
   PUT: 'PUT',
 });
 
-interface RequestParams {
-  [key: string]: string;
-}
+type RequestParams = Record<string, string>;
 
 /**
  * Выполняет базовый HTTP-запрос.
@@ -41,10 +46,9 @@ const baseRequest = async <T = any>(
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      ...getAuthTokensFromLocalStorage(),
     },
   };
-
-  addToHeaders(options as any);
 
   if (data) options.body = JSON.stringify(data);
 
@@ -67,7 +71,7 @@ const baseRequest = async <T = any>(
     }
 
     try {
-      saveToLocalStorage(response.headers);
+      storeAuthTokensFromResponse(response.headers);
     } catch (err) {
       console.error(err);
     }
@@ -78,7 +82,6 @@ const baseRequest = async <T = any>(
   }
 };
 
-// UserRequests class
 class UserRequests {
   private baseUrl = '/auth';
 
@@ -102,7 +105,7 @@ class UserRequests {
       };
     }
 
-    throw new Error(body.error ?? 'Unknown error');
+    throw new Error(body.error ?? 'Что-то пошло не так...');
   };
 
   /**
@@ -135,7 +138,7 @@ class UserRequests {
 
     const { status, body } = response;
 
-    if (status === 201) {
+    if (status === 200) {
       return {
         id: body.id,
         login: body.login,
@@ -176,9 +179,21 @@ class UserRequests {
       throw new Error('not authorized');
     }
   };
+
+  /*  AddAddress = async (address: string): Promise<{ message: string }> => {
+    const { status, body } = await baseRequest<{ message: string } & { error?: string }>(
+      methods.POST,
+      this.baseUrl + '/add_address',
+    );
+
+    if (status === 200) {
+      return body;
+    } else {
+      throw new Error('not authorized');
+    }
+  };*/
 }
 
-// RestaurantsRequests class
 class RestaurantsRequests {
   baseUrl = '/restaurants';
 
@@ -207,16 +222,65 @@ class RestaurantsRequests {
    * @param id - Идентификатор ресторана
    * @returns {Promise<any>}
    */
-  Get = async (id: number): Promise<any> => {
-    const { status, body } = await baseRequest<any>(methods.GET, this.baseUrl + '/' + id, null);
+  Get = async (id: string): Promise<RestaurantResponse> => {
+    const { status, body } = await baseRequest<RestaurantResponse | ErrorResponse>(
+      methods.GET,
+      this.baseUrl + '/' + id,
+      null,
+    );
+
+    if (status === 200) {
+      return body as RestaurantResponse;
+    } else {
+      throw new Error((body as ErrorResponse).message ?? 'Unknown error');
+    }
+  };
+}
+
+class CartRequests {
+  private baseUrl = '/cart';
+
+  /**
+   * Обновляет количество товара в корзине. Если количество 0, товар удаляется.
+   * @returns {Promise<void>}
+   * @param product_id
+   * @param quantity
+   * @param restaurant_id
+   */
+  UpdateProductQuantity = async (
+    product_id: string,
+    quantity: number,
+    restaurant_id: string,
+  ): Promise<void> => {
+    const { status, body } = await baseRequest<ErrorResponse | null>(
+      methods.POST,
+      `${this.baseUrl}/update/${product_id}`,
+      {
+        quantity,
+        restaurant_id,
+      },
+    );
+
+    if (status !== 200) {
+      throw new Error((body as ErrorResponse)?.message ?? 'Failed to update product quantity');
+    }
+  };
+
+  /**
+   * Получает текущую корзину.
+   * @returns {Promise<any>}
+   */
+  GetCart = async (): Promise<any> => {
+    const { status, body } = await baseRequest<any>(methods.GET, this.baseUrl);
 
     if (status === 200) {
       return body;
     } else {
-      throw new Error(body.message);
+      throw new Error((body as ErrorResponse).message ?? 'Failed to fetch cart');
     }
   };
 }
 
 export const AppRestaurantRequests = new RestaurantsRequests();
 export const AppUserRequests = new UserRequests();
+export const AppCartRequests = new CartRequests();
