@@ -5,6 +5,7 @@ import { CartState, cartStore } from '@store/cartStore';
 import { CartCard } from '@components/productCard/cartCard/cartCard';
 import { userStore } from '@store/userStore';
 import { CartProduct } from '@myTypes/cartTypes';
+import { toasts } from '@modules/toasts';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -62,8 +63,12 @@ export default class OrderPage {
     this.updateCards();
   }
 
-  private handleClear(): void {
-    cartStore.clearCart();
+  private async handleClear(): Promise<void> {
+    try {
+      await cartStore.clearCart();
+    } catch (error) {
+      toasts.error(error.message);
+    }
   }
 
   private updateCards(): void {

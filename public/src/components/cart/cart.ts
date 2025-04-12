@@ -3,6 +3,7 @@ import { CartState, cartStore } from '@store/cartStore';
 import { CartCard } from '@components/productCard/cartCard/cartCard';
 import { router } from '@modules/routing';
 import { CartProduct } from '@myTypes/cartTypes';
+import { toasts } from '@modules/toasts';
 /**
  * Класс cart представляет компонент корзины.
  */
@@ -59,8 +60,12 @@ export default class Cart {
     });
   }
 
-  private handleClear(): void {
-    cartStore.clearCart();
+  private async handleClear(): Promise<void> {
+    try {
+      await cartStore.clearCart();
+    } catch (error) {
+      toasts.error(error.message);
+    }
   }
 
   render(): void {

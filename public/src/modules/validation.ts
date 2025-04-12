@@ -100,7 +100,7 @@ export const ValidateName = (value: string): ValidationResultType => {
     return ValidationResult(false, 'Поле слишком короткое');
   }
 
-  if (value.length > 30) {
+  if (value.length > 25) {
     return ValidationResult(false, 'Поле слишком длинное');
   }
 

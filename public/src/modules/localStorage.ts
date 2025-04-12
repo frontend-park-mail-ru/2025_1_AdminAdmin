@@ -57,16 +57,15 @@ export function getActiveAddressFromLocalStorage(): string {
 /**
  * Очищает токены из localStorage
  */
-export function clearLocalStorage(): void {
+export function removeTokenFromLocalStorage(): void {
   try {
-    window.localStorage.removeItem('Authorization');
     window.localStorage.removeItem('X-CSRF-Token');
   } catch (err) {
     console.error('Ошибка при очистке localstorage', err);
   }
 }
 
-export function setCart(cart: CartState): void {
+export function setCartInLocalStorage(cart: CartState): void {
   try {
     window.localStorage.setItem('Cart', JSON.stringify(cart));
   } catch (err) {
@@ -74,7 +73,15 @@ export function setCart(cart: CartState): void {
   }
 }
 
-export function getCart(): CartState | null {
+export function clearCartInLocalStorage(): void {
+  try {
+    window.localStorage.removeItem('Cart');
+  } catch (err) {
+    console.error('Ошибка сохранения в localStorage:', err);
+  }
+}
+
+export function getCartFromLocalStorage(): CartState | null {
   try {
     const raw = window.localStorage.getItem('Cart');
     return raw ? JSON.parse(raw) : null;

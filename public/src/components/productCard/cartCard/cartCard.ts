@@ -2,6 +2,7 @@ import template from './cartCard.hbs';
 import { cartStore } from '@store/cartStore';
 import { QuantityControls } from '@components/quantityControls/quantityControls';
 import { CartProduct } from '@myTypes/cartTypes';
+import { toasts } from '@modules/toasts';
 
 /**
  * Класс карточки товара
@@ -82,17 +83,29 @@ export class CartCard {
     return element;
   }
 
-  private incrementAmount() {
-    cartStore.incrementProductAmount(this.props);
+  private async incrementAmount() {
+    try {
+      await cartStore.incrementProductAmount(this.props);
+    } catch (error) {
+      toasts.error(`Ошибка при увеличении количества товара: ${error}`);
+    }
   }
 
-  private decrementAmount() {
-    cartStore.decrementProductAmount(this.props);
+  private async decrementAmount() {
+    try {
+      await cartStore.decrementProductAmount(this.props);
+    } catch (error) {
+      toasts.error(`Ошибка при уменьшении количества товара: ${error}`);
+    }
   }
 
-  private setAmount(amount: number) {
+  private async setAmount(amount: number) {
     if (amount !== this.props.amount) {
-      cartStore.setProductAmount(this.props.id, amount);
+      try {
+        await cartStore.setProductAmount(this.props.id, amount);
+      } catch (error) {
+        toasts.error(`Ошибка при изменении количества товара: ${error}`);
+      }
     }
   }
 

@@ -6,6 +6,7 @@ import { ConfirmRestaurantModal } from '@components/confirmRestaurantModal/confi
 import { Product } from '@myTypes/restaurantTypes';
 import { userStore } from '@store/userStore';
 import MapModal from '@pages/mapModal/mapModal';
+import { toasts } from '@modules/toasts';
 
 /**
  * Класс карточки товара
@@ -93,7 +94,7 @@ export class ProductCard {
     this.updateState();
   }
 
-  private incrementAmount() {
+  private async incrementAmount() {
     if (!userStore.getActiveAddress()) {
       const mapModal = new MapModal();
       modalController.openModal(mapModal);
@@ -108,27 +109,39 @@ export class ProductCard {
       const confirmRestaurantModal = new ConfirmRestaurantModal(
         this.restaurant_name,
         cartStore.getState().restaurant_name,
-        this.onSubmit,
-        this.onCancel,
+        this.modalOnSubmit,
+        this.modalOnCancel,
       );
       modalController.openModal(confirmRestaurantModal);
     } else {
-      cartStore.incrementProductAmount(this.props);
+      try {
+        await cartStore.incrementProductAmount(this.props);
+      } catch (error) {
+        toasts.error(error.message);
+      }
     }
   }
 
-  private decrementAmount() {
-    cartStore.decrementProductAmount(this.props);
+  private async decrementAmount() {
+    try {
+      await cartStore.decrementProductAmount(this.props);
+    } catch (error) {
+      toasts.error(error.message);
+    }
   }
 
-  private onSubmit = () => {
-    cartStore.clearCart();
-    cartStore.setRestaurant(this.restaurant_id, this.restaurant_name);
-    this.incrementAmount();
+  private modalOnSubmit = async () => {
+    try {
+      await cartStore.clearCart();
+      cartStore.setRestaurant(this.restaurant_id, this.restaurant_name);
+      await this.incrementAmount();
+    } catch (error) {
+      toasts.error(error.message);
+    }
     modalController.closeModal();
   };
 
-  private onCancel = () => {
+  private modalOnCancel = () => {
     modalController.closeModal();
   };
 
