@@ -3,7 +3,6 @@ import RestaurantPage from '@pages/restaurantPage/restaurantPage';
 import Header from '@components/header/header';
 import auxHeader from '@components/auxHeader/auxHeader';
 import { AuthPage } from '@pages/authPage/authPage';
-import { userStore } from '@store/userStore';
 import NotFoundPage from '@pages/404/404';
 import ProfilePage from '@pages/profilePage/profilePage';
 import OrderPage from '@pages/orderPage/orderPage';
@@ -84,7 +83,6 @@ class Router {
       },
     };
 
-    userStore.checkUser();
     window.addEventListener('popstate', this.handleRouteChange.bind(this));
     this.handleRouteChange();
   }

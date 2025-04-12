@@ -3,13 +3,13 @@ import { FormInput } from '@components/formInput/formInput';
 import { Button } from '@components//button/button';
 import template from './loginForm.hbs';
 import { toasts } from '@modules/toasts';
+import LoginFormConfig from './loginFormConfig';
 
 /**
  * Класс, представляющий форму логина.
  */
 export default class LoginForm {
   private parent: HTMLElement;
-  private config: any;
 
   private loginInput: FormInput;
   private passwordInput: FormInput;
@@ -19,19 +19,9 @@ export default class LoginForm {
    * Конструктор класса
    * @constructor
    * @param parent {HTMLElement} - родительский элемент
-   * @param config {Object} - пропсы
    */
-  constructor(parent: HTMLElement, config: any) {
+  constructor(parent: HTMLElement) {
     this.parent = parent;
-    this.config = config;
-  }
-
-  /**
-   * Получение HTML элемента формы
-   * @returns {HTMLElement | null}
-   */
-  get self(): HTMLElement | null {
-    return document.getElementById(this.config.id);
   }
 
   /**
@@ -96,14 +86,14 @@ export default class LoginForm {
     const buttonContainer = document.getElementById('form__line_login_button_container');
 
     if (loginContainer && passwordContainer && buttonContainer) {
-      this.loginInput = new FormInput(loginContainer, this.config.inputs.login);
+      this.loginInput = new FormInput(loginContainer, LoginFormConfig.inputs.login);
       this.loginInput.render();
 
-      this.passwordInput = new FormInput(passwordContainer, this.config.inputs.password);
+      this.passwordInput = new FormInput(passwordContainer, LoginFormConfig.inputs.password);
       this.passwordInput.render();
 
       this.submitBtn = new Button(buttonContainer, {
-        ...this.config.buttons.submitBtn,
+        ...LoginFormConfig.buttons.submitBtn,
         onSubmit: () => {
           this.validateData();
         },

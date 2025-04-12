@@ -1,7 +1,6 @@
 import { Button } from '@components/button/button';
-import config from './authPageConfig';
 import LoginForm from '@components/loginForm/loginForm';
-import RegisterForm from '@components/registerForm/registerForm';
+import RegisterForm from '@components/unifiedForm/unifiedForm';
 import { router } from '@modules/routing';
 import template from './authPage.hbs';
 import { userStore } from '@store/userStore';
@@ -41,13 +40,17 @@ export class AuthPage {
       const formLine = this.parent.querySelector(this.formLineSelector) as HTMLElement;
 
       this.registerButton = new Button(formLine, {
-        ...config.buttons.register,
+        id: 'form__tab_register',
+        text: 'Регистрация',
+        style: 'form__button',
         onSubmit: this.toggleRegisterForm,
       });
       this.registerButton.render();
 
       this.loginButton = new Button(formLine, {
-        ...config.buttons.login,
+        id: 'form__tab_login',
+        text: 'Вход',
+        style: 'form__button',
         onSubmit: this.toggleLoginForm,
       });
       this.loginButton.render();
@@ -65,7 +68,6 @@ export class AuthPage {
     if (!this.loginForm) {
       this.loginForm = new LoginForm(
         this.parent.querySelector(this.loginFormSelector) as HTMLElement,
-        config.forms.login,
       );
       this.loginForm.render();
     }
@@ -79,7 +81,7 @@ export class AuthPage {
     if (!this.registerForm) {
       this.registerForm = new RegisterForm(
         this.parent.querySelector(this.registerFormSelector) as HTMLElement,
-        config.forms.register,
+        false,
       );
       this.registerForm.render();
     }

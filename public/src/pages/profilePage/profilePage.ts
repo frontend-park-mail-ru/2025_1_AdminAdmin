@@ -1,17 +1,15 @@
-import { Address, AddressProps } from '@components/address/address';
-import { Button, ButtonProps } from '@components/button/button';
-import { ProfileTableProps, ProfileTable } from '@components/profileTable/profileTable';
-import { ProfileForm } from '@components/profileForm/profileForm';
+import { Address } from '@components/address/address';
+import { Button } from '@components/button/button';
+import { ProfileTable } from '@components/profileTable/profileTable';
 
 import template from './profilePage.hbs';
-import { config } from '@components/profileForm/profileFormConfig';
 import { User } from '@myTypes/userTypes';
+import { userStore } from '@store/userStore';
+import UnifiedForm from '@components/unifiedForm/unifiedForm';
 
 interface ProfilePageProps {
-  id: string;
   data?: User;
-  addresses?: AddressProps[];
-  orders?: ProfileTableProps;
+  //orders?: ProfileTableProps;
 }
 
 /**
@@ -21,7 +19,7 @@ export default class ProfilePage {
   private parent: HTMLElement;
   private props: ProfilePageProps;
   private components: {
-    profileForm?: ProfileForm;
+    profileForm?: UnifiedForm;
     addresses: Address[];
     addAddressButton?: Button;
     ordersTable?: ProfileTable;
@@ -37,6 +35,18 @@ export default class ProfilePage {
       throw new Error('ProfilePage: no parent!');
     }
     this.parent = parent;
+
+    this.props = {
+      data: userStore.getState(),
+      // orders: [],
+    };
+
+    this.components = {
+      profileForm: undefined,
+      addresses: [],
+      addAddressButton: undefined,
+      ordersTable: undefined,
+    };
   }
 
   /**
@@ -62,41 +72,42 @@ export default class ProfilePage {
     }
     try {
       // Генерируем HTML
-      const html = template(this.props.data);
+      const html = template();
       this.parent.insertAdjacentHTML('beforeend', html);
       // Заполняем
       // Если оставляем категории то тут рендерим категории, у них свой враппер
       // Рендерим блок изменения данных профиля
       const profileFormElement = this.self.querySelector('.profile-data__body') as HTMLElement;
-      const profileFormComponent = new ProfileForm(profileFormElement, config);
+      const profileFormComponent = new UnifiedForm(profileFormElement, true);
       profileFormComponent.render();
       this.components.profileForm = profileFormComponent;
 
       // Ренденрим блок изменения/удаления/добавления адресов
-      const profileAddressBody = this.self.querySelector('.profile-address__body') as HTMLElement;
-      const profileAddressesWrapper = profileAddressBody.querySelector(
-        '.profile-address__addresses__wrapper',
-      ) as HTMLElement;
-      this.props.addresses.forEach((props) => {
-        const addressComponent = new Address(profileAddressesWrapper, props);
-        addressComponent.render();
-        this.components.addresses.push(addressComponent);
-      });
+      /*       const profileAddressBody = this.self.querySelector('.profile-address__body') as HTMLElement;
+           const profileAddressesWrapper = profileAddressBody.querySelector(
+              '.profile-address__addresses__wrapper',
+            ) as HTMLElement;
+            this.props.addresses.forEach((props) => {
+              const addressComponent = new Address(profileAddressesWrapper, props);
+              addressComponent.render();
+              this.components.addresses.push(addressComponent);
+            });
 
-      const addAddressButtonProps = {
-        id: 'profile-page__address-add',
-        text: 'Добавить',
-      } as ButtonProps;
-      const addAddressButtonComponent = new Button(profileAddressBody, addAddressButtonProps);
-      addAddressButtonComponent.render();
-      this.components.addAddressButton = addAddressButtonComponent;
-      // Рендерим блок таблицы заказов
-      const profileTableWrapper = this.self.querySelector(
-        '.profile-orders__table__wrapper',
-      ) as HTMLElement;
-      const ordersTableComponent = new ProfileTable(profileTableWrapper, this.props.orders);
-      ordersTableComponent.render();
-      this.components.ordersTable = ordersTableComponent;
+            const addAddressButtonProps = {
+              id: 'profile-page__address-add',
+              text: 'Добавить',
+            } as ButtonProps;
+            const addAddressButtonComponent = new Button(profileAddressBody, addAddressButtonProps);
+            addAddressButtonComponent.render();
+            this.components.addAddressButton = addAddressButtonComponent;
+            // Рендерим блок таблицы заказов
+            const profileTableWrapper = this.self.querySelector(
+              '.profile-orders__table__wrapper',
+            ) as HTMLElement;
+            const ordersTableComponent = new ProfileTable(profileTableWrapper, this.props.orders);
+            ordersTableComponent.render();
+            this.components.ordersTable = ordersTableComponent;
+            */
     } catch (error) {
       console.error('Error rendering restaurant page:', error);
     }
@@ -113,13 +124,12 @@ export default class ProfilePage {
    */
   remove(): void {
     const element = this.self;
-    this.components.addAddressButton.remove();
-    //this.components.categories.remove();
+    //this.components.addAddressButton.remove();
     this.components.profileForm.remove();
-    this.components.ordersTable.remove();
-    this.components.addresses.forEach((component) => {
+    //this.components.ordersTable.remove();
+    /*    this.components.addresses.forEach((component) => {
       component.remove();
-    });
+    });*/
     element.remove();
   }
 }

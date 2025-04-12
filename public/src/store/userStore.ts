@@ -10,7 +10,6 @@ import { User, LoginPayload, RegisterPayload } from '@myTypes/userTypes';
 interface UserState extends User {
   isAuth: boolean;
   activeAddress: string;
-  addresses: string[];
 }
 
 interface Action {
@@ -28,7 +27,6 @@ const initialUserState: UserState = {
   description: '',
   isAuth: false,
   activeAddress: getActiveAddressFromLocalStorage(),
-  addresses: [],
 };
 
 const userReducer = (state = initialUserState, action: Action): UserState => {
@@ -46,12 +44,6 @@ const userReducer = (state = initialUserState, action: Action): UserState => {
       return {
         ...initialUserState,
         activeAddress: getActiveAddressFromLocalStorage(),
-      };
-
-    case UserActions.ADD_ADDRESS_SUCCESS:
-      return {
-        ...state,
-        addresses: [...state.addresses, action.payload],
       };
 
     case UserActions.SET_ADDRESS:
@@ -188,3 +180,4 @@ class UserStore {
 }
 
 export const userStore = new UserStore();
+await userStore.checkUser();
