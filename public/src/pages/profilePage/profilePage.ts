@@ -1,33 +1,16 @@
-//import { Categories, CategoriesProps } from '../../components/categories/categories'; // Решили отказаться от категорий тк страница целиком помещается на экран
-import { Address, AddressProps } from '../../components/address/address';
-//import { CategoryProps } from '../../components/category/category';
-import { FormInput } from '../../components/formInput/formInput';
-import { Button, ButtonProps } from '../../components/button/button';
-import { ProfileTableProps, ProfileTable } from '../../components/profileTable/profileTable';
-import { ProfileForm } from '../../components/profileForm/profileForm';
+import { Address, AddressProps } from '@components/address/address';
+import { Button, ButtonProps } from '@components/button/button';
+import { ProfileTableProps, ProfileTable } from '@components/profileTable/profileTable';
+import { ProfileForm } from '@components/profileForm/profileForm';
 
 import template from './profilePage.hbs';
-import { ProfileFormConfig, config } from '../../components/profileForm/profileFormConfig';
-
-interface PhoneNumberProps {
-  countryCode: string;
-  phoneNumber: string;
-}
-
-interface ProfileDataProps {
-  id: string;
-  lastname: string;
-  firstname: string;
-  phoneNumber: PhoneNumberProps;
-  login: string;
-  password: string;
-}
+import { config } from '@components/profileForm/profileFormConfig';
+import { User } from '@myTypes/userTypes';
 
 interface ProfilePageProps {
   id: string;
-  //categories?: CategoriesProps;
-  data?: ProfileDataProps;
-  addresses?: Array<AddressProps>;
+  data?: User;
+  addresses?: AddressProps[];
   orders?: ProfileTableProps;
 }
 
@@ -39,8 +22,7 @@ export default class ProfilePage {
   private props: ProfilePageProps;
   private components: {
     profileForm?: ProfileForm;
-    addresses: Array<Address>;
-    //categories?: Categories,
+    addresses: Address[];
     addAddressButton?: Button;
     ordersTable?: ProfileTable;
   };
@@ -49,88 +31,12 @@ export default class ProfilePage {
   /**
    * Создает экземпляр страницы профиля
    * @param parent - Родительский элемент, в который будет рендериться страница профиля
-   * @param id - Идентификатор профиля, который нужно отобразить
    */
   constructor(parent: HTMLElement) {
-    let id = 'helloworld';
     if (!parent) {
       throw new Error('ProfilePage: no parent!');
     }
     this.parent = parent;
-    this.props = {
-      id: id,
-      // Прибиваю временные значения
-      /*categories: {
-                categoriesList: [
-                    {
-                        id: 'category1',
-                        name: 'Мои данные',
-                    } as CategoryProps,
-                    {
-                        id: 'category2',
-                        name: 'Мои адреса',
-                    } as CategoryProps,
-                    {
-                        id: 'category3',
-                        name: 'Мои заказы',
-                    } as CategoryProps,
-                ],
-            } as CategoriesProps,
-            */
-      data: {
-        id: 'user1',
-        lastname: 'user1_lastname',
-        firstname: 'user1_firstname',
-        phoneNumber: {
-          countryCode: '+7',
-          phoneNumber: '1234567890',
-        } as PhoneNumberProps,
-        login: 'user1_login',
-        password: 'user1_password',
-      } as ProfileDataProps,
-      addresses: [
-        {
-          id: 'address1',
-          text: 'г. Москва ул. Пушкина д.1',
-        } as AddressProps,
-        {
-          id: 'address2',
-          text: 'г. Москва ул. Пушкина д.2',
-        } as AddressProps,
-        {
-          id: 'address3',
-          text: 'г. Москва ул. Пушкина д.3',
-        } as AddressProps,
-      ],
-      orders: {
-        id: `${id}-orders`,
-        rows: [
-          {
-            id: `${id}-order-1`,
-            status: false,
-            create_date: '03.01.2024',
-            price: 309,
-            products_amount: 2,
-            restaurant: {
-              name: 'Burger King',
-            },
-          },
-          {
-            id: `${id}-order-2`,
-            status: true,
-            create_date: '01.01.2024',
-            price: 3099,
-            products_amount: 10,
-            restaurant: {
-              name: 'Burger King',
-            },
-          },
-        ],
-      } as ProfileTableProps,
-    } as ProfilePageProps;
-    this.components = {
-      addresses: [],
-    };
   }
 
   /**
@@ -165,6 +71,7 @@ export default class ProfilePage {
       const profileFormComponent = new ProfileForm(profileFormElement, config);
       profileFormComponent.render();
       this.components.profileForm = profileFormComponent;
+
       // Ренденрим блок изменения/удаления/добавления адресов
       const profileAddressBody = this.self.querySelector('.profile-address__body') as HTMLElement;
       const profileAddressesWrapper = profileAddressBody.querySelector(
@@ -175,10 +82,10 @@ export default class ProfilePage {
         addressComponent.render();
         this.components.addresses.push(addressComponent);
       });
+
       const addAddressButtonProps = {
         id: 'profile-page__address-add',
         text: 'Добавить',
-        onSubmit: () => console.log('TODO: Добавить модалку добавления адреса'),
       } as ButtonProps;
       const addAddressButtonComponent = new Button(profileAddressBody, addAddressButtonProps);
       addAddressButtonComponent.render();

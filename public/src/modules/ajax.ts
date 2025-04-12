@@ -5,6 +5,7 @@ import {
 } from './localStorage';
 import { RestaurantResponse } from '@myTypes/restaurantTypes';
 import { I_Cart } from '@myTypes/cartTypes';
+import { LoginPayload, RegisterPayload, User } from '@myTypes/userTypes';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -15,7 +16,7 @@ interface ErrorResponse {
   message: string;
 }
 
-const isDebug = false;
+const isDebug = true;
 
 const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? 'localhost:5458' : 'doordashers.ru'}/api`;
 
@@ -94,61 +95,39 @@ class UserRequests {
    * @param password - Пароль пользователя
    * @returns {Promise<{id: string; login: string}>}
    */
-  Login = async (login: string, password: string): Promise<{ id: string; login: string }> => {
-    const { status, body } = await baseRequest<{ id: string; login: string } & { error?: string }>(
+  Login = async (payload: LoginPayload): Promise<User> => {
+    const { status, body } = await baseRequest<User | ErrorResponse>(
       methods.POST,
       this.baseUrl + '/signin',
-      { login, password },
+      payload,
     );
 
     if (status === 200) {
-      return {
-        id: body.id,
-        login: body.login,
-      };
+      return body as User;
     }
 
-    throw new Error(body.error ?? 'Что-то пошло не так...');
+    throw new Error((body as ErrorResponse)?.message ?? 'Что-то пошло не так...');
   };
 
   /**
    * Отправляет запрос на регистрацию нового пользователя.
-   * @param firstName - Имя нового пользователя
-   * @param lastName - Фамилия нового пользователя
-   * @param phoneNumber - Телефон нового пользователя
-   * @param login - Логин нового пользователя
-   * @param password - Пароль нового пользователя
    * @returns {Promise<{id: string; login: string}>}
+   * @param payload
    */
-  SignUp = async (
-    firstName: string,
-    lastName: string,
-    phoneNumber: string,
-    login: string,
-    password: string,
-  ): Promise<{ id: string; login: string }> => {
-    const response = await baseRequest<{ id: string; login: string } & { error?: string }>(
+  SignUp = async (payload: RegisterPayload): Promise<User> => {
+    const response = await baseRequest<User | ErrorResponse>(
       methods.POST,
       this.baseUrl + '/signup',
-      {
-        first_name: firstName,
-        last_name: lastName,
-        phone_number: phoneNumber,
-        login,
-        password,
-      },
+      payload,
     );
 
     const { status, body } = response;
 
     if (status === 200) {
-      return {
-        id: body.id,
-        login: body.login,
-      };
+      return body as User;
     }
 
-    throw new Error(body.error ?? 'Что-то пошло не так...');
+    throw new Error((body as ErrorResponse)?.message ?? 'Что-то пошло не так...');
   };
 
   /**
@@ -170,14 +149,14 @@ class UserRequests {
    * Проверяет авторизацию пользователя.
    * @returns {Promise<{ message: string }>}
    */
-  CheckUser = async (): Promise<{ message: string }> => {
-    const { status, body } = await baseRequest<{ message: string }>(
+  CheckUser = async (): Promise<User> => {
+    const { status, body } = await baseRequest<User | ErrorResponse>(
       methods.GET,
       this.baseUrl + '/check',
     );
 
     if (status === 200) {
-      return body;
+      return body as User;
     } else {
       throw new Error('not authorized');
     }
@@ -235,7 +214,7 @@ class RestaurantsRequests {
     if (status === 200) {
       return body as RestaurantResponse;
     } else {
-      throw new Error((body as ErrorResponse).message ?? 'Что-то пошло не так...');
+      throw new Error((body as ErrorResponse)?.message ?? 'Что-то пошло не так...');
     }
   };
 }

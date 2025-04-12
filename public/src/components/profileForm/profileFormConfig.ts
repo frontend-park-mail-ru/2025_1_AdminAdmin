@@ -1,4 +1,4 @@
-import { ValidateName, ValidatePassword, ValidatePhone } from '../../modules/validation';
+import { ValidateName, ValidatePassword, ValidatePhone } from '@modules/validation';
 
 import { FormInputProps } from '../formInput/formInput';
 import { ButtonProps } from '../button/button';

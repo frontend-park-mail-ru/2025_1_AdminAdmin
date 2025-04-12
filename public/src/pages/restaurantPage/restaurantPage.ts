@@ -7,6 +7,7 @@ import { AppRestaurantRequests } from '@modules/ajax';
 
 import template from './restaurantPage.hbs';
 import type { RestaurantResponse } from '@myTypes/restaurantTypes';
+import { router } from '@modules/routing';
 
 /**
  * Класс, представляющий страницу конкретного ресторана.
@@ -94,8 +95,13 @@ export default class RestaurantPage {
 
       this.categoriesComponent.render();
 
+      if (!this.props.categories) return;
+
       this.props.categories.forEach((category) => {
         this.categoriesComponent.addCategory(category.name);
+
+        if (!category.products?.length) return;
+
         category.products.forEach((product) => {
           const productCardComponent = new ProductCard(
             productCardsBody,
@@ -112,6 +118,7 @@ export default class RestaurantPage {
       this.cartComponent = new Cart(cartWrapper, this.props.id);
       this.cartComponent.render();
     } catch (error) {
+      router.goToPage('notFound');
       console.error('Error rendering restaurant page:', error);
     }
   }

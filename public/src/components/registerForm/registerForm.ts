@@ -64,16 +64,22 @@ export default class RegisterForm {
       return;
     }
 
-    const firstName = this.fNameInput.value.trim();
-    const lastName = this.lNameInput.value.trim();
+    const first_name = this.fNameInput.value.trim();
+    const last_name = this.lNameInput.value.trim();
     const code = this.codeSelect.value;
     const phone = this.phoneInput.value.trim().replace(/[\s()-]/g, '');
-    const phoneNumber = code + phone;
+    const phone_number = code + phone;
     const login = this.loginInput.value.trim();
     const password = this.passwordInput.value;
 
     try {
-      await userStore.register({ firstName, lastName, phoneNumber, login, password });
+      await userStore.register({
+        first_name,
+        last_name,
+        phone_number,
+        login,
+        password,
+      });
       toasts.success('Вы успешно зарегистрировались!');
     } catch (err) {
       const errorMessage = err?.message || 'Непредвиденная ошибка';

@@ -5,26 +5,12 @@ import {
   getActiveAddressFromLocalStorage,
   saveActiveAddressToLocalStorage,
 } from '@modules/localStorage';
+import { User, LoginPayload, RegisterPayload } from '@myTypes/userTypes';
 
-interface UserState {
-  login: string;
-  avatarUrl: string;
+interface UserState extends User {
   isAuth: boolean;
   activeAddress: string;
   addresses: string[];
-}
-
-interface LoginPayload {
-  login: string;
-  password: string;
-}
-
-interface RegisterPayload {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  login: string;
-  password: string;
 }
 
 interface Action {
@@ -33,8 +19,13 @@ interface Action {
 }
 
 const initialUserState: UserState = {
+  id: '',
   login: '',
-  avatarUrl: '@assets/avatar.png',
+  first_name: '',
+  last_name: '',
+  phone_number: '',
+  path: '',
+  description: '',
   isAuth: false,
   activeAddress: getActiveAddressFromLocalStorage(),
   addresses: [],
@@ -44,24 +35,17 @@ const userReducer = (state = initialUserState, action: Action): UserState => {
   switch (action.type) {
     case UserActions.LOGIN_SUCCESS:
     case UserActions.REGISTER_SUCCESS:
+    case UserActions.CHECK_SUCCESS:
       return {
         ...state,
+        ...action.payload,
         isAuth: true,
-        login: action.payload.login,
       };
 
     case UserActions.LOGOUT_SUCCESS:
       return {
-        ...state,
-        isAuth: false,
-        login: '',
-      };
-
-    case UserActions.CHECK_SUCCESS:
-      return {
-        ...state,
-        isAuth: true,
-        login: action.payload.login,
+        ...initialUserState,
+        activeAddress: getActiveAddressFromLocalStorage(),
       };
 
     case UserActions.ADD_ADDRESS_SUCCESS:
@@ -98,19 +82,23 @@ class UserStore {
   }
 
   /**
-   * Проверяет авторизацию
-   * @returns {boolean} - авторизован пользователь или нет
+   * Проверяет, авторизован ли пользователь.
+   * @returns {boolean} - true, если пользователь авторизован, иначе false
    */
   isAuth(): boolean {
     return this.store.getState().isAuth;
   }
 
+  /**
+   * Возвращает активный адрес пользователя.
+   * @returns {string} - активный адрес пользователя
+   */
   getActiveAddress(): string {
     return this.store.getState().activeAddress;
   }
 
   /**
-   * Возвращает состояние пользователя
+   * Возвращает текущее состояние пользователя.
    * @returns {UserState} - текущее состояние пользователя
    */
   getState(): UserState {
@@ -118,45 +106,42 @@ class UserStore {
   }
 
   /**
-   * Отправляет action в хранилище
-   * @param {Action} action
+   * Отправляет action в хранилище.
+   * @param {Action} action - действие для отправки в хранилище
    */
   private dispatch(action: Action): void {
     this.store.dispatch(action);
   }
 
   /**
-   * Вход пользователя
-   * @param {LoginPayload} param0 - данные пользователя
+   * Вход пользователя в систему.
+   * @param {LoginPayload} payload - данные пользователя для авторизации
+   * @returns {Promise<void>} - обещание, которое разрешается после успешного входа
    */
-  async login({ login, password }: LoginPayload): Promise<void> {
-    const res = await AppUserRequests.Login(login, password);
+  async login(payload: LoginPayload): Promise<void> {
+    const res = await AppUserRequests.Login(payload);
     this.dispatch({
       type: UserActions.LOGIN_SUCCESS,
-      payload: { login: res.login },
+      payload: res,
     });
   }
 
   /**
-   * Регистрация нового пользователя
-   * @param {RegisterPayload} param0 - данные пользователя
+   * Регистрация нового пользователя.
+   * @param {RegisterPayload} payload - данные для регистрации
+   * @returns {Promise<void>} - обещание, которое разрешается после успешной регистрации
    */
-  async register({
-    firstName,
-    lastName,
-    phoneNumber,
-    login,
-    password,
-  }: RegisterPayload): Promise<void> {
-    const res = await AppUserRequests.SignUp(firstName, lastName, phoneNumber, login, password);
+  async register(payload: RegisterPayload): Promise<void> {
+    const res = await AppUserRequests.SignUp(payload);
     this.dispatch({
       type: UserActions.REGISTER_SUCCESS,
-      payload: { login: res.login },
+      payload: res,
     });
   }
 
   /**
-   * Выход пользователя
+   * Выход пользователя из системы.
+   * @returns {Promise<void>} - обещание, которое разрешается после успешного выхода
    */
   async logout(): Promise<void> {
     await AppUserRequests.Logout();
@@ -165,41 +150,27 @@ class UserStore {
   }
 
   /**
-   * Проверяет, авторизован ли пользователь
-   * @returns {Promise<void>}
+   * Проверяет авторизацию пользователя.
+   * @returns {Promise<void>} - обещание, которое разрешается после проверки состояния авторизации
    */
   async checkUser(): Promise<void> {
     try {
       const res = await AppUserRequests.CheckUser();
-
-      if ('login' in res) {
-        this.dispatch({
-          type: UserActions.CHECK_SUCCESS,
-          payload: { login: res.login },
-        });
-      } else {
-        console.error('Ошибка: Ответ не содержит логин', res);
-      }
+      this.dispatch({
+        type: UserActions.CHECK_SUCCESS,
+        payload: res,
+      });
     } catch (err) {
-      console.error('Ошибка при проверке пользователя:', err.message);
+      console.error('Ошибка при проверке пользователя:', (err as Error).message);
     }
   }
 
-  /*  async addAddress(address: string): Promise<void> {
-    try {
-      const res = await AppUserRequests.AddAddress(address);
-      this.dispatch({
-        type: UserActions.ADD_ADDRESS_SUCCESS,
-        payload: { address: address },
-      });
-    } catch (err) {
-      console.error('Ошибка при добавлении адреса:', err.message);
-    }
-  }*/
-
+  /**
+   * Устанавливает активный адрес пользователя.
+   * @param {string} address - новый активный адрес
+   */
   setAddress(address: string) {
     saveActiveAddressToLocalStorage(address);
-
     this.dispatch({
       type: UserActions.SET_ADDRESS,
       payload: address,
@@ -207,8 +178,9 @@ class UserStore {
   }
 
   /**
-   * Подписывает listener на изменение состояния
-   * @param {Function} listener
+   * Подписывает listener на изменение состояния пользователя.
+   * @param {Function} listener - функция, которая будет вызвана при изменении состояния
+   * @returns {Function} - функция для отписки от изменений
    */
   subscribe(listener: () => void): () => void {
     return this.store.subscribe(listener);

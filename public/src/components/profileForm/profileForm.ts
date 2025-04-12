@@ -1,7 +1,5 @@
-//import { userStore } from '../../store/userStore';
 import { FormInput } from '../formInput/formInput';
 import { Button } from '../button/button';
-//import { toasts } from '../../modules/toasts';
 
 import template from './profileForm.hbs';
 import { ProfileFormConfig } from './profileFormConfig';
@@ -54,12 +52,11 @@ export class ProfileForm {
    */
   async validateData() {
     // Проверяем что все данные валидны, иначе возвращаем void
-    for (let formInputComponent of Object.values(this.components.formInput)) {
+    for (const formInputComponent of Object.values(this.components.formInput)) {
       if (!formInputComponent.checkValue()) {
         return;
       }
     }
-    console.log(`Данные введены правильно`);
     return; // Временный ретурн, пока не знаю что делать
   }
 
