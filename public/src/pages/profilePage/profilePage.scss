@@ -1,0 +1,81 @@
+// Страница профиля
+.profile-page__body {
+    margin-top: 40px;
+    width: 100%;
+    padding: 0 0 40px 0;
+    display: grid;
+    grid-template-columns: 2fr 8fr 2fr;
+    gap: 40px 0;
+    grid-template-areas:
+    ". data ."
+    ". address . "
+    ". orders .";
+    // Если оставляем категории нужно вставить их в template-areas
+
+    .button {
+        width: fit-content;
+        padding: 5px 15px;
+        height: 35px;
+    }
+}
+
+/*
+// Обертка для блока категорий
+.profile-categories__wrapper {
+    grid-area: categories;
+}
+*/
+
+// Блок изменения данных
+.profile-data {
+    grid-area: data;
+    display: grid;
+    gap: 20px;
+    font-size: 16px;
+    text-align: left;
+
+    &__header {
+        font-size: 32px;
+        font-weight: bold;
+    }
+}
+
+// Блок изменения/добавления/удаления адресов
+.profile-address {
+    grid-area: address;
+    display: grid;
+    gap: 20px;
+    font-size: 16px;
+    text-align: left;
+
+    &__header {
+        font-size: 32px;
+        font-weight: bold;
+    }
+
+    &__body {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+// Блок заказов
+.profile-orders {
+    grid-area: orders;
+    font-size: 16px;
+    text-align: left;
+    display: grid;
+    gap: 20px;
+
+    &__header {
+        font-size: 32px;
+        font-weight: bold;
+    }
+
+    &__body {
+        display: flex;
+        flex-direction: column;
+        gap: 0px;
+    }
+}

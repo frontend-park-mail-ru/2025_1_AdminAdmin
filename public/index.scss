@@ -7,6 +7,7 @@
 @use './src/components/quantityButton/quantityButton.scss' as *;
 @use './src/components/toast/toast' as *;
 @use './src/components/suggest/suggest' as *;
+@use './src/components/profileTableRow/profileTableRow.scss' as *;
 @use './src/components/categories/categoryHeader/categoryHeader' as *;
 
 /* Импорт сложных компонентов */
@@ -20,6 +21,9 @@
 @use './src/components/productCard/productCard.scss' as *;
 @use './src/components/productCard/cartCard/cartCard.scss' as *;
 @use './src/components/suggestsContainer/suggestsContainer' as *;
+@use './src/components/address/address.scss' as *;
+@use './src/components/profileTable/profileTable.scss' as *;
+@use './src/components/profileForm/profileForm.scss' as *;
 @use './src/components/cart/cart' as *;
 @use './src/components/confirmRestaurantModal/confirmRestaurantModal' as *;
 @use './src/components/quantityControls/quantityControls' as *;
@@ -28,6 +32,7 @@
 @use './src/pages/restaurantList/restaurantList' as *;
 @use './src/pages/authPage/authPage' as *;
 @use './src/pages/restaurantPage/restaurantPage' as *;
+@use './src/pages/profilePage/profilePage' as *;
 @use './src/pages/mapModal/mapModal' as *;
 @use './src/pages/404/404' as *;
 @use './src/pages/orderPage/orderPage' as *;
@@ -80,8 +85,8 @@ img {
   top: 0;
   left: 0;
   z-index: 10;
-  background-color: white;
   height: var(--header-height);
+  background-color: var(--white);
   transition: box-shadow 0.3s ease;
 }
 
@@ -113,6 +118,10 @@ main {
   &_submit_button {
     margin-top: 15px;
     margin-bottom: 60px;
+  }
+
+  & > * {
+    width: 100%;
   }
 }
 

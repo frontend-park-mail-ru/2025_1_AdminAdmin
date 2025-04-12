@@ -1,0 +1,20 @@
+<tr id="{{id}}" {{#if status}}class="completed"{{/if}}>
+    <td>
+        {{#if status}}
+        Завершён
+        {{else}}
+        В пути
+        {{/if}}
+    </td>
+    <td>
+        {{create_date}}
+    </td>
+    <td>
+        <span>{{price}}</span>
+        <span>{{products_amount}}</span>
+    </td>
+    <td>
+        <img src="{{restaurant.image.src}}" alt="{{restaurant.image.alt}}">
+        <span>{{restaurant.name}}</span>
+    </td>
+</tr>

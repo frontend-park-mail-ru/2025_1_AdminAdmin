@@ -3,14 +3,15 @@ import eyeOpen from '@assets/eye.png';
 import eyeClosed from '@assets/hide.png';
 import debounce from '@modules/debounce';
 
-interface FormInputProps {
-  id: string;
-  label?: string;
-  error?: string;
-  placeholder: string;
-  type: string;
-  validator?: (value: string) => { result: boolean; message?: string };
-  onInput?: (value: string) => void;
+export interface FormInputProps {
+  id: string; // Идентификатор строки ввода
+  label?: string; // Название поля (отображается сбоку от поля ввода)
+  error?: string; // Ошибка
+  placeholder?: string; // Начальное содержимое поля ввода
+  type?: string; // Тип поля ввода
+  required?: boolean; // true - обязательное поле, false - необязательное
+  validator?: (value: string) => { result: boolean; message?: string }; // Функция валидации
+  onInput?: (value: string) => void; // Функция при вводе
   min?: number;
   max?: number;
   maxLength?: number;
@@ -26,7 +27,12 @@ export class FormInput {
   private readonly beforeInputHandler: (e: InputEvent) => void;
 
   get self(): HTMLElement | null {
-    return document.getElementById(this.props.id);
+    const element = document.getElementById(this.props.id);
+    if (!element) {
+      throw new Error(`Error: can't find table`);
+    }
+    return element as HTMLElement;
+    // Возвращаем as HTMLElement потому что querySelector возвращает null или HTMLElement, но мы сделали проверку null
   }
 
   get input(): HTMLInputElement | null {
@@ -34,8 +40,12 @@ export class FormInput {
   }
 
   constructor(parent: HTMLElement, props: FormInputProps) {
-    if (!parent) throw new Error('FormInput: no parent!');
-
+    if (!parent) {
+      throw new Error('FormInput: no parent!');
+    }
+    if (document.getElementById(props.id)) {
+      throw new Error('FormInput: this id is already used!');
+    }
     this.parent = parent;
     this.props = props;
 
@@ -84,12 +94,13 @@ export class FormInput {
     this.parent.insertAdjacentHTML('beforeend', html);
 
     if (!this.props.label) {
-      this.self?.querySelector('.form__input-head')?.remove();
+      const labelElement: HTMLElement = this.self?.querySelector('.form__input-head');
+      if (labelElement) labelElement.remove();
     }
 
     if (!this.props.error) {
-      const errorEl = this.self?.querySelector('.form__error') as HTMLElement;
-      if (errorEl) errorEl.style.display = 'none';
+      const errorElement: HTMLElement = this.self?.querySelector('.form__error');
+      if (errorElement) errorElement.style.display = 'none';
     }
 
     if (this.props.type === 'password') {
@@ -131,15 +142,16 @@ export class FormInput {
 
   checkValue(): boolean {
     const value = this.input?.value.trim() || '';
-    if (!this.props.validator) return true;
-
-    const result = this.props.validator(value);
-    if (!result.result) {
-      this.setError(result.message || '');
+    if (!this.props.validator) {
+      return true;
+    }
+    const validationResult = this.props.validator(value);
+    if (!validationResult.result) {
+      this.setError(validationResult.message || '');
     } else {
       this.clearError();
     }
-    return result.result;
+    return validationResult.result;
   }
 
   setError(message: string): void {

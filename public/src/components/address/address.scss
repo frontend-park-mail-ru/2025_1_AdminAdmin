@@ -1,0 +1,39 @@
+.address {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0px 15px;
+    background-color: #fff;
+    border-radius: 10px;
+
+    &:hover {
+        background-color: #F2F2F2;
+
+        .address__button-group {
+            display: flex;
+        }
+    }
+
+    &__radio-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        input {
+            margin: 0;
+            cursor: pointer;
+        }
+    }
+
+    &__button-group {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        color: #fff;
+
+        .button {
+            background-color: #fff;
+        }
+    }
+}
