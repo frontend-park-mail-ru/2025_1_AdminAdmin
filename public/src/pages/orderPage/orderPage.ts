@@ -1,9 +1,11 @@
 import template from './orderPage.hbs';
 import { FormInput } from '@components/formInput/formInput';
 import inputsConfig from './orderPageConfig';
-import { orderStore } from '@store/orderStore';
+import { CartState, cartStore } from '@store/cartStore';
 import { CartCard } from '@components/productCard/cartCard/cartCard';
 import { userStore } from '@store/userStore';
+import { CartProduct } from '@myTypes/cartTypes';
+import { toasts } from '@modules/toasts';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -27,7 +29,7 @@ export default class OrderPage {
   }
 
   render(): void {
-    const restaurantName = orderStore.getState().restaurantName;
+    const restaurantName = cartStore.getState().restaurant_name;
     const address = userStore.getActiveAddress();
     this.parent.innerHTML = template({ restaurantName: restaurantName, address: address });
 
@@ -57,12 +59,21 @@ export default class OrderPage {
       this.inputs['orderPageComment'] = inputComponent;
     }
 
-    this.unsubscribeFromStore = orderStore.subscribe(() => this.updateCards());
+    this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
     this.updateCards();
   }
 
-  private handleClear(): void {
-    orderStore.clearOrder();
+  private async handleClear(): Promise<void> {
+    const bin: HTMLElement = this.self.querySelector('.order-page__products__header__clear');
+    bin.style.pointerEvents = 'none';
+
+    try {
+      await cartStore.clearCart();
+    } catch (error) {
+      toasts.error(error.message);
+    } finally {
+      bin.style.pointerEvents = '';
+    }
   }
 
   private updateCards(): void {
@@ -71,9 +82,9 @@ export default class OrderPage {
       return;
     }
 
-    const state = orderStore.getState();
-    const products = state.products;
-    const totalPrice = state.totalPrice;
+    const state: CartState = cartStore.getState();
+    const products: CartProduct[] = state.products;
+    const totalPrice: number = state.total_price;
 
     this.cartCards.forEach((card) => card.remove());
     this.cartCards = [];
@@ -90,8 +101,8 @@ export default class OrderPage {
       return;
     }
 
-    products.forEach(({ product, amount }) => {
-      const card = new CartCard(container, product, amount);
+    products.forEach((product) => {
+      const card = new CartCard(container, product);
       card.render();
       this.cartCards.push(card);
     });

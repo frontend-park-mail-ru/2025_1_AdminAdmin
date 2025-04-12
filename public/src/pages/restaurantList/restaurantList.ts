@@ -176,10 +176,19 @@ export default class RestaurantList {
    * Удаляет список ресторанов и очищает содержимое родительского элемента.
    */
   remove(): void {
+    // Удаление карточек и очистка DOM
     document.querySelectorAll('.restaurant__card').forEach((card) => card.remove());
     this.parent.innerHTML = '';
+
+    // Отписка от событий и наблюдателей
     document.removeEventListener('scroll', this.deleteFromDomThrottle);
     this.observer.disconnect();
+
+    // Сброс всех состояний
     this.restaurantList = [];
+    this.renderedIds.clear();
+    this.firstCardId = -1;
+    this.lastCardId = -1;
+    this._deletionScheduled = false;
   }
 }

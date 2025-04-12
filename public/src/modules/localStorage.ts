@@ -1,4 +1,4 @@
-import { OrderState } from '@store/orderStore';
+import { CartState } from '@store/cartStore';
 
 export interface RequestOptions {
   headers?: Record<string, string>;
@@ -8,17 +8,11 @@ export interface RequestOptions {
  * Добавляет токены из localStorage в заголовки запроса
  */
 
-export function getAuthTokensFromLocalStorage(): Record<string, string> {
+export function getCSRFFromLocalStorage(): Record<string, string> {
   const tokens: Record<string, string> = {};
 
   try {
-    const jwt = window.localStorage.getItem('Authorization');
     const csrf = window.localStorage.getItem('X-CSRF-Token');
-
-    if (jwt) {
-      tokens.Authorization = jwt;
-    }
-
     if (csrf) {
       tokens['X-CSRF-Token'] = csrf;
     }
@@ -35,11 +29,6 @@ export function getAuthTokensFromLocalStorage(): Record<string, string> {
  */
 export function storeAuthTokensFromResponse(headers: Headers): void {
   try {
-    const newJWT = headers.get('Authorization');
-    if (newJWT) {
-      window.localStorage.setItem('Authorization', newJWT);
-    }
-
     const newCSRF = headers.get('X-CSRF-Token');
     if (newCSRF) {
       window.localStorage.setItem('X-CSRF-Token', newCSRF);
@@ -68,16 +57,15 @@ export function getActiveAddressFromLocalStorage(): string {
 /**
  * Очищает токены из localStorage
  */
-export function clearLocalStorage(): void {
+export function removeTokenFromLocalStorage(): void {
   try {
-    window.localStorage.removeItem('Authorization');
     window.localStorage.removeItem('X-CSRF-Token');
   } catch (err) {
     console.error('Ошибка при очистке localstorage', err);
   }
 }
 
-export function setCart(cart: OrderState): void {
+export function setCartInLocalStorage(cart: CartState): void {
   try {
     window.localStorage.setItem('Cart', JSON.stringify(cart));
   } catch (err) {
@@ -85,7 +73,15 @@ export function setCart(cart: OrderState): void {
   }
 }
 
-export function getCart(): OrderState | null {
+export function clearCartInLocalStorage(): void {
+  try {
+    window.localStorage.removeItem('Cart');
+  } catch (err) {
+    console.error('Ошибка сохранения в localStorage:', err);
+  }
+}
+
+export function getCartFromLocalStorage(): CartState | null {
   try {
     const raw = window.localStorage.getItem('Cart');
     return raw ? JSON.parse(raw) : null;

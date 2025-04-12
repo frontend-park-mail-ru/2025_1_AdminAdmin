@@ -6,6 +6,7 @@ export class ConfirmRestaurantModal {
   private readonly previousRestaurant: string;
   private submitBtn: Button;
   private cancelBtn: Button;
+  private isSubmitting = false;
   onSubmit: () => void;
   onCancel: () => void;
 
@@ -48,8 +49,20 @@ export class ConfirmRestaurantModal {
       id: 'confirm_restaurant_modal__submit',
       style: 'dark form__button',
       text: 'Продолжить',
-      onSubmit: this.onSubmit,
+      onSubmit: async () => {
+        if (this.isSubmitting) return;
+        this.isSubmitting = true;
+        this.submitBtn.disable?.();
+
+        try {
+          this.onSubmit();
+        } finally {
+          this.isSubmitting = false;
+          this.submitBtn.enable?.();
+        }
+      },
     });
+
     this.submitBtn.render();
   }
 

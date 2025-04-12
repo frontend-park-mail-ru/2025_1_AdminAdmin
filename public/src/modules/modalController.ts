@@ -5,7 +5,7 @@ interface Modal {
   remove(): void;
 }
 
-export default class ModalController {
+class ModalController {
   private currentModal: Modal | null = null;
   private readonly clickCloseHandler: (event: MouseEvent) => void;
   private readonly keyDownHandler: (event: KeyboardEvent) => void;
@@ -51,9 +51,7 @@ export default class ModalController {
       document.removeEventListener('keydown', this.keyDownHandler);
     }
   }
-
-  remove(): void {
-    window.removeEventListener('popstate', this.handlePopState.bind(this));
-    this.closeModal();
-  }
 }
+
+const modalController = new ModalController();
+export { modalController };

@@ -1,9 +1,10 @@
 import {
-  getAuthTokensFromLocalStorage,
-  clearLocalStorage,
+  getCSRFFromLocalStorage,
+  removeTokenFromLocalStorage,
   storeAuthTokensFromResponse,
 } from './localStorage';
 import { RestaurantResponse } from '@myTypes/restaurantTypes';
+import { I_Cart } from '@myTypes/cartTypes';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -14,7 +15,9 @@ interface ErrorResponse {
   message: string;
 }
 
-const baseUrl = 'https://doordashers.ru/api';
+const isDebug = false;
+
+const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? 'localhost:5458' : 'doordashers.ru'}/api`;
 
 const methods = Object.freeze({
   POST: 'POST',
@@ -46,7 +49,7 @@ const baseRequest = async <T = any>(
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      ...getAuthTokensFromLocalStorage(),
+      ...getCSRFFromLocalStorage(),
     },
   };
 
@@ -145,7 +148,7 @@ class UserRequests {
       };
     }
 
-    throw new Error(body.error ?? 'Unknown error');
+    throw new Error(body.error ?? 'Что-то пошло не так...');
   };
 
   /**
@@ -156,10 +159,10 @@ class UserRequests {
     const { status, body } = await baseRequest(methods.GET, this.baseUrl + '/logout');
 
     if (status === 200) {
-      clearLocalStorage();
+      removeTokenFromLocalStorage();
       return { message: 'ok' };
     } else {
-      throw new Error(body.error ?? 'Unknown error');
+      throw new Error(body.error ?? 'Что-то пошло не так...');
     }
   };
 
@@ -232,7 +235,7 @@ class RestaurantsRequests {
     if (status === 200) {
       return body as RestaurantResponse;
     } else {
-      throw new Error((body as ErrorResponse).message ?? 'Unknown error');
+      throw new Error((body as ErrorResponse).message ?? 'Что-то пошло не так...');
     }
   };
 }
@@ -251,8 +254,8 @@ class CartRequests {
     product_id: string,
     quantity: number,
     restaurant_id: string,
-  ): Promise<void> => {
-    const { status, body } = await baseRequest<ErrorResponse | null>(
+  ): Promise<I_Cart> => {
+    const { status, body } = await baseRequest<I_Cart | ErrorResponse>(
       methods.POST,
       `${this.baseUrl}/update/${product_id}`,
       {
@@ -261,8 +264,12 @@ class CartRequests {
       },
     );
 
-    if (status !== 200) {
-      throw new Error((body as ErrorResponse)?.message ?? 'Failed to update product quantity');
+    if (status === 200) {
+      return body as I_Cart;
+    } else {
+      throw new Error(
+        (body as ErrorResponse)?.message ?? 'Не удалось обновить количество продуктов',
+      );
     }
   };
 
@@ -270,13 +277,21 @@ class CartRequests {
    * Получает текущую корзину.
    * @returns {Promise<any>}
    */
-  GetCart = async (): Promise<any> => {
-    const { status, body } = await baseRequest<any>(methods.GET, this.baseUrl);
+  GetCart = async (): Promise<I_Cart> => {
+    const { status, body } = await baseRequest<I_Cart | ErrorResponse>(methods.GET, this.baseUrl);
 
     if (status === 200) {
-      return body;
+      return body as I_Cart;
     } else {
-      throw new Error((body as ErrorResponse).message ?? 'Failed to fetch cart');
+      throw new Error((body as ErrorResponse).message ?? 'Не удалось получить корзину');
+    }
+  };
+
+  ClearCart = async (): Promise<void> => {
+    const { status, body } = await baseRequest<ErrorResponse>(methods.GET, `${this.baseUrl}/clear`);
+
+    if (status !== 200) {
+      throw new Error((body as ErrorResponse)?.message ?? 'Не удалось очистить корзину');
     }
   };
 }

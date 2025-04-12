@@ -130,6 +130,9 @@ class Router {
 
     if (shouldPushState) {
       const newPath = id ? `${pageData.href}${id}` : pageData.href;
+      if (window.location.pathname === newPath) {
+        return;
+      }
       history.pushState(id ? { id } : {}, '', newPath);
     }
 

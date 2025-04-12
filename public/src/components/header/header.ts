@@ -5,9 +5,9 @@ import { Button } from '@components/button/button';
 import template from './header.hbs';
 import { toasts } from '@modules/toasts';
 import MapModal from '@pages/mapModal/mapModal';
-import ModalController from '@modules/modalController';
 import logoImg from '@assets/logo.png';
-import { orderStore } from '@store/orderStore';
+import { cartStore } from '@store/cartStore';
+import { modalController } from '@modules/modalController';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -21,9 +21,8 @@ export default class Header {
   private logoutButton!: Button;
   private readonly handleScrollBound: () => void;
   private readonly clickHandler: (event: Event) => void;
-  private modalController: ModalController;
   private unsubscribeFromUserStore: (() => void) | null = null;
-  private unsubscribeFromOrderStore: (() => void) | null = null;
+  private unsubscribeFromCartStore: (() => void) | null = null;
 
   /**
    * Создает экземпляр заголовка.
@@ -32,10 +31,9 @@ export default class Header {
    */
   constructor(parent: HTMLElement) {
     this.parent = parent;
-    this.modalController = new ModalController();
     this.handleScrollBound = this.handleScroll.bind(this);
     this.unsubscribeFromUserStore = userStore.subscribe(() => this.updateHeaderState());
-    this.unsubscribeFromOrderStore = orderStore.subscribe(() => this.updateHeaderState());
+    this.unsubscribeFromCartStore = cartStore.subscribe(() => this.updateHeaderState());
     this.clickHandler = this.handleClick.bind(this);
   }
 
@@ -51,7 +49,7 @@ export default class Header {
       dropdown.style.display = 'block';
     } else if (target.closest('.header__location_dropdown_button')) {
       const mapModal = new MapModal();
-      this.modalController.openModal(mapModal);
+      modalController.openModal(mapModal);
     }
   }
 
@@ -84,7 +82,7 @@ export default class Header {
       style: 'dark',
       text: '0',
       onSubmit: () => {
-        const restaurantId = orderStore.getState().restaurantId;
+        const restaurantId = cartStore.getState().restaurant_id;
         if (restaurantId) router.goToPage('restaurantPage', restaurantId);
       },
     });
@@ -156,11 +154,11 @@ export default class Header {
     const activeAddress = userStore.getActiveAddress();
     if (activeAddress) {
       this.setButtonAddress(activeAddress);
-      this.modalController.closeModal();
+      modalController.closeModal();
     }
 
-    if (orderStore.getState().totalPrice) {
-      this.cartButton.setText(orderStore.getState().totalPrice + ' ₽');
+    if (cartStore.getState().total_price) {
+      this.cartButton.setText(cartStore.getState().total_price + ' ₽');
       this.cartButton.show();
     } else {
       this.cartButton.hide();
@@ -181,11 +179,14 @@ export default class Header {
    * Осуществляет выход и отображает сообщение.
    */
   private async handleLogout(): Promise<void> {
+    this.logoutButton.disable();
     try {
       await userStore.logout();
       toasts.success('Вы успешно вышли из системы');
     } catch (error) {
       toasts.error(error.message);
+    } finally {
+      this.logoutButton.enable();
     }
   }
 
@@ -199,16 +200,15 @@ export default class Header {
     this.cartButton.remove();
     this.parent.innerHTML = '';
     this.parent.classList.remove('main_header');
-    this.modalController.remove();
     window.removeEventListener('scroll', this.handleScrollBound);
     document.removeEventListener('click', this.clickHandler);
     if (this.unsubscribeFromUserStore) {
       this.unsubscribeFromUserStore();
       this.unsubscribeFromUserStore = null;
     }
-    if (this.unsubscribeFromOrderStore) {
-      this.unsubscribeFromOrderStore();
-      this.unsubscribeFromOrderStore = null;
+    if (this.unsubscribeFromCartStore) {
+      this.unsubscribeFromCartStore();
+      this.unsubscribeFromCartStore = null;
     }
   }
 }

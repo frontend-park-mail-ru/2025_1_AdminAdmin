@@ -1,15 +1,15 @@
 import template from './cartCard.hbs';
-import { orderStore } from '@store/orderStore';
-import { Product } from '@myTypes/restaurantTypes';
+import { cartStore } from '@store/cartStore';
 import { QuantityControls } from '@components/quantityControls/quantityControls';
+import { CartProduct } from '@myTypes/cartTypes';
+import { toasts } from '@modules/toasts';
 
 /**
  * Класс карточки товара
  */
 export class CartCard {
   private parent: HTMLElement;
-  private readonly props: Product;
-  private amount = 0;
+  private readonly props: CartProduct;
   private quantityControls: QuantityControls;
   private binClickHandler: () => void;
 
@@ -18,15 +18,13 @@ export class CartCard {
    * @constructor
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться карточка.
    * @param {Object} props - Словарь данных для определения свойств карточки
-   * @param amount
    */
-  constructor(parent: HTMLElement, props: Product, amount: number) {
+  constructor(parent: HTMLElement, props: CartProduct) {
     if (!parent) {
       throw new Error('CartCard: no parent!');
     }
     this.parent = parent;
     this.props = props;
-    this.amount = amount;
     if (this.props.price < 0 || this.props.weight < 0) {
       throw new Error('CartCard: price, and weight must be non-negative values!');
     }
@@ -52,19 +50,19 @@ export class CartCard {
       throw new Error('Error: cartCard template not found');
     }
 
-    this.amount = orderStore.getProductAmountById(this.props.id);
+    this.props.amount = cartStore.getProductAmountById(this.props.id);
 
-    const total_price = this.amount * this.props.price;
+    const total_price = this.props.amount * this.props.price;
     const html = template({ total_price: total_price, ...this.props });
     this.parent.insertAdjacentHTML('beforeend', html);
 
     const quantityControlsWrapper: HTMLDivElement = this.self.querySelector(
-      '.cart-card__quantity-controls-wrapper',
+      '.cart-card__content__quantity-controls-wrapper',
     );
     this.quantityControls = new QuantityControls(
       quantityControlsWrapper,
       this.props.id,
-      this.amount,
+      this.props.amount,
       this.incrementAmount.bind(this),
       this.decrementAmount.bind(this),
       this.setAmount.bind(this),
@@ -73,7 +71,7 @@ export class CartCard {
     this.quantityControls.render();
 
     const binIcon = this.self.querySelector('.cart-card__bin_icon') as HTMLElement;
-    this.binClickHandler = () => orderStore.removeProduct(this.props.id);
+    this.binClickHandler = () => cartStore.removeProduct(this.props.id);
     binIcon.addEventListener('click', this.binClickHandler);
   }
 
@@ -85,17 +83,29 @@ export class CartCard {
     return element;
   }
 
-  private incrementAmount() {
-    orderStore.incrementProductAmount(this.props);
+  private async incrementAmount() {
+    try {
+      await cartStore.incrementProductAmount(this.props);
+    } catch (error) {
+      toasts.error(`Ошибка при увеличении количества товара: ${error}`);
+    }
   }
 
-  private decrementAmount() {
-    orderStore.decrementProductAmount(this.props);
+  private async decrementAmount() {
+    try {
+      await cartStore.decrementProductAmount(this.props);
+    } catch (error) {
+      toasts.error(`Ошибка при уменьшении количества товара: ${error}`);
+    }
   }
 
-  private setAmount(amount: number) {
-    if (amount !== this.amount) {
-      orderStore.setProductAmount(this.props.id, amount);
+  private async setAmount(amount: number) {
+    if (amount !== this.props.amount) {
+      try {
+        await cartStore.setProductAmount(this.props.id, amount);
+      } catch (error) {
+        toasts.error(`Ошибка при изменении количества товара: ${error}`);
+      }
     }
   }
 
