@@ -37,7 +37,7 @@ export class Address {
   protected hoverHandler: (event: Event) => void; // Функция при наведении на адрес
   protected components: {
     // Список компонентов
-    buttons: Array<Button>;
+    buttons: Button[];
   };
 
   /**
@@ -63,7 +63,6 @@ export class Address {
       buttons: [],
     };
     this.clickHandler = this.handleClick.bind(this);
-    this.hoverHandler = this.handleHover.bind(this);
   }
 
   /**
@@ -91,25 +90,24 @@ export class Address {
     this.parent.insertAdjacentHTML('beforeend', html);
     // Заполняем
     const buttonGroupElement = this.self.querySelector('.address__button-group') as HTMLElement;
+
     const editButtonProps = {
       id: `${this.props.id}__edit-button`,
       text: 'Редактировать',
       onSubmit: () => this.handleEdit(),
-      disabled: true,
     } as ButtonProps;
     const editButtonComponent = new Button(buttonGroupElement, editButtonProps);
     editButtonComponent.render();
-    editButtonComponent.hide(); // Изначально скрываем кнопку изменения
+
     this.components.buttons.push(editButtonComponent);
     const delButtonProps = {
       id: `${this.props.id}__del-button`,
       text: 'Удалить',
       onSubmit: () => this.handleDelete(),
-      disabled: true,
     } as ButtonProps;
     const delButtonComponent = new Button(buttonGroupElement, delButtonProps);
     delButtonComponent.render();
-    delButtonComponent.hide(); // Изначально скрываем кнопку удаления
+
     this.components.buttons.push(delButtonComponent);
     const radioElement = this.self.querySelector('input[type="radio"]');
     radioElement.addEventListener('click', this.clickHandler);
@@ -123,32 +121,8 @@ export class Address {
    */
   handleClick(event: Event): void {
     event.preventDefault();
-    console.log(`Нажали на адрес: ${this.props.text}`);
     if (this.props.onSubmit !== undefined) {
       this.props.onSubmit(this);
-    }
-  }
-
-  /**
-   * Обработчик наведения на адрес.
-   * @private
-   */
-  handleHover(event: MouseEvent): void {
-    event.preventDefault();
-    if (this.components.buttons.length === 0) {
-      throw new Error(`Address: no buttons!`);
-    }
-    if (event.type === 'mouseleave') {
-      this.components.buttons.forEach((button) => {
-        button.disable();
-        button.hide();
-      });
-    }
-    if (event.type === 'mouseenter') {
-      this.components.buttons.forEach((button) => {
-        button.enable();
-        button.show();
-      });
     }
   }
 
@@ -157,7 +131,6 @@ export class Address {
    * @param event Event
    */
   handleEdit(): void {
-    console.log(`Address: Нажали кнопку редактирования адреса ${this.props.text}`);
     // Добавить модалку
   }
 
@@ -166,7 +139,6 @@ export class Address {
    * @param event Event
    */
   handleDelete(): void {
-    console.log(`Address: Нажали кнопку удаления адреса ${this.props.text}`);
     // Добавить обработку удаления
   }
 

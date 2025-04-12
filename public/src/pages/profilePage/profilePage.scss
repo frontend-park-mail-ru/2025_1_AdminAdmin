@@ -2,15 +2,14 @@
 .profile-page__body {
     margin-top: 40px;
     width: 100%;
-    padding: 0;
-    padding-bottom: 40px;
+    padding: 0 0 40px 0;
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 40px 20px;
+    grid-template-columns: 2fr 8fr 2fr;
+    gap: 40px 0;
     grid-template-areas:
-    ". . data data data data data data data data . ."
-    ". . address address address address address address address address . . "
-    ". . orders orders orders orders orders orders orders orders . .";
+    ". data ."
+    ". address . "
+    ". orders .";
     // Если оставляем категории нужно вставить их в template-areas
 
     .button {
