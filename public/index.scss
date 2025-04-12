@@ -34,7 +34,8 @@
 @use './src/pages/restaurantPage/restaurantPage' as *;
 @use './src/pages/profilePage/profilePage' as *;
 @use './src/pages/mapModal/mapModal' as *;
-@use 'src/pages/404/404' as *;
+@use './src/pages/404/404' as *;
+@use './src/pages/orderPage/orderPage' as *;
 
 @import '~@yandex/ymaps3-default-ui-theme/dist/esm/index.css';
 
@@ -57,12 +58,12 @@
   --light-yellow: #e4e6b2;
   --light-yellow-light: #eff0d1;
   --header-height: 5vh;
-  --real-header-height: calc(var(--header-height) + var(--header-height) / 5);
+  --real-header-height: calc(var(--header-height) + var(--header-height) / 2.5);
 }
 
 body {
   font-family: Calibri, sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   margin: 0;
   background-color: var(--white);
 }
@@ -147,4 +148,13 @@ input {
     border: 2px solid var(--dark-gray);
     outline: none;
   }
+}
+
+input[type='number'] {
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  -moz-appearance: textfield;
 }

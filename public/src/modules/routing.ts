@@ -6,6 +6,7 @@ import { AuthPage } from '@pages/authPage/authPage';
 import { userStore } from '@store/userStore';
 import NotFoundPage from '@pages/404/404';
 import ProfilePage from '@pages/profilePage/profilePage';
+import OrderPage from '@pages/orderPage/orderPage';
 
 interface RouteConfig {
   href: string;
@@ -68,6 +69,12 @@ class Router {
         href: '/profile',
         class: ProfilePage,
         header: Header,
+        options: false,
+      },
+      orderPage: {
+        href: '/order',
+        class: OrderPage,
+        header: auxHeader,
         options: false,
       },
       notFound: {

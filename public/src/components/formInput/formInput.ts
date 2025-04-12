@@ -12,13 +12,19 @@ export interface FormInputProps {
   required?: boolean; // true - обязательное поле, false - необязательное
   validator?: (value: string) => { result: boolean; message?: string }; // Функция валидации
   onInput?: (value: string) => void; // Функция при вводе
+  min?: number;
+  max?: number;
+  maxLength?: number;
+  movePlaceholderOnInput?: boolean;
 }
 
 export class FormInput {
   private parent: HTMLElement;
+  private readonly props: FormInputProps;
   private readonly eyeClickHandler: () => void;
   private readonly debouncedOnInput: (value: string) => void;
-  private readonly props: FormInputProps;
+  private readonly inputHandler: (e: Event) => void;
+  private readonly beforeInputHandler: (e: InputEvent) => void;
 
   get self(): HTMLElement | null {
     const element = document.getElementById(this.props.id);
@@ -41,62 +47,90 @@ export class FormInput {
       throw new Error('FormInput: this id is already used!');
     }
     this.parent = parent;
-    this.eyeClickHandler = this.handleClick.bind(this);
-    this.props = {
-      id: props.id,
-      label: props.label || '',
-      error: props.error || '',
-      placeholder: props.placeholder,
-      type: props.type || 'text',
-      required: props.required ?? false,
-      validator: props.validator,
-      onInput: props.onInput,
-    };
+    this.props = props;
 
+    this.eyeClickHandler = this.handleClick.bind(this);
     this.debouncedOnInput = debounce(this.onInput.bind(this), 100);
+
+    this.inputHandler = (e: Event) => this.debouncedOnInput((e.target as HTMLInputElement).value);
+
+    this.beforeInputHandler = (e: InputEvent) => {
+      if (e.inputType.startsWith('delete')) return;
+
+      const newChar = (e.data ?? '').toString();
+      const input = this.input;
+      if (!input) return;
+
+      const currentValue = input.value;
+      const newValue = currentValue + newChar;
+
+      if (this.props.type === 'number') {
+        if (!/^[0-9]$/.test(newChar)) {
+          e.preventDefault();
+          return;
+        }
+
+        const val = parseInt(newValue, 10);
+        if (!isNaN(val)) {
+          if (this.props.min !== undefined && val < this.props.min) {
+            e.preventDefault();
+            return;
+          }
+          if (this.props.max !== undefined && val > this.props.max) {
+            e.preventDefault();
+            return;
+          }
+        }
+      }
+
+      if (this.props.maxLength !== undefined && newValue.length > this.props.maxLength) {
+        e.preventDefault();
+      }
+    };
   }
 
   render(): void {
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
+
     if (!this.props.label) {
       const labelElement: HTMLElement = this.self?.querySelector('.form__input-head');
       if (labelElement) labelElement.remove();
     }
+
     if (!this.props.error) {
       const errorElement: HTMLElement = this.self?.querySelector('.form__error');
       if (errorElement) errorElement.style.display = 'none';
     }
+
     if (this.props.type === 'password') {
       const eyeIcon = this.self?.querySelector('.form__input__eye-icon') as HTMLElement;
-      if (eyeIcon) {
+      const input = this.input;
+      if (eyeIcon && input) {
         eyeIcon.style.display = 'block';
         eyeIcon.addEventListener('click', this.eyeClickHandler);
-        this.input.style.paddingRight = '40px';
+        input.style.paddingRight = '40px';
       }
     }
 
     const input = this.input;
     if (input) {
-      input.addEventListener('input', (event) =>
-        this.debouncedOnInput((event.target as HTMLInputElement).value),
-      );
+      if (this.props.type === 'number' || this.props.maxLength !== undefined) {
+        input.addEventListener('beforeinput', this.beforeInputHandler);
+      }
+
+      input.addEventListener('input', this.inputHandler);
     }
   }
 
   private handleClick(): void {
-    const eyeImg = this.self.querySelector('.eye-icon') as HTMLImageElement;
+    const eyeImg = this.self?.querySelector('.eye-icon') as HTMLImageElement;
     const input = this.input;
-    if (input) {
-      if (input.type === 'password') {
-        input.type = 'text';
-        eyeImg.src = eyeOpen;
-        eyeImg.alt = 'eye open';
-      } else {
-        input.type = 'password';
-        eyeImg.src = eyeClosed;
-        eyeImg.alt = 'eye closed';
-      }
+    if (input && eyeImg) {
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      eyeImg.src = isPassword ? eyeOpen : eyeClosed;
+      eyeImg.alt = isPassword ? 'eye open' : 'eye closed';
     }
   }
 
@@ -120,20 +154,20 @@ export class FormInput {
     return validationResult.result;
   }
 
-  setError(errorMessage: string): void {
-    const errorElement = this.parent.querySelector(`#${this.props.id}-error`) as HTMLElement;
-    if (errorElement) {
-      errorElement.textContent = errorMessage;
-      errorElement.style.display = 'block';
+  setError(message: string): void {
+    const errorEl = this.parent.querySelector(`#${this.props.id}-error`) as HTMLElement;
+    if (errorEl) {
+      errorEl.textContent = message;
+      errorEl.style.display = 'block';
     }
     this.input?.classList.add('error');
   }
 
   clearError(): void {
-    const errorElement = this.parent.querySelector(`#${this.props.id}-error`) as HTMLElement;
-    if (errorElement) {
-      errorElement.textContent = '';
-      errorElement.style.display = 'none';
+    const errorEl = this.parent.querySelector(`#${this.props.id}-error`) as HTMLElement;
+    if (errorEl) {
+      errorEl.textContent = '';
+      errorEl.style.display = 'none';
     }
     this.input?.classList.remove('error');
   }
@@ -145,10 +179,10 @@ export class FormInput {
   remove(): void {
     const input = this.input;
     if (input) {
-      input.removeEventListener('input', (event) =>
-        this.debouncedOnInput((event.target as HTMLInputElement).value),
-      );
+      input.removeEventListener('input', this.inputHandler);
+      input.removeEventListener('beforeinput', this.beforeInputHandler);
     }
+
     const eyeIcon = this.self?.querySelector('.form__input__eye-icon') as HTMLElement;
     if (eyeIcon) {
       eyeIcon.removeEventListener('click', this.eyeClickHandler);

@@ -77,6 +77,14 @@ export class CartCard {
     binIcon.addEventListener('click', this.binClickHandler);
   }
 
+  get input(): HTMLInputElement {
+    const element = this.self.querySelector('input');
+    if (!element) {
+      throw new Error(`Не найден инпут`);
+    }
+    return element;
+  }
+
   private incrementAmount() {
     orderStore.incrementProductAmount(this.props);
   }
