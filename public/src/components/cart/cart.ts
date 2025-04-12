@@ -61,10 +61,15 @@ export default class Cart {
   }
 
   private async handleClear(): Promise<void> {
+    const bin = this.self.querySelector('.cart__header-right') as HTMLElement;
+    bin.style.pointerEvents = 'none';
+
     try {
       await cartStore.clearCart();
     } catch (error) {
       toasts.error(error.message);
+    } finally {
+      bin.style.pointerEvents = '';
     }
   }
 

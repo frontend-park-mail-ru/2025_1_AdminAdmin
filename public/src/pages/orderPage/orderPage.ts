@@ -64,10 +64,15 @@ export default class OrderPage {
   }
 
   private async handleClear(): Promise<void> {
+    const bin: HTMLElement = this.self.querySelector('.order-page__products__header__clear');
+    bin.style.pointerEvents = 'none';
+
     try {
       await cartStore.clearCart();
     } catch (error) {
       toasts.error(error.message);
+    } finally {
+      bin.style.pointerEvents = '';
     }
   }
 

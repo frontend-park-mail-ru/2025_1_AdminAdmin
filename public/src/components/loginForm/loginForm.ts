@@ -47,6 +47,7 @@ export default class LoginForm {
 
     const login = this.loginInput.value.trim();
     const password = this.passwordInput.value;
+    this.submitBtn.disable();
 
     try {
       await userStore.login({ login, password });
@@ -55,6 +56,7 @@ export default class LoginForm {
       const errorMessage = err.message || 'Неверный логин или пароль';
       this.setError(errorMessage);
       toasts.error(errorMessage);
+      this.submitBtn.enable();
     }
   }
 

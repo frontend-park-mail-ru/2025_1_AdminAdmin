@@ -114,19 +114,25 @@ export class ProductCard {
       );
       modalController.openModal(confirmRestaurantModal);
     } else {
+      this.plusButton.disable();
       try {
         await cartStore.incrementProductAmount(this.props);
       } catch (error) {
         toasts.error(error.message);
+      } finally {
+        this.plusButton.enable();
       }
     }
   }
 
   private async decrementAmount() {
+    this.minusButton.disable();
     try {
       await cartStore.decrementProductAmount(this.props);
     } catch (error) {
       toasts.error(error.message);
+    } finally {
+      this.minusButton.enable();
     }
   }
 

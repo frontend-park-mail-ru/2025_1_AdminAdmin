@@ -179,11 +179,14 @@ export default class Header {
    * Осуществляет выход и отображает сообщение.
    */
   private async handleLogout(): Promise<void> {
+    this.logoutButton.disable();
     try {
       await userStore.logout();
       toasts.success('Вы успешно вышли из системы');
     } catch (error) {
       toasts.error(error.message);
+    } finally {
+      this.logoutButton.enable();
     }
   }
 
