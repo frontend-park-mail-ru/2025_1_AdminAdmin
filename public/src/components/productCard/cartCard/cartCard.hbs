@@ -1,10 +1,7 @@
 <div class="cart-card" id="cart-card-{{id}}">
-    <img
-            class="cart-card__product_icon"
-            src="http://doordashers.ru/images_restaurant/{{image_url}}"
-            alt="{{name}}"
-            onerror="this.onerror=null; this.src='/src/assets/default_product.jpg';"
-    />
+    <object class="cart-card__product_icon" data="http://doordashers.ru/images_restaurant/{{image_url}}" type="image/jpg">
+        <img class="cart-card__product_icon" src="/src/assets/default_product.jpg" />
+    </object>
     <div class="cart-card__content">
         <span class="cart-card__content__name">{{name}}</span>
         <div class="cart-card__content__bottom">
