@@ -138,16 +138,27 @@ class CartStore {
   }
 
   private async syncProductWithServer(productId: string, amount: number): Promise<void> {
-    const products = await AppCartRequests.UpdateProductQuantity(
+    const cart = await AppCartRequests.UpdateProductQuantity(
       productId,
       amount,
       this.getState().restaurant_id,
     );
-    this.setCart(products);
+
+    if (!cart || !Array.isArray(cart.products)) {
+      this.store.dispatch({
+        type: CartActions.CLEAR_CART,
+      });
+
+      return;
+    }
+
+    this.setCart(cart);
   }
 
-  private calculateTotalPrice(products: CartProduct[]): number {
-    return products.reduce((sum, product) => sum + product.price * product.amount, 0);
+  private calculateTotalPrice(products?: CartProduct[] | null): number {
+    if (!Array.isArray(products)) return 0;
+
+    return products.reduce((sum, { price, amount }) => sum + price * amount, 0);
   }
 
   private async addOrUpdateProduct(product: Product, amount: number): Promise<void> {
@@ -227,7 +238,7 @@ class CartStore {
   }
 
   getProductAmountById(productId: string): number {
-    const product = this.store.getState().products.find((p) => p.id === productId);
+    const product = this.store.getState().products?.find((p) => p.id === productId);
     return product ? product.amount : 0;
   }
 

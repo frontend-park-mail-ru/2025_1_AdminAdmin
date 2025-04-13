@@ -130,6 +130,7 @@ export class ProductCard {
     try {
       await cartStore.decrementProductAmount(this.props);
     } catch (error) {
+      console.error(error.message);
       toasts.error(error.message);
     } finally {
       this.minusButton.enable();
