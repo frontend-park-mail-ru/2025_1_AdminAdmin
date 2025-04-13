@@ -17,7 +17,7 @@ interface ErrorResponse {
   message: string;
 }
 
-const isDebug = false;
+const isDebug = true;
 
 const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? 'localhost:5458' : 'doordashers.ru'}/api`;
 
@@ -188,7 +188,7 @@ class UserRequests {
   GetAddresses = async (): Promise<{ address: string; id: string; user_id: string }[]> => {
     const { status, body } = await baseRequest<
       { address: string; id: string; user_id: string }[] | ErrorResponse
-    >(methods.GET, this.baseUrl + '/get_addresses');
+    >(methods.GET, this.baseUrl + '/address');
 
     if (status === 200) {
       return body as { address: string; id: string; user_id: string }[];
@@ -200,7 +200,7 @@ class UserRequests {
   AddAddress = async (address: string): Promise<{ message: string }> => {
     const { status, body } = await baseRequest<{ message: string } & { error?: string }>(
       methods.POST,
-      this.baseUrl + '/add_address',
+      this.baseUrl + '/address',
       {
         address,
       },
@@ -220,8 +220,8 @@ class UserRequests {
    */
   DeleteAddress = async (id: string): Promise<{ message: string }> => {
     const { status, body } = await baseRequest<{ message: string } & { error?: string }>(
-      methods.POST,
-      this.baseUrl + '/delete_address',
+      methods.DELETE,
+      this.baseUrl + '/address',
       { id },
     );
 
