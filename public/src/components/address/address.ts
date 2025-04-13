@@ -1,26 +1,26 @@
 import { Button, ButtonProps } from '../button/button';
 import template from './address.hbs';
+import { userStore } from '@store/userStore';
 
 /**
  * @interface Интерфейс для компонента адреса
  * @property {string} id - Уникальный идентификатор адреса
- * @property {string} text - Адрес в текстовом виде
+ * @property {string} address - Адрес в текстовом виде
  * @property {boolean} isChecked? - Флаг, указывающий, выбран ли этот адрес
  * @property {function(clickedAddress: Address): void} onSubmit? - Функция, вызываемая при нажатии на адрес
  * @example
  * const props: AddressProps  = {
  *   id: "myaddress1",
- *   text: "ул. Пушкина д.1",
+ *   address: "ул. Пушкина д.1",
  *   isChecked: true,
- *   onSubmit: (clickedAddress) => {console.log(clickedAddrerss.getProps().text)},
+ *   onSubmit: (clickedAddress) => {console.log(clickedAddrerss.getProps().address)},
  * };
  */
 export interface AddressProps {
   // ? - необязательное поле
   id: string;
-  text: string;
-  isChecked?: boolean;
-  onSubmit?: (clickedAddress: Address) => void; // Функция при нажатии
+  address: string;
+  isHeaderAddress: boolean;
 }
 
 /**
@@ -33,17 +33,16 @@ export interface AddressProps {
 export class Address {
   protected parent: HTMLElement; // Родитель (где вызывается)
   protected props: AddressProps; // Свойства
-  protected clickHandler: (event: Event) => void; // Функция при нажатии на радио-кнопку (·)
-  protected hoverHandler: (event: Event) => void; // Функция при наведении на адрес
+  private unsubscribeFromUserStore: (() => void) | null = null;
+  protected clickHandler: (event: Event) => void;
   protected components: {
-    // Список компонентов
     buttons: Button[];
   };
 
   /**
    * @constructor Создает экземпляр адреса
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться адрес
-   * @param {CategoriesProps} props - Словарь данных для определения свойств адреса
+   * @param props
    */
   constructor(parent: HTMLElement, props: AddressProps) {
     if (!parent) {
@@ -53,15 +52,14 @@ export class Address {
       throw new Error('Address: this id is already used!');
     }
     this.parent = parent;
-    this.props = {
-      id: props.id,
-      text: props.text,
-      isChecked: props.isChecked ?? false,
-      onSubmit: props.onSubmit || undefined,
-    };
+    this.props = props;
+    if (!this.props.isHeaderAddress) {
+      this.unsubscribeFromUserStore = userStore.subscribe(() => this.updateState());
+    }
     this.components = {
       buttons: [],
     };
+
     this.clickHandler = this.handleClick.bind(this);
   }
 
@@ -91,47 +89,36 @@ export class Address {
     // Заполняем
     const buttonGroupElement = this.self.querySelector('.address__button-group') as HTMLElement;
 
-    const editButtonProps = {
-      id: `${this.props.id}__edit-button`,
-      text: 'Редактировать',
-      onSubmit: () => this.handleEdit(),
-    } as ButtonProps;
-    const editButtonComponent = new Button(buttonGroupElement, editButtonProps);
-    editButtonComponent.render();
+    if (!this.props.isHeaderAddress) {
+      const delButtonProps = {
+        id: `${this.props.id}__del-button`,
+        text: 'Удалить',
+        onSubmit: () => this.handleDelete(),
+      } as ButtonProps;
+      const delButtonComponent = new Button(buttonGroupElement, delButtonProps);
+      delButtonComponent.render();
+      this.components.buttons.push(delButtonComponent);
+    }
 
-    this.components.buttons.push(editButtonComponent);
-    const delButtonProps = {
-      id: `${this.props.id}__del-button`,
-      text: 'Удалить',
-      onSubmit: () => this.handleDelete(),
-    } as ButtonProps;
-    const delButtonComponent = new Button(buttonGroupElement, delButtonProps);
-    delButtonComponent.render();
-
-    this.components.buttons.push(delButtonComponent);
-    const radioElement = this.self.querySelector('input[type="radio"]');
-    radioElement.addEventListener('click', this.clickHandler);
-    this.self.addEventListener('mouseenter', this.hoverHandler);
-    this.self.addEventListener('mouseleave', this.hoverHandler);
+    this.self.addEventListener('click', this.handleClick);
   }
 
   /**
    * Обработчик нажатия на адрес.
    * @private
    */
-  handleClick(event: Event): void {
-    event.preventDefault();
-    if (this.props.onSubmit !== undefined) {
-      this.props.onSubmit(this);
-    }
+  handleClick(): void {
+    userStore.setAddress(this.props.address);
   }
 
-  /**
-   * Обработчки нажатия на кнопку изменения адреса
-   * @param event Event
-   */
-  handleEdit(): void {
-    // Добавить модалку
+  private updateState(): void {
+    const radio = this.self.querySelector('input[type="radio"]') as HTMLInputElement | null;
+    if (!radio) {
+      console.error('Address: Radio input not found!');
+      return;
+    }
+
+    radio.checked = userStore.getActiveAddress() === this.props.address;
   }
 
   /**
@@ -151,6 +138,11 @@ export class Address {
    */
   remove(): void {
     const element = this.self;
+    element.removeEventListener('click', this.handleClick);
+    if (this.unsubscribeFromUserStore) {
+      this.unsubscribeFromUserStore();
+      this.unsubscribeFromUserStore = null;
+    }
     while (this.components.buttons.length > 0) {
       this.components.buttons.pop().remove();
     }
