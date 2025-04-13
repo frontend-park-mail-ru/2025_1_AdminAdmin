@@ -6,6 +6,7 @@ import {
 import { RestaurantResponse } from '@myTypes/restaurantTypes';
 import { I_Cart } from '@myTypes/cartTypes';
 import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
+import { CreateOrderPayload } from '@myTypes/orderTypes';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -16,7 +17,7 @@ interface ErrorResponse {
   message: string;
 }
 
-const isDebug = false;
+const isDebug = true;
 
 const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? 'localhost:5458' : 'doordashers.ru'}/api`;
 
@@ -91,9 +92,8 @@ class UserRequests {
 
   /**
    * Отправляет запрос на авторизацию пользователя.
-   * @param login - Логин пользователя
-   * @param password - Пароль пользователя
    * @returns {Promise<{id: string; login: string}>}
+   * @param payload
    */
   Login = async (payload: LoginPayload): Promise<User> => {
     const { status, body } = await baseRequest<User | ErrorResponse>(
@@ -141,7 +141,7 @@ class UserRequests {
       removeTokenFromLocalStorage();
       return { message: 'ok' };
     } else {
-      throw new Error(body.error ?? 'Что-то пошло не так...');
+      throw new Error(body.message ?? 'Что-то пошло не так...');
     }
   };
 
@@ -335,6 +335,30 @@ class CartRequests {
   };
 }
 
+class OrderRequests {
+  private baseUrl = '/order';
+
+  /**
+   * Создает новый заказ.
+   * @param payload - Данные заказа
+   * @returns {Promise<{ message: string; order_id?: string }>}
+   */
+  CreateOrder = async (
+    payload: CreateOrderPayload,
+  ): Promise<{ message: string; order_id?: string }> => {
+    const { status, body } = await baseRequest<
+      { message: string; order_id?: string } | ErrorResponse
+    >(methods.POST, this.baseUrl + '/create', payload);
+
+    if (status === 200 || status === 201) {
+      return body as { message: string; order_id?: string };
+    }
+
+    throw new Error((body as ErrorResponse)?.message ?? 'Не удалось создать заказ');
+  };
+}
+
 export const AppRestaurantRequests = new RestaurantsRequests();
 export const AppUserRequests = new UserRequests();
 export const AppCartRequests = new CartRequests();
+export const AppOrderRequests = new OrderRequests();

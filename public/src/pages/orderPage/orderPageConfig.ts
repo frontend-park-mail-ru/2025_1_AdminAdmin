@@ -1,3 +1,11 @@
+import {
+  ValidateFlat,
+  ValidateDoorPhone,
+  ValidatePorch,
+  ValidateFloor,
+  ValidateCourierComment,
+} from '@modules/validation';
+
 export default {
   addressInputs: {
     flat: {
@@ -7,6 +15,7 @@ export default {
       required: true,
       maxLength: 6,
       movePlaceholderOnInput: true,
+      validate: ValidateFlat,
     },
     doorPhone: {
       id: 'form__line__door_phone__input',
@@ -15,6 +24,7 @@ export default {
       required: true,
       maxLength: 10,
       movePlaceholderOnInput: true,
+      validate: ValidateDoorPhone,
     },
     porch: {
       id: 'form__line__porch__input',
@@ -24,6 +34,7 @@ export default {
       min: 1,
       max: 20,
       movePlaceholderOnInput: true,
+      validate: ValidatePorch,
     },
     floor: {
       id: 'form__line__floor__input',
@@ -33,6 +44,7 @@ export default {
       min: 1,
       max: 100,
       movePlaceholderOnInput: true,
+      validate: ValidateFloor,
     },
   },
   commentInput: {
@@ -41,5 +53,6 @@ export default {
     required: true,
     type: 'text',
     movePlaceholderOnInput: true,
+    validate: ValidateCourierComment,
   },
 };
