@@ -24,12 +24,14 @@ export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
       label: 'Имя',
       placeholder: 'Введите имя',
       validator: ValidateName,
+      required: !isEditMode,
     },
     secondName: {
       id: 'form__input__second-name',
       label: 'Фамилия',
       placeholder: 'Введите фамилию',
       validator: ValidateName,
+      required: !isEditMode,
     },
     phoneNumber: {
       id: 'form__input__phone',
@@ -37,6 +39,7 @@ export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
       placeholder: 'Введите телефон',
       type: 'phone',
       validator: ValidatePhone,
+      required: !isEditMode,
     },
     password: {
       id: 'form__input__password',
@@ -44,6 +47,7 @@ export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
       type: 'password',
       placeholder: 'Введите пароль (не менее 10 символов)',
       validator: ValidatePassword,
+      required: !isEditMode,
     },
     repeatPassword: {
       id: 'form__input__repeat-password',
@@ -51,6 +55,7 @@ export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
       type: 'password',
       placeholder: 'Повторите пароль',
       validator: ValidatePassword,
+      required: !isEditMode,
     },
   };
 
@@ -61,6 +66,7 @@ export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
       label: 'Логин',
       placeholder: 'Введите логин',
       validator: ValidateLogin,
+      required: true,
     },
   };
 

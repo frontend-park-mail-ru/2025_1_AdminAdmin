@@ -105,7 +105,6 @@ main {
 }
 
 .form__line {
-  grid-column: 5 / span 4;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -116,7 +115,6 @@ main {
 
   &_submit_button {
     margin-top: 15px;
-    margin-bottom: 60px;
   }
 
   & > * {
@@ -127,8 +125,6 @@ main {
 .form__error {
   font-size: 16px;
   height: 20px;
-  grid-column: 5 / span 4;
-  grid-row: 2;
   color: var(--red);
 }
 

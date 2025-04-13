@@ -5,11 +5,12 @@ import { userStore } from '@store/userStore';
 import { toasts } from '@modules/toasts';
 import template from './unifiedForm.hbs';
 import { getFormConfig, I_FormConfig } from './unifiedFormConfig';
+import { UpdateUserPayload } from '@myTypes/userTypes';
 
 export default class UnifiedForm {
   private readonly parent: HTMLElement;
   private readonly isEditMode: boolean;
-  private readonly config: any;
+  private readonly config: I_FormConfig;
   private components: {
     inputs: Record<string, FormInput>;
     submitButton: Button;
@@ -23,10 +24,6 @@ export default class UnifiedForm {
     this.components = { inputs: {}, submitButton: null };
   }
 
-  get self(): HTMLElement {
-    return document.getElementById(this.config.id) as HTMLElement;
-  }
-
   async validateData() {
     for (const formInputComponent of Object.values(this.components.inputs)) {
       if (!formInputComponent.checkValue()) {
@@ -34,7 +31,7 @@ export default class UnifiedForm {
       }
     }
 
-    const userData = {
+    const userData: any = {
       first_name: this.components.inputs.firstName.value.trim(),
       last_name: this.components.inputs.secondName.value.trim(),
       phone_number:
@@ -44,9 +41,30 @@ export default class UnifiedForm {
       password: this.components.inputs.password.value,
     };
 
+    if (
+      userData.password &&
+      userData.password !== this.components.inputs.passwordConfirmation.value
+    ) {
+      this.setError('Пароли не совпадают');
+      toasts.error('Пароли не совпадают');
+      return;
+    }
+
+    if (this.components.inputs.passwordConfirmation) {
+      delete userData.passwordConfirmation;
+    }
+
     try {
       if (this.isEditMode) {
-        // Вставить логику обновления профиля
+        const updateUserPayload: Partial<UpdateUserPayload> = {};
+        for (const key in userData) {
+          const value = userData[key];
+          if (value) {
+            (updateUserPayload as any)[key] = value;
+          }
+        }
+        await userStore.updateUser(updateUserPayload);
+        toasts.success('Ваш профиль успешно обновлен!');
       } else {
         await userStore.register(userData);
         toasts.success('Вы успешно зарегистрировались!');
@@ -79,31 +97,54 @@ export default class UnifiedForm {
 
     const formConfig: I_FormConfig = this.config;
 
-    if (formConfig.selects) {
-      const codeSelectContainer = document.getElementById('form__line__phoneNumber');
-      if (codeSelectContainer) {
-        this.components.codeSelect = new Select(codeSelectContainer, formConfig.selects.code);
-        this.components.codeSelect.render();
-      }
-    }
+    // Контейнер для "Имя + Фамилия"
+    const nameContainer = document.createElement('div');
+    nameContainer.className = 'form__line';
+    this.parent.appendChild(nameContainer);
+
+    const firstNameInput = new FormInput(nameContainer, formConfig.inputs.firstName);
+    firstNameInput.render();
+    this.components.inputs.firstName = firstNameInput;
+
+    const secondNameInput = new FormInput(nameContainer, formConfig.inputs.secondName);
+    secondNameInput.render();
+    this.components.inputs.secondName = secondNameInput;
+
+    const phoneContainer = document.createElement('div');
+    phoneContainer.className = 'form__line';
+    this.parent.appendChild(phoneContainer);
+
+    this.components.codeSelect = new Select(phoneContainer, formConfig.selects.code);
+    this.components.codeSelect.render();
+
+    const phoneInput = new FormInput(phoneContainer, formConfig.inputs.phoneNumber);
+    phoneInput.render();
+    this.components.inputs.phoneNumber = phoneInput;
 
     for (const [key, config] of Object.entries(formConfig.inputs)) {
-      const container = document.getElementById(`form__line__${key}`);
-      if (container) {
-        const inputComponent = new FormInput(container, config);
-        inputComponent.render();
-        this.components.inputs[key] = inputComponent;
+      if (key === 'firstName' || key === 'secondName' || key === 'phoneNumber') {
+        continue;
       }
+
+      const lineWrapper = document.createElement('div');
+      lineWrapper.className = 'form__line';
+      lineWrapper.id = `form__line__${key}`;
+      this.parent.appendChild(lineWrapper);
+
+      const inputComponent = new FormInput(lineWrapper, config);
+      inputComponent.render();
+      this.components.inputs[key] = inputComponent;
     }
 
-    const submitButtonContainer = document.getElementById('form__line__submitButton');
-    if (submitButtonContainer) {
-      this.components.submitButton = new Button(submitButtonContainer, {
-        ...formConfig.buttons.submitButton,
-        onSubmit: () => this.validateData(),
-      });
-      this.components.submitButton.render();
-    }
+    const submitButtonContainer = document.createElement('div');
+    submitButtonContainer.className = 'form__line form__line_submit_button';
+    this.parent.appendChild(submitButtonContainer);
+
+    this.components.submitButton = new Button(submitButtonContainer, {
+      ...formConfig.buttons.submitButton,
+      onSubmit: () => this.validateData(),
+    });
+    this.components.submitButton.render();
   }
 
   remove() {

@@ -188,15 +188,23 @@ export class FormInput {
 
   checkValue(): boolean {
     const value = this.input?.value.trim() || '';
+
+    if (!this.props.required && value === '') {
+      this.clearError();
+      return true;
+    }
+
     if (!this.props.validator) {
       return true;
     }
+
     const validationResult = this.props.validator(value);
     if (!validationResult.result) {
       this.setError(validationResult.message || '');
     } else {
       this.clearError();
     }
+
     return validationResult.result;
   }
 

@@ -20,3 +20,11 @@ export interface RegisterPayload {
   login: string;
   password: string;
 }
+
+export interface UpdateUserPayload {
+  description?: string;
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
+  password?: string;
+}

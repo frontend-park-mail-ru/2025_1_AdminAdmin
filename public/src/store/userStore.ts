@@ -5,7 +5,7 @@ import {
   getActiveAddressFromLocalStorage,
   saveActiveAddressToLocalStorage,
 } from '@modules/localStorage';
-import { User, LoginPayload, RegisterPayload } from '@myTypes/userTypes';
+import { User, LoginPayload, RegisterPayload, UpdateUserPayload } from '@myTypes/userTypes';
 
 interface UserState extends User {
   isAuth: boolean;
@@ -52,6 +52,12 @@ const userReducer = (state = initialUserState, action: Action): UserState => {
         activeAddress: action.payload,
       };
 
+    case UserActions.UPDATE_USER_SUCCESS:
+      return {
+        ...state,
+        ...action.payload,
+      };
+
     default:
       return state;
   }
@@ -64,6 +70,7 @@ export const UserActions = {
   CHECK_SUCCESS: 'CHECK_SUCCESS',
   ADD_ADDRESS_SUCCESS: 'ADD_ADDRESS_SUCCESS',
   SET_ADDRESS: 'SET_ADDRESS',
+  UPDATE_USER_SUCCESS: 'UPDATE_USER_SUCCESS',
 };
 
 class UserStore {
@@ -154,6 +161,24 @@ class UserStore {
       });
     } catch (err) {
       console.error('Ошибка при проверке пользователя:', (err as Error).message);
+    }
+  }
+
+  /**
+   * Обновляет информацию о пользователе.
+   * @param {Partial<UpdateUserPayload>} payload - данные для обновления пользователя
+   * @returns {Promise<void>} - обещание, которое разрешается после успешного обновления
+   */
+  async updateUser(payload: Partial<UpdateUserPayload>): Promise<void> {
+    try {
+      const res = await AppUserRequests.UpdateUser(payload);
+
+      this.dispatch({
+        type: UserActions.UPDATE_USER_SUCCESS,
+        payload: res,
+      });
+    } catch (err) {
+      console.error('Ошибка при обновлении данных пользователя:', (err as Error).message);
     }
   }
 

@@ -5,7 +5,7 @@ import {
 } from './localStorage';
 import { RestaurantResponse } from '@myTypes/restaurantTypes';
 import { I_Cart } from '@myTypes/cartTypes';
-import { LoginPayload, RegisterPayload, User } from '@myTypes/userTypes';
+import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -160,6 +160,41 @@ class UserRequests {
     } else {
       throw new Error('not authorized');
     }
+  };
+
+  /**
+   * Отправляет запрос на обновление информации пользователя.
+   * @param payload - Параметры для обновления (описание, имя, фамилия, телефон, пароль)
+   * @returns {Promise<User>}
+   */
+  UpdateUser = async (payload: Partial<UpdateUserPayload>): Promise<User> => {
+    const { status, body } = await baseRequest<User | ErrorResponse>(
+      methods.POST,
+      this.baseUrl + '/update_user',
+      payload,
+    );
+
+    if (status === 200) {
+      return body as User;
+    }
+
+    throw new Error((body as ErrorResponse)?.message ?? 'Что-то пошло не так...');
+  };
+
+  /**
+   * Получает список адресов, привязанных к пользователю.
+   * @returns {Promise<{ address: string; id: string; user_id: string }[]>}
+   */
+  GetAddresses = async (): Promise<{ address: string; id: string; user_id: string }[]> => {
+    const { status, body } = await baseRequest<
+      { address: string; id: string; user_id: string }[] | ErrorResponse
+    >(methods.GET, this.baseUrl + '/get_addresses');
+
+    if (status === 200) {
+      return body as { address: string; id: string; user_id: string }[];
+    }
+
+    throw new Error((body as ErrorResponse)?.message ?? 'Не удалось получить адреса пользователя');
   };
 
   /*  AddAddress = async (address: string): Promise<{ message: string }> => {

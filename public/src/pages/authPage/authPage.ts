@@ -95,8 +95,8 @@ export class AuthPage {
     const loginFormElement = this.parent.querySelector(this.loginFormSelector) as HTMLElement;
     const registerFormElement = this.parent.querySelector(this.registerFormSelector) as HTMLElement;
 
-    loginFormElement.style.display = isLogin ? 'contents' : 'none';
-    registerFormElement.style.display = isLogin ? 'none' : 'contents';
+    loginFormElement.style.display = isLogin ? 'flex' : 'none';
+    registerFormElement.style.display = isLogin ? 'none' : 'flex';
 
     this.loginButton?.toggleClass(
       isLogin ? 'button_inactive' : 'button_active',
