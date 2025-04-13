@@ -94,7 +94,8 @@ export default class OrderPage {
   async sendOrder() {
     const formValues: Record<string, string> = {};
 
-    for (const [, input] of Object.entries(this.inputs)) {
+    for (const [key, input] of Object.entries(this.inputs)) {
+      formValues[key] = input.value;
       if (!input.checkValue()) {
         return;
       }
@@ -116,9 +117,9 @@ export default class OrderPage {
     const payload: CreateOrderPayload = {
       status: 'new',
       address,
-      apartment_or_office: formValues.apartment_or_office,
-      intercom: formValues.intercom,
-      entrance: formValues.entrance,
+      apartment_or_office: formValues.flat,
+      intercom: formValues.doorPhone,
+      entrance: formValues.porch,
       floor: formValues.floor,
       courier_comment: formValues.orderPageComment,
       leave_at_door: leaveAtDoor,
