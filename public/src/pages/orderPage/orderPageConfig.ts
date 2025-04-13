@@ -52,7 +52,6 @@ export default {
     placeholder: 'Комментарий курьеру',
     required: false,
     type: 'text',
-    movePlaceholderOnInput: true,
     validator: ValidateCourierComment,
   },
 };
