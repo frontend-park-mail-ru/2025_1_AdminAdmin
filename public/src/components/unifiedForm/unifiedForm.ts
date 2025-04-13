@@ -25,6 +25,8 @@ export default class UnifiedForm {
   }
 
   async validateData() {
+    this.clearError();
+
     for (const formInputComponent of Object.values(this.components.inputs)) {
       if (!formInputComponent.checkValue()) {
         return;
@@ -41,17 +43,14 @@ export default class UnifiedForm {
       password: this.components.inputs.password.value,
     };
 
-    if (
-      userData.password &&
-      userData.password !== this.components.inputs.passwordConfirmation.value
-    ) {
+    if (userData.password && userData.password !== this.components.inputs.repeatPassword.value) {
       this.setError('Пароли не совпадают');
       toasts.error('Пароли не совпадают');
       return;
     }
 
-    if (this.components.inputs.passwordConfirmation) {
-      delete userData.passwordConfirmation;
+    if (this.components.inputs.repeatPassword) {
+      delete userData.repeatPassword;
     }
 
     try {

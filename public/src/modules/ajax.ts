@@ -197,10 +197,13 @@ class UserRequests {
     throw new Error((body as ErrorResponse)?.message ?? 'Не удалось получить адреса пользователя');
   };
 
-  /*  AddAddress = async (address: string): Promise<{ message: string }> => {
+  AddAddress = async (address: string): Promise<{ message: string }> => {
     const { status, body } = await baseRequest<{ message: string } & { error?: string }>(
       methods.POST,
       this.baseUrl + '/add_address',
+      {
+        address,
+      },
     );
 
     if (status === 200) {
@@ -208,7 +211,26 @@ class UserRequests {
     } else {
       throw new Error('not authorized');
     }
-  };*/
+  };
+
+  /**
+   * Удаляет адрес пользователя по ID.
+   * @param id - ID адреса
+   * @returns {Promise<{ message: string }>}
+   */
+  DeleteAddress = async (id: string): Promise<{ message: string }> => {
+    const { status, body } = await baseRequest<{ message: string } & { error?: string }>(
+      methods.POST,
+      this.baseUrl + '/delete_address',
+      { id },
+    );
+
+    if (status === 200) {
+      return body;
+    }
+
+    throw new Error(body?.error ?? 'Не удалось удалить адрес');
+  };
 }
 
 class RestaurantsRequests {

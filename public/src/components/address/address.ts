@@ -1,6 +1,8 @@
 import { Button, ButtonProps } from '../button/button';
 import template from './address.hbs';
 import { userStore } from '@store/userStore';
+import { AppUserRequests } from '@modules/ajax';
+import { toasts } from '@modules/toasts';
 
 /**
  * @interface Интерфейс для компонента адреса
@@ -34,7 +36,7 @@ export class Address {
   protected parent: HTMLElement; // Родитель (где вызывается)
   protected props: AddressProps; // Свойства
   private unsubscribeFromUserStore: (() => void) | null = null;
-  protected clickHandler: (event: Event) => void;
+  private readonly onDelete?: () => void = null;
   protected components: {
     buttons: Button[];
   };
@@ -43,8 +45,9 @@ export class Address {
    * @constructor Создает экземпляр адреса
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться адрес
    * @param props
+   * @param onDelete
    */
-  constructor(parent: HTMLElement, props: AddressProps) {
+  constructor(parent: HTMLElement, props: AddressProps, onDelete?: () => void) {
     if (!parent) {
       throw new Error('Address: no parent!');
     }
@@ -53,14 +56,13 @@ export class Address {
     }
     this.parent = parent;
     this.props = props;
+    this.onDelete = onDelete;
     if (!this.props.isHeaderAddress) {
       this.unsubscribeFromUserStore = userStore.subscribe(() => this.updateState());
     }
     this.components = {
       buttons: [],
     };
-
-    this.clickHandler = this.handleClick.bind(this);
   }
 
   /**
@@ -68,11 +70,18 @@ export class Address {
    * @returns {HTMLElement} - ссылка на объект
    */
   get self(): HTMLElement {
-    const element = document.getElementById(this.props.id);
+    const elementId = this.props.isHeaderAddress
+      ? `header-${this.props.id}`
+      : `address-${this.props.id}`;
+
+    const element = document.getElementById(elementId);
+
     if (!element) {
-      throw new Error(`Error: can't find address`);
+      throw new Error(`Error: can't find address with id: ${elementId}`);
     }
+
     return element as HTMLElement;
+
     // Возвращаем as HTMLElement потому что querySelector возвращает null или HTMLElement, но мы сделали проверку null
   }
 
@@ -84,7 +93,12 @@ export class Address {
       throw new Error('Error: address template not found');
     }
     // Рендерим шаблончик с данными
-    const html = template(this.props);
+    const html = template({
+      id: this.props.id,
+      addressName: this.props.address.toString(),
+      isHeaderAddress: this.props.isHeaderAddress,
+    });
+
     this.parent.insertAdjacentHTML('beforeend', html);
     // Заполняем
     const buttonGroupElement = this.self.querySelector('.address__button-group') as HTMLElement;
@@ -100,7 +114,9 @@ export class Address {
       this.components.buttons.push(delButtonComponent);
     }
 
-    this.self.addEventListener('click', this.handleClick);
+    this.self.addEventListener('click', this.handleClick.bind(this));
+
+    this.updateState();
   }
 
   /**
@@ -125,12 +141,16 @@ export class Address {
    * Обработчки нажатия на кнопку удаления адреса
    * @param event Event
    */
-  handleDelete(): void {
-    // Добавить обработку удаления
-  }
-
-  getProps(): AddressProps {
-    return this.props;
+  async handleDelete(): Promise<void> {
+    try {
+      await AppUserRequests.DeleteAddress(this.props.id);
+      if (userStore.getActiveAddress() === this.props.address) {
+        userStore.setAddress('');
+      }
+      this.onDelete();
+    } catch (error) {
+      toasts.error(error);
+    }
   }
 
   /**
@@ -138,7 +158,7 @@ export class Address {
    */
   remove(): void {
     const element = this.self;
-    element.removeEventListener('click', this.handleClick);
+    element.removeEventListener('click', this.handleClick.bind(this));
     if (this.unsubscribeFromUserStore) {
       this.unsubscribeFromUserStore();
       this.unsubscribeFromUserStore = null;

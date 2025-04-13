@@ -60,7 +60,6 @@ export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
   };
 
   const registrationInputs = {
-    ...baseInputs,
     login: {
       id: 'form__input__login',
       label: 'Логин',
@@ -68,6 +67,7 @@ export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
       validator: ValidateLogin,
       required: true,
     },
+    ...baseInputs,
   };
 
   const selects = {

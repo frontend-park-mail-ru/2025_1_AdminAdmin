@@ -3,7 +3,8 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 0px 15px;
+    box-sizing: border-box;
+    padding: 0 15px;
     background-color: #fff;
     border-radius: 10px;
 
@@ -35,5 +36,12 @@
         .button {
             background-color: #fff;
         }
+    }
+}
+
+
+@container (width < 600px) {
+    .address {
+        padding: 3%;
     }
 }

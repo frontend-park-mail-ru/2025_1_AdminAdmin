@@ -181,6 +181,18 @@ class UserStore {
     }
   }
 
+  async addAddress(address: string): Promise<void> {
+    try {
+      await AppUserRequests.AddAddress(address);
+      this.dispatch({
+        type: UserActions.ADD_ADDRESS_SUCCESS,
+        payload: { address: address },
+      });
+    } catch (err) {
+      console.error('Ошибка при добавлении адреса:', err.message);
+    }
+  }
+
   /**
    * Устанавливает активный адрес пользователя.
    * @param {string} address - новый активный адрес

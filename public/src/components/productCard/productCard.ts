@@ -96,7 +96,7 @@ export class ProductCard {
 
   private async incrementAmount() {
     if (!userStore.getActiveAddress()) {
-      const mapModal = new MapModal();
+      const mapModal = new MapModal((newAddress: string) => userStore.setAddress(newAddress));
       modalController.openModal(mapModal);
       return;
     }

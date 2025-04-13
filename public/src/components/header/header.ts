@@ -23,6 +23,7 @@ export default class Header {
   private logoutButton!: Button;
   private readonly handleScrollBound: () => void;
   private readonly clickHandler: (event: Event) => void;
+  private addressComponents: Address[] = [];
   private unsubscribeFromUserStore: (() => void) | null = null;
   private unsubscribeFromCartStore: (() => void) | null = null;
 
@@ -45,6 +46,8 @@ export default class Header {
 
     if (dropdown) {
       dropdown.style.display = 'none';
+      this.addressComponents.forEach((comp) => comp.remove());
+      this.addressComponents = [];
     }
 
     if (target.closest('.header__location_select_button')) {
@@ -54,13 +57,19 @@ export default class Header {
           const addressesContainer: HTMLElement = this.self.querySelector(
             '.header__location_dropdown_options',
           );
-          addresses.forEach((address) => {
-            const addressComponent = new Address(addressesContainer, {
-              ...address,
-              isHeaderAddress: true,
+          this.addressComponents.forEach((comp) => comp.remove());
+          this.addressComponents = [];
+
+          if (Array.isArray(addresses)) {
+            addresses.forEach((address) => {
+              const addressComponent = new Address(addressesContainer, {
+                ...address,
+                isHeaderAddress: true,
+              });
+              addressComponent.render();
+              this.addressComponents.push(addressComponent);
             });
-            addressComponent.render();
-          });
+          }
         } catch (error) {
           toasts.error(error.message);
         }
@@ -68,7 +77,7 @@ export default class Header {
 
       dropdown.style.display = 'block';
     } else if (target.closest('.header__location_dropdown_button')) {
-      const mapModal = new MapModal();
+      const mapModal = new MapModal((newAddress: string) => userStore.setAddress(newAddress));
       modalController.openModal(mapModal);
     }
   }
@@ -208,6 +217,8 @@ export default class Header {
     this.logoutButton?.remove();
     this.cartButton.remove();
     this.parent.innerHTML = '';
+    this.addressComponents.forEach((comp) => comp.remove());
+    this.addressComponents = [];
     this.parent.classList.remove('main_header');
     window.removeEventListener('scroll', this.handleScrollBound);
     document.removeEventListener('click', this.clickHandler);
