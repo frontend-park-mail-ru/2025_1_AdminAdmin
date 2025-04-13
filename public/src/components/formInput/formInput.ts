@@ -112,11 +112,6 @@ export class FormInput {
       this.applyPhoneMask();
     }
 
-    if (!this.props.label) {
-      const labelElement: HTMLElement = this.self?.querySelector('.form__input-head');
-      if (labelElement) labelElement.remove();
-    }
-
     if (!this.props.error) {
       const errorElement: HTMLElement = this.self?.querySelector('.form__error');
       if (errorElement) errorElement.style.display = 'none';
