@@ -60,6 +60,7 @@ export function getActiveAddressFromLocalStorage(): string {
 export function removeTokenFromLocalStorage(): void {
   try {
     window.localStorage.removeItem('X-CSRF-Token');
+    window.localStorage.removeItem('Address');
   } catch (err) {
     console.error('Ошибка при очистке localstorage', err);
   }

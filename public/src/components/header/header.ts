@@ -8,6 +8,8 @@ import MapModal from '@pages/mapModal/mapModal';
 import logoImg from '@assets/logo.png';
 import { cartStore } from '@store/cartStore';
 import { modalController } from '@modules/modalController';
+import { AppUserRequests } from '@modules/ajax';
+import { Address } from '@components/address/address';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -21,6 +23,7 @@ export default class Header {
   private logoutButton!: Button;
   private readonly handleScrollBound: () => void;
   private readonly clickHandler: (event: Event) => void;
+  private addressComponents: Address[] = [];
   private unsubscribeFromUserStore: (() => void) | null = null;
   private unsubscribeFromCartStore: (() => void) | null = null;
 
@@ -37,18 +40,44 @@ export default class Header {
     this.clickHandler = this.handleClick.bind(this);
   }
 
-  private handleClick(event: Event): void {
+  private async handleClick(event: Event): Promise<void> {
     const target = event.target as HTMLElement;
     const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
 
     if (dropdown) {
       dropdown.style.display = 'none';
+      this.addressComponents.forEach((comp) => comp.remove());
+      this.addressComponents = [];
     }
 
     if (target.closest('.header__location_select_button')) {
+      if (userStore.isAuth()) {
+        try {
+          const addresses = await AppUserRequests.GetAddresses();
+          const addressesContainer: HTMLElement = this.self.querySelector(
+            '.header__location_dropdown_options',
+          );
+          this.addressComponents.forEach((comp) => comp.remove());
+          this.addressComponents = [];
+
+          if (Array.isArray(addresses)) {
+            addresses.forEach((address) => {
+              const addressComponent = new Address(addressesContainer, {
+                ...address,
+                isHeaderAddress: true,
+              });
+              addressComponent.render();
+              this.addressComponents.push(addressComponent);
+            });
+          }
+        } catch (error) {
+          toasts.error(error.message);
+        }
+      }
+
       dropdown.style.display = 'block';
     } else if (target.closest('.header__location_dropdown_button')) {
-      const mapModal = new MapModal();
+      const mapModal = new MapModal((newAddress: string) => userStore.setAddress(newAddress));
       modalController.openModal(mapModal);
     }
   }
@@ -133,28 +162,26 @@ export default class Header {
    * Показывает или скрывает кнопки входа/выхода в зависимости от состояния пользователя.
    */
   private updateHeaderState(): void {
-    const loginContainer = document.querySelector('.header__login') as HTMLElement;
-
     if (userStore.isAuth()) {
       this.loginButton.hide();
       this.logoutButton.show();
-
-      if (loginContainer) {
-        loginContainer.textContent = userStore.getState().login || '';
-      }
     } else {
       this.loginButton.show();
       this.logoutButton.hide();
-
-      if (loginContainer) {
-        loginContainer.textContent = '';
-      }
     }
 
     const activeAddress = userStore.getActiveAddress();
+    const locationButton: HTMLDivElement = this.parent.querySelector(
+      '.header__location_select_button',
+    );
+
     if (activeAddress) {
-      this.setButtonAddress(activeAddress);
+      locationButton.classList.add('selected');
+      locationButton.innerText = activeAddress;
       modalController.closeModal();
+    } else {
+      locationButton.classList.remove('selected');
+      locationButton.innerText = 'Укажите адрес доставки';
     }
 
     if (cartStore.getState().total_price) {
@@ -163,15 +190,6 @@ export default class Header {
     } else {
       this.cartButton.hide();
     }
-  }
-
-  private setButtonAddress(activeAddress: string) {
-    const locationButton: HTMLDivElement = this.parent.querySelector(
-      '.header__location_select_button',
-    );
-    locationButton.classList.add('selected');
-
-    locationButton.innerText = activeAddress;
   }
 
   /**
@@ -199,6 +217,8 @@ export default class Header {
     this.logoutButton?.remove();
     this.cartButton.remove();
     this.parent.innerHTML = '';
+    this.addressComponents.forEach((comp) => comp.remove());
+    this.addressComponents = [];
     this.parent.classList.remove('main_header');
     window.removeEventListener('scroll', this.handleScrollBound);
     document.removeEventListener('click', this.clickHandler);

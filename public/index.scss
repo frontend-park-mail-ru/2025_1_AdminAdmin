@@ -23,7 +23,6 @@
 @use './src/components/suggestsContainer/suggestsContainer' as *;
 @use './src/components/address/address.scss' as *;
 @use './src/components/profileTable/profileTable.scss' as *;
-@use './src/components/profileForm/profileForm.scss' as *;
 @use './src/components/cart/cart' as *;
 @use './src/components/confirmRestaurantModal/confirmRestaurantModal' as *;
 @use './src/components/quantityControls/quantityControls' as *;
@@ -106,7 +105,6 @@ main {
 }
 
 .form__line {
-  grid-column: 5 / span 4;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -117,7 +115,6 @@ main {
 
   &_submit_button {
     margin-top: 15px;
-    margin-bottom: 60px;
   }
 
   & > * {
@@ -128,8 +125,6 @@ main {
 .form__error {
   font-size: 16px;
   height: 20px;
-  grid-column: 5 / span 4;
-  grid-row: 2;
   color: var(--red);
 }
 

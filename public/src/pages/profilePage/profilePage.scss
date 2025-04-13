@@ -38,6 +38,12 @@
         font-size: 32px;
         font-weight: bold;
     }
+
+    &__body {
+        display: flex;
+        flex-direction: column;
+        gap: 1vh;
+    }
 }
 
 // Блок изменения/добавления/удаления адресов

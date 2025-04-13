@@ -1,8 +1,9 @@
-<div class="address" id="{{id}}">
+<div class="address" id="{{#if isHeaderAddress}}header-{{id}}{{else}}address-{{id}}{{/if}}">
     <div class="address__radio-group">
-        <input type="radio" {{#if isChecked}}checked{{/if}}/>
-        <span>{{text}}</span>
+        {{#unless isHeaderAddress}}
+            <input type="radio" checked />
+        {{/unless}}
+        <span>{{addressName}}</span>
     </div>
-    <div class="address__button-group">
-    </div>
+    <div class="address__button-group"></div>
 </div>

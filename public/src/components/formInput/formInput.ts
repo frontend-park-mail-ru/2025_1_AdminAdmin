@@ -16,6 +16,7 @@ export interface FormInputProps {
   max?: number;
   maxLength?: number;
   movePlaceholderOnInput?: boolean;
+  value?: string;
 }
 
 export class FormInput {
@@ -25,6 +26,7 @@ export class FormInput {
   private readonly debouncedOnInput: (value: string) => void;
   private readonly inputHandler: (e: Event) => void;
   private readonly beforeInputHandler: (e: InputEvent) => void;
+  private phoneInputHandler?: (e: Event) => void; // Phone mask handler
 
   get self(): HTMLElement | null {
     const element = document.getElementById(this.props.id);
@@ -32,7 +34,6 @@ export class FormInput {
       throw new Error(`Error: can't find table`);
     }
     return element as HTMLElement;
-    // Возвращаем as HTMLElement потому что querySelector возвращает null или HTMLElement, но мы сделали проверку null
   }
 
   get input(): HTMLInputElement | null {
@@ -89,9 +90,27 @@ export class FormInput {
     };
   }
 
+  private applyPhoneMask() {
+    const input = this.input;
+    if (input && this.props.type === 'phone') {
+      input.value = input.value.replace(/[\s()-]/g, '');
+      const digits = input.value.replace(/\D/g, '');
+      const match = digits.match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+      if (match) {
+        input.value = !match[2]
+          ? match[1]
+          : `(${match[1]}) ${match[2]}${match[3] ? `-${match[3]}` : ''}`;
+      }
+    }
+  }
+
   render(): void {
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
+
+    if (this.props.type === 'phone' && this.props.value) {
+      this.applyPhoneMask();
+    }
 
     if (!this.props.label) {
       const labelElement: HTMLElement = this.self?.querySelector('.form__input-head');
@@ -113,6 +132,10 @@ export class FormInput {
       }
     }
 
+    if (this.props.type === 'phone') {
+      this.addPhoneMask();
+    }
+
     const input = this.input;
     if (input) {
       if (this.props.type === 'number' || this.props.maxLength !== undefined) {
@@ -121,6 +144,29 @@ export class FormInput {
 
       input.addEventListener('input', this.inputHandler);
     }
+  }
+
+  private addPhoneMask(): void {
+    this.phoneInputHandler = (e: Event) => {
+      const input = e.target as HTMLInputElement;
+      if (!input) return;
+      let cursorPos = input.selectionStart ?? 0;
+      const oldLength = input.value.length;
+      const digits = input.value.replace(/\D/g, '');
+      const match = digits.match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+      if (match) {
+        const formatted = !match[2]
+          ? match[1]
+          : `(${match[1]}) ${match[2]}${match[3] ? `-${match[3]}` : ''}`;
+        input.value = formatted;
+
+        const newLength = formatted.length;
+        cursorPos += newLength - oldLength;
+        input.setSelectionRange(cursorPos, cursorPos);
+      }
+    };
+
+    this.input?.addEventListener('input', this.phoneInputHandler);
   }
 
   private handleClick(): void {
@@ -142,15 +188,23 @@ export class FormInput {
 
   checkValue(): boolean {
     const value = this.input?.value.trim() || '';
+
+    if (!this.props.required && value === '') {
+      this.clearError();
+      return true;
+    }
+
     if (!this.props.validator) {
       return true;
     }
+
     const validationResult = this.props.validator(value);
     if (!validationResult.result) {
       this.setError(validationResult.message || '');
     } else {
       this.clearError();
     }
+
     return validationResult.result;
   }
 
@@ -181,6 +235,10 @@ export class FormInput {
     if (input) {
       input.removeEventListener('input', this.inputHandler);
       input.removeEventListener('beforeinput', this.beforeInputHandler);
+    }
+
+    if (this.phoneInputHandler) {
+      this.input?.removeEventListener('input', this.phoneInputHandler);
     }
 
     const eyeIcon = this.self?.querySelector('.form__input__eye-icon') as HTMLElement;

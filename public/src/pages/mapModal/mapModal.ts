@@ -17,8 +17,6 @@ import {
 import debounce from '@modules/debounce';
 import { YMapGeolocationControl, YMapZoomControl } from '@yandex/ymaps3-default-ui-theme';
 import { toasts } from '@modules/toasts';
-import { userStore } from '@store/userStore';
-
 import mapLocationImg from '@assets/map_location.png';
 
 /**
@@ -27,6 +25,7 @@ import mapLocationImg from '@assets/map_location.png';
 export default class MapModal {
   private suggestsContainer: SuggestsContainer;
   private submitBtn: Button;
+  private readonly onSubmit: (address: string) => void;
   private readonly closeEventHandler: (event: Event) => void;
   private readonly debouncedOnInput: (value: string) => void;
   private map: any;
@@ -38,7 +37,8 @@ export default class MapModal {
    * Конструктор класса
    * @constructor
    */
-  constructor() {
+  constructor(onSubmit: (address: string) => void) {
+    this.onSubmit = onSubmit;
     this.debouncedOnInput = debounce(this.onInput.bind(this), 250);
   }
 
@@ -81,8 +81,10 @@ export default class MapModal {
       text: 'ОК',
       disabled: true,
       style: 'dark big',
-      onSubmit: () => {
-        userStore.setAddress(this.input.value);
+      onSubmit: async () => {
+        const newAddress = this.input.value;
+        this.submitBtn.disable();
+        this.onSubmit(newAddress);
       },
     });
 

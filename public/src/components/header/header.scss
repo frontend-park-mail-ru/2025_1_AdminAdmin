@@ -89,6 +89,11 @@
           }
         }
 
+        &_options {
+          width: 100%;
+          container-type: inline-size;
+        }
+
         &_icon {
           height: 30px;
           margin-right: 10px;
