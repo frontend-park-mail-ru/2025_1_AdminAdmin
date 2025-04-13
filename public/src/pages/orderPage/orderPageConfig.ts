@@ -50,7 +50,7 @@ export default {
   commentInput: {
     id: 'order_page_comment_input',
     placeholder: 'Комментарий курьеру',
-    required: true,
+    required: false,
     type: 'text',
     movePlaceholderOnInput: true,
     validator: ValidateCourierComment,
