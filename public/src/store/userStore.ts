@@ -1,11 +1,11 @@
 import { createStore } from './store';
-import { router } from '@modules/routing';
 import { AppUserRequests } from '@modules/ajax';
 import {
   getActiveAddressFromLocalStorage,
   saveActiveAddressToLocalStorage,
 } from '@modules/localStorage';
 import { User, LoginPayload, RegisterPayload, UpdateUserPayload } from '@myTypes/userTypes';
+import { cartStore } from '@store/cartStore';
 
 interface UserState extends User {
   isAuth: boolean;
@@ -122,6 +122,8 @@ class UserStore {
       type: UserActions.LOGIN_SUCCESS,
       payload: res,
     });
+
+    await cartStore.initCart();
   }
 
   /**
@@ -135,6 +137,8 @@ class UserStore {
       type: UserActions.REGISTER_SUCCESS,
       payload: res,
     });
+
+    await cartStore.initCart();
   }
 
   /**
@@ -144,7 +148,8 @@ class UserStore {
   async logout(): Promise<void> {
     await AppUserRequests.Logout();
     this.dispatch({ type: UserActions.LOGOUT_SUCCESS });
-    router.goToPage('home');
+
+    await cartStore.initCart();
   }
 
   /**
@@ -158,6 +163,8 @@ class UserStore {
         type: UserActions.CHECK_SUCCESS,
         payload: res,
       });
+
+      await cartStore.initCart();
     } catch (err) {
       console.error('Ошибка при проверке пользователя:', (err as Error).message);
     }

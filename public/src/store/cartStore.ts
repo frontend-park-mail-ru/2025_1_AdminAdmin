@@ -73,7 +73,6 @@ class CartStore {
 
   constructor() {
     this.store = createStore(cartReducer);
-    userStore.subscribe(this.initCart.bind(this));
   }
 
   async initCart() {

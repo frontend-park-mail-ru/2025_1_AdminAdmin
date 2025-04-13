@@ -201,6 +201,7 @@ export default class Header {
     try {
       await userStore.logout();
       toasts.success('Вы успешно вышли из системы');
+      router.goToPage('home');
     } catch (error) {
       toasts.error(error.message);
     } finally {
