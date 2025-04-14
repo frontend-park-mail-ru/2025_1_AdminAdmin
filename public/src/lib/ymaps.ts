@@ -8,3 +8,7 @@ export const {
   YMapListener,
   YMapMarker,
 } = ymaps3;
+
+export const { YMapGeolocationControl, YMapZoomControl } = await import(
+  '@yandex/ymaps3-default-ui-theme'
+);
