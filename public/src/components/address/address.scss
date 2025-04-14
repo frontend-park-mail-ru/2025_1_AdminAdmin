@@ -3,6 +3,7 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    min-height: 0;
     box-sizing: border-box;
     padding: 0 15px;
     background-color: #fff;
@@ -46,7 +47,7 @@
     }
 }
 
-@container (width > 600px) {
+@container (width > 400px) {
     .address {
         min-height: 60px;
     }
