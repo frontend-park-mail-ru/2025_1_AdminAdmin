@@ -217,6 +217,11 @@ export default class Header {
       document.querySelector('.header__profile-dropdown__second-name').textContent =
         userStore.getState().last_name;
       this.profileButton.show();
+
+      const avatarImage = document.getElementById(
+        'header__profile-dropdown__image',
+      ) as HTMLImageElement;
+      avatarImage.src = `https://doordashers.ru/images_user/${userStore.getState().path}`;
     } else {
       document.querySelector('.header__profile-dropdown').classList.remove('active');
       this.loginButton.show();
