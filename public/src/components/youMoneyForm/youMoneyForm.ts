@@ -1,6 +1,5 @@
 import template from './youMoneyForm.hbs';
 import { Button } from '@components/button/button';
-import { cartStore } from '@store/cartStore';
 
 /**
  * Класс, представляющий форму для ЮMoney.
@@ -41,8 +40,6 @@ export default class YouMoneyForm {
       type: 'button',
       text: 'Перейти к оплате',
       onSubmit: async () => {
-        cartStore.clearLocalCart();
-
         const form = this.self as HTMLFormElement;
         if (form) {
           form.submit();
