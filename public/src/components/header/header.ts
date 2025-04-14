@@ -234,14 +234,17 @@ export default class Header {
     const locationButton: HTMLDivElement = this.parent.querySelector(
       '.header__location_select_button',
     );
+    const locationText: HTMLSpanElement = locationButton.querySelector(
+      '.header__location_select_button__text',
+    );
 
     if (activeAddress) {
       locationButton.classList.add('selected');
-      locationButton.innerText = activeAddress;
+      locationText.textContent = activeAddress;
       modalController.closeModal();
     } else {
       locationButton.classList.remove('selected');
-      locationButton.innerText = 'Укажите адрес доставки';
+      locationText.textContent = 'Укажите адрес доставки';
     }
 
     if (cartStore.getState().total_price) {
