@@ -21,6 +21,9 @@ export default class Header {
   private cartButton: Button;
   private loginButton!: Button;
   private logoutButton!: Button;
+
+  private profileButton!: Button; // ГОВНОКОД START
+
   private readonly handleScrollBound: () => void;
   private readonly clickHandler: (event: Event) => void;
   private addressComponents: Address[] = [];
@@ -134,6 +137,17 @@ export default class Header {
     });
     this.logoutButton.render();
 
+    // ГОВНОКОД START
+    this.profileButton = new Button(authButtonContainer, {
+      id: 'profile_button',
+      text: 'Профиль',
+      onSubmit: () => {
+        router.goToPage('profilePage');
+      },
+    });
+    this.profileButton.render();
+    // ГОВНОКОД END
+
     this.updateHeaderState();
 
     window.addEventListener('scroll', this.handleScrollBound);
@@ -165,9 +179,17 @@ export default class Header {
     if (userStore.isAuth()) {
       this.loginButton.hide();
       this.logoutButton.show();
+
+      // ГОВНОКОД START
+      this.profileButton.show();
+      // ГОВНОКОД END
     } else {
       this.loginButton.show();
       this.logoutButton.hide();
+
+      // ГОВНОКОД START
+      this.profileButton.hide();
+      // ГОВНОКОД END
     }
 
     const activeAddress = userStore.getActiveAddress();
@@ -216,6 +238,11 @@ export default class Header {
     this.logo?.remove();
     this.loginButton?.remove();
     this.logoutButton?.remove();
+
+    // ГОВНОКОД START
+    this.profileButton?.remove();
+    // ГОВНОКОД END
+
     this.cartButton.remove();
     this.parent.innerHTML = '';
     this.addressComponents.forEach((comp) => comp.remove());
