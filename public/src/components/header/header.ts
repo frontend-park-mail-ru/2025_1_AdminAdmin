@@ -219,7 +219,7 @@ export default class Header {
       this.profileButton.show();
 
       const avatarImage = document.getElementById(
-        'header__profile-dropdown__image',
+        'header__profile-dropdown__image__avatar',
       ) as HTMLImageElement;
       avatarImage.src = `https://doordashers.ru/images_user/${userStore.getState().path}`;
     } else {
