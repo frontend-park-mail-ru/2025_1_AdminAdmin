@@ -9,8 +9,8 @@
   grid-auto-rows: min-content;
   background-image: url('~@assets/background.jpg');
   background-attachment: fixed;
-  background-size: cover;
-  background-position: center;
+  background-size: 100vw auto;
+  background-position: center top;
   background-repeat: no-repeat;
 
   &__line {

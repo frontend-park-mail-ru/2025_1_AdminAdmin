@@ -36,6 +36,7 @@ type RequestParams = Record<string, string>;
  * @param url - URL-адрес запроса
  * @param data - Данные для отправки в запросе (для методов POST и PUT)
  * @param params - GET-параметры запроса
+ * @param contentType
  * @returns {Promise<ResponseData>}
  */
 const baseRequest = async <T = any>(
@@ -43,19 +44,20 @@ const baseRequest = async <T = any>(
   url: string,
   data: any = null,
   params: RequestParams | null = null,
+  contentType = 'application/json',
 ): Promise<ResponseData<T>> => {
   const options: RequestInit = {
     method,
     mode: 'cors',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/json',
+      ...(contentType !== 'multipart/form-data' ? { 'Content-Type': contentType } : {}),
       Accept: 'application/json',
       ...getCSRFFromLocalStorage(),
     },
   };
-
-  if (data) options.body = JSON.stringify(data);
+  if (data && contentType !== 'multipart/form-data') options.body = JSON.stringify(data);
+  else if (data && contentType === 'multipart/form-data') options.body = data;
 
   const queryUrl = new URL(baseUrl + url);
   if (params) queryUrl.search = new URLSearchParams(params).toString();
@@ -230,6 +232,22 @@ class UserRequests {
     }
 
     throw new Error((body as ErrorResponse)?.error ?? 'Не удалось удалить адрес');
+  };
+
+  SetAvatar = async (picture: FormData) => {
+    const { status, body } = await baseRequest<{ message: string } & { error?: string }>(
+      methods.POST,
+      this.baseUrl + '/update_userpic',
+      picture,
+      null,
+      'multipart/form-data',
+    );
+
+    if (status === 200) {
+      return body;
+    }
+
+    throw new Error(body?.error ?? 'Не удалось загрузить аватарку');
   };
 }
 

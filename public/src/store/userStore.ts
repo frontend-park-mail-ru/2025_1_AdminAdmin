@@ -187,6 +187,18 @@ class UserStore {
     }
   }
 
+  async SetAvatar(file: File) {
+    const formData = new FormData();
+    formData.append('user_pic', file);
+    // Отправляем аватарку на сервер
+    const res = await AppUserRequests.SetAvatar(formData);
+
+    this.dispatch({
+      type: UserActions.UPDATE_USER_SUCCESS,
+      payload: res,
+    });
+  }
+
   async addAddress(address: string): Promise<void> {
     try {
       await AppUserRequests.AddAddress(address);

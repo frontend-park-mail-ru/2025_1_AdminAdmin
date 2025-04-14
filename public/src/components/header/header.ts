@@ -20,10 +20,9 @@ export default class Header {
   private logo!: Logo;
   private cartButton: Button;
   private loginButton!: Button;
+  private profileButton: Button;
+  private profileSettingsButton: Button;
   private logoutButton!: Button;
-
-  private profileButton!: Button; // ГОВНОКОД START
-
   private readonly handleScrollBound: () => void;
   private readonly clickHandler: (event: Event) => void;
   private addressComponents: Address[] = [];
@@ -83,6 +82,26 @@ export default class Header {
       const mapModal = new MapModal((newAddress: string) => userStore.setAddress(newAddress));
       modalController.openModal(mapModal);
     }
+
+    const profileDropdownOptions = document.querySelector(
+      '.header__profile-dropdown__options',
+    ) as HTMLElement;
+
+    // Если кликнули по кнопке профиля
+    if (target.id === 'profile_button') {
+      if (profileDropdownOptions.classList.contains('active')) {
+        profileDropdownOptions.classList.remove('active');
+      } else {
+        profileDropdownOptions.classList.add('active');
+      }
+    }
+    // Если кликнули не по дропдауну пользователя при этом он открыт
+    else if (
+      profileDropdownOptions.classList.contains('active') &&
+      !profileDropdownOptions.contains(target)
+    ) {
+      profileDropdownOptions.classList.remove('active');
+    }
   }
 
   /**
@@ -103,7 +122,7 @@ export default class Header {
     this.logo = new Logo(this.self.querySelector('.header__logo'), logoImg);
     this.logo.render();
 
-    const authButtonContainer = document.querySelector('.header__auth_buttons') as HTMLElement;
+    const authButtonContainer = document.querySelector('.header__auth_button') as HTMLElement;
     if (!authButtonContainer) return;
 
     const cartButtonContainer = document.querySelector('.header__cart_button') as HTMLElement;
@@ -130,23 +149,37 @@ export default class Header {
     });
     this.loginButton.render();
 
-    this.logoutButton = new Button(authButtonContainer, {
-      id: 'logout_button',
-      text: 'Выход',
-      onSubmit: this.handleLogout.bind(this),
-    });
-    this.logoutButton.render();
-
-    // ГОВНОКОД START
-    this.profileButton = new Button(authButtonContainer, {
+    const profileButtonWrapper = document.querySelector(
+      '.header__profile-dropdown__button__wrapper',
+    ) as HTMLElement;
+    this.profileButton = new Button(profileButtonWrapper, {
       id: 'profile_button',
       text: 'Профиль',
+      onSubmit: undefined,
+    });
+    this.profileButton.render();
+
+    const profileDropdownButtonsContainer = document.querySelector(
+      '.header__profile-dropdown__buttons-container',
+    ) as HTMLElement;
+    this.profileSettingsButton = new Button(profileDropdownButtonsContainer, {
+      id: 'profile_settings_button',
+      text: 'Настройки',
       onSubmit: () => {
+        document.querySelector('.header__profile-dropdown__options').classList.remove('active');
         router.goToPage('profilePage');
       },
     });
-    this.profileButton.render();
-    // ГОВНОКОД END
+    this.profileSettingsButton.render();
+    this.logoutButton = new Button(profileDropdownButtonsContainer, {
+      id: 'logout_button',
+      text: 'Выйти',
+      onSubmit: () => {
+        document.querySelector('.header__profile-dropdown__options').classList.remove('active');
+        this.handleLogout();
+      },
+    });
+    this.logoutButton.render();
 
     this.updateHeaderState();
 
@@ -178,18 +211,23 @@ export default class Header {
   private updateHeaderState(): void {
     if (userStore.isAuth()) {
       this.loginButton.hide();
-      this.logoutButton.show();
-
-      // ГОВНОКОД START
+      document.querySelector('.header__profile-dropdown').classList.add('active');
+      document.querySelector('.header__profile-dropdown__first-name').textContent =
+        userStore.getState().first_name;
+      document.querySelector('.header__profile-dropdown__second-name').textContent =
+        userStore.getState().last_name;
       this.profileButton.show();
-      // ГОВНОКОД END
-    } else {
-      this.loginButton.show();
-      this.logoutButton.hide();
 
-      // ГОВНОКОД START
+      const avatarImage = document.getElementById(
+        'header__profile-dropdown__image__avatar',
+      ) as HTMLImageElement;
+      avatarImage.src = `https://doordashers.ru/images_user/${userStore.getState().path}`;
+    } else {
+      document.querySelector('.header__profile-dropdown').classList.remove('active');
+      this.loginButton.show();
       this.profileButton.hide();
-      // ГОВНОКОД END
+      document.querySelector('.header__profile-dropdown__first-name').textContent = 'Имя';
+      document.querySelector('.header__profile-dropdown__second-name').textContent = 'Фамилия';
     }
 
     const activeAddress = userStore.getActiveAddress();
@@ -236,13 +274,10 @@ export default class Header {
    */
   remove(): void {
     this.logo?.remove();
-    this.loginButton?.remove();
+    this.profileSettingsButton.remove();
     this.logoutButton?.remove();
-
-    // ГОВНОКОД START
-    this.profileButton?.remove();
-    // ГОВНОКОД END
-
+    this.profileButton.remove();
+    this.loginButton?.remove();
     this.cartButton.remove();
     this.parent.innerHTML = '';
     this.addressComponents.forEach((comp) => comp.remove());

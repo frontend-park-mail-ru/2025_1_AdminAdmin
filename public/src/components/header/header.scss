@@ -1,6 +1,6 @@
 .main_header {
   grid-template-areas:
-    ". header__logo header__location header__cart_button header__auth_buttons .";
+    ". header__logo header__location header__cart_button header__auth_button .";
   grid-template-columns: 0.5fr 2fr 7fr 1fr 1fr 0.5fr;
 
   &.scrolled {
@@ -14,15 +14,89 @@
       grid-area: header__cart_button;
     }
 
-    &__auth_buttons {
+    &__auth_button {
       width: 100%;;
       height: 100%;
-      grid-area: header__auth_buttons;
+      grid-area: header__auth_button;
     }
 
     &__logo {
       height: 100%;
       grid-area: header__logo;
+    }
+
+    // Класс для дропдауна профиля
+    &__profile-dropdown {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: none;
+      grid-area: header__auth_button;
+      z-index: 1;
+
+      &.active {
+        // Если добавляем доп класс "active"
+        display: flex;
+      }
+
+      // Сам дропдаун, те менюшка при клике на кнопку
+      &__options {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 10px; // Сколько вниз от хедера
+        padding: 10px; // Внутренние отступы чтобы не слипались с границами
+        width: 200px;
+        border: 1px solid black;
+        background-color: #fff;
+        color: black;
+        font-size: 16px;
+        border-radius: 10px;
+        display: none; // Скрываем по умолчанию
+        z-index: 1; // Накладываем на страницу сверху
+
+        &.active {
+          // Если добавляем доп класс "active"
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 10px;
+          grid-template-areas:
+            "avatar first-name first-name first-name"
+            "avatar second-name second-name second-name"
+            "buttons buttons buttons buttons";
+        }
+      }
+
+      &__image__wrapper {
+        grid-area: avatar;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        border-radius: 50%;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 50%;
+          display: block;
+        }
+      }
+
+      &__first-name {
+        grid-area: first-name;
+      }
+
+      &__second-name {
+        grid-area: second-name;
+      }
+
+      &__buttons-container {
+        grid-area: buttons;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
     }
 
     &__location {
