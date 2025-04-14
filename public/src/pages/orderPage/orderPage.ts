@@ -19,6 +19,7 @@ export default class OrderPage {
   private cartCards: CartCard[] = [];
   private submitButton: Button;
   private unsubscribeFromStore: (() => void) | null = null;
+  private youMoneyForm: YouMoneyForm;
 
   constructor(parent: HTMLElement) {
     if (!parent) {
@@ -133,8 +134,8 @@ export default class OrderPage {
 
       this.submitButton.hide();
       const container: HTMLDivElement = this.self.querySelector('.order-page__summary');
-      const youMoneyForm = new YouMoneyForm(container, final_price);
-      youMoneyForm.render();
+      this.youMoneyForm = new YouMoneyForm(container, final_price);
+      this.youMoneyForm.render();
     } catch (err) {
       toasts.error(err.message || 'Не удалось оформить заказ');
     }
@@ -196,6 +197,11 @@ export default class OrderPage {
 
     if (this.submitButton) {
       this.submitButton.remove();
+    }
+
+    if (this.youMoneyForm) {
+      cartStore.clearLocalCart();
+      this.youMoneyForm.remove();
     }
 
     Object.values(this.inputs).forEach((input) => input.remove());

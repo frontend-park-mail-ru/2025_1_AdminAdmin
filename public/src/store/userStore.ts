@@ -163,8 +163,6 @@ class UserStore {
         type: UserActions.CHECK_SUCCESS,
         payload: res,
       });
-
-      await cartStore.initCart();
     } catch (err) {
       console.error('Ошибка при проверке пользователя:', (err as Error).message);
     }

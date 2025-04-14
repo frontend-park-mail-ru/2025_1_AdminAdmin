@@ -55,7 +55,6 @@ export default class YouMoneyForm {
 
   remove() {
     this.submitBtn.remove();
-    cartStore.clearLocalCart();
     this.self.remove();
   }
 }
