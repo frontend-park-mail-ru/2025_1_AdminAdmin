@@ -68,3 +68,19 @@
   font-size: 18px;
   background-color: var(--white);
 }
+
+
+@media (max-width: 1200px) {
+  .button {
+    font-size: 12px;
+  }
+
+  .form__button {
+    font-size: 16px;
+  }
+
+  .categories__button {
+    font-size: 14px;
+  }
+}
+

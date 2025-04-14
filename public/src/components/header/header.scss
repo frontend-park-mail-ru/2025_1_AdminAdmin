@@ -108,7 +108,7 @@
         text-align: left;
         background-color: var(--black);
         color: var(--white);
-        padding: 0 10px;
+        padding: 0 50px 0 10px;
         height: 100%;
         border-radius: var(--border-radius);
         border: none;
@@ -121,6 +121,14 @@
         position: relative;
         display: flex;
         align-items: center;
+
+        &__text {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          display: inline-block;
+          max-width: 100%;
+        }
 
         &.selected {
           background-color: var(--light-grey);
