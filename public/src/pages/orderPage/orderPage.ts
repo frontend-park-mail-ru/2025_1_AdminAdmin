@@ -117,8 +117,6 @@ export default class OrderPage {
         modalController.closeModal();
         await this.sendOrder();
       });
-      const wrapper = this.self.querySelector('.order-page__body');
-      wrapper?.classList.add('dimmed');
 
       modalController.openModal(mapModal);
       return;
@@ -142,6 +140,9 @@ export default class OrderPage {
     try {
       await AppOrderRequests.CreateOrder(payload);
       toasts.success('Заказ успешно оформлен!');
+
+      const wrapper = this.self.querySelector('.order-page__body');
+      wrapper?.classList.add('dimmed');
 
       this.submitButton.hide();
       const container: HTMLDivElement = this.self.querySelector('.order-page__summary');
