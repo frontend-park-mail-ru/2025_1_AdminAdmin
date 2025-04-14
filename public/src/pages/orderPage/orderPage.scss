@@ -6,6 +6,12 @@
   align-items: start;
   font-size: 18px;
 
+  & .dimmed {
+    opacity: 0.4;
+    pointer-events: none;
+    user-select: none;
+  }
+
   h1,h3,h4 {
     margin-top: 0;
   }

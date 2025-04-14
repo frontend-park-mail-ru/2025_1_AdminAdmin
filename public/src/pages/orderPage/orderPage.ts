@@ -67,27 +67,31 @@ export default class OrderPage {
       this.inputs['orderPageComment'] = inputComponent;
     }
 
-    const submitButtonContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
-    if (submitButtonContainer) {
-      this.submitButton = new Button(submitButtonContainer, {
-        id: 'order-page__submit__button',
-        text: 'Оформить заказ',
-        style: 'button_active',
-        onSubmit: async () => {
-          try {
-            this.submitButton.disable();
-            await this.sendOrder();
-          } catch (error) {
-            console.error(error);
-            toasts.error(error);
-          } finally {
-            this.submitButton.enable();
-          }
-        },
-      });
-    }
+    if (userStore.isAuth()) {
+      const submitButtonContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
+      if (submitButtonContainer) {
+        this.submitButton = new Button(submitButtonContainer, {
+          id: 'order-page__submit__button',
+          text: 'Оформить заказ',
+          style: 'button_active',
+          onSubmit: async () => {
+            try {
+              this.submitButton.disable();
+              await this.sendOrder();
+            } catch (error) {
+              console.error(error);
+              toasts.error(error);
+            } finally {
+              this.submitButton.enable();
+            }
+          },
+        });
+      }
 
-    this.submitButton.render();
+      this.submitButton.render();
+    } else {
+      toasts.error('Для формирования заказа нужно авторизоваться');
+    }
 
     this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
     this.updateCards();
@@ -112,6 +116,9 @@ export default class OrderPage {
         userStore.setAddress(newAddress);
         this.sendOrder();
       });
+      const wrapper = this.self.querySelector('.order-page__body');
+      wrapper?.classList.add('dimmed');
+
       modalController.openModal(mapModal);
       return;
     }

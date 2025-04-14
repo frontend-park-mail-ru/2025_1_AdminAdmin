@@ -43,6 +43,7 @@ const userReducer = (state = initialUserState, action: Action): UserState => {
     case UserActions.LOGOUT_SUCCESS:
       return {
         ...initialUserState,
+        activeAddress: '',
       };
 
     case UserActions.SET_ADDRESS:
