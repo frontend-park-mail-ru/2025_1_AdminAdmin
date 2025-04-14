@@ -23,7 +23,6 @@
 
         input {
             margin: 0;
-            height: 45px;
             cursor: pointer;
         }
     }
@@ -44,5 +43,11 @@
 @container (width < 600px) {
     .address {
         padding: 3%;
+    }
+}
+
+@container (width > 600px) {
+    .address {
+        min-height: 60px;
     }
 }
