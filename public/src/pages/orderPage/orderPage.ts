@@ -12,6 +12,7 @@ import { CreateOrderPayload } from '@myTypes/orderTypes';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
 import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
+import { router } from '@modules/routing';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -70,22 +71,33 @@ export default class OrderPage {
     if (userStore.isAuth()) {
       const submitButtonContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
       if (submitButtonContainer) {
-        this.submitButton = new Button(submitButtonContainer, {
-          id: 'order-page__submit__button',
-          text: 'Оформить заказ',
-          style: 'button_active',
-          onSubmit: async () => {
-            try {
-              this.submitButton.disable();
-              await this.sendOrder();
-            } catch (error) {
-              console.error(error);
-              toasts.error(error);
-            } finally {
-              this.submitButton.enable();
-            }
-          },
-        });
+        if (userStore.isAuth()) {
+          this.submitButton = new Button(submitButtonContainer, {
+            id: 'order-page__submit__button',
+            text: 'Оформить заказ',
+            style: 'button_active',
+            onSubmit: async () => {
+              try {
+                this.submitButton.disable();
+                await this.sendOrder();
+              } catch (error) {
+                console.error(error);
+                toasts.error(error);
+              } finally {
+                this.submitButton.enable();
+              }
+            },
+          });
+        } else {
+          this.submitButton = new Button(submitButtonContainer, {
+            id: 'order-page__submit__button',
+            text: 'Авторизоваться',
+            style: 'button_active',
+            onSubmit: () => {
+              router.goToPage('login');
+            },
+          });
+        }
       }
 
       this.submitButton.render();

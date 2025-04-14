@@ -45,7 +45,7 @@ export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
       id: 'form__input__password',
       label: 'Пароль',
       type: 'password',
-      placeholder: 'Введите пароль (не менее 10 символов)',
+      placeholder: 'Введите пароль (не менее 8 символов)',
       validator: ValidatePassword,
       required: !isEditMode,
     },
