@@ -20,7 +20,11 @@
     </div>
     <div class="header__profile-dropdown__options">
         <div class="header__profile-dropdown__image__wrapper">
-            <img src="./src/assets/profile.png" alt="Аватарка">
+            <img
+                    src="https://doordashers.ru/images_user/{{path}}"
+                    alt="Avatar"
+                    onerror="this.onerror=null; this.src='./src/assets/profile.png';"
+            />
         </div>
         <span class="header__profile-dropdown__first-name">Имя</span>
         <span class="header__profile-dropdown__second-name">Фамилия</span>
