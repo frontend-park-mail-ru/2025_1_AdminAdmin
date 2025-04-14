@@ -29,7 +29,8 @@ export default class ProfilePage {
     addAddressButton?: Button;
     ordersTable?: ProfileTable;
   };
-  private avatarChangeHandler: (event: Event) => void; // Функция при изменении файла аватарки
+  private readonly avatarChangeHandler: (event: Event) => void; // Функция при изменении файла аватарки
+  private unsubscribeFromUserStore: (() => void) | null = null;
   // Поля необязательные чтобы можно было создать пустой объект
 
   /**
@@ -54,6 +55,7 @@ export default class ProfilePage {
       addAddressButton: undefined,
       ordersTable: undefined,
     };
+    this.unsubscribeFromUserStore = userStore.subscribe(() => this.updateState());
     this.avatarChangeHandler = this.handleAvatarChange.bind(this);
   }
 
@@ -151,6 +153,16 @@ export default class ProfilePage {
     }
   }
 
+  private updateState() {
+    if (this.props.data.path !== userStore.getState().path) {
+      this.props.data.path = userStore.getState().path;
+      const avatarImageElement = document.getElementById(
+        'profile-data__avatar-image',
+      ) as HTMLImageElement;
+      avatarImageElement.src = `https://doordashers.ru/images_user/${this.props.data.path}`;
+    }
+  }
+
   private async refreshAddresses() {
     const profileAddressesWrapper: HTMLDivElement = this.self.querySelector(
       '.profile-address__addresses__wrapper',
@@ -197,20 +209,16 @@ export default class ProfilePage {
       const file = avatarInputElement.files[0];
       const reader = new FileReader();
 
-      // Читаем файл как DataURL
+      /*      // Читаем файл как DataURL
       reader.onload = (event) => {
         avatarImageElement.src = event.target?.result as string;
-      };
+      };*/
       reader.readAsDataURL(file);
 
       try {
-        // Создаем FormData для запроса
-        const formData = new FormData();
-        formData.append('user_pic', file);
-        // Отправляем аватарку на сервер
-        await AppUserRequests.SetAvatar(formData);
+        await userStore.SetAvatar(file);
       } catch (error) {
-        console.error('Ошибка при обновлении аватара:', error);
+        toasts.error(error);
         // Возвращаем стандартное изображение
         avatarImageElement.src = './src/assets/profile.png';
       }
@@ -223,6 +231,10 @@ export default class ProfilePage {
   remove(): void {
     if (this.components.addAddressButton) this.components.addAddressButton.remove();
     if (this.components.profileForm) this.components.profileForm.remove();
+    if (this.unsubscribeFromUserStore) {
+      this.unsubscribeFromUserStore();
+      this.unsubscribeFromUserStore = null;
+    }
     //this.components.ordersTable.remove();
     /*    this.components.addresses.forEach((component) => {
       component.remove();
