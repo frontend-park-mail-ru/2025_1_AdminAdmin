@@ -48,9 +48,11 @@ export default class Cart {
     if (!products.length) {
       cartEmpty.style.display = 'flex';
       cartFooter.classList.add('inactive');
+      cartFooter.style.pointerEvents = 'none';
     } else {
       cartEmpty.style.display = 'none';
       cartFooter.classList.remove('inactive');
+      cartFooter.style.pointerEvents = 'auto';
     }
 
     products.forEach((product) => {
@@ -82,7 +84,6 @@ export default class Cart {
       return;
     }
 
-    this.updateCards();
     const cartFooter = document.querySelector('.cart-footer');
     if (cartFooter) {
       cartFooter.addEventListener('click', this.handleClick.bind(this));
@@ -92,9 +93,14 @@ export default class Cart {
     if (bin) {
       bin.addEventListener('click', this.handleClear.bind(this));
     }
+
+    this.updateCards();
   }
 
   handleClick(): void {
+    const cartFooter = document.querySelector('.cart-footer');
+    if (!cartFooter || cartFooter.classList.contains('inactive')) return;
+
     router.goToPage('orderPage');
   }
 
