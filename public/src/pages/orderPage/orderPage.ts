@@ -112,9 +112,10 @@ export default class OrderPage {
     const address = userStore.getActiveAddress();
 
     if (!address) {
-      const mapModal = new MapModal((newAddress: string) => {
+      const mapModal = new MapModal(async (newAddress: string) => {
         userStore.setAddress(newAddress);
-        this.sendOrder();
+        modalController.closeModal();
+        await this.sendOrder();
       });
       const wrapper = this.self.querySelector('.order-page__body');
       wrapper?.classList.add('dimmed');
@@ -147,7 +148,7 @@ export default class OrderPage {
       this.youMoneyForm = new YouMoneyForm(container, final_price);
       this.youMoneyForm.render();
     } catch (err) {
-      toasts.error(err.message || 'Не удалось оформить заказ');
+      toasts.error(err.error || 'Не удалось оформить заказ');
     }
   }
 
@@ -158,7 +159,7 @@ export default class OrderPage {
     try {
       await cartStore.clearCart();
     } catch (error) {
-      toasts.error(error.message);
+      toasts.error(error.error);
     } finally {
       bin.style.pointerEvents = '';
     }

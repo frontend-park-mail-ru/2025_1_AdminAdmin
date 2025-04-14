@@ -71,7 +71,7 @@ export default class Header {
             });
           }
         } catch (error) {
-          toasts.error(error.message);
+          toasts.error(error.error);
         }
       }
 
@@ -203,7 +203,7 @@ export default class Header {
       toasts.success('Вы успешно вышли из системы');
       router.goToPage('home');
     } catch (error) {
-      toasts.error(error.message);
+      toasts.error(error.error);
     } finally {
       this.logoutButton.enable();
     }

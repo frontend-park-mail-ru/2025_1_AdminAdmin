@@ -83,7 +83,7 @@ const baseRequest = async <T = any>(
 
     return { status: response.status, body };
   } catch (err) {
-    return { status: 503, body: err.message };
+    return { status: 503, body: err.error };
   }
 };
 

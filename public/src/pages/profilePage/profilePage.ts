@@ -158,7 +158,7 @@ export default class ProfilePage {
       }
     } catch (error) {
       console.error(error);
-      toasts.error(error.message);
+      toasts.error(error.error);
     }
   }
 

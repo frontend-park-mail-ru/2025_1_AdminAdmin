@@ -195,7 +195,7 @@ class UserStore {
         payload: { address: address },
       });
     } catch (err) {
-      console.error('Ошибка при добавлении адреса:', err.message);
+      console.error('Ошибка при добавлении адреса:', err.error);
     }
   }
 

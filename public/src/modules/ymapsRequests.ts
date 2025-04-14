@@ -133,7 +133,7 @@ export const geoSuggestRequest = async (value: string): Promise<GeoSuggestRespon
     const data = await response.json();
     return { status: response.status, results: data?.results || [] };
   } catch (error) {
-    return { status: 503, results: error.message };
+    return { status: 503, results: error.error };
   }
 };
 
@@ -155,7 +155,7 @@ const geoCoderRequestBase = async (params: URLSearchParams): Promise<GeoCoderRes
       result: geoObject,
     };
   } catch (error) {
-    return { status: 503, error: error.message };
+    return { status: 503, error: error.error };
   }
 };
 
