@@ -103,7 +103,8 @@ const config = {
         }),
         new CopyWebpackPlugin({
             patterns: [
-                { from: path.resolve(__dirname, 'public/src/assets'), to: path.resolve(__dirname, 'dist/src/assets') }
+                { from: path.resolve(__dirname, 'public/src/assets'), to: path.resolve(__dirname, 'dist/src/assets') },
+                { from: path.resolve(__dirname, 'public/sw.js'), to: path.resolve(__dirname, 'dist/sw.js') },
             ]
         }),
 
