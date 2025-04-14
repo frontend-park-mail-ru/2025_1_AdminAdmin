@@ -84,7 +84,7 @@ export default class ProfilePage {
     }
     try {
       // Генерируем HTML
-      const html = template();
+      const html = template({ path: this.props.data.path });
       this.parent.insertAdjacentHTML('beforeend', html);
       // Заполняем
       // Если оставляем категории то тут рендерим категории, у них свой враппер
@@ -192,14 +192,6 @@ export default class ProfilePage {
       'profile-data__avatar-input',
     ) as HTMLInputElement;
 
-    // Проверяем наличие токена
-    const authToken = localStorage.getItem('X-CSRF-Token');
-    if (!authToken) {
-      alert('Вы не авторизованы. Пожалуйста, войдите в систему.');
-      window.location.href = '/login'; // Перенаправляем на страницу входа
-      return;
-    }
-
     // Если получили файл
     if (avatarInputElement.files && avatarInputElement.files[0]) {
       const file = avatarInputElement.files[0];
@@ -214,17 +206,13 @@ export default class ProfilePage {
       try {
         // Создаем FormData для запроса
         const formData = new FormData();
-        formData.append('picture', file);
+        formData.append('user_pic', file);
         // Отправляем аватарку на сервер
-        const response = await AppUserRequests.SetAvatar(formData);
-
-        if (response.message !== 'success') {
-          throw new Error('Вернулась ошибка');
-        }
+        await AppUserRequests.SetAvatar(formData);
       } catch (error) {
         console.error('Ошибка при обновлении аватара:', error);
         // Возвращаем стандартное изображение
-        avatarImageElement.src = './src/assets/profile.png'; // Укажите путь к текущему аватару
+        avatarImageElement.src = './src/assets/profile.png';
       }
     }
   }

@@ -17,7 +17,7 @@ interface ErrorResponse {
   error: string;
 }
 
-const isDebug = false;
+const isDebug = true;
 
 const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? 'localhost:5458' : 'doordashers.ru'}/api`;
 
@@ -36,6 +36,7 @@ type RequestParams = Record<string, string>;
  * @param url - URL-адрес запроса
  * @param data - Данные для отправки в запросе (для методов POST и PUT)
  * @param params - GET-параметры запроса
+ * @param contentType
  * @returns {Promise<ResponseData>}
  */
 const baseRequest = async <T = any>(
@@ -43,20 +44,20 @@ const baseRequest = async <T = any>(
   url: string,
   data: any = null,
   params: RequestParams | null = null,
-  contenType = 'application/json',
+  contentType = 'application/json',
 ): Promise<ResponseData<T>> => {
   const options: RequestInit = {
     method,
     mode: 'cors',
     credentials: 'include',
     headers: {
-      'Content-Type': contenType,
+      ...(contentType !== 'multipart/form-data' ? { 'Content-Type': contentType } : {}),
       Accept: 'application/json',
       ...getCSRFFromLocalStorage(),
     },
   };
-  if (data && contenType !== 'multipart/form-data') options.body = JSON.stringify(data);
-  else if (data && contenType === 'multipart/form-data') options.body = data;
+  if (data && contentType !== 'multipart/form-data') options.body = JSON.stringify(data);
+  else if (data && contentType === 'multipart/form-data') options.body = data;
 
   const queryUrl = new URL(baseUrl + url);
   if (params) queryUrl.search = new URLSearchParams(params).toString();
