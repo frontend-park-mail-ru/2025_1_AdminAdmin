@@ -93,17 +93,10 @@ export class Address {
       throw new Error('Error: address template not found');
     }
     // Рендерим шаблончик с данными
-    const baseId = this.props.isHeaderAddress
-      ? `header-${this.props.id}`
-      : `address-${this.props.id}`;
-    const radioId = `${baseId}-radio`;
-
     const html = template({
       id: this.props.id,
       addressName: this.props.address.toString(),
       isHeaderAddress: this.props.isHeaderAddress,
-      baseId,
-      radioId,
     });
 
     this.parent.insertAdjacentHTML('beforeend', html);

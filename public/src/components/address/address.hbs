@@ -1,9 +1,9 @@
-<div class="address {{#if isHeaderAddress}}address--header{{/if}}" id="{{baseId}}">
-<div class="address__radio-group">
+<div class="address" id="{{#if isHeaderAddress}}header-{{id}}{{else}}address-{{id}}{{/if}}">
+    <div class="address__radio-group">
         {{#unless isHeaderAddress}}
-            <input type="radio" id="{{radioId}}" />
+            <input type="radio" checked />
         {{/unless}}
-        <label for="{{radioId}}">{{addressName}}</label>
+        <span>{{addressName}}</span>
     </div>
     <div class="address__button-group"></div>
 </div>
