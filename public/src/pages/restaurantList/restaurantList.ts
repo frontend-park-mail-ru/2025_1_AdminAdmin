@@ -1,7 +1,8 @@
-import { AppRestaurantRequests } from '../../modules/ajax';
-import { RestaurantCard } from '../../components/restaurantCard/restaurantCard';
-import throttle from '../../modules/throttle';
+import { AppRestaurantRequests } from '@modules/ajax';
+import { RestaurantCard } from '@components/restaurantCard/restaurantCard';
+import throttle from '@modules/throttle';
 import template from './restaurantList.hbs';
+import { BaseRestaurant } from '@myTypes/restaurantTypes';
 
 // Константы
 const LOAD_COUNT = 16;
@@ -9,22 +10,12 @@ const SCROLL_MARGIN = 100;
 const REMOVE_THRESHOLD = 4;
 const SCROLL_THRESHOLD = 2;
 
-interface RestaurantProps {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
-  rating: string;
-  amount: string;
-  image?: string;
-}
-
 /**
  * Класс, представляющий список ресторанов.
  */
 export default class RestaurantList {
   private parent: HTMLElement;
-  private restaurantList: Array<RestaurantProps>;
+  private restaurantList: BaseRestaurant[];
   private renderedIds: Set<string>;
   private observer: IntersectionObserver;
   private firstCardId: number;
@@ -68,8 +59,12 @@ export default class RestaurantList {
    * Ссылка на объект
    * @returns {HTMLElement} - ссылка на объект
    */
-  get self(): HTMLElement {
-    return document.querySelector('.restaurant__container')!;
+  get self(): HTMLButtonElement | null {
+    const element = document.querySelector('.restaurant__container');
+    if (!element) {
+      throw new Error(`Error: can't find restaurantList`);
+    }
+    return element as HTMLButtonElement;
   }
 
   /**
@@ -115,7 +110,7 @@ export default class RestaurantList {
 
     if (endCount >= this.restaurantList.length) {
       try {
-        const newRestaurants: RestaurantProps[] = await AppRestaurantRequests.GetAll({
+        const newRestaurants: BaseRestaurant[] = await AppRestaurantRequests.GetAll({
           count: `${LOAD_COUNT}`,
           offset: startCount.toString(),
         });
@@ -172,10 +167,19 @@ export default class RestaurantList {
    * Удаляет список ресторанов и очищает содержимое родительского элемента.
    */
   remove(): void {
+    // Удаление карточек и очистка DOM
     document.querySelectorAll('.restaurant__card').forEach((card) => card.remove());
     this.parent.innerHTML = '';
+
+    // Отписка от событий и наблюдателей
     document.removeEventListener('scroll', this.deleteFromDomThrottle);
     this.observer.disconnect();
+
+    // Сброс всех состояний
     this.restaurantList = [];
+    this.renderedIds.clear();
+    this.firstCardId = -1;
+    this.lastCardId = -1;
+    this._deletionScheduled = false;
   }
 }

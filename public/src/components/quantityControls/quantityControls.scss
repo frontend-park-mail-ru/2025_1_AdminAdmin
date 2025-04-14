@@ -1,0 +1,37 @@
+.quantity-controls {
+  display: flex;
+  width: 100%;
+  aspect-ratio: 3 / 1;
+  align-items: center;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+
+
+  &:focus-within {
+    border: 2px solid var(--orange);
+  }
+
+
+  &__input:not([type="radio"]) {
+    width: 40%;
+    height: 100%;
+    border-radius: 0;
+    text-align: center;
+    border: none;
+    padding: 0;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    &:focus {
+      border: none;
+    }
+
+    -moz-appearance: textfield;
+  }
+}

@@ -1,14 +1,13 @@
 .authPage {
-  min-height: calc(100vh - 50px);
+  min-height: calc(100vh - var(--real-header-height));
   box-sizing: border-box;
   width: 100%;
   padding: 60px 0 0;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 10px;
   grid-row: 1;
   grid-auto-rows: min-content;
-  background-image: url('./src/assets/background.jpg');
+  background-image: url('~@assets/background.jpg');
   background-attachment: fixed;
   background-size: cover;
   background-position: center;
@@ -24,13 +23,16 @@
     gap: 5px;
     padding: 0;
     background-color: #686868;
-    border-radius: 20px;
+    border-radius: 25px;
     margin: 0 auto 15px;
   }
 
   &__body {
     grid-column: 5 / span 4;
     grid-row: 3;
-    display: contents;
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+    margin-bottom: 5vh;
   }
 }

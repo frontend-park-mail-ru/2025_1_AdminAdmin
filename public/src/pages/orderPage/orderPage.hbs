@@ -1,0 +1,39 @@
+<div class="order-page">
+    <div class="order-page__body">
+        <h1>Оформление заказа</h1>
+
+        <div class="order-page__delivery">
+            <h3>Доставка по адресу:</h3>
+            <h4>{{address}}</h4>
+            <div class="form__line" id="form__line_order-page_address"></div>
+            <div class="order-page__comment"></div>
+
+            <label class="order-page__leave_by_the_door">
+                <input type="checkbox" class="order-page__checkbox" />
+                <span>Оставить у двери</span>
+            </label>
+        </div>
+
+        <div class="order-page__products">
+            <div class="order-page__products__header">
+                <h3>Ваш заказ</h3>
+                <div class="order-page__products__header__clear">
+                    <img src="/src/assets/bin.png" alt="bin img">
+                    <span>Очистить корзину</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="order-page__summary">
+        <h3>{{restaurantName}}</h3>
+        <hr>
+        <h3>Что в цене</h3>
+        <div class="order-page__summary__content">
+            <span>Товары в заказе</span>
+            <div>
+                <span class="cart__total">0</span>
+                <span> ₽</span>
+            </div>
+        </div>
+    </div>
+</div>

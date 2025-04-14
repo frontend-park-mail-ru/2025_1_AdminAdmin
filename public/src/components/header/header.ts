@@ -1,8 +1,15 @@
-import { router } from '../../modules/routing';
-import { userStore } from '../../store/userStore';
-import { Logo } from '../logo/logo';
-import { Button } from '../button/button';
+import { router } from '@modules/routing';
+import { userStore } from '@store/userStore';
+import { Logo } from '@components/logo/logo';
+import { Button } from '@components/button/button';
 import template from './header.hbs';
+import { toasts } from '@modules/toasts';
+import MapModal from '@pages/mapModal/mapModal';
+import logoImg from '@assets/logo.png';
+import { cartStore } from '@store/cartStore';
+import { modalController } from '@modules/modalController';
+import { AppUserRequests } from '@modules/ajax';
+import { Address } from '@components/address/address';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -11,9 +18,17 @@ import template from './header.hbs';
 export default class Header {
   private parent: HTMLElement;
   private logo!: Logo;
+  private cartButton: Button;
   private loginButton!: Button;
   private logoutButton!: Button;
+
+  private profileButton!: Button; // ГОВНОКОД START
+
   private readonly handleScrollBound: () => void;
+  private readonly clickHandler: (event: Event) => void;
+  private addressComponents: Address[] = [];
+  private unsubscribeFromUserStore: (() => void) | null = null;
+  private unsubscribeFromCartStore: (() => void) | null = null;
 
   /**
    * Создает экземпляр заголовка.
@@ -23,7 +38,51 @@ export default class Header {
   constructor(parent: HTMLElement) {
     this.parent = parent;
     this.handleScrollBound = this.handleScroll.bind(this);
-    userStore.subscribe(() => this.updateAuthState());
+    this.unsubscribeFromUserStore = userStore.subscribe(() => this.updateHeaderState());
+    this.unsubscribeFromCartStore = cartStore.subscribe(() => this.updateHeaderState());
+    this.clickHandler = this.handleClick.bind(this);
+  }
+
+  private async handleClick(event: Event): Promise<void> {
+    const target = event.target as HTMLElement;
+    const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
+
+    if (dropdown) {
+      dropdown.style.display = 'none';
+      this.addressComponents.forEach((comp) => comp.remove());
+      this.addressComponents = [];
+    }
+
+    if (target.closest('.header__location_select_button')) {
+      if (userStore.isAuth()) {
+        try {
+          const addresses = await AppUserRequests.GetAddresses();
+          const addressesContainer: HTMLElement = this.self.querySelector(
+            '.header__location_dropdown_options',
+          );
+          this.addressComponents.forEach((comp) => comp.remove());
+          this.addressComponents = [];
+
+          if (Array.isArray(addresses)) {
+            addresses.forEach((address) => {
+              const addressComponent = new Address(addressesContainer, {
+                ...address,
+                isHeaderAddress: true,
+              });
+              addressComponent.render();
+              this.addressComponents.push(addressComponent);
+            });
+          }
+        } catch (error) {
+          toasts.error(error.error);
+        }
+      }
+
+      dropdown.style.display = 'block';
+    } else if (target.closest('.header__location_dropdown_button')) {
+      const mapModal = new MapModal((newAddress: string) => userStore.setAddress(newAddress));
+      modalController.openModal(mapModal);
+    }
   }
 
   /**
@@ -39,16 +98,30 @@ export default class Header {
    */
   render(): void {
     this.parent.innerHTML = template();
-    const headerElement = this.self;
-    if (!headerElement) return;
+    this.parent.classList.add('main_header');
 
-    this.logo = new Logo(headerElement, '/src/assets/logo.png');
+    this.logo = new Logo(this.self.querySelector('.header__logo'), logoImg);
     this.logo.render();
 
-    const buttonContainer = document.querySelector('.header__buttons') as HTMLElement;
-    if (!buttonContainer) return;
+    const authButtonContainer = document.querySelector('.header__auth_buttons') as HTMLElement;
+    if (!authButtonContainer) return;
 
-    this.loginButton = new Button(buttonContainer, {
+    const cartButtonContainer = document.querySelector('.header__cart_button') as HTMLElement;
+    if (!cartButtonContainer) return;
+
+    this.cartButton = new Button(cartButtonContainer, {
+      id: 'cart_button',
+      style: 'dark',
+      text: '0',
+      onSubmit: () => {
+        const restaurantId = cartStore.getState().restaurant_id;
+        if (restaurantId) router.goToPage('restaurantPage', restaurantId);
+      },
+    });
+
+    this.cartButton.render();
+
+    this.loginButton = new Button(authButtonContainer, {
       id: 'login_button',
       text: 'Вход',
       onSubmit: () => {
@@ -57,18 +130,29 @@ export default class Header {
     });
     this.loginButton.render();
 
-    this.logoutButton = new Button(buttonContainer, {
+    this.logoutButton = new Button(authButtonContainer, {
       id: 'logout_button',
       text: 'Выход',
-      onSubmit: () => {
-        userStore.logout();
-      },
+      onSubmit: this.handleLogout.bind(this),
     });
     this.logoutButton.render();
 
-    this.updateAuthState();
+    // ГОВНОКОД START
+    this.profileButton = new Button(authButtonContainer, {
+      id: 'profile_button',
+      text: 'Профиль',
+      onSubmit: () => {
+        router.goToPage('profilePage');
+      },
+    });
+    this.profileButton.render();
+    // ГОВНОКОД END
+
+    this.updateHeaderState();
 
     window.addEventListener('scroll', this.handleScrollBound);
+    document.addEventListener('click', this.clickHandler);
+
     this.handleScroll();
   }
 
@@ -81,9 +165,9 @@ export default class Header {
     if (!headerElement) return;
 
     if (window.scrollY > 0) {
-      headerElement.classList.add('header--scrolled');
+      headerElement.classList.add('scrolled');
     } else {
-      headerElement.classList.remove('header--scrolled');
+      headerElement.classList.remove('scrolled');
     }
   }
 
@@ -91,25 +175,59 @@ export default class Header {
    * Обновляет состояние аутентификации в заголовке.
    * Показывает или скрывает кнопки входа/выхода в зависимости от состояния пользователя.
    */
-  private updateAuthState(): void {
-    const loginButton = this.loginButton?.self;
-    const logoutButton = this.logoutButton?.self;
-    const loginContainer = document.querySelector('.header__login') as HTMLElement;
-
+  private updateHeaderState(): void {
     if (userStore.isAuth()) {
-      if (loginButton) loginButton.style.display = 'none';
-      if (logoutButton) logoutButton.style.display = 'block';
+      this.loginButton.hide();
+      this.logoutButton.show();
 
-      if (loginContainer) {
-        loginContainer.textContent = userStore.getState().login || '';
-      }
+      // ГОВНОКОД START
+      this.profileButton.show();
+      // ГОВНОКОД END
     } else {
-      if (loginButton) loginButton.style.display = 'block';
-      if (logoutButton) logoutButton.style.display = 'none';
+      this.loginButton.show();
+      this.logoutButton.hide();
 
-      if (loginContainer) {
-        loginContainer.textContent = '';
-      }
+      // ГОВНОКОД START
+      this.profileButton.hide();
+      // ГОВНОКОД END
+    }
+
+    const activeAddress = userStore.getActiveAddress();
+    const locationButton: HTMLDivElement = this.parent.querySelector(
+      '.header__location_select_button',
+    );
+
+    if (activeAddress) {
+      locationButton.classList.add('selected');
+      locationButton.innerText = activeAddress;
+      modalController.closeModal();
+    } else {
+      locationButton.classList.remove('selected');
+      locationButton.innerText = 'Укажите адрес доставки';
+    }
+
+    if (cartStore.getState().total_price) {
+      this.cartButton.setText(cartStore.getState().total_price + ' ₽');
+      this.cartButton.show();
+    } else {
+      this.cartButton.hide();
+    }
+  }
+
+  /**
+   * Обработчик выхода пользователя.
+   * Осуществляет выход и отображает сообщение.
+   */
+  private async handleLogout(): Promise<void> {
+    this.logoutButton.disable();
+    try {
+      await userStore.logout();
+      toasts.success('Вы успешно вышли из системы');
+      router.goToPage('home');
+    } catch (error) {
+      toasts.error(error.error);
+    } finally {
+      this.logoutButton.enable();
     }
   }
 
@@ -120,7 +238,25 @@ export default class Header {
     this.logo?.remove();
     this.loginButton?.remove();
     this.logoutButton?.remove();
+
+    // ГОВНОКОД START
+    this.profileButton?.remove();
+    // ГОВНОКОД END
+
+    this.cartButton.remove();
     this.parent.innerHTML = '';
+    this.addressComponents.forEach((comp) => comp.remove());
+    this.addressComponents = [];
+    this.parent.classList.remove('main_header');
     window.removeEventListener('scroll', this.handleScrollBound);
+    document.removeEventListener('click', this.clickHandler);
+    if (this.unsubscribeFromUserStore) {
+      this.unsubscribeFromUserStore();
+      this.unsubscribeFromUserStore = null;
+    }
+    if (this.unsubscribeFromCartStore) {
+      this.unsubscribeFromCartStore();
+      this.unsubscribeFromCartStore = null;
+    }
   }
 }

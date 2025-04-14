@@ -1,9 +1,9 @@
-import { Button } from '../../components/button/button';
-import config from './authPageConfig';
-import LoginForm from '../../components/loginForm/loginForm';
-import RegisterForm from '../../components/registerForm/registerForm';
-import { router } from '../../modules/routing';
+import { Button } from '@components/button/button';
+import LoginForm from '@components/loginForm/loginForm';
+import RegisterForm from '@components/unifiedForm/unifiedForm';
+import { router } from '@modules/routing';
 import template from './authPage.hbs';
+import { userStore } from '@store/userStore';
 
 /**
  * Класс страницы авторизации
@@ -15,6 +15,7 @@ export class AuthPage {
   private loginButton?: Button;
   private registerButton?: Button;
 
+  private unsubscribeFromUserStore: (() => void) | null = null;
   private readonly loginFormSelector = '.authPage__login';
   private readonly registerFormSelector = '.authPage__register';
   private readonly formLineSelector = '.authPage__line';
@@ -26,6 +27,7 @@ export class AuthPage {
    */
   constructor(parent: HTMLElement) {
     this.parent = parent;
+    this.unsubscribeFromUserStore = userStore.subscribe(() => this.updateAuthState());
   }
 
   /**
@@ -38,19 +40,24 @@ export class AuthPage {
       const formLine = this.parent.querySelector(this.formLineSelector) as HTMLElement;
 
       this.registerButton = new Button(formLine, {
-        ...config.buttons.register,
+        id: 'form__tab_register',
+        text: 'Регистрация',
+        style: 'form__button',
         onSubmit: this.toggleRegisterForm,
       });
       this.registerButton.render();
 
       this.loginButton = new Button(formLine, {
-        ...config.buttons.login,
+        id: 'form__tab_login',
+        text: 'Вход',
+        style: 'form__button',
         onSubmit: this.toggleLoginForm,
       });
       this.loginButton.render();
     }
 
-    isLoginPage ? this.renderLoginForm() : this.renderRegisterForm();
+    if (isLoginPage) this.renderLoginForm();
+    else this.renderRegisterForm();
   };
 
   /**
@@ -61,7 +68,6 @@ export class AuthPage {
     if (!this.loginForm) {
       this.loginForm = new LoginForm(
         this.parent.querySelector(this.loginFormSelector) as HTMLElement,
-        config.forms.login,
       );
       this.loginForm.render();
     }
@@ -75,7 +81,7 @@ export class AuthPage {
     if (!this.registerForm) {
       this.registerForm = new RegisterForm(
         this.parent.querySelector(this.registerFormSelector) as HTMLElement,
-        config.forms.register,
+        false,
       );
       this.registerForm.render();
     }
@@ -89,8 +95,8 @@ export class AuthPage {
     const loginFormElement = this.parent.querySelector(this.loginFormSelector) as HTMLElement;
     const registerFormElement = this.parent.querySelector(this.registerFormSelector) as HTMLElement;
 
-    loginFormElement.style.display = isLogin ? 'contents' : 'none';
-    registerFormElement.style.display = isLogin ? 'none' : 'contents';
+    loginFormElement.style.display = isLogin ? 'flex' : 'none';
+    registerFormElement.style.display = isLogin ? 'none' : 'flex';
 
     this.loginButton?.toggleClass(
       isLogin ? 'button_inactive' : 'button_active',
@@ -116,10 +122,21 @@ export class AuthPage {
     router.goToPage('registerPage');
   };
 
+  private updateAuthState(): void {
+    if (userStore.isAuth()) {
+      router.goToPage('home');
+    }
+  }
+
   /**
    * Удаляет страницу и очищает содержимое родительского элемента.
    */
   remove(): void {
+    if (this.unsubscribeFromUserStore) {
+      this.unsubscribeFromUserStore();
+      this.unsubscribeFromUserStore = null;
+    }
+
     this.loginForm?.remove();
     this.registerForm?.remove();
     this.loginButton?.remove();

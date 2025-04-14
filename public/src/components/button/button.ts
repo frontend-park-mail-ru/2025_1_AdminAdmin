@@ -1,18 +1,19 @@
 import template from './button.hbs';
 
-interface ButtonProps {
+export interface ButtonProps {
   id: string;
   text: string;
   style?: string;
+  insert?: InsertPosition;
   onSubmit?: () => void;
   disabled?: boolean;
   type?: string;
 }
 
 export class Button {
-  private readonly parent: HTMLElement;
-  private readonly clickHandler: (event: Event) => void;
-  private readonly props: ButtonProps;
+  protected parent: HTMLElement;
+  protected clickHandler: (event: Event) => void;
+  protected props: ButtonProps;
 
   /**
    * Создает экземпляр кнопки.
@@ -29,6 +30,7 @@ export class Button {
       id: props.id,
       text: props.text,
       style: props.style,
+      insert: props.insert || 'beforeend',
       onSubmit: props.onSubmit,
       disabled: props.disabled || false,
       type: props.type,
@@ -39,10 +41,14 @@ export class Button {
 
   /**
    * Ссылка на объект
-   * @returns {HTMLElement | null} - ссылка на объект
+   * @returns {HTMLElement} - ссылка на объект
    */
   get self(): HTMLButtonElement | null {
-    return document.getElementById(this.props.id) as HTMLButtonElement | null;
+    const element = document.getElementById(this.props.id);
+    if (!element) {
+      throw new Error(`Error: can't find button with id ${this.props.id}`);
+    }
+    return element as HTMLButtonElement;
   }
 
   /**
@@ -51,9 +57,18 @@ export class Button {
    */
   private handleClick(event: Event): void {
     event.preventDefault();
+    event.stopPropagation();
     if (this.props.onSubmit !== undefined) {
       this.props.onSubmit();
     }
+  }
+
+  enable() {
+    this.self.removeAttribute('disabled');
+  }
+
+  disable() {
+    this.self.setAttribute('disabled', '');
   }
 
   /**
@@ -61,7 +76,7 @@ export class Button {
    */
   render(): void {
     const html = template(this.props);
-    this.parent.insertAdjacentHTML('beforeend', html);
+    this.parent.insertAdjacentHTML(this.props.insert, html);
 
     if (!this.parent) {
       throw new Error('Button: invalid self!');
@@ -83,7 +98,7 @@ export class Button {
   remove(): void {
     const button = this.self;
     if (button) {
-      button.removeEventListener('click', this.clickHandler); // Удаляем обработчик
+      button.removeEventListener('click', this.clickHandler);
       button.remove();
     }
   }
@@ -98,6 +113,37 @@ export class Button {
     if (button) {
       button.classList.remove(oldClass);
       button.classList.add(newClass);
+    }
+  }
+
+  /**
+   * Изменяет текст кнопки.
+   * @param newText - Новый текст, который будет установлен на кнопке.
+   */
+  setText(newText: string): void {
+    const button = this.self;
+    if (button) {
+      button.textContent = newText;
+    }
+  }
+
+  /**
+   * Показывает кнопку, устанавливая display в block.
+   */
+  show(): void {
+    const button = this.self;
+    if (button) {
+      button.style.display = 'flex';
+    }
+  }
+
+  /**
+   * Скрывает кнопку, устанавливая display в none.
+   */
+  hide(): void {
+    const button = this.self;
+    if (button) {
+      button.style.display = 'none';
     }
   }
 }

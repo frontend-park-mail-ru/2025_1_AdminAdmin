@@ -1,15 +1,23 @@
+import { fileURLToPath } from 'url';
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import webpack from 'webpack';
 import ImageMinimizerPlugin from 'image-minimizer-webpack-plugin';
+import * as dotenv from "dotenv";
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 
-const __dirname = import.meta.dirname;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const isProduction = process.env.NODE_ENV === "production";
 
 const stylesHandler = isProduction ? MiniCssExtractPlugin.loader : "style-loader";
 
+dotenv.config();
+
 const config = {
+    target: 'web',
     devServer: {
         watchFiles: path.resolve(__dirname, 'public/src'),
         static: path.resolve(__dirname, 'public'),
@@ -41,7 +49,10 @@ const config = {
                                     [
                                         'postcss-preset-env',
                                         {
-                                            browsers: 'last 2 versions',
+                                            browsers: [
+                                                "last 4 versions",
+                                                "not dead"
+                                            ]
                                         },
                                     ],
                                 ],
@@ -52,15 +63,18 @@ const config = {
                 ],
             },
             {
-                test: /\.(png|jpg|jpeg|gif)$/i,
+                test: /\.(png|jpg|jpeg|svg|gif)$/i,
                 type: 'asset/resource',
+                generator: {
+                    filename: 'src/assets/[name][ext][query]'
+                }
             },
             {
                 test: /\.ico$/,
                 type: 'asset/resource',
                 generator: {
-                    filename: path.join('icons', '[name].[contenthash][ext]'),
-                },
+                    filename: 'src/assets/[name][ext][query]'
+                }
             },
             {
                 test: /\.hbs$/,
@@ -83,7 +97,20 @@ const config = {
             filename: 'index.html',
         }),
         new webpack.HotModuleReplacementPlugin(),
+        new webpack.DefinePlugin({
+            "process.env.GEOSUGGEST_API_KEY": JSON.stringify(process.env.GEOSUGGEST_API_KEY),
+            "process.env.GEOCODER_API_KEY": JSON.stringify(process.env.GEOCODER_API_KEY),
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: path.resolve(__dirname, 'public/src/assets'), to: path.resolve(__dirname, 'dist/src/assets') }
+            ]
+        }),
+
     ],
+    experiments: {
+        topLevelAwait: true,
+    },
     optimization: {
         minimizer: [
             new ImageMinimizerPlugin({
@@ -109,6 +136,15 @@ const config = {
         ],
     },
     resolve: {
+        alias: {
+            '@': path.resolve(__dirname, 'public/src'),
+            '@components': path.resolve(__dirname, 'public/src/components'),
+            '@modules': path.resolve(__dirname, 'public/src/modules'),
+            '@pages': path.resolve(__dirname, 'public/src/pages'),
+            '@assets': path.resolve(__dirname, 'public/src/assets'),
+            '@store': path.resolve(__dirname, 'public/src/store'),
+            '@myTypes': path.resolve(__dirname, 'public/src/myTypes'),
+        },
         extensions: ['.tsx', '.ts', '.js', '.scss', '.css'],
     },
 };

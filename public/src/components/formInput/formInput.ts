@@ -1,101 +1,198 @@
 import template from './formInput.hbs';
+import eyeOpen from '@assets/eye.png';
+import eyeClosed from '@assets/hide.png';
+import debounce from '@modules/debounce';
 
-interface FormInputProps {
-  id: string;
-  label: string;
-  error: string;
-  placeholder: string;
-  type: string;
-  required: boolean;
-  validator: (value: string) => { result: boolean; message?: string };
+export interface FormInputProps {
+  id: string; // Идентификатор строки ввода
+  label?: string; // Название поля (отображается сбоку от поля ввода)
+  error?: string; // Ошибка
+  placeholder?: string; // Начальное содержимое поля ввода
+  type?: string; // Тип поля ввода
+  required?: boolean; // true - обязательное поле, false - необязательное
+  validator?: (value: string) => { result: boolean; message?: string }; // Функция валидации
+  onInput?: (value: string) => void; // Функция при вводе
+  min?: number;
+  max?: number;
+  maxLength?: number;
+  movePlaceholderOnInput?: boolean;
+  value?: string;
 }
 
 export class FormInput {
   private parent: HTMLElement;
-  private readonly inputHandler: () => void;
-  private readonly eyeClickHandler: () => void;
   private readonly props: FormInputProps;
+  private readonly eyeClickHandler: () => void;
+  private readonly debouncedOnInput: (value: string) => void;
+  private readonly inputHandler: (e: Event) => void;
+  private readonly beforeInputHandler: (e: InputEvent) => void;
+  private phoneInputHandler?: (e: Event) => void; // Phone mask handler
 
-  /**
-   * Ссылка на объект
-   * @returns {HTMLElement | null} - ссылка на объект
-   */
-  private get self(): HTMLElement | null {
-    return document.getElementById(this.props.id);
+  get self(): HTMLElement | null {
+    const element = document.getElementById(this.props.id);
+    if (!element) {
+      throw new Error(`Error: can't find table`);
+    }
+    return element as HTMLElement;
   }
 
-  /**
-   * Ссылка на поле ввода
-   * @returns {HTMLInputElement | null} - ссылка на поле ввода
-   */
   get input(): HTMLInputElement | null {
     return this.self?.querySelector('input');
   }
 
-  /**
-   * Создает экземпляр поля ввода.
-   * @constructor
-   * @param parent - Родительский элемент, в который будет рендерится поле ввода.
-   * @param props - Словарь данных для определения свойств поля ввода.
-   */
   constructor(parent: HTMLElement, props: FormInputProps) {
     if (!parent) {
       throw new Error('FormInput: no parent!');
     }
+    if (document.getElementById(props.id)) {
+      throw new Error('FormInput: this id is already used!');
+    }
     this.parent = parent;
-    this.inputHandler = this.checkValue.bind(this);
-    this.eyeClickHandler = this.handleClick.bind(this);
+    this.props = props;
 
-    this.props = {
-      id: props.id,
-      label: props.label,
-      error: props.error,
-      placeholder: props.placeholder,
-      type: props.type,
-      required: props.required,
-      validator: props.validator,
+    this.eyeClickHandler = this.handleClick.bind(this);
+    this.debouncedOnInput = debounce(this.onInput.bind(this), 100);
+
+    this.inputHandler = (e: Event) => this.debouncedOnInput((e.target as HTMLInputElement).value);
+
+    this.beforeInputHandler = (e: InputEvent) => {
+      if (e.inputType.startsWith('delete')) return;
+
+      const newChar = (e.data ?? '').toString();
+      const input = this.input;
+      if (!input) return;
+
+      const currentValue = input.value;
+      const newValue = currentValue + newChar;
+
+      if (this.props.type === 'number') {
+        if (!/^[0-9]$/.test(newChar)) {
+          e.preventDefault();
+          return;
+        }
+
+        const val = parseInt(newValue, 10);
+        if (!isNaN(val)) {
+          if (this.props.min !== undefined && val < this.props.min) {
+            e.preventDefault();
+            return;
+          }
+          if (this.props.max !== undefined && val > this.props.max) {
+            e.preventDefault();
+            return;
+          }
+        }
+      }
+
+      if (this.props.maxLength !== undefined && newValue.length > this.props.maxLength) {
+        e.preventDefault();
+      }
     };
   }
 
-  /**
-   * Отображает поле ввода на странице.
-   */
+  private applyPhoneMask() {
+    const input = this.input;
+    if (input && this.props.type === 'phone') {
+      input.value = input.value.replace(/[\s()-]/g, '');
+      const digits = input.value.replace(/\D/g, '');
+      const match = digits.match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+      if (match) {
+        input.value = !match[2]
+          ? match[1]
+          : `(${match[1]}) ${match[2]}${match[3] ? `-${match[3]}` : ''}`;
+      }
+    }
+  }
+
   render(): void {
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
 
+    if (this.props.type === 'phone' && this.props.value) {
+      this.applyPhoneMask();
+    }
+
+    if (!this.props.error) {
+      const errorElement: HTMLElement = this.self?.querySelector('.form__error');
+      if (errorElement) errorElement.style.display = 'none';
+    }
+
     if (this.props.type === 'password') {
       const eyeIcon = this.self?.querySelector('.form__input__eye-icon') as HTMLElement;
-      if (eyeIcon) {
+      const input = this.input;
+      if (eyeIcon && input) {
         eyeIcon.style.display = 'block';
         eyeIcon.addEventListener('click', this.eyeClickHandler);
+        input.style.paddingRight = '40px';
       }
     }
 
-    const input = this.self?.querySelector('input');
+    if (this.props.type === 'phone') {
+      this.addPhoneMask();
+    }
+
+    const input = this.input;
     if (input) {
+      if (this.props.type === 'number' || this.props.maxLength !== undefined) {
+        input.addEventListener('beforeinput', this.beforeInputHandler);
+      }
+
       input.addEventListener('input', this.inputHandler);
     }
   }
 
-  private handleClick(): void {
-    const eyeImg = this.self.querySelector('.eye-icon') as HTMLImageElement;
-    const input = this.input;
-    if (input) {
-      if (input.type === 'password') {
-        input.type = 'text';
-        eyeImg.src = '/src/assets/eye.png';
-        eyeImg.alt = 'eye open';
-      } else {
-        input.type = 'password';
-        eyeImg.src = '/src/assets/hide.png';
-        eyeImg.alt = 'eye closed';
+  private addPhoneMask(): void {
+    this.phoneInputHandler = (e: Event) => {
+      const input = e.target as HTMLInputElement;
+      if (!input) return;
+      let cursorPos = input.selectionStart ?? 0;
+      const oldLength = input.value.length;
+      const digits = input.value.replace(/\D/g, '');
+      const match = digits.match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+      if (match) {
+        const formatted = !match[2]
+          ? match[1]
+          : `(${match[1]}) ${match[2]}${match[3] ? `-${match[3]}` : ''}`;
+        input.value = formatted;
+
+        const newLength = formatted.length;
+        cursorPos += newLength - oldLength;
+        input.setSelectionRange(cursorPos, cursorPos);
       }
+    };
+
+    this.input?.addEventListener('input', this.phoneInputHandler);
+  }
+
+  private handleClick(): void {
+    const eyeImg = this.self?.querySelector('.eye-icon') as HTMLImageElement;
+    const input = this.input;
+    if (input && eyeImg) {
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      eyeImg.src = isPassword ? eyeOpen : eyeClosed;
+      eyeImg.alt = isPassword ? 'eye open' : 'eye closed';
     }
+  }
+
+  private onInput(): void {
+    const value = this.input?.value.trim() || '';
+    this.props.onInput?.(value);
+    this.checkValue();
   }
 
   checkValue(): boolean {
     const value = this.input?.value.trim() || '';
+
+    if (!this.props.required && value === '') {
+      this.clearError();
+      return true;
+    }
+
+    if (!this.props.validator) {
+      return true;
+    }
+
     const validationResult = this.props.validator(value);
     if (!validationResult.result) {
       this.setError(validationResult.message || '');
@@ -106,54 +203,37 @@ export class FormInput {
     return validationResult.result;
   }
 
-  /**
-   * Отображает ошибку рядом с полем ввода.
-   * @param errorMessage - сообщение ошибки.
-   */
-  setError(errorMessage: string): void {
-    const errorElement = this.parent.querySelector(`#${this.props.id}-error`) as HTMLElement;
-    if (errorElement) {
-      errorElement.textContent = errorMessage;
-      errorElement.style.display = 'block';
+  setError(message: string): void {
+    const errorEl = this.parent.querySelector(`#${this.props.id}-error`) as HTMLElement;
+    if (errorEl) {
+      errorEl.textContent = message;
+      errorEl.style.display = 'block';
     }
-
-    const input = this.input;
-    if (input) {
-      input.classList.add('error');
-    }
+    this.input?.classList.add('error');
   }
 
-  /**
-   * Убирает отображение ошибки.
-   */
   clearError(): void {
-    const errorElement = this.parent.querySelector(`#${this.props.id}-error`) as HTMLElement;
-    if (errorElement) {
-      errorElement.textContent = '';
-      errorElement.style.display = 'none';
+    const errorEl = this.parent.querySelector(`#${this.props.id}-error`) as HTMLElement;
+    if (errorEl) {
+      errorEl.textContent = '';
+      errorEl.style.display = 'none';
     }
-
-    const input = this.input;
-    if (input) {
-      input.classList.remove('error');
-    }
+    this.input?.classList.remove('error');
   }
 
-  /**
-   * Возвращает значение в поле ввода.
-   * @returns {string} - введенная строка.
-   */
   get value(): string {
     return this.input?.value || '';
   }
 
-  /**
-   * Удаляет обработчики событий.
-   */
   remove(): void {
     const input = this.input;
     if (input) {
       input.removeEventListener('input', this.inputHandler);
+      input.removeEventListener('beforeinput', this.beforeInputHandler);
+    }
+
+    if (this.phoneInputHandler) {
+      this.input?.removeEventListener('input', this.phoneInputHandler);
     }
 
     const eyeIcon = this.self?.querySelector('.form__input__eye-icon') as HTMLElement;

@@ -100,12 +100,12 @@ export const ValidateName = (value: string): ValidationResultType => {
     return ValidationResult(false, 'Поле слишком короткое');
   }
 
-  if (value.length > 30) {
+  if (value.length > 25) {
     return ValidationResult(false, 'Поле слишком длинное');
   }
 
   if (!/^[а-яА-ЯёЁ]+$/.test(value)) {
-    return ValidationResult(false, 'Присутствуют не кириллические буквы');
+    return ValidationResult(false, 'Есть не кириллица');
   }
 
   return ValidationResult(true);
@@ -116,17 +116,57 @@ export const ValidateName = (value: string): ValidationResultType => {
  */
 export const ValidatePhone = (value: string): ValidationResultType => {
   if (value === '') {
-    return ValidationResult(false, 'Номер телефона не может быть пустым');
+    return ValidationResult(false, 'Телефон не может быть пустым');
   }
 
   const cleanedValue = value.replace(/[\s()-]/g, '');
   if (!/^\d+$/.test(cleanedValue)) {
-    return ValidationResult(false, 'Номер телефона должен содержать только цифры');
+    return ValidationResult(false, 'Должен содержать только цифры');
   }
 
   if (cleanedValue.length < 9 || cleanedValue.length > 10) {
-    return ValidationResult(false, 'Телефон от 9 до 10 цифр без учета префикса');
+    return ValidationResult(false, 'От 9 до 10 цифр без учета префикса');
   }
 
+  return ValidationResult(true);
+};
+
+export const ValidateFlat = (value: string): ValidationResultType => {
+  if (!value) return ValidationResult(false, 'Квартира/офис не может быть пустым');
+  if (!/^[a-zA-Zа-яА-ЯёЁ0-9]+$/.test(value)) {
+    return ValidationResult(false, 'Неверный формат квартиры/офиса');
+  }
+  return ValidationResult(true);
+};
+
+export const ValidateDoorPhone = (value: string): ValidationResultType => {
+  if (!value) return ValidationResult(false, 'Домофон не может быть пустым');
+  if (!/^\d{1,10}$/.test(value)) {
+    return ValidationResult(false, 'Домофон должен содержать до 10 цифр');
+  }
+  return ValidationResult(true);
+};
+
+export const ValidatePorch = (value: string): ValidationResultType => {
+  const num = Number(value);
+  if (!value) return ValidationResult(false, 'Подъезд обязателен');
+  if (isNaN(num) || num < 1 || num > 20) {
+    return ValidationResult(false, 'Подъезд должен быть числом от 1 до 20');
+  }
+  return ValidationResult(true);
+};
+
+export const ValidateFloor = (value: string): ValidationResultType => {
+  const num = Number(value);
+  if (!value) return ValidationResult(false, 'Этаж обязателен');
+  if (isNaN(num) || num < 1 || num > 100) {
+    return ValidationResult(false, 'Этаж должен быть числом от 1 до 100');
+  }
+  return ValidationResult(true);
+};
+
+export const ValidateCourierComment = (value: string): ValidationResultType => {
+  if (!value.trim()) return ValidationResult(false, 'Комментарий не может быть пустым');
+  if (value.length > 300) return ValidationResult(false, 'Комментарий слишком длинный');
   return ValidationResult(true);
 };

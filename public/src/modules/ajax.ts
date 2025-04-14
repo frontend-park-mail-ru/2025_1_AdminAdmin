@@ -1,13 +1,25 @@
-import { addToHeaders, clearLocalStorage, saveToLocalStorage } from './localStorage';
+import {
+  getCSRFFromLocalStorage,
+  removeTokenFromLocalStorage,
+  storeAuthTokensFromResponse,
+} from './localStorage';
+import { RestaurantResponse } from '@myTypes/restaurantTypes';
+import { I_Cart } from '@myTypes/cartTypes';
+import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
+import { CreateOrderPayload } from '@myTypes/orderTypes';
 
 export interface ResponseData<T = any> {
   status: number;
   body: T;
 }
 
+interface ErrorResponse {
+  error: string;
+}
+
 const isDebug = false;
 
-const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? '127.0.0.1' : 'doordashers.ru'}:8443/api`;
+const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? 'localhost:5458' : 'doordashers.ru'}/api`;
 
 const methods = Object.freeze({
   POST: 'POST',
@@ -16,9 +28,7 @@ const methods = Object.freeze({
   PUT: 'PUT',
 });
 
-interface RequestParams {
-  [key: string]: string;
-}
+type RequestParams = Record<string, string>;
 
 /**
  * Выполняет базовый HTTP-запрос.
@@ -41,10 +51,9 @@ const baseRequest = async <T = any>(
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      ...getCSRFFromLocalStorage(),
     },
   };
-
-  addToHeaders(options as any);
 
   if (data) options.body = JSON.stringify(data);
 
@@ -67,82 +76,58 @@ const baseRequest = async <T = any>(
     }
 
     try {
-      saveToLocalStorage(response.headers);
+      storeAuthTokensFromResponse(response.headers);
     } catch (err) {
       console.error(err);
     }
 
     return { status: response.status, body };
   } catch (err) {
-    return { status: 503, body: err.message };
+    return { status: 503, body: err.error };
   }
 };
 
-// UserRequests class
 class UserRequests {
   private baseUrl = '/auth';
 
   /**
    * Отправляет запрос на авторизацию пользователя.
-   * @param login - Логин пользователя
-   * @param password - Пароль пользователя
    * @returns {Promise<{id: string; login: string}>}
+   * @param payload
    */
-  Login = async (login: string, password: string): Promise<{ id: string; login: string }> => {
-    const { status, body } = await baseRequest<{ id: string; login: string } & { error?: string }>(
+  Login = async (payload: LoginPayload): Promise<User> => {
+    const { status, body } = await baseRequest<User | ErrorResponse>(
       methods.POST,
       this.baseUrl + '/signin',
-      { login, password },
+      payload,
     );
 
     if (status === 200) {
-      return {
-        id: body.id,
-        login: body.login,
-      };
+      return body as User;
     }
 
-    throw new Error(body.error ?? 'Unknown error');
+    throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
   };
 
   /**
    * Отправляет запрос на регистрацию нового пользователя.
-   * @param firstName - Имя нового пользователя
-   * @param lastName - Фамилия нового пользователя
-   * @param phoneNumber - Телефон нового пользователя
-   * @param login - Логин нового пользователя
-   * @param password - Пароль нового пользователя
    * @returns {Promise<{id: string; login: string}>}
+   * @param payload
    */
-  SignUp = async (
-    firstName: string,
-    lastName: string,
-    phoneNumber: string,
-    login: string,
-    password: string,
-  ): Promise<{ id: string; login: string }> => {
-    const response = await baseRequest<{ id: string; login: string } & { error?: string }>(
+  SignUp = async (payload: RegisterPayload): Promise<User> => {
+    const response = await baseRequest<User | ErrorResponse>(
       methods.POST,
       this.baseUrl + '/signup',
-      {
-        first_name: firstName,
-        last_name: lastName,
-        phone_number: phoneNumber,
-        login,
-        password,
-      },
+      payload,
     );
 
     const { status, body } = response;
 
-    if (status === 201) {
-      return {
-        id: body.id,
-        login: body.login,
-      };
+    if (status === 200) {
+      return body as User;
     }
 
-    throw new Error(body.error ?? 'Unknown error');
+    throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
   };
 
   /**
@@ -153,10 +138,10 @@ class UserRequests {
     const { status, body } = await baseRequest(methods.GET, this.baseUrl + '/logout');
 
     if (status === 200) {
-      clearLocalStorage();
+      removeTokenFromLocalStorage();
       return { message: 'ok' };
     } else {
-      throw new Error(body.message);
+      throw new Error(body.message ?? 'Что-то пошло не так...');
     }
   };
 
@@ -164,21 +149,90 @@ class UserRequests {
    * Проверяет авторизацию пользователя.
    * @returns {Promise<{ message: string }>}
    */
-  CheckUser = async (): Promise<{ message: string }> => {
-    const { status, body } = await baseRequest<{ message: string }>(
+  CheckUser = async (): Promise<User> => {
+    const { status, body } = await baseRequest<User | ErrorResponse>(
       methods.GET,
       this.baseUrl + '/check',
     );
 
     if (status === 200) {
-      return body;
+      return body as User;
     } else {
       throw new Error('not authorized');
     }
   };
+
+  /**
+   * Отправляет запрос на обновление информации пользователя.
+   * @param payload - Параметры для обновления (описание, имя, фамилия, телефон, пароль)
+   * @returns {Promise<User>}
+   */
+  UpdateUser = async (payload: Partial<UpdateUserPayload>): Promise<User> => {
+    const { status, body } = await baseRequest<User | ErrorResponse>(
+      methods.POST,
+      this.baseUrl + '/update_user',
+      payload,
+    );
+
+    if (status === 200) {
+      return body as User;
+    }
+
+    throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
+  };
+
+  /**
+   * Получает список адресов, привязанных к пользователю.
+   * @returns {Promise<{ address: string; id: string; user_id: string }[]>}
+   */
+  GetAddresses = async (): Promise<{ address: string; id: string; user_id: string }[]> => {
+    const { status, body } = await baseRequest<
+      { address: string; id: string; user_id: string }[] | ErrorResponse
+    >(methods.GET, this.baseUrl + '/address');
+
+    if (status === 200) {
+      return body as { address: string; id: string; user_id: string }[];
+    }
+
+    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось получить адреса пользователя');
+  };
+
+  AddAddress = async (address: string): Promise<void> => {
+    const { status, body } = await baseRequest<ErrorResponse>(
+      methods.POST,
+      this.baseUrl + '/address',
+      {
+        address,
+      },
+    );
+
+    if (status === 200) {
+      return;
+    } else {
+      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось добавить адрес');
+    }
+  };
+
+  /**
+   * Удаляет адрес пользователя по ID.
+   * @param id - ID адреса
+   * @returns {Promise<{ message: string }>}
+   */
+  DeleteAddress = async (id: string): Promise<void> => {
+    const { status, body } = await baseRequest<ErrorResponse>(
+      methods.DELETE,
+      this.baseUrl + '/address',
+      { id },
+    );
+
+    if (status === 200) {
+      return;
+    }
+
+    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось удалить адрес');
+  };
 }
 
-// RestaurantsRequests class
 class RestaurantsRequests {
   baseUrl = '/restaurants';
 
@@ -198,7 +252,7 @@ class RestaurantsRequests {
     if (status === 200) {
       return body;
     } else {
-      throw new Error(body.message);
+      throw new Error(body.error);
     }
   };
 
@@ -207,16 +261,102 @@ class RestaurantsRequests {
    * @param id - Идентификатор ресторана
    * @returns {Promise<any>}
    */
-  Get = async (id: number): Promise<any> => {
-    const { status, body } = await baseRequest<any>(methods.GET, this.baseUrl + '/' + id, null);
+  Get = async (id: string): Promise<RestaurantResponse> => {
+    const { status, body } = await baseRequest<RestaurantResponse | ErrorResponse>(
+      methods.GET,
+      this.baseUrl + '/' + id,
+      null,
+    );
 
     if (status === 200) {
-      return body;
+      return body as RestaurantResponse;
     } else {
-      throw new Error(body.message);
+      throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
     }
+  };
+}
+
+class CartRequests {
+  private baseUrl = '/cart';
+
+  /**
+   * Обновляет количество товара в корзине. Если количество 0, товар удаляется.
+   * @returns {Promise<void>}
+   * @param product_id
+   * @param quantity
+   * @param restaurant_id
+   */
+  UpdateProductQuantity = async (
+    product_id: string,
+    quantity: number,
+    restaurant_id: string,
+  ): Promise<I_Cart> => {
+    const { status, body } = await baseRequest<I_Cart | ErrorResponse>(
+      methods.POST,
+      `${this.baseUrl}/update/${product_id}`,
+      {
+        quantity,
+        restaurant_id,
+      },
+    );
+
+    if (status === 200) {
+      return body as I_Cart;
+    } else {
+      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось обновить количество продуктов');
+    }
+  };
+
+  /**
+   * Получает текущую корзину.
+   * @returns {Promise<any>}
+   */
+  GetCart = async (): Promise<I_Cart> => {
+    const { status, body } = await baseRequest<I_Cart | ErrorResponse>(methods.GET, this.baseUrl);
+
+    if (status === 200) {
+      return body as I_Cart;
+    } else {
+      throw new Error((body as ErrorResponse).error ?? 'Не удалось получить корзину');
+    }
+  };
+
+  ClearCart = async (): Promise<void> => {
+    const { status, body } = await baseRequest<ErrorResponse>(
+      methods.POST,
+      `${this.baseUrl}/clear`,
+    );
+
+    if (status !== 200) {
+      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось очистить корзину');
+    }
+  };
+}
+
+class OrderRequests {
+  private baseUrl = '/order';
+
+  /**
+   * Создает новый заказ.
+   * @param payload - Данные заказа
+   * @returns {Promise<{ message: string; order_id?: string }>}
+   */
+  CreateOrder = async (
+    payload: CreateOrderPayload,
+  ): Promise<{ message: string; order_id?: string }> => {
+    const { status, body } = await baseRequest<
+      { message: string; order_id?: string } | ErrorResponse
+    >(methods.POST, this.baseUrl + '/create', payload);
+
+    if (status === 200 || status === 201) {
+      return body as { message: string; order_id?: string };
+    }
+
+    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось создать заказ');
   };
 }
 
 export const AppRestaurantRequests = new RestaurantsRequests();
 export const AppUserRequests = new UserRequests();
+export const AppCartRequests = new CartRequests();
+export const AppOrderRequests = new OrderRequests();

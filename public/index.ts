@@ -1,12 +1,13 @@
 import './index.scss'
 
-import { initRouting } from './src/modules/routing';
+import { initRouting } from '@modules/routing';
 
 const rootElement = document.getElementById('root');
 
 initRouting(rootElement);
 
 
+/*
 if ('serviceWorker' in navigator) {
     (async () => {
         try {
@@ -16,4 +17,4 @@ if ('serviceWorker' in navigator) {
             console.error('Service worker registration failed', err);
         }
     })();
-}
+}*/

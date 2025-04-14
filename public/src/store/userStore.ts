@@ -1,24 +1,15 @@
 import { createStore } from './store';
-import { router } from '../modules/routing';
-import { AppUserRequests } from '../modules/ajax';
+import { AppUserRequests } from '@modules/ajax';
+import {
+  getActiveAddressFromLocalStorage,
+  saveActiveAddressToLocalStorage,
+} from '@modules/localStorage';
+import { User, LoginPayload, RegisterPayload, UpdateUserPayload } from '@myTypes/userTypes';
+import { cartStore } from '@store/cartStore';
 
-interface UserState {
-  login: string;
-  avatarUrl: string;
+interface UserState extends User {
   isAuth: boolean;
-}
-
-interface LoginPayload {
-  login: string;
-  password: string;
-}
-
-interface RegisterPayload {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  login: string;
-  password: string;
+  activeAddress: string;
 }
 
 interface Action {
@@ -27,33 +18,44 @@ interface Action {
 }
 
 const initialUserState: UserState = {
+  id: '',
   login: '',
-  avatarUrl: '/src/assets/avatar.png',
+  first_name: '',
+  last_name: '',
+  phone_number: '',
+  path: '',
+  description: '',
   isAuth: false,
+  activeAddress: getActiveAddressFromLocalStorage(),
 };
 
 const userReducer = (state = initialUserState, action: Action): UserState => {
   switch (action.type) {
     case UserActions.LOGIN_SUCCESS:
     case UserActions.REGISTER_SUCCESS:
+    case UserActions.CHECK_SUCCESS:
       return {
         ...state,
+        ...action.payload,
         isAuth: true,
-        login: action.payload.login,
       };
 
     case UserActions.LOGOUT_SUCCESS:
       return {
-        ...state,
-        isAuth: false,
-        login: '',
+        ...initialUserState,
+        activeAddress: '',
       };
 
-    case UserActions.CHECK_SUCCESS:
+    case UserActions.SET_ADDRESS:
       return {
         ...state,
-        isAuth: true,
-        login: action.payload.login,
+        activeAddress: action.payload,
+      };
+
+    case UserActions.UPDATE_USER_SUCCESS:
+      return {
+        ...state,
+        ...action.payload,
       };
 
     default:
@@ -66,6 +68,9 @@ export const UserActions = {
   REGISTER_SUCCESS: 'REGISTER_SUCCESS',
   LOGOUT_SUCCESS: 'LOGOUT_SUCCESS',
   CHECK_SUCCESS: 'CHECK_SUCCESS',
+  ADD_ADDRESS_SUCCESS: 'ADD_ADDRESS_SUCCESS',
+  SET_ADDRESS: 'SET_ADDRESS',
+  UPDATE_USER_SUCCESS: 'UPDATE_USER_SUCCESS',
 };
 
 class UserStore {
@@ -76,15 +81,23 @@ class UserStore {
   }
 
   /**
-   * Проверяет авторизацию
-   * @returns {boolean} - авторизован пользователь или нет
+   * Проверяет, авторизован ли пользователь.
+   * @returns {boolean} - true, если пользователь авторизован, иначе false
    */
   isAuth(): boolean {
     return this.store.getState().isAuth;
   }
 
   /**
-   * Возвращает состояние пользователя
+   * Возвращает активный адрес пользователя.
+   * @returns {string} - активный адрес пользователя
+   */
+  getActiveAddress(): string {
+    return this.store.getState().activeAddress;
+  }
+
+  /**
+   * Возвращает текущее состояние пользователя.
    * @returns {UserState} - текущее состояние пользователя
    */
   getState(): UserState {
@@ -92,84 +105,121 @@ class UserStore {
   }
 
   /**
-   * Отправляет action в хранилище
-   * @param {Action} action
+   * Отправляет action в хранилище.
+   * @param {Action} action - действие для отправки в хранилище
    */
   private dispatch(action: Action): void {
     this.store.dispatch(action);
   }
 
   /**
-   * Вход пользователя
-   * @param {LoginPayload} param0 - данные пользователя
+   * Вход пользователя в систему.
+   * @param {LoginPayload} payload - данные пользователя для авторизации
+   * @returns {Promise<void>} - обещание, которое разрешается после успешного входа
    */
-  async login({ login, password }: LoginPayload): Promise<void> {
-    const res = await AppUserRequests.Login(login, password);
+  async login(payload: LoginPayload): Promise<void> {
+    const res = await AppUserRequests.Login(payload);
     this.dispatch({
       type: UserActions.LOGIN_SUCCESS,
-      payload: { login: res.login },
+      payload: res,
     });
+
+    await cartStore.initCart();
   }
 
   /**
-   * Регистрация нового пользователя
-   * @param {RegisterPayload} param0 - данные пользователя
+   * Регистрация нового пользователя.
+   * @param {RegisterPayload} payload - данные для регистрации
+   * @returns {Promise<void>} - обещание, которое разрешается после успешной регистрации
    */
-  async register({
-    firstName,
-    lastName,
-    phoneNumber,
-    login,
-    password,
-  }: RegisterPayload): Promise<void> {
-    const res = await AppUserRequests.SignUp(firstName, lastName, phoneNumber, login, password);
+  async register(payload: RegisterPayload): Promise<void> {
+    const res = await AppUserRequests.SignUp(payload);
     this.dispatch({
       type: UserActions.REGISTER_SUCCESS,
-      payload: { login: res.login },
+      payload: res,
     });
+
+    await cartStore.initCart();
   }
 
   /**
-   * Выход пользователя
+   * Выход пользователя из системы.
+   * @returns {Promise<void>} - обещание, которое разрешается после успешного выхода
    */
   async logout(): Promise<void> {
-    try {
-      await AppUserRequests.Logout();
-      this.dispatch({ type: UserActions.LOGOUT_SUCCESS });
-      router.goToPage('home');
-    } catch (err) {
-      console.error('Ошибка при попытке выхода:', err);
-    }
+    await AppUserRequests.Logout();
+    this.dispatch({ type: UserActions.LOGOUT_SUCCESS });
+
+    await cartStore.initCart();
   }
 
   /**
-   * Проверяет, авторизован ли пользователь
-   * @returns {Promise<void>}
+   * Проверяет авторизацию пользователя.
+   * @returns {Promise<void>} - обещание, которое разрешается после проверки состояния авторизации
    */
   async checkUser(): Promise<void> {
     try {
       const res = await AppUserRequests.CheckUser();
-
-      if ('login' in res) {
-        this.dispatch({
-          type: UserActions.CHECK_SUCCESS,
-          payload: { login: res.login },
-        });
-      } else {
-        console.error('Ошибка: Ответ не содержит логин', res);
-      }
+      this.dispatch({
+        type: UserActions.CHECK_SUCCESS,
+        payload: res,
+      });
     } catch (err) {
-      console.error('Ошибка при проверке пользователя:', err.message);
+      console.error('Ошибка при проверке пользователя:', (err as Error).message);
     }
   }
 
   /**
-   * Подписывает listener на изменение состояния
-   * @param {Function} listener
+   * Обновляет информацию о пользователе.
+   * @param {Partial<UpdateUserPayload>} payload - данные для обновления пользователя
+   * @returns {Promise<void>} - обещание, которое разрешается после успешного обновления
    */
-  subscribe(listener: () => void): void {
-    this.store.subscribe(listener);
+  async updateUser(payload: Partial<UpdateUserPayload>): Promise<void> {
+    try {
+      const res = await AppUserRequests.UpdateUser(payload);
+
+      this.dispatch({
+        type: UserActions.UPDATE_USER_SUCCESS,
+        payload: res,
+      });
+    } catch (err) {
+      console.error('Ошибка при обновлении данных пользователя:', (err as Error).message);
+    }
+  }
+
+  async addAddress(address: string): Promise<void> {
+    try {
+      await AppUserRequests.AddAddress(address);
+      this.dispatch({
+        type: UserActions.ADD_ADDRESS_SUCCESS,
+        payload: { address: address },
+      });
+    } catch (err) {
+      console.error('Ошибка при добавлении адреса:', err.error);
+    }
+  }
+
+  /**
+   * Устанавливает активный адрес пользователя.
+   * @param {string} address - новый активный адрес
+   */
+  setAddress(address: string) {
+    saveActiveAddressToLocalStorage(address);
+    this.dispatch({
+      type: UserActions.SET_ADDRESS,
+      payload: address,
+    });
+  }
+
+  /**
+   * Подписывает listener на изменение состояния пользователя.
+   * @param {Function} listener - функция, которая будет вызвана при изменении состояния
+   * @returns {Function} - функция для отписки от изменений
+   */
+  subscribe(listener: () => void): () => void {
+    return this.store.subscribe(listener);
   }
 }
 
 export const userStore = new UserStore();
+await userStore.checkUser();

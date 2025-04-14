@@ -1,0 +1,49 @@
+tr {
+    background-color: #fff;
+    border-radius: 40px;
+
+    &.completed {
+        color: #686868;
+    }
+
+    &:hover {
+        background-color: #f2f2f2;
+
+        td:first-child{
+            border-radius: 10px 0px 0px 10px;
+        }
+
+        td:last-child{
+            border-radius: 0px 10px 10px 0px;
+        }
+    }
+
+    td {
+        vertical-align: middle;
+        border: none;
+        padding: 10px; // Отступы внутри ячейки
+
+        & > * { // Для всех дочерних элементов внутри ячейки
+            display: block; // Для задания маргина
+            margin-bottom: 10px;
+            width: 100%;
+
+            &:last-child { // Для последнего дочернего элемента в ячейке
+                margin-bottom: 0px;
+            }
+        }
+
+        &:first-child { // Колонка статуса
+            font-weight: bold;
+        }
+
+        &:last-child { // Колонка ресторана
+            font-weight: bold;
+
+            img {
+                object-fit: contain;
+                border-radius: 10px;
+            }
+        }
+    }
+}

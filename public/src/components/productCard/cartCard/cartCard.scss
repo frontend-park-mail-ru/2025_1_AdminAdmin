@@ -1,0 +1,130 @@
+.cart-card {
+  padding: 1%;
+  border-radius: 10px;
+  display: grid;
+  gap: 5%;
+  grid-template-columns: 25% 55% 10%;
+  background-color: var(--white);
+  align-items: center;
+  position: relative;
+  transition: background-color 0.3s ease;
+  aspect-ratio: 16/1;
+  width: 100%;
+  container-type: inline-size;
+  box-sizing: border-box;
+
+  &.active,
+  &:hover {
+    background-color: var(--light-grey);
+
+    .cart-card__bin_icon {
+      display: block;
+    }
+  }
+
+  &__weight {
+    color: var(--dark-gray);
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+
+    &__bottom {
+      display: flex;
+      margin-bottom: 4%;
+    }
+
+    &__name {
+      padding-bottom: 5px;
+    }
+
+    &__total_price {
+      font-weight: bold;
+    }
+
+    &__weight {
+      color: var(--dark-gray);
+    }
+  }
+
+  &__product_icon {
+    width: 100%;
+    object-fit: contain;
+  }
+
+  &__product_icon {
+    border-radius: 10px;
+  }
+
+  &__bin_icon {
+    max-width: 40%;
+    max-height: 20px;
+    height: auto;
+    filter: grayscale(100%) opacity(0.6);
+    transition: filter 0.2s ease;
+    display: none;
+
+    &:hover {
+     filter: none;
+    }
+  }
+
+  span {
+    margin-left: 5px;
+  }
+
+  @container (width < 500px) {
+    span {
+      font-size: 14px;
+    }
+
+    &__content {
+      &__quantity-controls-wrapper {
+        max-width: 50%;
+      }
+    }
+  }
+
+  @container (width >= 500px) and (width < 700px) {
+    span {
+      font-size: 16px;
+    }
+
+    &__content {
+      &__quantity-controls-wrapper {
+        max-width: 40%;
+      }
+    }
+  }
+
+  @container (width >= 700px) {
+    span {
+      font-size: 18px;
+    }
+
+    &__content {
+      display: grid;
+      grid-template-columns: 25% 30% 25%;
+      gap: 10%;
+
+      &__name {
+        grid-column: 1 / span 1;
+        display: flex;
+        align-items: center;
+        padding: 0;
+      }
+
+      &__bottom {
+        grid-column: 2 / span 1;
+        display: flex;
+        align-items: center;
+        margin-bottom: 0;
+      }
+
+      &__quantity-controls-wrapper {
+        grid-column: 3 / span 1;
+      }
+    }
+  }
+}

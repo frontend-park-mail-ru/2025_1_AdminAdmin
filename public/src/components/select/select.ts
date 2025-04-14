@@ -1,35 +1,24 @@
 import template from './select.hbs';
 
+interface SelectProps {
+  id: string;
+  label: string;
+  options: { value: string; text: string }[];
+  style?: string;
+}
+
 /* Селект (выпадающий список) */
 export class Select {
   private parent: HTMLElement; // Родитель (где вызывается)
-  private props = {
-    id: '', // Id для идентификации
-    label: '', // Метка для отображения
-    options: [] as string[], // Массив опций
-    style: '', // Дополнительный стиль css
-  };
+  private readonly props: SelectProps;
 
   /* Конструктор */
-  constructor(
-    parent: HTMLElement,
-    props: {
-      id: string;
-      label: string;
-      options: string[];
-      style?: string;
-    },
-  ) {
+  constructor(parent: HTMLElement, props: SelectProps) {
     if (!parent) {
       throw new Error('Select: no parent!');
     }
     this.parent = parent;
-    this.props = {
-      id: props.id,
-      label: props.label,
-      options: props.options,
-      style: props.style || '',
-    };
+    this.props = props;
   }
 
   /* Ссылка на объект */
