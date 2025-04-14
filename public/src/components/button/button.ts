@@ -57,8 +57,8 @@ export class Button {
    */
   private handleClick(event: Event): void {
     event.preventDefault();
-    event.stopPropagation();
     if (this.props.onSubmit !== undefined) {
+      event.stopPropagation();
       this.props.onSubmit();
     }
   }
