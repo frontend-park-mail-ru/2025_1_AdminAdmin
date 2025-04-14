@@ -8,14 +8,16 @@ import {
   YMapControls,
   YMapListener,
   YMapMarker,
+  YMapGeolocationControl,
+  YMapZoomControl,
 } from '@//lib/ymaps';
+
 import {
   geoCoderRequest,
   geoCoderRequestByCoords,
   geoSuggestRequest,
 } from '@modules/ymapsRequests';
 import debounce from '@modules/debounce';
-import { YMapGeolocationControl, YMapZoomControl } from '@yandex/ymaps3-default-ui-theme';
 import { toasts } from '@modules/toasts';
 import mapLocationImg from '@assets/map_location.png';
 
