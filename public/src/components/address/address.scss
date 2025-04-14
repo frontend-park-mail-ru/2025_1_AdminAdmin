@@ -7,6 +7,11 @@
     padding: 0 15px;
     background-color: #fff;
     border-radius: 10px;
+    min-height: 0; // по умолчанию
+
+    &:not(.address--header) {
+        min-height: 60px;
+    }
 
     &:hover {
         background-color: #F2F2F2;
@@ -31,14 +36,13 @@
         display: none;
         align-items: center;
         gap: 10px;
-        color: #fff;
+        color: var(--white);
 
         .button {
-            background-color: #fff;
+            background-color: var(--white);
         }
     }
 }
-
 
 @container (width < 600px) {
     .address {

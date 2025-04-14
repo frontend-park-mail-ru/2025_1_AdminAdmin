@@ -2,34 +2,14 @@ import { router } from '@modules/routing';
 
 import template from './restaurantCard.hbs';
 
-import burgerKingImg from '@assets/burgerking.png';
-
-interface RestaurantProps {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
-  rating: string;
-  amount: string;
-  image?: string;
-}
+import { BaseRestaurant } from '@myTypes/restaurantTypes';
 
 /**
  * Класс карточки ресторана
  */
 export class RestaurantCard {
   private parent: HTMLElement; // Родитель (где вызывается)
-  private readonly props = {
-    id: '', // Идентификатор карточки
-    name: '', // Название ресторана
-    description: '', // Описание ресторана
-    type: '', // Тип ресторана (Кухня)
-    rating: {
-      score: '', // Оценка
-      amount: '', // Кол-во отзывов
-    },
-    image: '', // Изображение
-  };
+  private readonly props: BaseRestaurant;
 
   /**
    * Создает экземпляр карточки ресторана.
@@ -37,19 +17,9 @@ export class RestaurantCard {
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться карточка.
    * @param {Object} props - Словарь данных для определения свойств карточки
    */
-  constructor(parent: HTMLElement, props: RestaurantProps) {
+  constructor(parent: HTMLElement, props: BaseRestaurant) {
     this.parent = parent;
-    this.props = {
-      id: props.id,
-      name: props.name,
-      description: props.description,
-      type: props.type,
-      rating: {
-        score: props.rating,
-        amount: props.amount,
-      },
-      image: props.image || burgerKingImg,
-    };
+    this.props = props;
   }
 
   /**

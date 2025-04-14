@@ -50,7 +50,7 @@
     display: flex;
     align-items: center;
 
-    input {
+    input:not([type="radio"]) {
       padding-left: 35px;
       width: 100%;
     }

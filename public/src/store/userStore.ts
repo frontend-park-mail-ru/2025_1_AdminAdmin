@@ -1,11 +1,11 @@
 import { createStore } from './store';
-import { router } from '@modules/routing';
 import { AppUserRequests } from '@modules/ajax';
 import {
   getActiveAddressFromLocalStorage,
   saveActiveAddressToLocalStorage,
 } from '@modules/localStorage';
 import { User, LoginPayload, RegisterPayload, UpdateUserPayload } from '@myTypes/userTypes';
+import { cartStore } from '@store/cartStore';
 
 interface UserState extends User {
   isAuth: boolean;
@@ -43,6 +43,7 @@ const userReducer = (state = initialUserState, action: Action): UserState => {
     case UserActions.LOGOUT_SUCCESS:
       return {
         ...initialUserState,
+        activeAddress: '',
       };
 
     case UserActions.SET_ADDRESS:
@@ -122,6 +123,8 @@ class UserStore {
       type: UserActions.LOGIN_SUCCESS,
       payload: res,
     });
+
+    await cartStore.initCart();
   }
 
   /**
@@ -135,6 +138,8 @@ class UserStore {
       type: UserActions.REGISTER_SUCCESS,
       payload: res,
     });
+
+    await cartStore.initCart();
   }
 
   /**
@@ -144,7 +149,8 @@ class UserStore {
   async logout(): Promise<void> {
     await AppUserRequests.Logout();
     this.dispatch({ type: UserActions.LOGOUT_SUCCESS });
-    router.goToPage('home');
+
+    await cartStore.initCart();
   }
 
   /**
@@ -189,7 +195,7 @@ class UserStore {
         payload: { address: address },
       });
     } catch (err) {
-      console.error('Ошибка при добавлении адреса:', err.message);
+      console.error('Ошибка при добавлении адреса:', err.error);
     }
   }
 

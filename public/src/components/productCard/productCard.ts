@@ -118,7 +118,7 @@ export class ProductCard {
       try {
         await cartStore.incrementProductAmount(this.props);
       } catch (error) {
-        toasts.error(error.message);
+        toasts.error(error.error);
       } finally {
         this.plusButton.enable();
       }
@@ -130,8 +130,8 @@ export class ProductCard {
     try {
       await cartStore.decrementProductAmount(this.props);
     } catch (error) {
-      console.error(error.message);
-      toasts.error(error.message);
+      console.error(error.error);
+      toasts.error(error.error);
     } finally {
       this.minusButton.enable();
     }
@@ -143,7 +143,7 @@ export class ProductCard {
       cartStore.setRestaurant(this.restaurant_id, this.restaurant_name);
       await this.incrementAmount();
     } catch (error) {
-      toasts.error(error.message);
+      toasts.error(error.error);
     }
     modalController.closeModal();
   };

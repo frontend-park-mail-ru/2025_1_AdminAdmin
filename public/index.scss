@@ -9,6 +9,7 @@
 @use './src/components/suggest/suggest' as *;
 @use './src/components/profileTableRow/profileTableRow.scss' as *;
 @use './src/components/categories/categoryHeader/categoryHeader' as *;
+@use './src/components/youMoneyForm/youMoneyForm' as *;
 
 /* Импорт сложных компонентов */
 @use './src/components/header/header' as *;
@@ -128,7 +129,7 @@ main {
   color: var(--red);
 }
 
-input {
+input:not([type="radio"]) {
   box-sizing: border-box;
   height: 45px;
   border-radius: var(--border-radius);
@@ -143,6 +144,64 @@ input {
     border: 2px solid var(--dark-gray);
     outline: none;
   }
+}
+
+input[type="radio"]:not(:checked) {
+  width: 18px;
+  height: 18px;
+  border: 1px solid #ddd;
+  border-radius: 100%;
+  background: #fff;
+}
+
+
+[type="radio"]:checked,
+[type="radio"]:not(:checked) {
+  position: absolute;
+  left: -9999px;
+}
+[type="radio"]:checked + label,
+[type="radio"]:not(:checked) + label
+{
+  position: relative;
+  padding-left: 28px;
+  cursor: pointer;
+  line-height: 20px;
+  display: inline-block;
+  color: var(--dark-gray);
+}
+[type="radio"]:checked + label:before,
+[type="radio"]:not(:checked) + label:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--grey);
+  border-radius: 100%;
+  background: var(--white);
+}
+[type="radio"]:checked + label:after,
+[type="radio"]:not(:checked) + label:after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  background: var(--orange);
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  border-radius: 100%;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+[type="radio"]:not(:checked) + label:after {
+  opacity: 0;
+  transform: scale(0);
+}
+[type="radio"]:checked + label:after {
+  opacity: 1;
+  transform: scale(1);
 }
 
 input[type='number'] {

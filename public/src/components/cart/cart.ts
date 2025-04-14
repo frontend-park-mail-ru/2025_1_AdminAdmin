@@ -67,7 +67,7 @@ export default class Cart {
     try {
       await cartStore.clearCart();
     } catch (error) {
-      toasts.error(error.message);
+      toasts.error(error.error);
     } finally {
       bin.style.pointerEvents = '';
     }
