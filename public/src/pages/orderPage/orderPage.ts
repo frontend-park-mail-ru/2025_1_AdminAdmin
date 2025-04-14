@@ -11,7 +11,7 @@ import { AppOrderRequests } from '@modules/ajax';
 import { CreateOrderPayload } from '@myTypes/orderTypes';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
-import { createPayment } from '@modules/yooKassaClient';
+import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -94,9 +94,12 @@ export default class OrderPage {
 
   async sendOrder() {
     const formValues: Record<string, string> = {};
+
     for (const [key, input] of Object.entries(this.inputs)) {
       formValues[key] = input.value;
-      if (!input.checkValue()) return;
+      if (!input.checkValue()) {
+        return;
+      }
     }
 
     const state = cartStore.getState();
@@ -125,15 +128,13 @@ export default class OrderPage {
     };
 
     try {
-      // 1. Сначала создаём заказ на бэке
       await AppOrderRequests.CreateOrder(payload);
+      toasts.success('Заказ успешно оформлен!');
 
-      // 2. Создаём платёж и получаем confirmation_url
-      const confirmationUrl = await createPayment(final_price, 'Оплата заказа на доставку');
-
-      toasts.success('Перенаправляем на оплату...');
-      // 3. Редиректим пользователя на страницу оплаты ЮKassa
-      window.location.href = confirmationUrl.confirmationUrl;
+      this.submitButton.hide();
+      const container: HTMLDivElement = this.self.querySelector('.order-page__summary');
+      const youMoneyForm = new YouMoneyForm(container, final_price);
+      youMoneyForm.render();
     } catch (err) {
       toasts.error(err.message || 'Не удалось оформить заказ');
     }

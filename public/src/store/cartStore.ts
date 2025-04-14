@@ -232,6 +232,12 @@ class CartStore {
     this.saveToLocalStorageIfGuest();
   }
 
+  clearLocalCart() {
+    this.store.dispatch({
+      type: CartActions.CLEAR_CART,
+    });
+  }
+
   getState(): CartState {
     return this.store.getState();
   }
