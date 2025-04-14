@@ -1,5 +1,5 @@
-<div class="address" id="{{baseId}}">
-    <div class="address__radio-group">
+<div class="address {{#if isHeaderAddress}}address--header{{/if}}" id="{{baseId}}">
+<div class="address__radio-group">
         {{#unless isHeaderAddress}}
             <input type="radio" id="{{radioId}}" />
         {{/unless}}

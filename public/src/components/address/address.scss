@@ -3,11 +3,15 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    min-height: 0;
     box-sizing: border-box;
     padding: 0 15px;
     background-color: #fff;
     border-radius: 10px;
+    min-height: 0; // по умолчанию
+
+    &:not(.address--header) {
+        min-height: 60px;
+    }
 
     &:hover {
         background-color: #F2F2F2;
@@ -40,15 +44,8 @@
     }
 }
 
-
 @container (width < 600px) {
     .address {
         padding: 3%;
-    }
-}
-
-@container (width > 400px) {
-    .address {
-        min-height: 60px;
     }
 }
