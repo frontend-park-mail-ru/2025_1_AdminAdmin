@@ -73,7 +73,6 @@ class CartStore {
 
   constructor() {
     this.store = createStore(cartReducer);
-    userStore.subscribe(this.initCart.bind(this));
   }
 
   async initCart() {
@@ -231,6 +230,12 @@ class CartStore {
       type: CartActions.CLEAR_CART,
     });
     this.saveToLocalStorageIfGuest();
+  }
+
+  clearLocalCart() {
+    this.store.dispatch({
+      type: CartActions.CLEAR_CART,
+    });
   }
 
   getState(): CartState {

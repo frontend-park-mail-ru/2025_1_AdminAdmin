@@ -14,7 +14,7 @@ export interface ResponseData<T = any> {
 }
 
 interface ErrorResponse {
-  message: string;
+  error: string;
 }
 
 const isDebug = false;
@@ -83,7 +83,7 @@ const baseRequest = async <T = any>(
 
     return { status: response.status, body };
   } catch (err) {
-    return { status: 503, body: err.message };
+    return { status: 503, body: err.error };
   }
 };
 
@@ -106,7 +106,7 @@ class UserRequests {
       return body as User;
     }
 
-    throw new Error((body as ErrorResponse)?.message ?? 'Что-то пошло не так...');
+    throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
   };
 
   /**
@@ -127,7 +127,7 @@ class UserRequests {
       return body as User;
     }
 
-    throw new Error((body as ErrorResponse)?.message ?? 'Что-то пошло не так...');
+    throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
   };
 
   /**
@@ -178,7 +178,7 @@ class UserRequests {
       return body as User;
     }
 
-    throw new Error((body as ErrorResponse)?.message ?? 'Что-то пошло не так...');
+    throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
   };
 
   /**
@@ -188,28 +188,28 @@ class UserRequests {
   GetAddresses = async (): Promise<{ address: string; id: string; user_id: string }[]> => {
     const { status, body } = await baseRequest<
       { address: string; id: string; user_id: string }[] | ErrorResponse
-    >(methods.GET, this.baseUrl + '/get_addresses');
+    >(methods.GET, this.baseUrl + '/address');
 
     if (status === 200) {
       return body as { address: string; id: string; user_id: string }[];
     }
 
-    throw new Error((body as ErrorResponse)?.message ?? 'Не удалось получить адреса пользователя');
+    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось получить адреса пользователя');
   };
 
-  AddAddress = async (address: string): Promise<{ message: string }> => {
-    const { status, body } = await baseRequest<{ message: string } & { error?: string }>(
+  AddAddress = async (address: string): Promise<void> => {
+    const { status, body } = await baseRequest<ErrorResponse>(
       methods.POST,
-      this.baseUrl + '/add_address',
+      this.baseUrl + '/address',
       {
         address,
       },
     );
 
     if (status === 200) {
-      return body;
+      return;
     } else {
-      throw new Error('not authorized');
+      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось добавить адрес');
     }
   };
 
@@ -218,18 +218,18 @@ class UserRequests {
    * @param id - ID адреса
    * @returns {Promise<{ message: string }>}
    */
-  DeleteAddress = async (id: string): Promise<{ message: string }> => {
-    const { status, body } = await baseRequest<{ message: string } & { error?: string }>(
-      methods.POST,
-      this.baseUrl + '/delete_address',
+  DeleteAddress = async (id: string): Promise<void> => {
+    const { status, body } = await baseRequest<ErrorResponse>(
+      methods.DELETE,
+      this.baseUrl + '/address',
       { id },
     );
 
     if (status === 200) {
-      return body;
+      return;
     }
 
-    throw new Error(body?.error ?? 'Не удалось удалить адрес');
+    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось удалить адрес');
   };
 }
 
@@ -252,7 +252,7 @@ class RestaurantsRequests {
     if (status === 200) {
       return body;
     } else {
-      throw new Error(body.message);
+      throw new Error(body.error);
     }
   };
 
@@ -271,7 +271,7 @@ class RestaurantsRequests {
     if (status === 200) {
       return body as RestaurantResponse;
     } else {
-      throw new Error((body as ErrorResponse)?.message ?? 'Что-то пошло не так...');
+      throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
     }
   };
 }
@@ -303,9 +303,7 @@ class CartRequests {
     if (status === 200) {
       return body as I_Cart;
     } else {
-      throw new Error(
-        (body as ErrorResponse)?.message ?? 'Не удалось обновить количество продуктов',
-      );
+      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось обновить количество продуктов');
     }
   };
 
@@ -319,7 +317,7 @@ class CartRequests {
     if (status === 200) {
       return body as I_Cart;
     } else {
-      throw new Error((body as ErrorResponse).message ?? 'Не удалось получить корзину');
+      throw new Error((body as ErrorResponse).error ?? 'Не удалось получить корзину');
     }
   };
 
@@ -330,7 +328,7 @@ class CartRequests {
     );
 
     if (status !== 200) {
-      throw new Error((body as ErrorResponse)?.message ?? 'Не удалось очистить корзину');
+      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось очистить корзину');
     }
   };
 }
@@ -354,7 +352,7 @@ class OrderRequests {
       return body as { message: string; order_id?: string };
     }
 
-    throw new Error((body as ErrorResponse)?.message ?? 'Не удалось создать заказ');
+    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось создать заказ');
   };
 }
 

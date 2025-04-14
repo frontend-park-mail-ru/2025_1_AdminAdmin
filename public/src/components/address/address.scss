@@ -31,10 +31,10 @@
         display: none;
         align-items: center;
         gap: 10px;
-        color: #fff;
+        color: var(--white);
 
         .button {
-            background-color: #fff;
+            background-color: var(--white);
         }
     }
 }

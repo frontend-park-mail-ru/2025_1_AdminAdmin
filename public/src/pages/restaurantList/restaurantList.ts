@@ -2,6 +2,7 @@ import { AppRestaurantRequests } from '@modules/ajax';
 import { RestaurantCard } from '@components/restaurantCard/restaurantCard';
 import throttle from '@modules/throttle';
 import template from './restaurantList.hbs';
+import { BaseRestaurant } from '@myTypes/restaurantTypes';
 
 // Константы
 const LOAD_COUNT = 16;
@@ -9,22 +10,12 @@ const SCROLL_MARGIN = 100;
 const REMOVE_THRESHOLD = 4;
 const SCROLL_THRESHOLD = 2;
 
-interface RestaurantProps {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
-  rating: string;
-  amount: string;
-  image?: string;
-}
-
 /**
  * Класс, представляющий список ресторанов.
  */
 export default class RestaurantList {
   private parent: HTMLElement;
-  private restaurantList: RestaurantProps[];
+  private restaurantList: BaseRestaurant[];
   private renderedIds: Set<string>;
   private observer: IntersectionObserver;
   private firstCardId: number;
@@ -119,7 +110,7 @@ export default class RestaurantList {
 
     if (endCount >= this.restaurantList.length) {
       try {
-        const newRestaurants: RestaurantProps[] = await AppRestaurantRequests.GetAll({
+        const newRestaurants: BaseRestaurant[] = await AppRestaurantRequests.GetAll({
           count: `${LOAD_COUNT}`,
           offset: startCount.toString(),
         });

@@ -21,6 +21,13 @@ export interface Category {
   products: Product[];
 }
 
+export interface BaseRestaurant {
+  id: string;
+  name: string;
+  description: string;
+  rating: number;
+}
+
 export interface RestaurantResponse {
   id: string;
   name: string;

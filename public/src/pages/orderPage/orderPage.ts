@@ -11,6 +11,7 @@ import { AppOrderRequests } from '@modules/ajax';
 import { CreateOrderPayload } from '@myTypes/orderTypes';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
+import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -18,6 +19,7 @@ export default class OrderPage {
   private cartCards: CartCard[] = [];
   private submitButton: Button;
   private unsubscribeFromStore: (() => void) | null = null;
+  private youMoneyForm: YouMoneyForm;
 
   constructor(parent: HTMLElement) {
     if (!parent) {
@@ -65,27 +67,31 @@ export default class OrderPage {
       this.inputs['orderPageComment'] = inputComponent;
     }
 
-    const submitButtonContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
-    if (submitButtonContainer) {
-      this.submitButton = new Button(submitButtonContainer, {
-        id: 'order-page__submit__button',
-        text: 'Оформить заказ',
-        style: 'button_active',
-        onSubmit: async () => {
-          try {
-            this.submitButton.disable();
-            await this.sendOrder();
-          } catch (error) {
-            console.error(error);
-            toasts.error(error);
-          } finally {
-            this.submitButton.enable();
-          }
-        },
-      });
-    }
+    if (userStore.isAuth()) {
+      const submitButtonContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
+      if (submitButtonContainer) {
+        this.submitButton = new Button(submitButtonContainer, {
+          id: 'order-page__submit__button',
+          text: 'Оформить заказ',
+          style: 'button_active',
+          onSubmit: async () => {
+            try {
+              this.submitButton.disable();
+              await this.sendOrder();
+            } catch (error) {
+              console.error(error);
+              toasts.error(error);
+            } finally {
+              this.submitButton.enable();
+            }
+          },
+        });
+      }
 
-    this.submitButton.render();
+      this.submitButton.render();
+    } else {
+      toasts.error('Для формирования заказа нужно авторизоваться');
+    }
 
     this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
     this.updateCards();
@@ -106,7 +112,12 @@ export default class OrderPage {
     const address = userStore.getActiveAddress();
 
     if (!address) {
-      const mapModal = new MapModal((newAddress: string) => userStore.setAddress(newAddress));
+      const mapModal = new MapModal(async (newAddress: string) => {
+        userStore.setAddress(newAddress);
+        modalController.closeModal();
+        await this.sendOrder();
+      });
+
       modalController.openModal(mapModal);
       return;
     }
@@ -130,13 +141,15 @@ export default class OrderPage {
       await AppOrderRequests.CreateOrder(payload);
       toasts.success('Заказ успешно оформлен!');
 
-      await cartStore.clearCart();
+      const wrapper = this.self.querySelector('.order-page__body');
+      wrapper?.classList.add('dimmed');
 
-      import('@modules/routing').then(({ router }) => {
-        router.goToPage('home');
-      });
+      this.submitButton.hide();
+      const container: HTMLDivElement = this.self.querySelector('.order-page__summary');
+      this.youMoneyForm = new YouMoneyForm(container, final_price);
+      this.youMoneyForm.render();
     } catch (err) {
-      toasts.error(err.message || 'Не удалось оформить заказ');
+      toasts.error(err.error || 'Не удалось оформить заказ');
     }
   }
 
@@ -147,7 +160,7 @@ export default class OrderPage {
     try {
       await cartStore.clearCart();
     } catch (error) {
-      toasts.error(error.message);
+      toasts.error(error.error);
     } finally {
       bin.style.pointerEvents = '';
     }
@@ -196,6 +209,11 @@ export default class OrderPage {
 
     if (this.submitButton) {
       this.submitButton.remove();
+    }
+
+    if (this.youMoneyForm) {
+      cartStore.clearLocalCart();
+      this.youMoneyForm.remove();
     }
 
     Object.values(this.inputs).forEach((input) => input.remove());
