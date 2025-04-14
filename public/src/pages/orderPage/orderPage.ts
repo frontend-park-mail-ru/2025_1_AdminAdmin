@@ -108,7 +108,10 @@ export default class OrderPage {
     const address = userStore.getActiveAddress();
 
     if (!address) {
-      const mapModal = new MapModal((newAddress: string) => userStore.setAddress(newAddress));
+      const mapModal = new MapModal((newAddress: string) => {
+        userStore.setAddress(newAddress);
+        this.sendOrder();
+      });
       modalController.openModal(mapModal);
       return;
     }
