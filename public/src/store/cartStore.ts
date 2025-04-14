@@ -89,7 +89,7 @@ class CartStore {
           return;
         }
       } catch (error) {
-        console.error('Ошибка при получении корзины: ', error);
+        console.error(error);
       }
     }
 

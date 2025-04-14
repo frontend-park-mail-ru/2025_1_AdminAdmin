@@ -68,41 +68,37 @@ export default class OrderPage {
       this.inputs['orderPageComment'] = inputComponent;
     }
 
-    if (userStore.isAuth()) {
-      const submitButtonContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
-      if (submitButtonContainer) {
-        if (userStore.isAuth()) {
-          this.submitButton = new Button(submitButtonContainer, {
-            id: 'order-page__submit__button',
-            text: 'Оформить заказ',
-            style: 'button_active',
-            onSubmit: async () => {
-              try {
-                this.submitButton.disable();
-                await this.sendOrder();
-              } catch (error) {
-                console.error(error);
-                toasts.error(error);
-              } finally {
-                this.submitButton.enable();
-              }
-            },
-          });
-        } else {
-          this.submitButton = new Button(submitButtonContainer, {
-            id: 'order-page__submit__button',
-            text: 'Авторизоваться',
-            style: 'button_active',
-            onSubmit: () => {
-              router.goToPage('login');
-            },
-          });
-        }
+    const submitButtonContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
+    if (submitButtonContainer) {
+      if (userStore.isAuth()) {
+        this.submitButton = new Button(submitButtonContainer, {
+          id: 'order-page__submit__button',
+          text: 'Оформить заказ',
+          style: 'button_active',
+          onSubmit: async () => {
+            try {
+              this.submitButton.disable();
+              await this.sendOrder();
+            } catch (error) {
+              console.error(error);
+              toasts.error(error);
+            } finally {
+              this.submitButton.enable();
+            }
+          },
+        });
+      } else {
+        toasts.error('Для формирования заказа нужно авторизоваться');
+        this.submitButton = new Button(submitButtonContainer, {
+          id: 'order-page__submit__button',
+          text: 'Авторизоваться',
+          style: 'button_active',
+          onSubmit: () => {
+            router.goToPage('login');
+          },
+        });
       }
-
       this.submitButton.render();
-    } else {
-      toasts.error('Для формирования заказа нужно авторизоваться');
     }
 
     this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
