@@ -94,7 +94,7 @@ export default class OrderPage {
           text: 'Авторизоваться',
           style: 'button_active',
           onSubmit: () => {
-            router.goToPage('login');
+            router.goToPage('loginPage');
           },
         });
       }
