@@ -23,11 +23,13 @@ export default class ProfilePage {
   private parent: HTMLElement;
   private props: ProfilePageProps;
   private components: {
+    loadAvatarButton: Button;
     profileForm?: UnifiedForm;
     addresses: Address[];
     addAddressButton?: Button;
     ordersTable?: ProfileTable;
   };
+  private avatarChangeHandler: (event: Event) => void; // Функция при изменении файла аватарки
   // Поля необязательные чтобы можно было создать пустой объект
 
   /**
@@ -46,11 +48,13 @@ export default class ProfilePage {
     };
 
     this.components = {
+      loadAvatarButton: undefined,
       profileForm: undefined,
       addresses: [],
       addAddressButton: undefined,
       ordersTable: undefined,
     };
+    this.avatarChangeHandler = this.handleAvatarChange.bind(this);
   }
 
   /**
@@ -85,6 +89,20 @@ export default class ProfilePage {
       // Заполняем
       // Если оставляем категории то тут рендерим категории, у них свой враппер
       // Рендерим блок изменения данных профиля
+      this.components.loadAvatarButton = new Button(
+        document.getElementById('profile-data__avatar-load-button__wrapper'),
+        {
+          id: 'profile-data__load-avatar-button',
+          text: 'Загрузить аватар',
+          onSubmit: () => {
+            const avatarInputElement = document.getElementById(
+              'profile-data__avatar-input',
+            ) as HTMLInputElement;
+            avatarInputElement.click(); // Нажимаем на инпут чтобы выбрать файл
+          },
+        },
+      );
+      this.components.loadAvatarButton.render();
       const profileFormElement: HTMLDivElement = this.self.querySelector('.profile-data__body');
       const profileFormComponent = new UnifiedForm(profileFormElement, true);
       profileFormComponent.render();
@@ -115,6 +133,10 @@ export default class ProfilePage {
       const addAddressButtonComponent = new Button(profileAddressBody, addAddressButtonProps);
       addAddressButtonComponent.render();
       this.components.addAddressButton = addAddressButtonComponent;
+      const avatarInputElement = document.getElementById(
+        'profile-data__avatar-input',
+      ) as HTMLInputElement;
+      avatarInputElement.addEventListener('change', this.avatarChangeHandler);
 
       /*      // Рендерим блок таблицы заказов
       const profileTableWrapper = this.self.querySelector(
@@ -125,7 +147,7 @@ export default class ProfilePage {
       this.components.ordersTable = ordersTableComponent;*/
     } catch (error) {
       console.error(error);
-      console.error('Error rendering restaurant page:', error);
+      console.error('Error rendering profile page:', error);
     }
   }
 
@@ -159,6 +181,51 @@ export default class ProfilePage {
     } catch (error) {
       console.error(error);
       toasts.error(error.message);
+    }
+  }
+
+  async handleAvatarChange(): Promise<void> {
+    const avatarImageElement = document.getElementById(
+      'profile-data__avatar-image',
+    ) as HTMLImageElement;
+    const avatarInputElement = document.getElementById(
+      'profile-data__avatar-input',
+    ) as HTMLInputElement;
+
+    // Проверяем наличие токена
+    const authToken = localStorage.getItem('X-CSRF-Token');
+    if (!authToken) {
+      alert('Вы не авторизованы. Пожалуйста, войдите в систему.');
+      window.location.href = '/login'; // Перенаправляем на страницу входа
+      return;
+    }
+
+    // Если получили файл
+    if (avatarInputElement.files && avatarInputElement.files[0]) {
+      const file = avatarInputElement.files[0];
+      const reader = new FileReader();
+
+      // Читаем файл как DataURL
+      reader.onload = (event) => {
+        avatarImageElement.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+
+      try {
+        // Создаем FormData для запроса
+        const formData = new FormData();
+        formData.append('picture', file);
+        // Отправляем аватарку на сервер
+        const response = await AppUserRequests.SetAvatar(formData);
+
+        if (response.message !== 'success') {
+          throw new Error('Вернулась ошибка');
+        }
+      } catch (error) {
+        console.error('Ошибка при обновлении аватара:', error);
+        // Возвращаем стандартное изображение
+        avatarImageElement.src = './src/assets/profile.png'; // Укажите путь к текущему аватару
+      }
     }
   }
 

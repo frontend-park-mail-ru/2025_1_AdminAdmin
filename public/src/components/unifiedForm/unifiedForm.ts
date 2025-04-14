@@ -7,13 +7,17 @@ import template from './unifiedForm.hbs';
 import { getFormConfig, I_FormConfig } from './unifiedFormConfig';
 import { UpdateUserPayload } from '@myTypes/userTypes';
 
+// Класс компонента универсальной формы
 export default class UnifiedForm {
   private readonly parent: HTMLElement;
-  private readonly isEditMode: boolean;
+  private readonly isEditMode: boolean; // Форма редактирования (профиль)
   private readonly config: I_FormConfig;
   private components: {
+    // Список компонентов
     inputs: Record<string, FormInput>;
+
     submitButton: Button;
+    loadAvatarButton: Button;
     codeSelect?: Select;
   };
 
@@ -21,18 +25,18 @@ export default class UnifiedForm {
     this.parent = parent;
     this.isEditMode = isEditMode;
     this.config = getFormConfig(isEditMode);
-    this.components = { inputs: {}, submitButton: null };
+    this.components = { inputs: {}, submitButton: null, loadAvatarButton: null };
   }
 
   async validateData() {
     this.clearError();
-
+    // Валидация полей
     for (const formInputComponent of Object.values(this.components.inputs)) {
       if (!formInputComponent.checkValue()) {
         return;
       }
     }
-
+    // Задаем компоненты полей ввода
     const userData: any = {
       first_name: this.components.inputs.firstName.value.trim(),
       last_name: this.components.inputs.secondName.value.trim(),
@@ -42,19 +46,20 @@ export default class UnifiedForm {
       login: this.components.inputs.login ? this.components.inputs.login.value.trim() : null,
       password: this.components.inputs.password.value,
     };
-
+    // Проверка на совпадение паролей
     if (userData.password && userData.password !== this.components.inputs.repeatPassword.value) {
       this.setError('Пароли не совпадают');
       toasts.error('Пароли не совпадают');
       return;
     }
-
+    //
     if (this.components.inputs.repeatPassword) {
       delete userData.repeatPassword;
     }
 
     try {
       if (this.isEditMode) {
+        // Форма редактирования (профиль)
         const updateUserPayload: Partial<UpdateUserPayload> = {};
         for (const key in userData) {
           const value = userData[key];

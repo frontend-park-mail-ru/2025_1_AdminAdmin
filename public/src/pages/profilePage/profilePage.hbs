@@ -5,6 +5,13 @@
     -->
     <div class="profile-data">
         <span class="profile-data__header">Мои данные:</span>
+        <div class="profile-data__avatar">
+            <div class="profile-data__avatar-image__wrapper">
+                <img id="profile-data__avatar-image" src="./src/assets/profile.png" alt="Avatar" />
+            </div>
+            <input type="file" id="profile-data__avatar-input" accept=".jpg, .jpeg, .png" hidden />
+            <div id="profile-data__avatar-load-button__wrapper"></div>
+        </div>
         <div class="profile-data__body">
         </div>
     </div>
@@ -15,7 +22,7 @@
             </div>
         </div>
     </div>
-<!--    <div class="profile-orders">
+    <!--    <div class="profile-orders">
         <span class="profile-orders__header">Мои заказы:</span>
         <div class="profile-orders__table__wrapper">
         </div>
