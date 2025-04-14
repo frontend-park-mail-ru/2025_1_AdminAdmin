@@ -7,14 +7,13 @@ const rootElement = document.getElementById('root');
 initRouting(rootElement);
 
 
-/*
+
 if ('serviceWorker' in navigator) {
     (async () => {
         try {
-            const registration = await navigator.serviceWorker.register('/sw.js');
-            console.log('Service worker registered', registration);
+            await navigator.serviceWorker.register('/sw.js');
         } catch (err) {
             console.error('Service worker registration failed', err);
         }
     })();
-}*/
+}
