@@ -76,9 +76,7 @@ class CartStore {
   }
 
   async initCart() {
-    this.store.dispatch({
-      type: CartActions.CLEAR_CART,
-    });
+    this.clearLocalCart();
 
     if (userStore.isAuth()) {
       try {
@@ -105,11 +103,10 @@ class CartStore {
             localCart.restaurant_id,
           );
         } catch (error) {
-          console.error('Ошибка при создании корзины: ', error);
+          console.error('Ошибка при создании корзины: ', error.error);
         }
       }
       clearCartInLocalStorage();
-      return;
     }
 
     this.setCart(localCart);

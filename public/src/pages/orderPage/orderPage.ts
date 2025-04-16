@@ -20,7 +20,7 @@ export default class OrderPage {
   private cartCards: CartCard[] = [];
   private submitButton: Button;
   private unsubscribeFromStore: (() => void) | null = null;
-  private youMoneyForm: YouMoneyForm;
+  private youMoneyForm: YouMoneyForm = null;
 
   constructor(parent: HTMLElement) {
     if (!parent) {
