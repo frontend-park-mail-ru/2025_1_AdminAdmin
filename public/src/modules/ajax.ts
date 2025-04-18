@@ -334,6 +334,8 @@ class CartRequests {
 
     if (status === 200) {
       return body as I_Cart;
+    } else if (status === 404) {
+      return;
     } else {
       throw new Error((body as ErrorResponse).error ?? 'Не удалось получить корзину');
     }

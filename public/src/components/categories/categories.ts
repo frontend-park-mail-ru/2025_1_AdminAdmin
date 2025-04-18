@@ -10,6 +10,8 @@ export class Categories {
   private readonly cardsComponent: HTMLElement;
   private categoryElements: { button: Button; header: CategoryHeader }[] = [];
   private activeCategoryId: number | null = null;
+  private readonly boundScrollHandler: () => void;
+  private isAutoScrolling = false;
 
   /**
    * Создает экземпляр группы категорий.
@@ -20,6 +22,7 @@ export class Categories {
   constructor(parent: HTMLElement, cardsComponent: HTMLElement) {
     this.parent = parent;
     this.cardsComponent = cardsComponent;
+    this.boundScrollHandler = this.scrollHandler.bind(this);
   }
 
   /**
@@ -51,7 +54,7 @@ export class Categories {
     } else {
       this.activeCategoryId = null;
     }
-    window.addEventListener('scroll', this.scrollHandler.bind(this));
+    window.addEventListener('scroll', this.boundScrollHandler);
   }
 
   addCategory(category: string): void {
@@ -91,7 +94,12 @@ export class Categories {
   handleCategoryClick(categoryId: number): void {
     const targetHeader = document.getElementById(`category-header-${categoryId}`);
     if (targetHeader) {
+      this.isAutoScrolling = true;
       targetHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      setTimeout(() => {
+        this.isAutoScrolling = false;
+      }, 800);
 
       const currentUrl = window.location.href.split('#')[0];
       history.pushState(null, '', `${currentUrl}#category-${categoryId}`);
@@ -115,6 +123,19 @@ export class Categories {
   }
 
   private scrollHandler(): void {
+    if (this.isAutoScrolling) return;
+
+    const scrollBottom = window.scrollY + window.innerHeight;
+    const pageBottom = document.documentElement.scrollHeight;
+
+    if (Math.abs(scrollBottom - pageBottom) < 2) {
+      const lastCategoryId = this.categoryElements.length - 1;
+      if (lastCategoryId !== this.activeCategoryId) {
+        this.updateActiveCategory(lastCategoryId);
+      }
+      return;
+    }
+
     let closestHeaderId: number | null = null;
     let closestDistance = Infinity;
 
@@ -158,7 +179,7 @@ export class Categories {
       button.remove();
       header.remove();
     }
-    window.removeEventListener('scroll', this.scrollHandler.bind(this));
+    window.removeEventListener('scroll', this.boundScrollHandler);
 
     element.innerHTML = '';
     this.categoryElements = [];

@@ -1,5 +1,10 @@
 <div class="restaurant__card" id="{{id}}">
-    <img src='/src/assets/burgerking.png' alt="restaurant_image">
+    <div class="restaurant__card__image">
+        <object class="restaurant__card__image" data="https://doordashers.ru/images_restaurant/{{image_url}}" type="image/jpg">
+            <img class="restaurant__card__image" src="/src/assets/default_restaurant.jpg" alt="restaurant_image"/>
+        </object>
+    </div>
+
     <div class="restaurant__card__content">
         <span class="restaurant__card__name">{{name}}</span>
         <span>{{rating}} ★</span>

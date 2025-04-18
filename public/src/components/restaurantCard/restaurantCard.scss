@@ -12,6 +12,13 @@
   box-sizing: border-box;
   padding: 7.5px;
 
+  &__image {
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
   &__content {
     box-sizing: border-box;
     display: flex;
@@ -38,11 +45,5 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     display: inline-block;
-  }
-
-  img {
-    width: 100%;
-    object-fit: contain;
-    border-radius: 10px;
   }
 }

@@ -63,13 +63,7 @@ export default class RestaurantPage {
         '.restaurant-header__wrapper',
       ) as HTMLElement;
 
-      const restaurantHeaderComponent = new RestaurantHeader(restaurantHeaderWrapper, {
-        name: this.props.name,
-        banner_url: this.props.banner_url,
-        rating: this.props.rating,
-        rating_count: this.props.rating_count,
-        tags: this.props.tags,
-      });
+      const restaurantHeaderComponent = new RestaurantHeader(restaurantHeaderWrapper, this.props);
 
       restaurantHeaderComponent.render();
 

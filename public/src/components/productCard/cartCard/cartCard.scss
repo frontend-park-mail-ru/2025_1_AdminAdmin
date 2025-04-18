@@ -54,7 +54,8 @@
 
   &__product_icon {
     width: 100%;
-    object-fit: contain;
+    aspect-ratio: 6 / 5;
+    object-fit: cover;
   }
 
   &__product_icon {

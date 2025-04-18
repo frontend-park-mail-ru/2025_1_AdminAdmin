@@ -41,7 +41,8 @@
   // Картинка в карточке
   &__product_icon {
     width: 100%;
-    object-fit: contain;
+    aspect-ratio: 6 / 5;
+    object-fit: cover;
     border-radius: 10px;
   }
 
