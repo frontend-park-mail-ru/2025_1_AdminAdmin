@@ -62,7 +62,6 @@ export class ConfirmRestaurantModal {
           this.onSubmit();
         } finally {
           this.isSubmitting = false;
-          this.submitBtn.enable?.();
         }
       },
     });
