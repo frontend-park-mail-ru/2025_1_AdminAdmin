@@ -81,7 +81,7 @@ class CartStore {
     if (userStore.isAuth()) {
       try {
         const remoteCart = await AppCartRequests.GetCart();
-        if (remoteCart.products) {
+        if (remoteCart && remoteCart.products) {
           this.setCart(remoteCart);
           clearCartInLocalStorage();
           return;

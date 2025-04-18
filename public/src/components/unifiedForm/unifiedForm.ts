@@ -146,7 +146,11 @@ export default class UnifiedForm {
 
     this.components.submitButton = new Button(submitButtonContainer, {
       ...formConfig.buttons.submitButton,
-      onSubmit: () => this.validateData(),
+      onSubmit: async () => {
+        this.components.submitButton.disable();
+        await this.validateData();
+        this.components.submitButton.enable();
+      },
     });
     this.components.submitButton.render();
   }
