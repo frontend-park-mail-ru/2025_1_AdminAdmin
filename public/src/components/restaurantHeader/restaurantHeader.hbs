@@ -4,10 +4,12 @@
             <img class="restaurant-header__image__background" src="/src/assets/default_restaurant.jpg" alt="restaurant_image"/>
         </object>
 
-        <object class="restaurant-header__image__icon" data="https://doordashers.ru/images_restaurant/{{banner_url}}" type="image/jpg">
-            <img class="restaurant-header__image__icon" src="/src/assets/default_restaurant.jpg" alt="restaurant_image"/>
-        </object>
+        <img class="restaurant-header__image__icon"
+             src="https://doordashers.ru/images_restaurant/{{banner_url}}"
+             alt="restaurant_image"
+             onerror="this.onerror=null; this.src='./src/assets/default_restaurant.jpg';"/>
     </div>
+
     <div class="restaurant-header__info">
         <span class="restaurant-header__name">{{name}}</span>
         <div class="restaurant-header__description">
