@@ -103,8 +103,6 @@ export default class OrderPage {
 
     this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
     this.createProductCards();
-
-    this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
   }
 
   private createProductCards(): void {
