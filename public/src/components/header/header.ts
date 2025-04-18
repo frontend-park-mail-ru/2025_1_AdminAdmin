@@ -248,7 +248,7 @@ export default class Header {
     }
 
     if (cartStore.getState().total_price) {
-      this.cartButton.setText(cartStore.getState().total_price + ' ₽');
+      this.cartButton.setText(cartStore.getState().total_price.toLocaleString('ru-RU') + ' ₽');
       this.cartButton.show();
     } else {
       this.cartButton.hide();

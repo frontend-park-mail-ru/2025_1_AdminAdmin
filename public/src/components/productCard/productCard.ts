@@ -101,6 +101,10 @@ export class ProductCard {
       return;
     }
 
+    if (this.amount === 999) {
+      return;
+    }
+
     if (!cartStore.getState().total_price) {
       cartStore.setRestaurant(this.restaurant_id, this.restaurant_name);
     }
@@ -177,15 +181,15 @@ export class ProductCard {
       ) as HTMLSpanElement;
 
       const totalPriceValue = this.self.querySelector(
-        '.product-card__total-price .total-price-value',
+        '.product-card__total-price-value',
       ) as HTMLDivElement;
 
       if (amountValue) {
         amountValue.textContent = this.amount.toString();
       }
-
       if (totalPriceValue) {
-        totalPriceValue.textContent = (this.props.price * this.amount).toString();
+        const total = this.props.price * this.amount;
+        totalPriceValue.textContent = total.toLocaleString('ru-RU');
       }
 
       this.self.classList.add('active');

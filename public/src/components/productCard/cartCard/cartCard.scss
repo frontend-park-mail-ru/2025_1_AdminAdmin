@@ -41,10 +41,14 @@
 
     &__total_price {
       font-weight: bold;
+      white-space: nowrap;
+      display: inline-block;
     }
 
     &__weight {
       color: var(--dark-gray);
+      white-space: nowrap;
+      display: inline-block;
     }
   }
 
@@ -100,7 +104,7 @@
 
   @container (width >= 700px) {
     span {
-      font-size: 18px;
+      font-size: 16px;
     }
 
     &__content {

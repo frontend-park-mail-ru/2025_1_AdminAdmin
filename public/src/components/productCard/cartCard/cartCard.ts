@@ -52,7 +52,7 @@ export class CartCard {
 
     this.props.amount = cartStore.getProductAmountById(this.props.id);
 
-    const total_price = this.props.amount * this.props.price;
+    const total_price = (this.props.amount * this.props.price).toLocaleString('ru-RU');
     const html = template({ total_price: total_price, ...this.props });
     this.parent.insertAdjacentHTML('beforeend', html);
 
@@ -84,10 +84,13 @@ export class CartCard {
   }
 
   private async incrementAmount() {
+    if (this.props.amount === 999) {
+      return;
+    }
     try {
       await cartStore.incrementProductAmount(this.props);
     } catch (error) {
-      toasts.error(`Ошибка при увеличении количества товара: ${error}`);
+      toasts.error(error.error);
     }
   }
 
@@ -95,7 +98,7 @@ export class CartCard {
     try {
       await cartStore.decrementProductAmount(this.props);
     } catch (error) {
-      toasts.error(`Ошибка при уменьшении количества товара: ${error}`);
+      toasts.error(error.error);
     }
   }
 
@@ -104,7 +107,7 @@ export class CartCard {
       try {
         await cartStore.setProductAmount(this.props.id, amount);
       } catch (error) {
-        toasts.error(`Ошибка при изменении количества товара: ${error}`);
+        toasts.error(error.error);
       }
     }
   }

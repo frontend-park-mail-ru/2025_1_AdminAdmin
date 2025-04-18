@@ -48,7 +48,7 @@ export default class MapModal {
    * Получение HTML элемента формы
    * @returns {HTMLElement | null}
    */
-  private get self(): HTMLElement | null {
+  get self(): HTMLElement | null {
     return document.querySelector('.map_modal');
   }
 

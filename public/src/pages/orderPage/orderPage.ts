@@ -188,7 +188,7 @@ export default class OrderPage {
     this.cartCards = [];
 
     const cartTotal: HTMLDivElement = this.self.querySelector('.cart__total');
-    cartTotal.textContent = totalPrice.toString();
+    cartTotal.textContent = totalPrice.toLocaleString('ru-RU');
 
     if (!products.length) {
       setTimeout(() => {

@@ -43,7 +43,7 @@ export default class Cart {
     const cartEmpty: HTMLDivElement = this.container.querySelector('.cart__empty');
     const cartFooter: HTMLDivElement = this.self.querySelector('.cart-footer');
     const cartTotal: HTMLDivElement = this.self.querySelector('.cart__total');
-    cartTotal.textContent = totalPrice.toString();
+    cartTotal.textContent = totalPrice.toLocaleString('ru-RU');
 
     if (!products.length) {
       cartEmpty.style.display = 'flex';
