@@ -37,6 +37,7 @@
 
     &__name {
       padding-bottom: 5px;
+
     }
 
     &__total_price {
@@ -114,6 +115,7 @@
       gap: 10%;
 
       &__name {
+        font-size: 20px;
         grid-column: 1 / span 1;
         display: flex;
         align-items: center;
