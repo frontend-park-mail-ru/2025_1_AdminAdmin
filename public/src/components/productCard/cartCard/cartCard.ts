@@ -12,6 +12,7 @@ export class CartCard {
   private readonly props: CartProduct;
   private quantityControls: QuantityControls;
   private binClickHandler: () => void;
+  private unsubscribeFromStore: (() => void) | null = null;
 
   /**
    * Создает экземпляр карточки товара.
@@ -28,6 +29,7 @@ export class CartCard {
     if (this.props.price < 0 || this.props.weight < 0) {
       throw new Error('CartCard: price, and weight must be non-negative values!');
     }
+    this.unsubscribeFromStore = cartStore.subscribe(() => this.updateState());
   }
 
   /**
@@ -112,6 +114,22 @@ export class CartCard {
     }
   }
 
+  private updateState() {
+    const storeAmount = cartStore.getProductAmountById(this.props.id);
+    if (storeAmount === this.props.amount) {
+      return;
+    }
+
+    this.props.amount = storeAmount;
+    this.input.value = storeAmount.toString();
+
+    const totalPriceValue = this.self.querySelector(
+      '.cart-card__content__total_price',
+    ) as HTMLDivElement;
+    const total = this.props.price * this.props.amount;
+    totalPriceValue.textContent = total.toLocaleString('ru-RU');
+  }
+
   /**
    * Удаляет карточку товара
    */
@@ -121,6 +139,10 @@ export class CartCard {
     const binIcon = this.self.querySelector('.cart-card__bin_icon') as HTMLElement;
     binIcon.removeEventListener('click', this.binClickHandler);
 
+    if (this.unsubscribeFromStore) {
+      this.unsubscribeFromStore();
+      this.unsubscribeFromStore = null;
+    }
     const element = this.self;
     element.remove();
   }

@@ -11,13 +11,15 @@ export default class Cart {
   private readonly parent: HTMLElement;
   private readonly restaurant_id: string;
   private container?: HTMLElement;
-  private cartCards: CartCard[] = [];
+  private cartCards: Map<string, CartCard>;
   private unsubscribeFromStore: (() => void) | null = null;
+  private previousProductIds = new Set<string>();
 
   constructor(parent: HTMLElement, restaurantId: string) {
     this.parent = parent;
     this.restaurant_id = restaurantId;
     this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
+    this.cartCards = new Map<string, CartCard>();
   }
 
   get self(): HTMLDivElement {
@@ -27,18 +29,29 @@ export default class Cart {
   private updateCards(): void {
     if (!this.container) return;
 
-    if (
-      cartStore.getState().restaurant_id &&
-      cartStore.getState().restaurant_id !== this.restaurant_id
-    )
-      return;
-
     const state: CartState = cartStore.getState();
+
+    if (state.restaurant_id && state.restaurant_id !== this.restaurant_id) return;
+
     const products: CartProduct[] = state.products;
     const totalPrice: number = state.total_price;
 
-    this.cartCards.forEach((card) => card.remove());
-    this.cartCards = [];
+    const currentProductIds = new Set(products.map((p) => p.id));
+
+    for (const [id, card] of this.cartCards.entries()) {
+      if (!currentProductIds.has(id)) {
+        card.remove();
+        this.cartCards.delete(id);
+      }
+    }
+
+    for (const product of products) {
+      if (!this.cartCards.has(product.id)) {
+        const card = new CartCard(this.container, product);
+        card.render();
+        this.cartCards.set(product.id, card);
+      }
+    }
 
     const cartEmpty: HTMLDivElement = this.container.querySelector('.cart__empty');
     const cartFooter: HTMLDivElement = this.self.querySelector('.cart-footer');
@@ -55,17 +68,12 @@ export default class Cart {
       cartFooter.style.pointerEvents = 'auto';
     }
 
-    products.forEach((product) => {
-      const card = new CartCard(this.container, product);
-      card.render();
-      this.cartCards.push(card);
-    });
+    this.previousProductIds = currentProductIds;
   }
 
   private async handleClear(): Promise<void> {
     const bin = this.self.querySelector('.cart__header-right') as HTMLElement;
     bin.style.pointerEvents = 'none';
-
     try {
       await cartStore.clearCart();
     } catch (error) {
@@ -111,7 +119,9 @@ export default class Cart {
     }
 
     this.cartCards.forEach((card) => card.remove());
-    this.cartCards = [];
+    this.cartCards.clear();
+
+    this.previousProductIds.clear();
 
     const cartFooter = document.querySelector('.cart-footer');
     if (cartFooter) {
