@@ -18,7 +18,7 @@ export default class Cart {
   constructor(parent: HTMLElement, restaurantId: string) {
     this.parent = parent;
     this.restaurant_id = restaurantId;
-    this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
+    this.unsubscribeFromStore = cartStore.subscribe(this.updateCards);
     this.cartCards = new Map<string, CartCard>();
   }
 
@@ -26,7 +26,7 @@ export default class Cart {
     return this.parent.querySelector('.cart');
   }
 
-  private updateCards(): void {
+  private updateCards = () => {
     if (!this.container) return;
 
     const state: CartState = cartStore.getState();
@@ -69,7 +69,7 @@ export default class Cart {
     }
 
     this.previousProductIds = currentProductIds;
-  }
+  };
 
   private async handleClear(): Promise<void> {
     const bin = this.self.querySelector('.cart__header-right') as HTMLElement;

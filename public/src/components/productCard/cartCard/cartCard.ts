@@ -9,6 +9,7 @@ import { toasts } from '@modules/toasts';
  */
 export class CartCard {
   private parent: HTMLElement;
+  private isDestroyed = false;
   private readonly props: CartProduct;
   private quantityControls: QuantityControls;
   private binClickHandler: () => void;
@@ -29,7 +30,7 @@ export class CartCard {
     if (this.props.price < 0 || this.props.weight < 0) {
       throw new Error('CartCard: price, and weight must be non-negative values!');
     }
-    this.unsubscribeFromStore = cartStore.subscribe(() => this.updateState());
+    this.unsubscribeFromStore = cartStore.subscribe(this.updateState);
   }
 
   /**
@@ -114,7 +115,8 @@ export class CartCard {
     }
   }
 
-  private updateState() {
+  private updateState = () => {
+    if (this.isDestroyed) return;
     const storeAmount = cartStore.getProductAmountById(this.props.id);
     if (storeAmount === this.props.amount) {
       return;
@@ -128,21 +130,24 @@ export class CartCard {
     ) as HTMLDivElement;
     const total = this.props.price * this.props.amount;
     totalPriceValue.textContent = total.toLocaleString('ru-RU');
-  }
+  };
 
   /**
    * Удаляет карточку товара
    */
   remove() {
-    this.quantityControls.remove();
-
-    const binIcon = this.self.querySelector('.cart-card__bin_icon') as HTMLElement;
-    binIcon.removeEventListener('click', this.binClickHandler);
+    this.isDestroyed = true;
 
     if (this.unsubscribeFromStore) {
       this.unsubscribeFromStore();
       this.unsubscribeFromStore = null;
     }
+
+    this.quantityControls.remove();
+
+    const binIcon = this.self.querySelector('.cart-card__bin_icon') as HTMLElement;
+    binIcon.removeEventListener('click', this.binClickHandler);
+
     const element = this.self;
     element.remove();
   }
