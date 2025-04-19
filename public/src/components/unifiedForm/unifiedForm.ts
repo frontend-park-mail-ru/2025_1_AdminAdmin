@@ -152,10 +152,10 @@ export default class UnifiedForm {
           await this.validateData();
         } catch {
           this.components.submitButton.enable();
-        } finally {
-          if (this.isEditMode) {
-            this.components.submitButton.enable();
-          }
+        }
+
+        if (this.isEditMode) {
+          this.components.submitButton.enable();
         }
       },
     });
