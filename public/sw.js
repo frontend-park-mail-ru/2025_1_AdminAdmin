@@ -74,6 +74,8 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
     console.log(`[SW] Fetch event for: ${event.request.url}`);
+    if (event.request.method !== 'GET')
+        return;
 
     event.respondWith((async () => {
         try {
