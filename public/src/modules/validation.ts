@@ -55,7 +55,7 @@ export const ValidatePassword = (value: string): ValidationResultType => {
  * Выполняет валидацию логина
  */
 export const ValidateLogin = (value: string): ValidationResultType => {
-  if (value === '') {
+  if (!value) {
     return ValidationResult(false, 'Логин не может быть пустым');
   }
 
@@ -67,22 +67,12 @@ export const ValidateLogin = (value: string): ValidationResultType => {
     return ValidationResult(false, 'Логин должен быть короче 20 символов');
   }
 
-  for (let index = 0; index < value.length; ++index) {
-    const charCode = value.charCodeAt(index);
-    if (
-      !(
-        (charCode >= 97 && charCode <= 122) || // a-z
-        (charCode >= 65 && charCode <= 90) || // A-Z
-        (charCode >= 48 && charCode <= 57) || // 0-9
-        charCode === 95 || // _
-        charCode === 45 // -
-      )
-    ) {
-      return ValidationResult(
-        false,
-        'Логин должен содержать только латинские символы, цифры, _ или -',
-      );
-    }
+  const isValid = /^[a-zA-Z0-9_-]+$/.test(value);
+  if (!isValid) {
+    return ValidationResult(
+      false,
+      'Логин должен содержать только латинские символы, цифры, _ или -',
+    );
   }
 
   return ValidationResult(true);

@@ -5,19 +5,19 @@ import template from './table.hbs';
 // Интерфейс таблицы
 export interface TableProps {
   id: string;
-  headers?: Array<string>;
-  rows?: Array<{
+  headers?: string[];
+  rows?: {
     id: string;
-    cells: Array<string | Component>;
+    cells: (string | Component)[];
     onClick?: () => void;
-  }>;
+  }[];
   onRowClick?: () => void;
 }
 
 export class Table {
   protected parent: HTMLElement;
   protected props: TableProps;
-  protected rowsList: Array<TableRow>;
+  protected rowsList: TableRow[];
 
   /**
    * @constructor Создает экземпляр таблицы

@@ -25,8 +25,7 @@ export class FormInput {
   private readonly eyeClickHandler: () => void;
   private readonly debouncedOnInput: (value: string) => void;
   private readonly inputHandler: (e: Event) => void;
-  private readonly beforeInputHandler: (e: InputEvent) => void;
-  private phoneInputHandler?: (e: Event) => void; // Phone mask handler
+  private phoneInputHandler?: (e: Event) => void;
 
   get self(): HTMLElement | null {
     const element = document.getElementById(this.props.id);
@@ -54,40 +53,46 @@ export class FormInput {
     this.debouncedOnInput = debounce(this.onInput.bind(this), 100);
 
     this.inputHandler = (e: Event) => this.debouncedOnInput((e.target as HTMLInputElement).value);
+  }
 
-    this.beforeInputHandler = (e: InputEvent) => {
-      if (e.inputType.startsWith('delete')) return;
+  beforeInputHandler = (e: InputEvent) => {
+    if (this.shouldIgnoreInput(e)) return;
 
-      const newChar = (e.data ?? '').toString();
-      const input = this.input;
-      if (!input) return;
+    const newChar = (e.data ?? '').toString();
+    const input = this.input;
+    if (!input || !newChar) return;
 
-      const currentValue = input.value;
-      const newValue = currentValue + newChar;
+    const currentValue = input.value;
+    const newValue = currentValue + newChar;
 
-      if (this.props.type === 'number') {
-        if (!/^[0-9]$/.test(newChar)) {
-          e.preventDefault();
-          return;
-        }
+    if (this.props.type === 'number' && !this.isValidNumberInput(newChar, newValue)) {
+      e.preventDefault();
+      return;
+    }
 
-        const val = parseInt(newValue, 10);
-        if (!isNaN(val)) {
-          if (this.props.min !== undefined && val < this.props.min) {
-            e.preventDefault();
-            return;
-          }
-          if (this.props.max !== undefined && val > this.props.max) {
-            e.preventDefault();
-            return;
-          }
-        }
-      }
+    if (this.exceedsMaxLength(newValue)) {
+      e.preventDefault();
+    }
+  };
 
-      if (this.props.maxLength !== undefined && newValue.length > this.props.maxLength) {
-        e.preventDefault();
-      }
-    };
+  private shouldIgnoreInput(e: InputEvent): boolean {
+    return e.inputType.startsWith('delete');
+  }
+
+  private isValidNumberInput(char: string, newValue: string): boolean {
+    if (!/^[0-9]$/.test(char)) return false;
+
+    const val = parseInt(newValue, 10);
+    if (isNaN(val)) return true;
+
+    if (this.props.min !== undefined && val < this.props.min) return false;
+    if (this.props.max !== undefined && val > this.props.max) return false;
+
+    return true;
+  }
+
+  private exceedsMaxLength(value: string): boolean {
+    return this.props.maxLength !== undefined && value.length > this.props.maxLength;
   }
 
   private applyPhoneMask() {
@@ -108,37 +113,52 @@ export class FormInput {
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
 
+    this.setupPhoneMaskIfNeeded();
+    this.hideErrorIfNoError();
+    this.setupPasswordToggleIfNeeded();
+    this.attachInputListeners();
+  }
+
+  private setupPhoneMaskIfNeeded(): void {
     if (this.props.type === 'phone' && this.props.value) {
       this.applyPhoneMask();
     }
-
-    if (!this.props.error) {
-      const errorElement: HTMLElement = this.self?.querySelector('.form__error');
-      if (errorElement) errorElement.style.display = 'none';
-    }
-
-    if (this.props.type === 'password') {
-      const eyeIcon = this.self?.querySelector('.form__input__eye-icon') as HTMLElement;
-      const input = this.input;
-      if (eyeIcon && input) {
-        eyeIcon.style.display = 'block';
-        eyeIcon.addEventListener('click', this.eyeClickHandler);
-        input.style.paddingRight = '40px';
-      }
-    }
-
     if (this.props.type === 'phone') {
       this.addPhoneMask();
     }
+  }
 
-    const input = this.input;
-    if (input) {
-      if (this.props.type === 'number' || this.props.maxLength !== undefined) {
-        input.addEventListener('beforeinput', this.beforeInputHandler);
+  private hideErrorIfNoError(): void {
+    if (!this.props.error) {
+      const errorElement: HTMLElement | null = this.self?.querySelector('.form__error');
+      if (errorElement) {
+        errorElement.style.display = 'none';
       }
-
-      input.addEventListener('input', this.inputHandler);
     }
+  }
+
+  private setupPasswordToggleIfNeeded(): void {
+    if (this.props.type !== 'password') return;
+
+    const eyeIcon = this.self?.querySelector('.form__input__eye-icon') as HTMLElement;
+    const input = this.input;
+
+    if (eyeIcon && input) {
+      eyeIcon.style.display = 'block';
+      eyeIcon.addEventListener('click', this.eyeClickHandler);
+      input.style.paddingRight = '40px';
+    }
+  }
+
+  private attachInputListeners(): void {
+    const input = this.input;
+    if (!input) return;
+
+    if (this.props.type === 'number' || this.props.maxLength !== undefined) {
+      input.addEventListener('beforeinput', this.beforeInputHandler);
+    }
+
+    input.addEventListener('input', this.inputHandler);
   }
 
   private addPhoneMask(): void {

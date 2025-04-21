@@ -31,57 +31,72 @@ export default class UnifiedForm {
   async validateData() {
     this.components.submitButton.disable();
     this.clearError();
-    // Валидация полей
-    for (const formInputComponent of Object.values(this.components.inputs)) {
-      if (!formInputComponent.checkValue()) {
-        this.components.submitButton.enable();
-        return;
-      }
+
+    if (!this.validateInputs()) {
+      this.components.submitButton.enable();
+      return;
     }
-    // Задаем компоненты полей ввода
-    const userData: any = {
+
+    const userData = this.collectUserData();
+    if (!this.validatePasswords(userData)) {
+      this.components.submitButton.enable();
+      return;
+    }
+
+    try {
+      await this.handleRequest(userData);
+    } catch (err) {
+      const errorMessage = err?.message || 'Непредвиденная ошибка';
+      this.setError(errorMessage);
+      toasts.error(errorMessage);
+      this.components.submitButton.enable();
+    }
+  }
+
+  private async handleRequest(userData: any) {
+    if (this.isEditMode) {
+      await this.updateUser(userData);
+      toasts.success('Ваш профиль успешно обновлен!');
+    } else {
+      await userStore.register(userData);
+      toasts.success('Вы успешно зарегистрировались!');
+    }
+  }
+
+  private validateInputs(): boolean {
+    return Object.values(this.components.inputs).every((input) => input.checkValue());
+  }
+
+  private collectUserData(): any {
+    return {
       first_name: this.components.inputs.firstName.value.trim(),
       last_name: this.components.inputs.secondName.value.trim(),
       phone_number:
         this.components.codeSelect.value +
         this.components.inputs.phoneNumber.value.trim().replace(/[\s()-]/g, ''),
-      login: this.components.inputs.login ? this.components.inputs.login.value.trim() : null,
+      login: this.components.inputs.login?.value.trim() || null,
       password: this.components.inputs.password.value,
     };
-    // Проверка на совпадение паролей
+  }
+
+  private validatePasswords(userData: any): boolean {
     if (userData.password && userData.password !== this.components.inputs.repeatPassword.value) {
       this.setError('Пароли не совпадают');
       toasts.error('Пароли не совпадают');
-      this.components.submitButton.enable();
-      return;
+      return false;
     }
-    //
-    if (this.components.inputs.repeatPassword) {
-      delete userData.repeatPassword;
-    }
+    return true;
+  }
 
-    try {
-      if (this.isEditMode) {
-        // Форма редактирования (профиль)
-        const updateUserPayload: Partial<UpdateUserPayload> = {};
-        for (const key in userData) {
-          const value = userData[key];
-          if (value) {
-            (updateUserPayload as any)[key] = value;
-          }
-        }
-        await userStore.updateUser(updateUserPayload);
-        toasts.success('Ваш профиль успешно обновлен!');
-      } else {
-        await userStore.register(userData);
-        toasts.success('Вы успешно зарегистрировались!');
+  private async updateUser(userData: any) {
+    const payload: Partial<UpdateUserPayload> = {};
+    for (const key in userData) {
+      const value = userData[key];
+      if (value) {
+        (payload as any)[key] = value;
       }
-    } catch (err) {
-      this.components.submitButton.enable();
-      const errorMessage = err?.message || 'Непредвиденная ошибка';
-      this.setError(errorMessage);
-      toasts.error(errorMessage);
     }
+    await userStore.updateUser(payload);
   }
 
   setError(errorMessage: string) {

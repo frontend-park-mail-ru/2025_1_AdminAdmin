@@ -1,12 +1,9 @@
-import {
-  getCSRFFromLocalStorage,
-  removeTokenFromLocalStorage,
-  storeAuthTokensFromResponse,
-} from './localStorage';
+import { removeTokenFromLocalStorage, storeAuthTokensFromResponse } from './localStorage';
 import { RestaurantResponse } from '@myTypes/restaurantTypes';
 import { I_Cart } from '@myTypes/cartTypes';
 import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
 import { CreateOrderPayload } from '@myTypes/orderTypes';
+import { getRequestOptions, parseResponseBody } from '@modules/fetchUtils';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -46,36 +43,14 @@ const baseRequest = async <T = any>(
   params: RequestParams | null = null,
   contentType = 'application/json',
 ): Promise<ResponseData<T>> => {
-  const options: RequestInit = {
-    method,
-    mode: 'cors',
-    credentials: 'include',
-    headers: {
-      ...(contentType !== 'multipart/form-data' ? { 'Content-Type': contentType } : {}),
-      Accept: 'application/json',
-      ...getCSRFFromLocalStorage(),
-    },
-  };
-  if (data && contentType !== 'multipart/form-data') options.body = JSON.stringify(data);
-  else if (data && contentType === 'multipart/form-data') options.body = data;
-
   const queryUrl = new URL(baseUrl + url);
   if (params) queryUrl.search = new URLSearchParams(params).toString();
 
+  const options = getRequestOptions(method, data, contentType);
+
   try {
     const response = await fetch(queryUrl.toString(), options);
-    const contentType = response.headers.get('Content-Type') || '';
-
-    let body: any;
-    try {
-      if (contentType.includes('application/json')) {
-        body = await response.json();
-      } else if (contentType.includes('text/plain') || contentType.includes('text/html')) {
-        body = await response.text();
-      }
-    } catch {
-      body = null;
-    }
+    const body = await parseResponseBody(response);
 
     try {
       storeAuthTokensFromResponse(response.headers);
