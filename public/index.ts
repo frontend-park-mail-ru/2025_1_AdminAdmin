@@ -11,7 +11,17 @@ initRouting(rootElement);
 if ('serviceWorker' in navigator) {
     (async () => {
         try {
-            await navigator.serviceWorker.register('/sw.js');
+            const registration = await navigator.serviceWorker.register('/sw.js');
+
+            if (registration.active) {
+                registration.active.postMessage('CLEAR_DYNAMIC_CACHE');
+            } else {
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.controller.postMessage('CLEAR_DYNAMIC_CACHE');
+                    }
+                });
+            }
         } catch (err) {
             console.error('Service worker registration failed', err);
         }

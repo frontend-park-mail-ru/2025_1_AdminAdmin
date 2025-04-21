@@ -107,3 +107,16 @@ self.addEventListener('fetch', event => {
     })());
 });
 
+self.addEventListener('message', async event => {
+    if (event.data === 'CLEAR_DYNAMIC_CACHE') {
+        const cacheNames = await caches.keys();
+        for (const name of cacheNames) {
+            if (name.startsWith('dynamic')) {
+                await caches.delete(name);
+                console.log('[SW] Dynamic cache cleared');
+            }
+        }
+    }
+});
+
+
