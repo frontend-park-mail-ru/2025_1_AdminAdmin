@@ -272,7 +272,7 @@ class RestaurantsRequests {
     } else if (status === 404) {
       return;
     } else {
-      throw new Error(body.error);
+      throw new Error(body?.error);
     }
   };
 

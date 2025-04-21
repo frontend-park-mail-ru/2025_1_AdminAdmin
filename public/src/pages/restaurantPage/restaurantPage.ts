@@ -111,9 +111,8 @@ export default class RestaurantPage {
       const cartWrapper: HTMLElement = this.self.querySelector('.cart__wrapper');
       this.cartComponent = new Cart(cartWrapper, this.props.id);
       this.cartComponent.render();
-    } catch (error) {
+    } catch {
       router.goToPage('notFound');
-      console.error('Error rendering restaurant page:', error);
     }
   }
 

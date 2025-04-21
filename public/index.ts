@@ -8,7 +8,7 @@ initRouting(rootElement);
 
 
 
-/*if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator) {
     (async () => {
         try {
             await navigator.serviceWorker.register('/sw.js');
@@ -16,4 +16,4 @@ initRouting(rootElement);
             console.error('Service worker registration failed', err);
         }
     })();
-}*/
+}
