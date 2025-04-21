@@ -114,6 +114,7 @@ class Router {
    * @param {boolean} [shouldPushState=true] - Нужно ли обновлять `history.pushState`.
    */
   goToPage(page: string, id: string | null = null, shouldPushState = true): void {
+    window.scrollTo(0, 0);
     const pageData = this.routes[page];
     if (!pageData) {
       console.error(`Page "${page}" not found in routes.`);
