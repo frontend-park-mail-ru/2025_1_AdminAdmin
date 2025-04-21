@@ -57,7 +57,7 @@ export default class OrderPage {
 
     const bin = this.self.querySelector('.order-page__products__header__clear');
     if (bin) {
-      bin.addEventListener('click', this.handleClear.bind(this));
+      bin.addEventListener('click', this.handleClear);
     }
 
     const orderPageComment: HTMLDivElement = this.self.querySelector('.order-page__comment');
@@ -186,7 +186,7 @@ export default class OrderPage {
     }
   }
 
-  private async handleClear(): Promise<void> {
+  private handleClear = async (): Promise<void> => {
     const bin: HTMLElement = this.self.querySelector('.order-page__products__header__clear');
     bin.style.pointerEvents = 'none';
 
@@ -197,7 +197,7 @@ export default class OrderPage {
     } finally {
       bin.style.pointerEvents = '';
     }
-  }
+  };
 
   private updateCards(): void {
     const container: HTMLDivElement = this.self.querySelector('.order-page__products');
@@ -232,7 +232,7 @@ export default class OrderPage {
 
     const bin = this.self.querySelector('.order-page__products__header__clear');
     if (bin) {
-      bin.removeEventListener('click', this.handleClear.bind(this));
+      bin.removeEventListener('click', this.handleClear);
     }
 
     if (this.submitButton) {

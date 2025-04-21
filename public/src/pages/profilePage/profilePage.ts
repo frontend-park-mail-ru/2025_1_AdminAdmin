@@ -25,7 +25,6 @@ export default class ProfilePage {
   private components: {
     loadAvatarButton: Button;
     profileForm?: UnifiedForm;
-    addresses: Address[];
     addAddressButton?: Button;
     ordersTable?: ProfileTable;
   };
@@ -53,7 +52,6 @@ export default class ProfilePage {
     this.components = {
       loadAvatarButton: undefined,
       profileForm: undefined,
-      addresses: [],
       addAddressButton: undefined,
       ordersTable: undefined,
     };
@@ -214,9 +212,6 @@ export default class ProfilePage {
           this.previousAddressMap.set(props.id, comp);
         }
       });
-
-      // Обновим массив компонентов для совместимости с остальной логикой
-      this.components.addresses = Array.from(this.previousAddressMap.values());
     } catch (error) {
       console.error(error);
       toasts.error(error.error);
@@ -262,6 +257,11 @@ export default class ProfilePage {
       this.unsubscribeFromUserStore();
       this.unsubscribeFromUserStore = null;
     }
+
+    for (const address of this.previousAddressMap.values()) {
+      address.remove();
+    }
+    this.previousAddressMap.clear();
     //this.components.ordersTable.remove();
     /*    this.components.addresses.forEach((component) => {
       component.remove();
