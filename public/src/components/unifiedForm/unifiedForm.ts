@@ -43,14 +43,14 @@ export default class UnifiedForm {
       return;
     }
 
-    try {
-      await this.handleRequest(userData);
-    } catch (err) {
-      const errorMessage = err?.message || 'Непредвиденная ошибка';
+    //try {
+    await this.handleRequest(userData);
+    /*    } catch (err) {
+      const errorMessage = err?.error || 'Непредвиденная ошибка';
       this.setError(errorMessage);
-      toasts.error(errorMessage);
-      this.components.submitButton.enable();
-    }
+      toasts.error(errorMessage);*/
+    this.components.submitButton.enable();
+    //}
   }
 
   private async handleRequest(userData: any) {
