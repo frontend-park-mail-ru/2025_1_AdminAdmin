@@ -76,6 +76,10 @@ export default class OrderPage {
           text: 'Оформить заказ',
           style: 'button_active',
           onSubmit: async () => {
+            if (cartStore.getState().total_price > 100000) {
+              toasts.error('Этот заказ слишком большой. Разделите его на несколько');
+              return;
+            }
             try {
               this.submitButton.disable();
               await this.sendOrder();

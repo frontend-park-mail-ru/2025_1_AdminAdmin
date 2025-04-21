@@ -269,6 +269,8 @@ class RestaurantsRequests {
 
     if (status === 200) {
       return body;
+    } else if (status === 404) {
+      return;
     } else {
       throw new Error(body.error);
     }

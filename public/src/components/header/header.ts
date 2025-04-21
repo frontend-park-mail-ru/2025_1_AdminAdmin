@@ -46,10 +46,16 @@ export default class Header {
     const target = event.target as HTMLElement;
     const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
 
-    if (dropdown) {
+    if (target.closest('.header__location_dropdown_button')) {
+      const mapModal = new MapModal((newAddress: string) => userStore.setAddress(newAddress));
+      modalController.openModal(mapModal);
+    }
+
+    if (dropdown && dropdown.style.display === 'block') {
       dropdown.style.display = 'none';
       this.addressComponents.forEach((comp) => comp.remove());
       this.addressComponents = [];
+      return;
     }
 
     if (target.closest('.header__location_select_button')) {
@@ -78,9 +84,6 @@ export default class Header {
       }
 
       dropdown.style.display = 'block';
-    } else if (target.closest('.header__location_dropdown_button')) {
-      const mapModal = new MapModal((newAddress: string) => userStore.setAddress(newAddress));
-      modalController.openModal(mapModal);
     }
 
     const profileDropdownOptions = document.querySelector(

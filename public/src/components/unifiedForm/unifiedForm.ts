@@ -84,7 +84,6 @@ export default class UnifiedForm {
     const errorElement = this.parent.querySelector('.form__error') as HTMLElement;
     if (errorElement) {
       errorElement.textContent = errorMessage;
-      errorElement.style.display = 'block';
     }
   }
 
@@ -92,7 +91,6 @@ export default class UnifiedForm {
     const errorElement = this.parent.querySelector('.form__error') as HTMLElement;
     if (errorElement) {
       errorElement.textContent = '';
-      errorElement.style.display = 'none';
     }
   }
 

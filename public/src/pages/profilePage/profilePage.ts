@@ -31,6 +31,8 @@ export default class ProfilePage {
   };
   private readonly avatarChangeHandler: (event: Event) => void; // Функция при изменении файла аватарки
   private unsubscribeFromUserStore: (() => void) | null = null;
+  private previousAddressMap = new Map<string, Address>();
+
   // Поля необязательные чтобы можно было создать пустой объект
 
   /**
@@ -164,32 +166,39 @@ export default class ProfilePage {
   }
 
   private async refreshAddresses() {
-    const profileAddressesWrapper: HTMLDivElement = this.self.querySelector(
-      '.profile-address__addresses__wrapper',
-    );
-
-    // Удаляем старые компоненты
-    this.components.addresses.forEach((addressComponent) => addressComponent.remove());
-    this.components.addresses = [];
+    const wrapper: HTMLElement = this.self.querySelector('.profile-address__addresses__wrapper');
 
     try {
       const addresses = await AppUserRequests.GetAddresses();
-      if (Array.isArray(addresses)) {
-        addresses.forEach((props) => {
-          const addressComponent = new Address(
-            profileAddressesWrapper,
+
+      if (!Array.isArray(addresses)) return;
+
+      const currentAddressIds = new Set(addresses.map((a) => a.id));
+
+      for (const [id, comp] of this.previousAddressMap.entries()) {
+        if (!currentAddressIds.has(id)) {
+          comp.remove();
+          this.previousAddressMap.delete(id);
+        }
+      }
+
+      addresses.forEach((props) => {
+        if (!this.previousAddressMap.has(props.id)) {
+          const comp = new Address(
+            wrapper,
             {
               ...props,
               isHeaderAddress: false,
             },
-            () => {
-              this.refreshAddresses();
-            },
+            () => this.refreshAddresses(),
           );
-          addressComponent.render();
-          this.components.addresses.push(addressComponent);
-        });
-      }
+          comp.render();
+          this.previousAddressMap.set(props.id, comp);
+        }
+      });
+
+      // Обновим массив компонентов для совместимости с остальной логикой
+      this.components.addresses = Array.from(this.previousAddressMap.values());
     } catch (error) {
       console.error(error);
       toasts.error(error.error);

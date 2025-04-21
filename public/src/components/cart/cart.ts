@@ -13,7 +13,6 @@ export default class Cart {
   private container?: HTMLElement;
   private cartCards: Map<string, CartCard>;
   private unsubscribeFromStore: (() => void) | null = null;
-  private previousProductIds = new Set<string>();
 
   constructor(parent: HTMLElement, restaurantId: string) {
     this.parent = parent;
@@ -67,8 +66,6 @@ export default class Cart {
       cartFooter.classList.remove('inactive');
       cartFooter.style.pointerEvents = 'auto';
     }
-
-    this.previousProductIds = currentProductIds;
   };
 
   private async handleClear(): Promise<void> {
@@ -120,8 +117,6 @@ export default class Cart {
 
     this.cartCards.forEach((card) => card.remove());
     this.cartCards.clear();
-
-    this.previousProductIds.clear();
 
     const cartFooter = document.querySelector('.cart-footer');
     if (cartFooter) {
