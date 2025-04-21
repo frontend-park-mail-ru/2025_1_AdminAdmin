@@ -181,7 +181,21 @@ export default class ProfilePage {
 
       for (const [id, comp] of this.previousAddressMap.entries()) {
         if (!currentAddressIds.has(id)) {
-          comp.remove();
+          comp.self.animate(
+            [
+              { opacity: 1, transform: 'translateX(0)' },
+              { opacity: 0, transform: 'translateX(100%)' },
+            ],
+            {
+              duration: 500,
+              easing: 'linear',
+              fill: 'forwards',
+            },
+          );
+
+          setTimeout(() => {
+            comp.remove();
+          }, 500);
           this.previousAddressMap.delete(id);
         }
       }
