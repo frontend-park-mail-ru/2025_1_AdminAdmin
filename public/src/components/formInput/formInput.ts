@@ -14,6 +14,8 @@ export interface FormInputProps {
   onInput?: (value: string) => void; // Функция при вводе
   min?: number;
   max?: number;
+  name?: string;
+  autocomplete?: string;
   maxLength?: number;
   movePlaceholderOnInput?: boolean;
   value?: string;
@@ -97,7 +99,7 @@ export class FormInput {
 
   private applyPhoneMask() {
     const input = this.input;
-    if (input && this.props.type === 'phone') {
+    if (input && this.props.type === 'tel') {
       input.value = input.value.replace(/[\s()-]/g, '');
       const digits = input.value.replace(/\D/g, '');
       const match = digits.match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
@@ -120,10 +122,10 @@ export class FormInput {
   }
 
   private setupPhoneMaskIfNeeded(): void {
-    if (this.props.type === 'phone' && this.props.value) {
+    if (this.props.type === 'tel' && this.props.value) {
       this.applyPhoneMask();
     }
-    if (this.props.type === 'phone') {
+    if (this.props.type === 'tel') {
       this.addPhoneMask();
     }
   }
