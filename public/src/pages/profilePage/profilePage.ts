@@ -120,6 +120,10 @@ export default class ProfilePage {
         id: 'profile-page__address-add',
         text: 'Добавить',
         onSubmit: () => {
+          if (this.previousAddressMap.size > 10) {
+            toasts.error('У Вас максимальное количество адресов.');
+            return;
+          }
           const mapModal = new MapModal(async (newAddress: string) => {
             try {
               await userStore.addAddress(newAddress);
