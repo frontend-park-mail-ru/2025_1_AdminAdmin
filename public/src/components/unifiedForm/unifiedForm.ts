@@ -29,10 +29,12 @@ export default class UnifiedForm {
   }
 
   async validateData() {
+    this.components.submitButton.disable();
     this.clearError();
     // Валидация полей
     for (const formInputComponent of Object.values(this.components.inputs)) {
       if (!formInputComponent.checkValue()) {
+        this.components.submitButton.enable();
         return;
       }
     }
@@ -50,6 +52,7 @@ export default class UnifiedForm {
     if (userData.password && userData.password !== this.components.inputs.repeatPassword.value) {
       this.setError('Пароли не совпадают');
       toasts.error('Пароли не совпадают');
+      this.components.submitButton.enable();
       return;
     }
     //
@@ -74,6 +77,7 @@ export default class UnifiedForm {
         toasts.success('Вы успешно зарегистрировались!');
       }
     } catch (err) {
+      this.components.submitButton.enable();
       const errorMessage = err?.message || 'Непредвиденная ошибка';
       this.setError(errorMessage);
       toasts.error(errorMessage);
@@ -145,15 +149,10 @@ export default class UnifiedForm {
     this.components.submitButton = new Button(submitButtonContainer, {
       ...formConfig.buttons.submitButton,
       onSubmit: async () => {
-        this.components.submitButton.disable();
         try {
           await this.validateData();
-        } catch {
-          this.components.submitButton.enable();
-        }
-
-        if (this.isEditMode) {
-          this.components.submitButton.enable();
+        } catch (error) {
+          toasts.error(error.error);
         }
       },
     });
