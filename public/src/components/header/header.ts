@@ -203,9 +203,9 @@ export default class Header {
     this.logoutButton = new Button(profileDropdownButtonsContainer, {
       id: 'logout_button',
       text: 'Выйти',
-      onSubmit: () => {
+      onSubmit: async () => {
         document.querySelector('.header__profile-dropdown__options').classList.remove('active');
-        this.handleLogout();
+        await this.handleLogout();
       },
     });
     this.logoutButton.render();
@@ -293,7 +293,6 @@ export default class Header {
     try {
       await userStore.logout();
       toasts.success('Вы успешно вышли из системы');
-      router.goToPage('home');
     } catch (error) {
       toasts.error(error.message);
     } finally {
