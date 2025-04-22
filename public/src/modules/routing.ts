@@ -155,9 +155,11 @@ class Router {
       this.currentPage?.remove();
       this.currentPage = new pageData.class(this.pageElement, id);
       this.currentId = id;
+      this.currentPage.render(pageData.options);
+      return;
     }
 
-    this.currentPage.render(pageData.options);
+    if (this.currentPage instanceof AuthPage) this.currentPage.render(pageData.options);
   }
 
   /**

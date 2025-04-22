@@ -27,14 +27,17 @@ export class Categories {
     this.boundHashChangeHandler = this.hashChangeHandler.bind(this);
   }
 
-  private hashChangeHandler(categoriesLength = this.categoryElements.length): void {
+  hashChangeHandler(): void {
     const hashCategoryId = parseInt(window.location.hash.replace('#category-', ''), 10);
     if (
       !isNaN(hashCategoryId) &&
-      hashCategoryId < categoriesLength &&
+      hashCategoryId < this.categoryElements.length &&
       hashCategoryId !== this.activeCategoryId
     ) {
       this.handleCategoryClick(hashCategoryId);
+    } else {
+      const currentUrl = window.location.href.split('#')[0];
+      history.replaceState(null, '', currentUrl);
     }
   }
 
@@ -53,7 +56,7 @@ export class Categories {
   /**
    * Отображает список категорий на странице.
    */
-  render(categoriesLength: number): void {
+  render(): void {
     if (!template) {
       throw new Error('Error: categories template not found');
     }
@@ -61,7 +64,6 @@ export class Categories {
     const html = template();
     this.parent.insertAdjacentHTML('beforeend', html);
 
-    this.hashChangeHandler(categoriesLength);
     window.addEventListener('scroll', this.boundScrollHandler);
     window.addEventListener('hashchange', this.boundHashChangeHandler);
   }

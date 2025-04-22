@@ -91,7 +91,7 @@ export default class RestaurantPage {
 
       this.categoriesComponent = new Categories(categoriesWrapper, productCardsBody);
 
-      this.categoriesComponent.render(this.props.categories.length);
+      this.categoriesComponent.render();
 
       if (!this.props.categories) return;
 
@@ -111,6 +111,8 @@ export default class RestaurantPage {
           this.productCards.push(productCardComponent);
         });
       });
+
+      this.categoriesComponent.hashChangeHandler();
 
       const cartWrapper: HTMLElement = this.self.querySelector('.cart__wrapper');
       this.cartComponent = new Cart(cartWrapper, this.props.id);
