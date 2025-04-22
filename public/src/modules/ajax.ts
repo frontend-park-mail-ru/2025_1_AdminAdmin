@@ -324,6 +324,8 @@ class CartRequests {
       `${this.baseUrl}/clear`,
     );
 
+    console.error(status);
+
     if (status === 200) {
       return;
     }
