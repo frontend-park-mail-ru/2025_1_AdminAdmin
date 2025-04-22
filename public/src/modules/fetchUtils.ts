@@ -6,11 +6,14 @@ export const getContentType = (response: Response) => {
 
 export const parseResponseBody = async (response: Response) => {
   const contentType = getContentType(response);
-
-  if (contentType.includes('application/json')) {
-    return await response.json();
-  } else if (contentType.includes('text/plain') || contentType.includes('text/html')) {
-    return await response.text();
+  try {
+    if (contentType.includes('application/json')) {
+      return await response.json();
+    } else if (contentType.includes('text/plain') || contentType.includes('text/html')) {
+      return await response.text();
+    }
+  } catch {
+    return null;
   }
 
   return null;
