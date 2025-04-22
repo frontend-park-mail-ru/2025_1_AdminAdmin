@@ -319,13 +319,11 @@ class CartRequests {
   };
 
   ClearCart = async (): Promise<void> => {
-    const { status, body } = await baseRequest<ErrorResponse>(
-      methods.POST,
-      `${this.baseUrl}/clear`,
-    );
+    const { status, body } = await baseRequest<unknown>(methods.POST, `${this.baseUrl}/clear`);
 
     if (status !== 200) {
-      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось очистить корзину');
+      const error = (body as ErrorResponse)?.error ?? 'Не удалось очистить корзину';
+      throw new Error(error);
     }
   };
 }
