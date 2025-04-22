@@ -77,7 +77,9 @@ export default class OrderPage {
           style: 'button_active',
           onSubmit: async () => {
             if (cartStore.getState().total_price > 100000) {
-              toasts.error('Этот заказ слишком большой. Разделите его на несколько');
+              toasts.error(
+                'Сумма заказа не должна превышать 100 000 ₽. Разделите его на несколько',
+              );
               return;
             }
             try {

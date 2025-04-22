@@ -51,6 +51,10 @@ export default class RestaurantPage {
    * Запрашивает данные ресторана по ID и отображает их на странице.
    */
   async render(): Promise<void> {
+    if (this.categoriesComponent) {
+      this.categoriesComponent.remove();
+      return;
+    }
     try {
       this.props = await AppRestaurantRequests.Get(this.id);
 
@@ -87,7 +91,7 @@ export default class RestaurantPage {
 
       this.categoriesComponent = new Categories(categoriesWrapper, productCardsBody);
 
-      this.categoriesComponent.render();
+      this.categoriesComponent.render(this.props.categories.length);
 
       if (!this.props.categories) return;
 

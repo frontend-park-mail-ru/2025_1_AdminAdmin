@@ -90,6 +90,7 @@ export default class Header {
 
   private async handleSelectButtonClick(): Promise<void> {
     const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
+    dropdown.style.display = 'block';
 
     if (!userStore.isAuth()) return;
 
@@ -112,8 +113,6 @@ export default class Header {
           this.addressComponents.push(addressComponent);
         });
       }
-
-      dropdown.style.display = 'block';
     } catch (error) {
       toasts.error(error.error);
     }

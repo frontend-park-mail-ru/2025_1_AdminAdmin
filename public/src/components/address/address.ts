@@ -124,7 +124,7 @@ export class Address {
 
     this.self.addEventListener('click', this.handleClick);
 
-    this.updateState();
+    if (!this.props.isHeaderAddress) this.updateState();
   }
 
   /**

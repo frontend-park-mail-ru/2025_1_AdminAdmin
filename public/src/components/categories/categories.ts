@@ -12,6 +12,7 @@ export class Categories {
   private activeCategoryId: number | null = null;
   private readonly boundScrollHandler: () => void;
   private isAutoScrolling = false;
+  private readonly boundHashChangeHandler: () => void;
 
   /**
    * Создает экземпляр группы категорий.
@@ -23,6 +24,18 @@ export class Categories {
     this.parent = parent;
     this.cardsComponent = cardsComponent;
     this.boundScrollHandler = this.scrollHandler.bind(this);
+    this.boundHashChangeHandler = this.hashChangeHandler.bind(this);
+  }
+
+  private hashChangeHandler(categoriesLength = this.categoryElements.length): void {
+    const hashCategoryId = parseInt(window.location.hash.replace('#category-', ''), 10);
+    if (
+      !isNaN(hashCategoryId) &&
+      hashCategoryId < categoriesLength &&
+      hashCategoryId !== this.activeCategoryId
+    ) {
+      this.handleCategoryClick(hashCategoryId);
+    }
   }
 
   /**
@@ -40,7 +53,7 @@ export class Categories {
   /**
    * Отображает список категорий на странице.
    */
-  render(): void {
+  render(categoriesLength: number): void {
     if (!template) {
       throw new Error('Error: categories template not found');
     }
@@ -48,13 +61,9 @@ export class Categories {
     const html = template();
     this.parent.insertAdjacentHTML('beforeend', html);
 
-    const hashCategoryId = parseInt(window.location.hash.replace('#category-', ''), 10);
-    if (!isNaN(hashCategoryId)) {
-      this.activeCategoryId = hashCategoryId;
-    } else {
-      this.activeCategoryId = null;
-    }
+    this.hashChangeHandler(categoriesLength);
     window.addEventListener('scroll', this.boundScrollHandler);
+    window.addEventListener('hashchange', this.boundHashChangeHandler);
   }
 
   addCategory(category: string): void {
@@ -180,6 +189,7 @@ export class Categories {
       header.remove();
     }
     window.removeEventListener('scroll', this.boundScrollHandler);
+    window.removeEventListener('hashchange', this.boundHashChangeHandler);
 
     element.innerHTML = '';
     this.categoryElements = [];
