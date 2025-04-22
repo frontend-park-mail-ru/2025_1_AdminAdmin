@@ -114,7 +114,7 @@ export default class Header {
         });
       }
     } catch (error) {
-      toasts.error(error.error);
+      toasts.error(error.message);
     }
   }
 
@@ -295,7 +295,7 @@ export default class Header {
       toasts.success('Вы успешно вышли из системы');
       router.goToPage('home');
     } catch (error) {
-      toasts.error(error.error);
+      toasts.error(error.message);
     } finally {
       this.logoutButton.enable();
     }

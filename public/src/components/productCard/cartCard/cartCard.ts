@@ -93,7 +93,7 @@ export class CartCard {
     try {
       await cartStore.incrementProductAmount(this.props);
     } catch (error) {
-      toasts.error(error.error);
+      toasts.error(error.message);
     }
   }
 
@@ -101,7 +101,7 @@ export class CartCard {
     try {
       await cartStore.decrementProductAmount(this.props);
     } catch (error) {
-      toasts.error(error.error);
+      toasts.error(error.message);
     }
   }
 
@@ -110,7 +110,7 @@ export class CartCard {
       try {
         await cartStore.setProductAmount(this.props.id, amount);
       } catch (error) {
-        toasts.error(error.error);
+        toasts.error(error.message);
       }
     }
   }

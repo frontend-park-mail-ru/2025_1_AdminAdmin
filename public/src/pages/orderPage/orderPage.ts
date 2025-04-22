@@ -184,7 +184,7 @@ export default class OrderPage {
       this.youMoneyForm = new YouMoneyForm(container, final_price);
       this.youMoneyForm.render();
     } catch (err) {
-      toasts.error(err.error || 'Не удалось оформить заказ');
+      toasts.error(err.message || 'Не удалось оформить заказ');
     }
   }
 
@@ -195,7 +195,7 @@ export default class OrderPage {
     try {
       await cartStore.clearCart();
     } catch (error) {
-      toasts.error(error.error);
+      toasts.error(error.message);
     } finally {
       bin.style.pointerEvents = '';
     }

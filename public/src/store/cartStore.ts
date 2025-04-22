@@ -103,7 +103,7 @@ class CartStore {
             localCart.restaurant_id,
           );
         } catch (error) {
-          console.error('Ошибка при создании корзины: ', error.error);
+          console.error('Ошибка при создании корзины: ', error.message);
         }
       }
       clearCartInLocalStorage();

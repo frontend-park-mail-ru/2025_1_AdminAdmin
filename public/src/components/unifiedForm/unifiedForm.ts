@@ -46,7 +46,7 @@ export default class UnifiedForm {
     try {
       await this.handleRequest(userData);
     } catch (err) {
-      const errorMessage = err?.error || 'Непредвиденная ошибка';
+      const errorMessage = err.message || 'Непредвиденная ошибка';
       this.setError(errorMessage);
       toasts.error(errorMessage);
       this.components.submitButton.enable();
