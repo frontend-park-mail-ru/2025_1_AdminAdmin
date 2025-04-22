@@ -3,6 +3,7 @@ import { CartState, cartStore } from '@store/cartStore';
 import { CartCard } from '@components/productCard/cartCard/cartCard';
 import { router } from '@modules/routing';
 import { CartProduct } from '@myTypes/cartTypes';
+import { toasts } from '@modules/toasts';
 //import { toasts } from '@modules/toasts';
 /**
  * Класс cart представляет компонент корзины.
