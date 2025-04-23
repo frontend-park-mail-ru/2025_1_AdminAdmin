@@ -31,6 +31,7 @@ jobs:
           touch .env
           echo GEOSUGGEST_API_KEY=${{ secrets.GEOSUGGEST_API_KEY }} >> .env
           echo GEOCODER_API_KEY=${{ secrets.GEOCODER_API_KEY }} >> .env
+          echo IS_DEBUG=false
           cat .env
 
       - name: Очистка локального dist
