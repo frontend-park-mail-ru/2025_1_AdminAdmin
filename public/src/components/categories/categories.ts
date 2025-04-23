@@ -11,7 +11,6 @@ export class Categories {
   private categoryElements: { button: Button; header: CategoryHeader }[] = [];
   private activeCategoryId: number | null = null;
   private readonly boundScrollHandler: () => void;
-  private isAutoScrolling = false;
   private readonly boundHashChangeHandler: () => void;
 
   /**
@@ -105,12 +104,7 @@ export class Categories {
   handleCategoryClick(categoryId: number): void {
     const targetHeader = document.getElementById(`category-header-${categoryId}`);
     if (targetHeader) {
-      this.isAutoScrolling = true;
       targetHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-      setTimeout(() => {
-        this.isAutoScrolling = false;
-      }, 800);
 
       const currentUrl = window.location.href.split('#')[0];
       history.pushState(null, '', `${currentUrl}#category-${categoryId}`);
@@ -134,8 +128,6 @@ export class Categories {
   }
 
   private scrollHandler(): void {
-    if (this.isAutoScrolling) return;
-
     const scrollBottom = window.scrollY + window.innerHeight;
     const pageBottom = document.documentElement.scrollHeight;
 
