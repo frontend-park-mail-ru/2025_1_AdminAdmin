@@ -82,6 +82,10 @@ export const ValidateLogin = (value: string): ValidationResultType => {
  * Выполняет валидацию имени или фамилии
  */
 export const ValidateName = (value: string): ValidationResultType => {
+  if (/^[ЉЊЋЂЏŠĐČĆŽљњћђџšđčćž\s]+$/.test(value)) {
+    return ValidationResult(false, 'АХТУНГ! Присутствует вуковица');
+  }
+
   if (value === '') {
     return ValidationResult(false, 'Поле не может быть пустым');
   }
