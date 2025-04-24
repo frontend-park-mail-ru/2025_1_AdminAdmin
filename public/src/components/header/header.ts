@@ -44,59 +44,88 @@ export default class Header {
 
   private async handleClick(event: Event): Promise<void> {
     const target = event.target as HTMLElement;
-    const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
 
-    if (dropdown) {
-      dropdown.style.display = 'none';
+    if (this.isMapButtonClick(target)) {
+      this.handleMapButtonClick();
+      return;
+    }
+
+    if (this.isDropdownOpen()) {
+      this.closeDropdown();
+      return;
+    }
+
+    if (this.isSelectButtonClick(target)) {
+      await this.handleSelectButtonClick();
+      return;
+    }
+
+    this.toggleProfileDropdown(target);
+  }
+
+  private isMapButtonClick(target: HTMLElement): boolean {
+    return !!target.closest('.header__location_dropdown_button');
+  }
+
+  private handleMapButtonClick(): void {
+    const mapModal = new MapModal((newAddress: string) => userStore.setAddress(newAddress));
+    modalController.openModal(mapModal);
+  }
+
+  private isDropdownOpen(): boolean {
+    const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
+    return dropdown && dropdown.style.display === 'block';
+  }
+
+  private closeDropdown(): void {
+    const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
+    dropdown.style.display = 'none';
+    this.addressComponents.forEach((comp) => comp.remove());
+    this.addressComponents = [];
+  }
+
+  private isSelectButtonClick(target: HTMLElement): boolean {
+    return !!target.closest('.header__location_select_button');
+  }
+
+  private async handleSelectButtonClick(): Promise<void> {
+    const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
+    dropdown.style.display = 'block';
+
+    if (!userStore.isAuth()) return;
+
+    try {
+      const addresses = await AppUserRequests.GetAddresses();
+      const addressesContainer = this.self.querySelector(
+        '.header__location_dropdown_options',
+      ) as HTMLElement;
+
       this.addressComponents.forEach((comp) => comp.remove());
       this.addressComponents = [];
-    }
 
-    if (target.closest('.header__location_select_button')) {
-      if (userStore.isAuth()) {
-        try {
-          const addresses = await AppUserRequests.GetAddresses();
-          const addressesContainer: HTMLElement = this.self.querySelector(
-            '.header__location_dropdown_options',
-          );
-          this.addressComponents.forEach((comp) => comp.remove());
-          this.addressComponents = [];
-
-          if (Array.isArray(addresses)) {
-            addresses.forEach((address) => {
-              const addressComponent = new Address(addressesContainer, {
-                ...address,
-                isHeaderAddress: true,
-              });
-              addressComponent.render();
-              this.addressComponents.push(addressComponent);
-            });
-          }
-        } catch (error) {
-          toasts.error(error.error);
-        }
+      if (Array.isArray(addresses)) {
+        addresses.forEach((address) => {
+          const addressComponent = new Address(addressesContainer, {
+            ...address,
+            isHeaderAddress: true,
+          });
+          addressComponent.render();
+          this.addressComponents.push(addressComponent);
+        });
       }
-
-      dropdown.style.display = 'block';
-    } else if (target.closest('.header__location_dropdown_button')) {
-      const mapModal = new MapModal((newAddress: string) => userStore.setAddress(newAddress));
-      modalController.openModal(mapModal);
+    } catch (error) {
+      toasts.error(error.message);
     }
+  }
 
+  private toggleProfileDropdown(target: HTMLElement): void {
     const profileDropdownOptions = document.querySelector(
       '.header__profile-dropdown__options',
     ) as HTMLElement;
 
-    // Если кликнули по кнопке профиля
     if (target.id === 'profile_button') {
-      if (profileDropdownOptions.classList.contains('active')) {
-        profileDropdownOptions.classList.remove('active');
-      } else {
-        profileDropdownOptions.classList.add('active');
-      }
-    }
-    // Если кликнули не по дропдауну пользователя при этом он открыт
-    else if (
+      profileDropdownOptions.classList.toggle('active');
+    } else if (
       profileDropdownOptions.classList.contains('active') &&
       !profileDropdownOptions.contains(target)
     ) {
@@ -174,9 +203,9 @@ export default class Header {
     this.logoutButton = new Button(profileDropdownButtonsContainer, {
       id: 'logout_button',
       text: 'Выйти',
-      onSubmit: () => {
+      onSubmit: async () => {
         document.querySelector('.header__profile-dropdown__options').classList.remove('active');
-        this.handleLogout();
+        await this.handleLogout();
       },
     });
     this.logoutButton.render();
@@ -248,7 +277,7 @@ export default class Header {
     }
 
     if (cartStore.getState().total_price) {
-      this.cartButton.setText(cartStore.getState().total_price + ' ₽');
+      this.cartButton.setText(cartStore.getState().total_price.toLocaleString('ru-RU') + ' ₽');
       this.cartButton.show();
     } else {
       this.cartButton.hide();
@@ -264,9 +293,8 @@ export default class Header {
     try {
       await userStore.logout();
       toasts.success('Вы успешно вышли из системы');
-      router.goToPage('home');
     } catch (error) {
-      toasts.error(error.error);
+      toasts.error(error.message);
     } finally {
       this.logoutButton.enable();
     }

@@ -37,20 +37,26 @@
 
     &__name {
       padding-bottom: 5px;
+
     }
 
     &__total_price {
       font-weight: bold;
+      white-space: nowrap;
+      display: inline-block;
     }
 
     &__weight {
       color: var(--dark-gray);
+      white-space: nowrap;
+      display: inline-block;
     }
   }
 
   &__product_icon {
     width: 100%;
-    object-fit: contain;
+    aspect-ratio: 6 / 5;
+    object-fit: cover;
   }
 
   &__product_icon {
@@ -58,6 +64,7 @@
   }
 
   &__bin_icon {
+    cursor: pointer;
     max-width: 40%;
     max-height: 20px;
     height: auto;
@@ -100,7 +107,7 @@
 
   @container (width >= 700px) {
     span {
-      font-size: 18px;
+      font-size: 16px;
     }
 
     &__content {
@@ -109,6 +116,7 @@
       gap: 10%;
 
       &__name {
+        font-size: 20px;
         grid-column: 1 / span 1;
         display: flex;
         align-items: center;

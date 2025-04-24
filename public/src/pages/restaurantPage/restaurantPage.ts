@@ -51,6 +51,10 @@ export default class RestaurantPage {
    * Запрашивает данные ресторана по ID и отображает их на странице.
    */
   async render(): Promise<void> {
+    if (this.categoriesComponent) {
+      this.categoriesComponent.remove();
+      return;
+    }
     try {
       this.props = await AppRestaurantRequests.Get(this.id);
 
@@ -63,13 +67,7 @@ export default class RestaurantPage {
         '.restaurant-header__wrapper',
       ) as HTMLElement;
 
-      const restaurantHeaderComponent = new RestaurantHeader(restaurantHeaderWrapper, {
-        name: this.props.name,
-        banner_url: this.props.banner_url,
-        rating: this.props.rating,
-        rating_count: this.props.rating_count,
-        tags: this.props.tags,
-      });
+      const restaurantHeaderComponent = new RestaurantHeader(restaurantHeaderWrapper, this.props);
 
       restaurantHeaderComponent.render();
 
@@ -114,12 +112,13 @@ export default class RestaurantPage {
         });
       });
 
+      this.categoriesComponent.hashChangeHandler();
+
       const cartWrapper: HTMLElement = this.self.querySelector('.cart__wrapper');
       this.cartComponent = new Cart(cartWrapper, this.props.id);
       this.cartComponent.render();
-    } catch (error) {
+    } catch {
       router.goToPage('notFound');
-      console.error('Error rendering restaurant page:', error);
     }
   }
 

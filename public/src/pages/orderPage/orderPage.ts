@@ -12,14 +12,15 @@ import { CreateOrderPayload } from '@myTypes/orderTypes';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
 import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
+import { router } from '@modules/routing';
 
 export default class OrderPage {
   private parent: HTMLElement;
   private inputs: Record<string, FormInput> = {};
-  private cartCards: CartCard[] = [];
+  private cartCards = new Map<string, CartCard>();
   private submitButton: Button;
   private unsubscribeFromStore: (() => void) | null = null;
-  private youMoneyForm: YouMoneyForm;
+  private youMoneyForm: YouMoneyForm = null;
 
   constructor(parent: HTMLElement) {
     if (!parent) {
@@ -56,7 +57,7 @@ export default class OrderPage {
 
     const bin = this.self.querySelector('.order-page__products__header__clear');
     if (bin) {
-      bin.addEventListener('click', this.handleClear.bind(this));
+      bin.addEventListener('click', this.handleClear);
     }
 
     const orderPageComment: HTMLDivElement = this.self.querySelector('.order-page__comment');
@@ -67,14 +68,20 @@ export default class OrderPage {
       this.inputs['orderPageComment'] = inputComponent;
     }
 
-    if (userStore.isAuth()) {
-      const submitButtonContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
-      if (submitButtonContainer) {
+    const submitButtonContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
+    if (submitButtonContainer) {
+      if (userStore.isAuth()) {
         this.submitButton = new Button(submitButtonContainer, {
           id: 'order-page__submit__button',
           text: 'Оформить заказ',
           style: 'button_active',
           onSubmit: async () => {
+            if (cartStore.getState().total_price > 100000) {
+              toasts.error(
+                'Сумма заказа не должна превышать 100 000 ₽. Разделите его на несколько',
+              );
+              return;
+            }
             try {
               this.submitButton.disable();
               await this.sendOrder();
@@ -86,15 +93,43 @@ export default class OrderPage {
             }
           },
         });
+      } else {
+        toasts.error('Для формирования заказа нужно авторизоваться');
+        this.submitButton = new Button(submitButtonContainer, {
+          id: 'order-page__submit__button',
+          text: 'Авторизоваться',
+          style: 'button_active',
+          onSubmit: () => {
+            router.goToPage('loginPage');
+          },
+        });
       }
-
       this.submitButton.render();
-    } else {
-      toasts.error('Для формирования заказа нужно авторизоваться');
     }
 
     this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
-    this.updateCards();
+    this.createProductCards();
+  }
+
+  private createProductCards(): void {
+    this.updateTotalPrice();
+
+    const container = this.self.querySelector('.order-page__products') as HTMLDivElement;
+    if (!container) return;
+
+    const state = cartStore.getState();
+    for (const product of state.products) {
+      const card = new CartCard(container, product);
+      card.render();
+      this.cartCards.set(product.id, card);
+    }
+  }
+
+  private updateTotalPrice() {
+    const totalPrice: number = cartStore.getState().total_price;
+
+    const cartTotal: HTMLDivElement = this.self.querySelector('.cart__total');
+    cartTotal.textContent = totalPrice.toLocaleString('ru-RU');
   }
 
   async sendOrder() {
@@ -149,38 +184,40 @@ export default class OrderPage {
       this.youMoneyForm = new YouMoneyForm(container, final_price);
       this.youMoneyForm.render();
     } catch (err) {
-      toasts.error(err.error || 'Не удалось оформить заказ');
+      toasts.error(err.message || 'Не удалось оформить заказ');
     }
   }
 
-  private async handleClear(): Promise<void> {
+  private handleClear = async (): Promise<void> => {
     const bin: HTMLElement = this.self.querySelector('.order-page__products__header__clear');
     bin.style.pointerEvents = 'none';
 
     try {
       await cartStore.clearCart();
     } catch (error) {
-      toasts.error(error.error);
+      toasts.error(error.message);
     } finally {
       bin.style.pointerEvents = '';
     }
-  }
+  };
 
   private updateCards(): void {
     const container: HTMLDivElement = this.self.querySelector('.order-page__products');
-    if (!container) {
-      return;
-    }
+    if (!container) return;
 
     const state: CartState = cartStore.getState();
     const products: CartProduct[] = state.products;
-    const totalPrice: number = state.total_price;
 
-    this.cartCards.forEach((card) => card.remove());
-    this.cartCards = [];
+    this.updateTotalPrice();
 
-    const cartTotal: HTMLDivElement = this.self.querySelector('.cart__total');
-    cartTotal.textContent = totalPrice.toString();
+    const currentIds = new Set(products.map((p) => p.id));
+
+    for (const [id, card] of this.cartCards.entries()) {
+      if (!currentIds.has(id)) {
+        card.remove();
+        this.cartCards.delete(id);
+      }
+    }
 
     if (!products.length) {
       setTimeout(() => {
@@ -188,23 +225,16 @@ export default class OrderPage {
           router.goToPage('home');
         });
       }, 0);
-      return;
     }
-
-    products.forEach((product) => {
-      const card = new CartCard(container, product);
-      card.render();
-      this.cartCards.push(card);
-    });
   }
 
   remove(): void {
     this.cartCards.forEach((card) => card.remove());
-    this.cartCards = [];
+    this.cartCards.clear();
 
     const bin = this.self.querySelector('.order-page__products__header__clear');
     if (bin) {
-      bin.removeEventListener('click', this.handleClear.bind(this));
+      bin.removeEventListener('click', this.handleClear);
     }
 
     if (this.submitButton) {

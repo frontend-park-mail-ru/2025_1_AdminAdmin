@@ -2,7 +2,6 @@
   padding-top: 20px;
   display: grid;
   grid-template-columns: 1fr 6fr 4fr 1fr;
-  gap: 10vw;
   align-items: start;
   font-size: 18px;
 
@@ -48,6 +47,8 @@
   }
 
   &__products{
+    padding-bottom: 10vh;
+
     &__header {
       display: flex;
       justify-content: space-between;
@@ -55,6 +56,7 @@
       margin-bottom: 30px;
 
       &__clear {
+        cursor: pointer;
         display: flex;
         align-items: center;
         font-size: 16px;
@@ -75,6 +77,7 @@
   }
 
   &__summary {
+    margin-left: 5vw;
     grid-column: 3 / span 1;
     padding: 20px;
     border-radius: var(--border-radius);
@@ -83,8 +86,26 @@
     flex-direction: column;
     gap: 2vh;
 
+    &__price {
+      display: flex;
+      gap: 2.5px;
+    }
+
     h3 {
       margin-bottom: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      display: inline-block;
+    }
+
+    span {
+      overflow: hidden;
+      white-space: nowrap;
+      display: inline-block;
+
+      @media (max-width: 1500px) {
+        font-size: 14px;
+      }
     }
 
     &__content {

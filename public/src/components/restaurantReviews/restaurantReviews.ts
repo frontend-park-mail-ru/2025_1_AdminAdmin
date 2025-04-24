@@ -135,12 +135,21 @@ export class RestaurantReviews {
       },
       mainText: this.getOpenStatus() ? 'Открыто' : 'Закрыто',
       addText: this.getOpenStatus()
-        ? `До ${this.props.working_mode.to}`
-        : `До ${this.props.working_mode.from}`,
+        ? `До ${this.formatHour(this.props.working_mode.to)}`
+        : `До ${this.formatHour(this.props.working_mode.from)}`,
     };
 
     const hours = new RestaurantDetail(detailsContainer, hoursProps);
     hours.render();
+  }
+
+  /**
+   * Преобразует числовое значение часа в формат HH:MM
+   * @param hour Час от 0 до 23
+   * @returns строка в формате HH:MM
+   */
+  private formatHour(hour: number): string {
+    return `${hour.toString().padStart(2, '0')}:00`;
   }
 
   getRatingText(ratingCount: number): string {

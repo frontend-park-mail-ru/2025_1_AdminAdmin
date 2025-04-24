@@ -14,14 +14,14 @@ export interface TableCellProps {
 // Интерфейс пропсов строки в таблице
 export interface TableRowProps {
   id: string;
-  cells: Array<TableCellProps>;
+  cells: TableCellProps[];
   onClick?: () => void;
 }
 
 export class TableRow {
   protected parent: HTMLElement;
   protected props: TableRowProps;
-  protected ComponentsList: Array<Component>;
+  protected ComponentsList: Component[];
   protected clickHandler: (event: Event) => void;
 
   /**
@@ -71,11 +71,11 @@ export class TableRow {
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
     // Вставляем компоненты в ячейки (шаблон отрендерил только текст)
-    const cellElements = this.self.querySelectorAll('td');
-    this.props.cells.forEach((cell, i) => {
+    //const cellElements = this.self.querySelectorAll('td');
+    this.props.cells.forEach((cell /*i*/) => {
       // В i лежит индекс cell в массиве this.props.cells
       if (cell.type === 'component') {
-        const cellElement = cellElements[i] as HTMLElement;
+        //const cellElement = cellElements[i] as HTMLElement;
         const cellComponent = cell.content as Component;
         cellComponent.render();
       }

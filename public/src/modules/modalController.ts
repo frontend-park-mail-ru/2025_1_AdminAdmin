@@ -1,8 +1,8 @@
-import MapModal from '@pages/mapModal/mapModal';
-
 interface Modal {
+  self: HTMLElement | null;
   render(): void;
   remove(): void;
+  closeElem: HTMLElement | null;
 }
 
 class ModalController {
@@ -21,7 +21,7 @@ class ModalController {
   }
 
   private handleClickOutside(event: MouseEvent): void {
-    if (this.currentModal instanceof MapModal && event.target === this.currentModal.closeElem) {
+    if (event.target === this.currentModal?.closeElem || event.target === this.currentModal.self) {
       this.closeModal();
     }
   }

@@ -1,25 +1,11 @@
 import template from './restaurantHeader.hbs';
-import restaurantHeaderImg from '@assets/header.png';
-import burgerKingImg from '@assets/burgerking.png';
-
-// Структура класса хедера ресторана
-export interface RestaurantHeaderProps {
-  name: string;
-  banner_url: string;
-  description?: string;
-  tags: string[];
-  rating: number;
-  rating_count: number;
-  background?: string;
-  icon?: string;
-}
-
+import { RestaurantResponse } from '@myTypes/restaurantTypes';
 /**
  * Класс хедера ресторана (шапка с названием и описанием)
  */
 export class RestaurantHeader {
   private parent: HTMLElement; // Родитель (где вызывается)
-  private readonly props: RestaurantHeaderProps;
+  private readonly props: RestaurantResponse;
 
   /**
    * Создает экземпляр хедера ресторана.
@@ -27,18 +13,9 @@ export class RestaurantHeader {
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться хедер.
    * @param {Object} props - Словарь данных для определения свойств хедера
    */
-  constructor(parent: HTMLElement, props: RestaurantHeaderProps) {
+  constructor(parent: HTMLElement, props: RestaurantResponse) {
     this.parent = parent;
-    this.props = {
-      name: props.name,
-      description: props.description ?? 'Описание ресторана',
-      tags: props.tags ?? ['Кухня ресторана'],
-      rating: props.rating ?? 0,
-      rating_count: props.rating_count ?? 0,
-      banner_url: props.banner_url,
-      background: props.background || restaurantHeaderImg,
-      icon: props.icon || burgerKingImg,
-    };
+    this.props = props;
   }
 
   /**

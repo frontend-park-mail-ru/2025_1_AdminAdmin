@@ -35,6 +35,7 @@ export interface AddressProps {
 export class Address {
   protected parent: HTMLElement; // Родитель (где вызывается)
   protected props: AddressProps; // Свойства
+  private isDestroyed = false;
   private unsubscribeFromUserStore: (() => void) | null = null;
   private readonly onDelete?: () => void = null;
   protected components: {
@@ -121,20 +122,21 @@ export class Address {
       this.components.buttons.push(delButtonComponent);
     }
 
-    this.self.addEventListener('click', this.handleClick.bind(this));
+    this.self.addEventListener('click', this.handleClick);
 
-    this.updateState();
+    if (!this.props.isHeaderAddress) this.updateState();
   }
 
   /**
    * Обработчик нажатия на адрес.
    * @private
    */
-  handleClick(): void {
+  handleClick = () => {
     userStore.setAddress(this.props.address);
-  }
+  };
 
   private updateState(): void {
+    if (this.isDestroyed) return;
     const radio = this.self.querySelector('input[type="radio"]') as HTMLInputElement | null;
     if (!radio) {
       console.error('Address: Radio input not found!');
@@ -164,8 +166,10 @@ export class Address {
    * Удаляет компонент адреса со страницы
    */
   remove(): void {
+    this.isDestroyed = true;
+
     const element = this.self;
-    element.removeEventListener('click', this.handleClick.bind(this));
+    element.removeEventListener('click', this.handleClick);
     if (this.unsubscribeFromUserStore) {
       this.unsubscribeFromUserStore();
       this.unsubscribeFromUserStore = null;

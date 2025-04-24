@@ -114,33 +114,52 @@ class Router {
    * @param {boolean} [shouldPushState=true] - Нужно ли обновлять `history.pushState`.
    */
   goToPage(page: string, id: string | null = null, shouldPushState = true): void {
+    window.scrollTo(0, 0);
+
     const pageData = this.routes[page];
     if (!pageData) {
-      console.error(`Page "${page}" not found in routes.`);
-      return;
+      return this.handleMissingRoute(page);
     }
 
+    this.updateHeader(pageData);
+    this.updateHistory(pageData, id, shouldPushState);
+    this.updatePage(pageData, id);
+  }
+
+  private handleMissingRoute(page: string): void {
+    console.error(`Page "${page}" not found in routes.`);
+  }
+
+  private updateHeader(pageData: RouteConfig): void {
     if (!(this.currentHeader instanceof pageData.header)) {
       this.currentHeader?.remove();
       this.currentHeader = new pageData.header(this.headerElement);
       this.currentHeader.render();
     }
+  }
 
-    if (shouldPushState) {
-      const newPath = id ? `${pageData.href}${id}` : pageData.href;
-      if (window.location.pathname === newPath) {
-        return;
-      }
+  private updateHistory(pageData: RouteConfig, id: string | null, shouldPush: boolean): void {
+    if (!shouldPush) return;
+
+    const newPath = id ? `${pageData.href}${id}` : pageData.href;
+    if (window.location.pathname !== newPath) {
       history.pushState(id ? { id } : {}, '', newPath);
     }
+  }
 
-    if (!(this.currentPage instanceof pageData.class) || (id && this.currentId !== id)) {
+  private updatePage(pageData: RouteConfig, id: string | null): void {
+    const pageChanged = !(this.currentPage instanceof pageData.class);
+    const idChanged = id && this.currentId !== id;
+
+    if (pageChanged || idChanged) {
       this.currentPage?.remove();
       this.currentPage = new pageData.class(this.pageElement, id);
       this.currentId = id;
+      this.currentPage.render(pageData.options);
+      return;
     }
 
-    this.currentPage.render(pageData.options);
+    if (this.currentPage instanceof AuthPage) this.currentPage.render(pageData.options);
   }
 
   /**

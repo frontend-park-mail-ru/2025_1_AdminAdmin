@@ -25,12 +25,13 @@ export default class ProfilePage {
   private components: {
     loadAvatarButton: Button;
     profileForm?: UnifiedForm;
-    addresses: Address[];
     addAddressButton?: Button;
     ordersTable?: ProfileTable;
   };
   private readonly avatarChangeHandler: (event: Event) => void; // Функция при изменении файла аватарки
   private unsubscribeFromUserStore: (() => void) | null = null;
+  private previousAddressMap = new Map<string, Address>();
+
   // Поля необязательные чтобы можно было создать пустой объект
 
   /**
@@ -51,7 +52,6 @@ export default class ProfilePage {
     this.components = {
       loadAvatarButton: undefined,
       profileForm: undefined,
-      addresses: [],
       addAddressButton: undefined,
       ordersTable: undefined,
     };
@@ -118,6 +118,10 @@ export default class ProfilePage {
         id: 'profile-page__address-add',
         text: 'Добавить',
         onSubmit: () => {
+          if (this.previousAddressMap.size > 10) {
+            toasts.error('У Вас максимальное количество адресов.');
+            return;
+          }
           const mapModal = new MapModal(async (newAddress: string) => {
             try {
               await userStore.addAddress(newAddress);
@@ -164,35 +168,53 @@ export default class ProfilePage {
   }
 
   private async refreshAddresses() {
-    const profileAddressesWrapper: HTMLDivElement = this.self.querySelector(
-      '.profile-address__addresses__wrapper',
-    );
-
-    // Удаляем старые компоненты
-    this.components.addresses.forEach((addressComponent) => addressComponent.remove());
-    this.components.addresses = [];
+    const wrapper: HTMLElement = this.self.querySelector('.profile-address__addresses__wrapper');
 
     try {
       const addresses = await AppUserRequests.GetAddresses();
-      if (Array.isArray(addresses)) {
-        addresses.forEach((props) => {
-          const addressComponent = new Address(
-            profileAddressesWrapper,
+
+      if (!Array.isArray(addresses)) return;
+
+      const currentAddressIds = new Set(addresses.map((a) => a.id));
+
+      for (const [id, comp] of this.previousAddressMap.entries()) {
+        if (!currentAddressIds.has(id)) {
+          comp.self.animate(
+            [
+              { opacity: 1, transform: 'translateX(0)' },
+              { opacity: 0, transform: 'translateX(100%)' },
+            ],
+            {
+              duration: 500,
+              easing: 'linear',
+              fill: 'forwards',
+            },
+          );
+
+          setTimeout(() => {
+            comp.remove();
+          }, 500);
+          this.previousAddressMap.delete(id);
+        }
+      }
+
+      addresses.forEach((props) => {
+        if (!this.previousAddressMap.has(props.id)) {
+          const comp = new Address(
+            wrapper,
             {
               ...props,
               isHeaderAddress: false,
             },
-            () => {
-              this.refreshAddresses();
-            },
+            () => this.refreshAddresses(),
           );
-          addressComponent.render();
-          this.components.addresses.push(addressComponent);
-        });
-      }
+          comp.render();
+          this.previousAddressMap.set(props.id, comp);
+        }
+      });
     } catch (error) {
       console.error(error);
-      toasts.error(error.error);
+      toasts.error(error.message);
     }
   }
 
@@ -235,6 +257,11 @@ export default class ProfilePage {
       this.unsubscribeFromUserStore();
       this.unsubscribeFromUserStore = null;
     }
+
+    for (const address of this.previousAddressMap.values()) {
+      address.remove();
+    }
+    this.previousAddressMap.clear();
     //this.components.ordersTable.remove();
     /*    this.components.addresses.forEach((component) => {
       component.remove();
