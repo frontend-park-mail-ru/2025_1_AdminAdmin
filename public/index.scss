@@ -79,7 +79,7 @@ img {
   padding: calc(var(--header-height) / 5);
   width: 100%;
   display: grid;
-  gap: 20px;
+  column-gap: 20px;
   align-items: center;
   position: fixed;
   top: 0;

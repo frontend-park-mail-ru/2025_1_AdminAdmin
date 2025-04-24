@@ -6,6 +6,7 @@ import template from './header.hbs';
 import { toasts } from '@modules/toasts';
 import MapModal from '@pages/mapModal/mapModal';
 import logoImg from '@assets/logo.png';
+import smallLogo from '@assets/small_logo.png';
 import { cartStore } from '@store/cartStore';
 import { modalController } from '@modules/modalController';
 import { AppUserRequests } from '@modules/ajax';
@@ -146,9 +147,13 @@ export default class Header {
    */
   render(): void {
     this.parent.innerHTML = template();
-    this.parent.classList.add('main_header');
-
-    this.logo = new Logo(this.self.querySelector('.header__logo'), logoImg);
+    if (window.innerWidth > 600) {
+      this.parent.classList.add('main_header');
+      this.logo = new Logo(this.self.querySelector('.header__logo'), logoImg);
+    } else {
+      this.parent.classList.add('mobile_header');
+      this.logo = new Logo(this.self.querySelector('.header__logo'), smallLogo);
+    }
     this.logo.render();
 
     const authButtonContainer = document.querySelector('.header__auth_button') as HTMLElement;
@@ -304,12 +309,12 @@ export default class Header {
    * Удаляет заголовок со страницы и снимает обработчики событий.
    */
   remove(): void {
-    this.logo?.remove();
+    if (this.logo) this.logo.remove();
     this.profileSettingsButton.remove();
     this.logoutButton?.remove();
     this.profileButton.remove();
     this.loginButton?.remove();
-    this.cartButton.remove();
+    if (this.cartButton) this.cartButton.remove();
     this.parent.innerHTML = '';
     this.addressComponents.forEach((comp) => comp.remove());
     this.addressComponents = [];
