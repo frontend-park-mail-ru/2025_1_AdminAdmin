@@ -14,7 +14,7 @@ interface ErrorResponse {
   error: string;
 }
 
-const isDebug = false;
+const isDebug = process.env.IS_DEBUG;
 
 const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? 'localhost:5458' : 'doordashers.ru'}/api`;
 
