@@ -29,8 +29,8 @@
 @use './src/components/confirmRestaurantModal/confirmRestaurantModal' as *;
 @use './src/components/quantityControls/quantityControls' as *;
 @use './src/components/CSATForm/CSATForm' as *;
-@use './src/components/slider/slider' as *;
 @use './src/components/layout/layout' as *;
+@use './src/components/CSATQuestion/CSATQuestion' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;
@@ -69,7 +69,6 @@ body {
   font-family: Calibri, sans-serif;
   font-size: 14px;
   margin: 0;
-  background-color: var(--white);
 }
 
 img {

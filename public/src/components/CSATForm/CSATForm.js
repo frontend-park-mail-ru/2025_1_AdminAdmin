@@ -1,235 +1,148 @@
 import { AppSurveyRequests } from '@modules/ajax';
 import { Button } from '@components/button/button';
-import Slider from '@components/slider/slider';
 import template from './CSATForm.hbs';
-import CSATQuestion from '@components/CSATquestion/CSATQuestion.hbs';
 import './../../../index.scss';
+import CSATQuestion from '@components/CSATquestion/CSATQuesion.js';
 
 /**
  * Форма с вопросами для клиентов
  */
-class CSATForm {
+export default class CSATForm {
+  questionElements = [];
+  activeQuestion = 0;
+  backButton = null;
+  nextButton = null;
   /**
    * Конструктор класса
    */
-  constructor() {
-    this.questions = { defaultQuestions: [], focusQuestions: {} };
-    this.formData = [];
+  constructor(parent) {
+    this.parent = parent;
+    this.questions = [];
   }
 
-  /**
-   * Получение вопросов
-   */
-  async getData() {
-    try {
-      const data = await AppSurveyRequests.Get();
+  removeForm = () => {
+    const form = this.parent.querySelector('.csat-form');
 
-      const defaultQuestions = data.filter((item) => !item.focus_id);
+    form.style.opacity = 0;
+    form.style.bottom = '-60px';
+    form.style.pointerEvents = 'none';
+    setTimeout(() => {
+      form.remove();
+    }, 300);
+  };
 
-      const focusQuestions = data.reduce((acc, item) => {
-        if (item.focus_id) {
-          if (!acc[item.focus_id]) {
-            acc[item.focus_id] = [];
-          }
-          acc[item.focus_id].push(item);
-        }
-        return acc;
-      }, {});
+  prev() {
+    if (this.activeQuestion === 0) return;
 
-      this.questions.defaultQuestions = defaultQuestions;
-      this.questions.focusQuestions = focusQuestions;
-    } catch (error) {
-      console.error('Ошибка при получении вопросов для CSAT формы:', error);
+    this.questionElements[this.activeQuestion].hide();
+
+    this.activeQuestion--;
+
+    if (this.activeQuestion === 0) {
+      this.backButton.hide();
+    } else {
+      this.backButton.show();
     }
+
+    if (this.activeQuestion === this.questionElements.length - 1) {
+      this.nextButton.hide();
+    } else {
+      this.nextButton.show();
+    }
+
+    this.questionElements[this.activeQuestion].show();
   }
 
-  /**
-   * Создание элементов вопросов
-   * @param {Array<object>} items - информация о вопросах
-   * @returns {Array<object>} - элементы с вопросами
-   */
-  getSliderChildren(items) {
-    const elements = [];
+  next() {
+    if (this.activeQuestion === this.questionElements.length - 1) {
+      return;
+    }
 
-    items.forEach((item) => {
-      const div = document.createElement('div');
-      div.innerHTML = CSATQuestion(item);
+    this.questionElements[this.activeQuestion].hide();
 
-      elements.push({ content: div.innerHTML, ...item });
-    });
+    this.activeQuestion++;
 
-    return elements;
-  }
+    if (this.activeQuestion === this.questionElements.length - 1) {
+      this.nextButton.hide();
+    } else {
+      this.nextButton.show();
+    }
 
-  /**
-   * Наполнение фрейма вопросами
-   * @param {HTMLIFrameElement} frame - iframe элемент
-   * @param {object} params - параметры
-   * @param {Array<HTMLElement>} params.questionElements - элементы опросника
-   * @param {HTMLElement} params.focusElement - целевой элемент
-   */
-  setFrame(frame, { questionElements, focusElement }) {
-    const cssLink = document.createElement('link');
-    cssLink.href = 'index.scss';
-    cssLink.rel = 'stylesheet';
-    cssLink.type = 'text/css';
-    cssLink.id = 'frame-stylesheet';
+    if (this.activeQuestion === 0) {
+      this.backButton.hide();
+    } else {
+      this.backButton.show();
+    }
 
-    frame.srcdoc = template();
-    frame.style.opacity = 0;
-    frame.style.bottom = '-60px';
-    frame.style.pointerEvents = 'all';
-
-    frame.onload = () => {
-      frame.contentWindow.document.head.appendChild(cssLink);
-
-      const frameStylesheet = frame.contentDocument.querySelector('#frame-stylesheet');
-
-      const form = frame.contentDocument.querySelector('.csat-form');
-
-      frameStylesheet.onload = async () => {
-        setTimeout(() => {
-          frame.style.opacity = 1;
-
-          if (focusElement) {
-            frame.style.bottom = 0;
-
-            form.style.zIndex = 101;
-
-            focusElement.parentElement.style.boxShadow = 'rgb(0 0 0 / 28%) 0px 0px 30px 15px';
-
-            form.style.left = '10px';
-            form.style.bottom = '10px';
-            return;
-          }
-
-          frame.style.bottom = '-20px';
-        }, 200);
-      };
-
-      const slider = new Slider(form, {
-        frame,
-        formData: this.formData,
-        children: questionElements,
-        focusId: focusElement?.id,
-      });
-
-      slider.render();
-
-      const action = document.createElement('div');
-      action.className = 'question__navigation-buttons';
-      form.appendChild(action);
-
-      const backButton = new Button(action, {
-        id: 'form-back-button',
-        onSubmit: () => slider.prev(),
-      });
-
-      backButton.render();
-
-      const prevBtn = form.querySelector('#form-back-button');
-      prevBtn.style.opacity = 0;
-
-      const nextButton = new Button(action, {
-        id: 'form-next-button',
-        onSubmit: async () => {
-          if (slider.active === questionElements.length - 1) {
-            try {
-              // await api.sendCSATQuestions(slider.formData);
-
-              frame.style.opacity = 0;
-              frame.style.bottom = '-60px';
-              frame.style.pointerEvents = 'none';
-
-              setTimeout(() => {
-                if (focusElement) {
-                  frame.remove();
-                } else {
-                  form.remove();
-                }
-              }, 300);
-
-              if (focusElement) {
-                focusElement.parentElement.style.boxShadow = '';
-              }
-
-              return;
-            } catch (error) {
-              console.error(
-                'Ошибка при отправке CSAT вопросов или переходе к следующему слайду:',
-                error,
-              );
-            }
-          }
-
-          slider.next();
-        },
-      });
-
-      nextButton.render();
-
-      const closeButton = new Button(form, {
-        id: 'csat-close-button',
-        style: 'clear',
-        icon: 'close',
-        onClick: () => {
-          if (focusElement) {
-            focusElement.parentElement.style.boxShadow = '';
-          }
-
-          frame.style.opacity = 0;
-          frame.style.bottom = '-60px';
-          frame.style.pointerEvents = 'none';
-          setTimeout(() => {
-            if (focusElement) {
-              frame.remove();
-            }
-
-            form.remove();
-          }, 300);
-        },
-      });
-
-      closeButton.render();
-    };
+    this.questionElements[this.activeQuestion].show();
   }
 
   /**
    * Рендеринг компонента
    */
   async render() {
-    await this.getData();
+    this.questions = await AppSurveyRequests.CreateSurvey();
 
-    const defaultChildren = this.getSliderChildren(this.questions.defaultQuestions);
+    this.parent.insertAdjacentHTML('beforeend', template());
+    const closeButton = document.querySelector('.csat-form__close_icon');
+    closeButton.addEventListener('click', this.removeForm);
 
-    const frame = document.querySelector('iframe');
+    const action = this.parent.querySelector('.question__navigation-buttons');
 
-    if (defaultChildren.length > 0) {
-      this.setFrame(frame, { questionElements: defaultChildren, focus: false });
+    this.backButton = new Button(action, {
+      id: 'form-back-button',
+      text: 'Назад',
+      onSubmit: () => this.prev(),
+    });
+    this.backButton.render();
+
+    // Кнопка "Далее"
+    this.nextButton = new Button(action, {
+      id: 'form-next-button',
+      text: 'Далее',
+      onSubmit: async () => {
+        this.next();
+      },
+    });
+
+    this.nextButton.render();
+
+    if (this.questions.length > 0) {
+      const questionsContainer = this.parent.querySelector('.csat-form__questions');
+      let i = 0;
+      this.backButton.hide();
+      for (const question of this.questions) {
+        const questionElement = new CSATQuestion(questionsContainer, question);
+        questionElement.render();
+        if (i === this.activeQuestion) {
+          questionElement.show();
+        } else {
+          questionElement.hide();
+        }
+        this.questionElements.push(questionElement);
+        i++;
+      }
+    }
+  }
+
+  /**
+   * Удаление формы CSAT
+   */
+  remove() {
+    const form = this.parent.querySelector('.csat-form');
+    if (!form) return;
+
+    this.backButton.remove();
+    this.nextButton.remove();
+
+    for (const questionEl of this.questionElements) {
+      questionEl.remove();
     }
 
-    /*        Object.entries(this.questions.focusQuestions).forEach(([focusId, questions]) => {
-            if (!questions) {
-                return;
-            }
+    this.questionElements = [];
 
-            const newFrame = document.createElement('iframe');
-            newFrame.style.opacity = 0;
-
-            const focusElement = document.getElementById(focusId);
-            focusElement.appendChild(newFrame);
-
-            if (!focusElement) return;
-
-            const focusChildren = this.getSliderChildren(questions);
-
-            const focusFrame = focusElement.querySelector('iframe');
-
-            if (focusChildren.length > 0) {
-                this.setFrame(focusFrame, { questionElements: focusChildren, focusElement });
-            }
-        });*/
+    setTimeout(() => {
+      form.remove();
+    }, 300);
   }
 }
-
-export default new CSATForm();

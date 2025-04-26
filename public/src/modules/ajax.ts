@@ -14,7 +14,7 @@ interface ErrorResponse {
   error: string;
 }
 
-const isDebug = process.env.IS_DEBUG;
+const isDebug = false;
 
 const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? 'localhost:5458' : 'doordashers.ru'}/api`;
 
@@ -357,33 +357,62 @@ class OrderRequests {
 }
 
 class SurveyRequests {
-  Get = async () => {
-    return [
-      {
-        id: 'q1',
-        question_text: 'Как вы оцениваете наш сервис доставки?',
-        focus_id: null,
-        options: ['Отлично', 'Хорошо', 'Удовлетворительно', 'Плохо'],
-      },
-      {
-        id: 'q2',
-        question_text: 'Как быстро был доставлен ваш заказ?',
-        focus_id: null,
-        options: ['Очень быстро', 'В пределах нормы', 'Долго', 'Очень долго'],
-      },
-      {
-        id: 'q3',
-        question_text: 'Были ли проблемы с качеством упаковки?',
-        focus_id: 'item123', // Вопрос, привязанный к конкретному элементу
-        options: ['Да', 'Нет'],
-      },
-      {
-        id: 'q4',
-        question_text: 'Насколько вы довольны вкусом блюда?',
-        focus_id: 'item123',
-        options: ['Очень доволен', 'Доволен', 'Не очень доволен', 'Совсем не доволен'],
-      },
-    ];
+  private baseUrl = '/survey';
+
+  GetSurvey = async (): Promise<{ Questions: any[] }> => {
+    const { status, body } = await baseRequest<{ Questions: any[] } | ErrorResponse>(
+      methods.GET,
+      this.baseUrl,
+    );
+
+    if (status === 200) {
+      return body as { Questions: any[] };
+    }
+
+    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось получить список вопросов опроса');
+  };
+
+  SendVote = async (payload: { QuestionId: string; Vote: number }): Promise<void> => {
+    const { status, body } = await baseRequest<null | ErrorResponse>(
+      methods.POST,
+      '/vote',
+      payload,
+    );
+
+    if (status === 200) {
+      return;
+    }
+
+    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось отправить голос');
+  };
+
+  CreateSurvey = async (payload: {
+    Questions: { Title: string; MinMark: number; Skip: number; QuestionType: string }[];
+  }): Promise<void> => {
+    const { status, body } = await baseRequest<null | ErrorResponse>(
+      methods.POST,
+      this.baseUrl,
+      payload,
+    );
+
+    if (status === 200) {
+      return;
+    }
+
+    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось создать новый опрос');
+  };
+
+  GetStats = async (): Promise<{ Stats: any[] }> => {
+    const { status, body } = await baseRequest<{ Stats: any[] } | ErrorResponse>(
+      methods.GET,
+      '/stats',
+    );
+
+    if (status === 200) {
+      return body as { Stats: any[] };
+    }
+
+    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось получить статистику');
   };
 }
 

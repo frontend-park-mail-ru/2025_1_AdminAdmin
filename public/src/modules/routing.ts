@@ -24,8 +24,9 @@ class Router {
   private readonly headerElement: HTMLElement;
   private readonly pageElement: HTMLElement;
   private readonly toastBoxElement: HTMLElement;
+  private layout: Layout;
   private currentHeader: Header | auxHeader | null = null;
-  private currentPage: RestaurantList | RestaurantPage | AuthPage | null = null;
+  private currentPage: RestaurantList | RestaurantPage | AuthPage | CSATForm | null = null;
   private currentId: string | null = null;
   private readonly routes: Record<string, RouteConfig>;
   csatTimeout: ReturnType<typeof setTimeout>;
@@ -44,8 +45,6 @@ class Router {
     this.parent.appendChild(this.headerElement);
     this.parent.appendChild(this.pageElement);
     this.parent.appendChild(this.toastBoxElement);
-    const layout = new Layout(this.parent);
-    layout.render();
 
     this.routes = {
       home: {
@@ -87,6 +86,11 @@ class Router {
         class: NotFoundPage,
         header: auxHeader,
       },
+      survey: {
+        href: '/survey',
+        class: CSATForm,
+        header: null,
+      },
     };
 
     window.addEventListener('popstate', this.handleRouteChange.bind(this));
@@ -120,16 +124,20 @@ class Router {
    * @param {boolean} [shouldPushState=true] - Нужно ли обновлять `history.pushState`.
    */
   goToPage(page: string, id: string | null = null, shouldPushState = true): void {
-    clearTimeout(this.csatTimeout);
-    this.csatTimeout = setTimeout(() => {
-      CSATForm.render();
-    }, 200);
-
     window.scrollTo(0, 0);
 
     const pageData = this.routes[page];
     if (!pageData) {
       return this.handleMissingRoute(page);
+    }
+
+    if (!(pageData.class === CSATForm)) {
+      this.layout = new Layout(this.parent);
+      this.layout.render();
+      this.layout.show();
+    } else {
+      this.headerElement.style.background = 'transparent';
+      this.layout?.remove();
     }
 
     this.updateHeader(pageData);
@@ -142,6 +150,10 @@ class Router {
   }
 
   private updateHeader(pageData: RouteConfig): void {
+    if (!pageData.header) {
+      this.currentHeader?.remove();
+      return;
+    }
     if (!(this.currentHeader instanceof pageData.header)) {
       this.currentHeader?.remove();
       this.currentHeader = new pageData.header(this.headerElement);
