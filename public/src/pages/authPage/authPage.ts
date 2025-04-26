@@ -1,9 +1,9 @@
-import { Button } from '@components/button/button';
 import LoginForm from '@components/loginForm/loginForm';
 import RegisterForm from '@components/unifiedForm/unifiedForm';
 import { router } from '@modules/routing';
 import template from './authPage.hbs';
 import { userStore } from '@store/userStore';
+import { Slider, SliderProps } from '@//components/slider/slider';
 
 /**
  * Класс страницы авторизации
@@ -12,8 +12,9 @@ export class AuthPage {
   private loginForm?: LoginForm;
   private registerForm?: RegisterForm;
   private parent: HTMLElement;
-  private loginButton?: Button;
-  private registerButton?: Button;
+  //private loginButton?: Button;
+  //private registerButton?: Button;
+  private slider: Slider;
 
   private unsubscribeFromUserStore: (() => void) | null = null;
   private readonly loginFormSelector = '.authPage__login';
@@ -34,6 +35,31 @@ export class AuthPage {
    * Отображает страницу авторизации.
    */
   render = (isLoginPage: boolean): void => {
+    if (!this.slider) {
+      this.parent.innerHTML = template();
+
+      const formLine = this.parent.querySelector(this.formLineSelector) as HTMLElement;
+
+      const sliderProps: SliderProps = {
+        id: 'auth-page__slider',
+        buttonsProps: [
+          {
+            id: 'form__tab_login',
+            text: 'Вход',
+            onSubmit: this.toggleLoginForm,
+          },
+          {
+            id: 'form__tab_register',
+            text: 'Регистрация',
+            onSubmit: this.toggleRegisterForm,
+          },
+        ],
+        activeButtonIndex: 0,
+      };
+      this.slider = new Slider(formLine, sliderProps);
+      this.slider.render();
+    }
+    /*
     if (!this.registerButton) {
       this.parent.innerHTML = template();
 
@@ -55,6 +81,7 @@ export class AuthPage {
       });
       this.loginButton.render();
     }
+    */
 
     if (isLoginPage) this.renderLoginForm();
     else this.renderRegisterForm();
@@ -97,15 +124,6 @@ export class AuthPage {
 
     loginFormElement.style.display = isLogin ? 'flex' : 'none';
     registerFormElement.style.display = isLogin ? 'none' : 'flex';
-
-    this.loginButton?.toggleClass(
-      isLogin ? 'button_inactive' : 'button_active',
-      isLogin ? 'button_active' : 'button_inactive',
-    );
-    this.registerButton?.toggleClass(
-      isLogin ? 'button_active' : 'button_inactive',
-      isLogin ? 'button_inactive' : 'button_active',
-    );
   }
 
   /**
@@ -139,8 +157,9 @@ export class AuthPage {
 
     this.loginForm?.remove();
     this.registerForm?.remove();
-    this.loginButton?.remove();
-    this.registerButton?.remove();
+    //this.loginButton?.remove();
+    //this.registerButton?.remove();
+    this.slider.remove();
     this.parent.innerHTML = '';
   }
 }

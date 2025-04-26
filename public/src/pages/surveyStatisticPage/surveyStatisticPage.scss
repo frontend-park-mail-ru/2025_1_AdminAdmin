@@ -1,0 +1,22 @@
+// Страница статистик по опросам
+.survey-page {
+    &__body {
+        margin-top: 40px;
+        width: 100%;
+        padding: 0 0 40px 0;
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 20px;
+    }
+
+    &__header {
+        width: 100%;
+        text-align: center;
+    }
+
+    &__survey-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+}

@@ -1,0 +1,24 @@
+<div id="{{id}}" class="statistic-card_star" style="{{style}}">
+    <div class="statistic-card_star__left">
+        <span class="statistic-card_star__average">{{average}}</span>
+        <div class="statistic-card_star__stars">
+            <div class="statistic-card_star__stars_background">
+                <div class="statistic-card_star__stars_foreground" style="width: {{rating}}%;"></div>
+            </div>
+            <span class="statistic-card_star__amount">{{amount}} ответов</span>
+        </div>
+    </div>
+    <div class="statistic-card_star__right">
+        {{#each answers}}
+            <div class="statistic-card_star__answer">
+                <span class="statistic-card_star__answer_value">{{this.value}}</span>
+                <div class="statistic-card_star__answer_bar">
+                    <div class="statistic-card_star__answer_bar_background">
+                        <div class="statistic-card_star__answer_bar_foreground" style="width: {{this.percentage}}%;"></div>
+                    </div>
+                </div>
+                <span class="statistic-card_star__answer_amount">{{this.amount}}</span>
+            </div>
+        {{/each}}
+    </div>
+</div>
