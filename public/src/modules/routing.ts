@@ -8,6 +8,7 @@ import ProfilePage from '@pages/profilePage/profilePage';
 import OrderPage from '@pages/orderPage/orderPage';
 import Layout from '@components/layout/layout';
 import CSATForm from '@components/CSATForm/CSATForm';
+import { SurveyStatisticPage } from '@pages/surveyStatisticPage/surveyStatisticPage';
 
 interface RouteConfig {
   href: string;
@@ -26,7 +27,13 @@ class Router {
   private readonly toastBoxElement: HTMLElement;
   private layout: Layout;
   private currentHeader: Header | auxHeader | null = null;
-  private currentPage: RestaurantList | RestaurantPage | AuthPage | CSATForm | null = null;
+  private currentPage:
+    | RestaurantList
+    | SurveyStatisticPage
+    | RestaurantPage
+    | AuthPage
+    | CSATForm
+    | null = null;
   private currentId: string | null = null;
   private readonly routes: Record<string, RouteConfig>;
   private lastLayoutShownAt: number | null = null;
@@ -78,6 +85,12 @@ class Router {
       orderPage: {
         href: '/order',
         class: OrderPage,
+        header: auxHeader,
+        options: false,
+      },
+      statisticPage: {
+        href: '/statistic',
+        class: SurveyStatisticPage,
         header: auxHeader,
         options: false,
       },

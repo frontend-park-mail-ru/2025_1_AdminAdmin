@@ -2,7 +2,7 @@ import { AppSurveyRequests } from '@modules/ajax';
 import { Button } from '@components/button/button';
 import template from './CSATForm.hbs';
 import './../../../index.scss';
-import CSATQuestion from '@components/CSATQuestion/CSATQuesion.js';
+import CSATQuestion from '@components/csatquestion/csatquestion.js';
 import { toasts } from '@modules/toasts';
 
 /**
@@ -83,6 +83,7 @@ export default class CSATForm {
    */
   async render() {
     try {
+      await AppSurveyRequests.CreateSurvey();
       this.questions = await AppSurveyRequests.GetSurvey();
     } catch (error) {
       toasts.error(error.message);
@@ -90,7 +91,7 @@ export default class CSATForm {
       return;
     }
 
-    if (!Array.isArray(this.questions)) {
+    if (!this.questions) {
       this.remove();
       return;
     }

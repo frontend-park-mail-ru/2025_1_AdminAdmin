@@ -1,10 +1,11 @@
 import { Dropdown } from '@//components/dropdown/dropdown';
 import { StatisticCardStar } from '@//components/statisticCardStar/statisticCardStar';
 import template from './surveyStatisticPage.hbs';
+import { AppSurveyRequests } from '@modules/ajax';
 
 interface AnswerProps {
   id: string;
-  value: number | string; // Выбирается в зависимости от типа
+  value: number; // Выбирается в зависимости от типа
 }
 
 interface QuestionProps {
@@ -61,7 +62,14 @@ export class SurveyStatisticPage {
   /**
    * Рендерит страницу статистики.
    */
-  render(): void {
+  async render(): Promise<void> {
+    try {
+      const responses = await AppSurveyRequests.GetStats();
+      this.props = transformBackendData(responses);
+    } catch (error) {
+      console.error(error);
+    }
+
     if (!template) {
       throw new Error('Error: profile page template not found');
     }
@@ -69,9 +77,9 @@ export class SurveyStatisticPage {
       // Генерируем HTML
       const html = template();
       this.parent.insertAdjacentHTML('beforeend', html);
+
       // Заполняем
-      // Рендерим дропдауны для каждого опроса
-      const surveyContainer = this.self.querySelector('survey-container') as HTMLElement;
+      const surveyContainer = this.self.querySelector('.survey-container') as HTMLElement;
       this.props.surveysProps.forEach((surveyProps) => {
         const dropdownComponent = new Dropdown(surveyContainer, {
           id: surveyProps.id,
@@ -79,9 +87,10 @@ export class SurveyStatisticPage {
         });
         dropdownComponent.render();
         this.components.surveyDropdown.push(dropdownComponent);
+
         // Рендерим карточки статистики внутри дропдауна
         const dropdownBodyElement = dropdownComponent.self.querySelector(
-          'dropdown__body',
+          '.dropdown__body',
         ) as HTMLElement;
         surveyProps.questionsProps.forEach((questionProps) => {
           const dropdownStatisticCardStarComponent = new Dropdown(dropdownBodyElement, {
@@ -90,11 +99,40 @@ export class SurveyStatisticPage {
           });
           dropdownStatisticCardStarComponent.render();
           this.components.questionDropdown.push(dropdownStatisticCardStarComponent);
+
           const dropdownStatisticCardStarBodyElement =
-            dropdownStatisticCardStarComponent.self.querySelector('dropdown__body') as HTMLElement;
+            dropdownStatisticCardStarComponent.self.querySelector('.dropdown__body') as HTMLElement;
+
+          // Вычисляем totalAmount (количество записей)
+          const totalAmount = questionProps.answersProps.length;
+
+          // Вычисляем average (сумма всех value / totalAmount)
+          const sumValues = questionProps.answersProps.reduce(
+            (sum, answer) => sum + answer.value,
+            0,
+          );
+          const average = sumValues / totalAmount;
+
+          // Формируем массив answers
+          const answers = questionProps.answersProps.map((answer) => {
+            // Подсчитываем количество записей с тем же value
+            const amount = questionProps.answersProps.filter(
+              (a) => a.value === answer.value,
+            ).length;
+            return {
+              value: String(answer.value),
+              amount: amount, // Количество записей с тем же value
+            };
+          });
+
           const statisticCardStarComponent = new StatisticCardStar(
             dropdownStatisticCardStarBodyElement,
-            questionProps.answersProps,
+            {
+              id: `statistic-card-${questionProps.id}`,
+              average: average,
+              amount: totalAmount,
+              answers: answers,
+            },
           );
           statisticCardStarComponent.render();
           this.components.statisticCardStar.push(statisticCardStarComponent);
@@ -118,4 +156,40 @@ export class SurveyStatisticPage {
     this.components.surveyDropdown.forEach((dropdownComponent) => dropdownComponent.remove());
     if (element) element.remove();
   }
+}
+
+function transformBackendData(backendData: any): SurveyStatisticPageProps {
+  // Группируем данные по QuestionId
+  const groupedByQuestion = backendData.Stats.reduce((acc: Record<string, any>, stat: any) => {
+    if (!acc[stat.QuestionId]) {
+      acc[stat.QuestionId] = {
+        id: stat.QuestionId,
+        title: stat.QuestionTitle,
+        type: stat.QuestionType,
+        answersProps: [],
+      };
+    }
+    acc[stat.QuestionId].answersProps.push({
+      id: stat.Label,
+      value: stat.Value,
+    });
+    return acc;
+  }, {});
+
+  // Преобразуем группированные данные в массив вопросов
+  const questionsProps: QuestionProps[] = Object.values(groupedByQuestion);
+
+  // Создаем объект SurveyProps
+  const surveyProps: SurveyProps = {
+    id: 'survey1', // ID опроса (можно задать динамически, если есть)
+    title: 'Опрос о качестве сервиса', // Заголовок опроса (можно задать динамически)
+    questionsProps: questionsProps,
+  };
+
+  // Формируем финальную структуру
+  const surveyStatisticPageProps: SurveyStatisticPageProps = {
+    surveysProps: [surveyProps],
+  };
+
+  return surveyStatisticPageProps;
 }

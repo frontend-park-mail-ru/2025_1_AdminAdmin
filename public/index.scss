@@ -30,7 +30,9 @@
 @use './src/components/quantityControls/quantityControls' as *;
 @use './src/components/CSATForm/CSATForm' as *;
 @use './src/components/layout/layout' as *;
-@use './src/components/CSATQuestion/CSATQuestion' as *;
+@use 'src/components/csatquestion/csatquestion' as *;
+@use './src/components/statisticCardStar/statisticCardStar' as *;
+@use './src/components/dropdown/dropdown' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;
@@ -40,7 +42,7 @@
 @use './src/pages/mapModal/mapModal' as *;
 @use './src/pages/404/404' as *;
 @use './src/pages/orderPage/orderPage' as *;
-
+@use './src/pages/surveyStatisticPage/surveyStatisticPage' as *;
 @import '~@yandex/ymaps3-default-ui-theme/dist/esm/index.css';
 
 /* Переменные */

@@ -1,4 +1,4 @@
-import template from './statistics-card.hbs';
+import template from './statisticCardStar.hbs';
 
 export interface StatisticCardStarProps {
   id: string; // Уникальный идентификатор
