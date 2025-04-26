@@ -2,7 +2,7 @@ import { AppSurveyRequests } from '@modules/ajax';
 import { Button } from '@components/button/button';
 import template from './CSATForm.hbs';
 import './../../../index.scss';
-import CSATQuestion from '@components/CSATquestion/CSATQuesion.js';
+import CSATQuestion from '@components/CSATQuestion/CSATQuesion.js';
 
 /**
  * Форма с вопросами для клиентов
@@ -81,7 +81,7 @@ export default class CSATForm {
    * Рендеринг компонента
    */
   async render() {
-    this.questions = await AppSurveyRequests.CreateSurvey();
+    this.questions = await AppSurveyRequests.GetSurvey();
 
     this.parent.insertAdjacentHTML('beforeend', template());
     const closeButton = document.querySelector('.csat-form__close_icon');

@@ -362,7 +362,7 @@ class SurveyRequests {
   GetSurvey = async (): Promise<{ Questions: any[] }> => {
     const { status, body } = await baseRequest<{ Questions: any[] } | ErrorResponse>(
       methods.GET,
-      this.baseUrl,
+      this.baseUrl + '/get',
     );
 
     if (status === 200) {
@@ -375,7 +375,7 @@ class SurveyRequests {
   SendVote = async (payload: { QuestionId: string; Vote: number }): Promise<void> => {
     const { status, body } = await baseRequest<null | ErrorResponse>(
       methods.POST,
-      '/vote',
+      this.baseUrl + '/vote', // исправлено с '/vote' на '/survey/vote'
       payload,
     );
 
@@ -405,7 +405,7 @@ class SurveyRequests {
   GetStats = async (): Promise<{ Stats: any[] }> => {
     const { status, body } = await baseRequest<{ Stats: any[] } | ErrorResponse>(
       methods.GET,
-      '/stats',
+      this.baseUrl + '/get_stat', // исправлено с '/stats' на '/survey/get_stat'
     );
 
     if (status === 200) {
