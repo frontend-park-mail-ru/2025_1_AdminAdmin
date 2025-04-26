@@ -83,6 +83,11 @@ export default class CSATForm {
   async render() {
     this.questions = await AppSurveyRequests.GetSurvey();
 
+    if (!this.questions.length) {
+      this.remove();
+      return;
+    }
+
     this.parent.insertAdjacentHTML('beforeend', template());
     const closeButton = document.querySelector('.csat-form__close_icon');
     closeButton.addEventListener('click', this.removeForm);
@@ -132,8 +137,8 @@ export default class CSATForm {
     const form = this.parent.querySelector('.csat-form');
     if (!form) return;
 
-    this.backButton.remove();
-    this.nextButton.remove();
+    if (this.backButton) this.backButton.remove();
+    if (this.nextButton) this.nextButton.remove();
 
     for (const questionEl of this.questionElements) {
       questionEl.remove();
