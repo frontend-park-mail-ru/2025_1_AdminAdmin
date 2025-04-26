@@ -44,7 +44,8 @@ export class Button {
    * @returns {HTMLElement} - ссылка на объект
    */
   get self(): HTMLButtonElement | null {
-    const element = document.getElementById(this.props.id);
+    const doc = this.parent.ownerDocument || document;
+    const element = doc.getElementById(this.props.id);
     if (!element) {
       throw new Error(`Error: can't find button with id ${this.props.id}`);
     }

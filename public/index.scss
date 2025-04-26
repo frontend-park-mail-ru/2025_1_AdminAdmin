@@ -10,6 +10,7 @@
 @use './src/components/profileTableRow/profileTableRow.scss' as *;
 @use './src/components/categories/categoryHeader/categoryHeader' as *;
 @use './src/components/youMoneyForm/youMoneyForm' as *;
+@use './src/components/layout/layout' as *;
 
 /* Импорт сложных компонентов */
 @use './src/components/header/header' as *;
@@ -27,6 +28,9 @@
 @use './src/components/cart/cart' as *;
 @use './src/components/confirmRestaurantModal/confirmRestaurantModal' as *;
 @use './src/components/quantityControls/quantityControls' as *;
+@use './src/components/CSATForm/CSATForm' as *;
+@use './src/components/slider/slider' as *;
+@use './src/components/layout/layout' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;

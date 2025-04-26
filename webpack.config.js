@@ -153,7 +153,7 @@ const config = {
 
 if (isProduction) {
     config.mode = "production";
-    config.plugins.push(new MiniCssExtractPlugin());
+    config.plugins.push(new MiniCssExtractPlugin({filename: 'index.css',}));
 } else {
     config.mode = "development";
 }

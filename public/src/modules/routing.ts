@@ -6,6 +6,8 @@ import { AuthPage } from '@pages/authPage/authPage';
 import NotFoundPage from '@pages/404/404';
 import ProfilePage from '@pages/profilePage/profilePage';
 import OrderPage from '@pages/orderPage/orderPage';
+import Layout from '@components/layout/layout';
+import CSATForm from '@components/CSATForm/CSATForm';
 
 interface RouteConfig {
   href: string;
@@ -18,7 +20,7 @@ interface RouteConfig {
  * Класс для управления маршрутизацией в приложении.
  */
 class Router {
-  private parent: HTMLElement;
+  private readonly parent: HTMLElement;
   private readonly headerElement: HTMLElement;
   private readonly pageElement: HTMLElement;
   private readonly toastBoxElement: HTMLElement;
@@ -26,6 +28,7 @@ class Router {
   private currentPage: RestaurantList | RestaurantPage | AuthPage | null = null;
   private currentId: string | null = null;
   private readonly routes: Record<string, RouteConfig>;
+  csatTimeout: ReturnType<typeof setTimeout>;
 
   /**
    * @constructor
@@ -41,6 +44,9 @@ class Router {
     this.parent.appendChild(this.headerElement);
     this.parent.appendChild(this.pageElement);
     this.parent.appendChild(this.toastBoxElement);
+    const layout = new Layout(this.parent);
+    layout.render();
+
     this.routes = {
       home: {
         href: '/',
@@ -114,6 +120,11 @@ class Router {
    * @param {boolean} [shouldPushState=true] - Нужно ли обновлять `history.pushState`.
    */
   goToPage(page: string, id: string | null = null, shouldPushState = true): void {
+    clearTimeout(this.csatTimeout);
+    this.csatTimeout = setTimeout(() => {
+      CSATForm.render();
+    }, 200);
+
     window.scrollTo(0, 0);
 
     const pageData = this.routes[page];
