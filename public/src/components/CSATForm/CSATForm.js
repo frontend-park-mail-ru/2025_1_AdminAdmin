@@ -3,6 +3,7 @@ import { Button } from '@components/button/button';
 import template from './CSATForm.hbs';
 import './../../../index.scss';
 import CSATQuestion from '@components/CSATQuestion/CSATQuesion.js';
+import { toasts } from '@modules/toasts';
 
 /**
  * Форма с вопросами для клиентов
@@ -81,9 +82,15 @@ export default class CSATForm {
    * Рендеринг компонента
    */
   async render() {
-    this.questions = await AppSurveyRequests.GetSurvey();
+    try {
+      this.questions = await AppSurveyRequests.GetSurvey();
+    } catch (error) {
+      toasts.error(error.message);
+      this.remove();
+      return;
+    }
 
-    if (!this.questions.length) {
+    if (!Array.isArray(this.questions)) {
       this.remove();
       return;
     }

@@ -29,7 +29,7 @@ class Router {
   private currentPage: RestaurantList | RestaurantPage | AuthPage | CSATForm | null = null;
   private currentId: string | null = null;
   private readonly routes: Record<string, RouteConfig>;
-  csatTimeout: ReturnType<typeof setTimeout>;
+  private lastLayoutShownAt: number | null = null;
 
   /**
    * @constructor
@@ -131,10 +131,15 @@ class Router {
       return this.handleMissingRoute(page);
     }
 
+    const now = Date.now();
+
     if (!(pageData.class === CSATForm)) {
-      this.layout = new Layout(this.parent);
-      this.layout.render();
-      this.layout.show();
+      if (!this.lastLayoutShownAt || now - this.lastLayoutShownAt > 30000) {
+        this.layout = new Layout(this.parent);
+        this.layout.render();
+        this.layout.show();
+        this.lastLayoutShownAt = now;
+      }
     } else {
       this.headerElement.style.background = 'transparent';
       this.layout?.remove();
