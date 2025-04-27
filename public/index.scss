@@ -76,10 +76,10 @@ img {
 }
 
 .header {
-  padding: calc(var(--header-height) / 5);
-  width: 100%;
+  padding-top: calc(var(--header-height) / 5);
+  padding-bottom: calc(var(--header-height) / 5);
   display: grid;
-  column-gap: 20px;
+  width: 100vw;
   align-items: center;
   position: fixed;
   top: 0;
@@ -88,6 +88,13 @@ img {
   height: var(--header-height);
   background-color: var(--white);
   transition: box-shadow 0.3s ease;
+
+  &__logo {
+    grid-area: header__logo;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 main {

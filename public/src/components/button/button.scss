@@ -2,6 +2,7 @@
 .button {
   cursor: pointer;
   padding: 5px 15px;
+  box-sizing: border-box;
   border: none;
   display: flex;
   align-items: center;

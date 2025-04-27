@@ -76,19 +76,34 @@ export default class MapModal {
     );
     this.suggestsContainer.render();
 
-    const formLineSearch = document.getElementById('form__line_search');
+    if (window.innerWidth > 600) {
+      const formLineSearch = document.getElementById('form__line_search');
+      this.submitBtn = new Button(formLineSearch, {
+        id: 'form__line__search_button',
+        text: 'ОК',
+        disabled: true,
+        style: 'dark big',
+        onSubmit: async () => {
+          const newAddress = this.input.value;
+          this.submitBtn.disable();
+          this.onSubmit(newAddress);
+        },
+      });
+    } else {
+      const buttonContainer: HTMLDivElement = document.querySelector('.map_modal__content');
 
-    this.submitBtn = new Button(formLineSearch, {
-      id: 'form__line__search_button',
-      text: 'ОК',
-      disabled: true,
-      style: 'dark big',
-      onSubmit: async () => {
-        const newAddress = this.input.value;
-        this.submitBtn.disable();
-        this.onSubmit(newAddress);
-      },
-    });
+      this.submitBtn = new Button(buttonContainer, {
+        id: 'form__line__search_button',
+        text: 'ОК',
+        disabled: true,
+        style: 'form__button dark',
+        onSubmit: async () => {
+          const newAddress = this.input.value;
+          this.submitBtn.disable();
+          this.onSubmit(newAddress);
+        },
+      });
+    }
 
     this.submitBtn.render();
     document.body.style.overflow = 'hidden';
