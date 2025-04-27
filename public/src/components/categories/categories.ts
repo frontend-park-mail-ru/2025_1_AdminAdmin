@@ -122,6 +122,11 @@ export class Categories {
     const currentCategoryButton = this.categoryElements[categoryId]?.button;
     if (currentCategoryButton) {
       currentCategoryButton.self.classList.add('button_active');
+      currentCategoryButton.self.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
     }
 
     this.activeCategoryId = categoryId;
@@ -165,7 +170,14 @@ export class Categories {
     const newButton = this.categoryElements[newCategoryId]?.button;
 
     if (prevButton) prevButton.self.classList.remove('button_active');
-    if (newButton) newButton.self.classList.add('button_active');
+    if (newButton) {
+      newButton.self.classList.add('button_active');
+      newButton.self.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+    }
 
     this.activeCategoryId = newCategoryId;
 

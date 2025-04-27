@@ -147,13 +147,13 @@ export default class Header {
    */
   render(): void {
     this.parent.innerHTML = template();
-    if (window.innerWidth > 600) {
-      this.parent.classList.add('main_header');
+
+    if (window.innerWidth > 1200) {
       this.logo = new Logo(this.self.querySelector('.header__logo'), logoImg);
     } else {
-      this.parent.classList.add('mobile_header');
       this.logo = new Logo(this.self.querySelector('.header__logo'), smallLogo);
     }
+
     this.logo.render();
 
     const authButtonContainer = document.querySelector('.header__auth_button') as HTMLElement;
@@ -162,15 +162,28 @@ export default class Header {
     const cartButtonContainer = document.querySelector('.header__cart_button') as HTMLElement;
     if (!cartButtonContainer) return;
 
-    this.cartButton = new Button(cartButtonContainer, {
-      id: 'cart_button',
-      style: 'dark',
-      text: '0',
-      onSubmit: () => {
-        const restaurantId = cartStore.getState().restaurant_id;
-        if (restaurantId) router.goToPage('restaurantPage', restaurantId);
-      },
-    });
+    if (window.innerWidth > 600) {
+      this.parent.classList.add('main_header');
+      this.cartButton = new Button(cartButtonContainer, {
+        id: 'cart_button',
+        style: 'dark',
+        text: '0',
+        onSubmit: () => {
+          const restaurantId = cartStore.getState().restaurant_id;
+          if (restaurantId) router.goToPage('restaurantPage', restaurantId);
+        },
+      });
+    } else {
+      this.parent.classList.add('mobile_header');
+      this.cartButton = new Button(cartButtonContainer, {
+        id: 'cart_button',
+        style: 'dark',
+        text: '0',
+        onSubmit: () => {
+          router.goToPage('orderPage');
+        },
+      });
+    }
 
     this.cartButton.render();
 

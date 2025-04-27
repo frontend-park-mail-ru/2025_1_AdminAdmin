@@ -4,20 +4,58 @@
   grid-template-columns: 0.5fr 1.5fr 7fr 2.5fr 0.5fr;
   gap: 20px;
   align-items: start;
+
+  @media (max-width: 1200px) {
+    grid-template-columns:  0.5fr 2fr 9fr 0.5fr;
+  }
+
+  @media (max-width: 800px) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
+.restaurant-header__wrapper, .restaurant-reviews__wrapper {
+  @media (max-width: 800px) {
+    grid-column: 2 / span 1;
+  }
+}
 // Обертка для блока категорий
 .product-categories__wrapper {
   grid-column: 2 / span 1;
   position: sticky;
   top: calc(var(--real-header-height) + 20px);
+  transition: box-shadow 0.3s ease-in-out;
+
+  @media (max-width: 800px) {
+    top: calc(var(--real-header-height) - 10px);
+    padding: 10px;
+    background-color: var(--white);
+    width: 100%;
+    box-sizing: border-box;
+    grid-column: 1 / -1;
+    box-shadow: none;
+    align-self: auto;
+  }
+
+  &.is-sticky {
+    z-index: 11;
+    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.2);
+  }
 }
+
 
 // Основной контент
 .restaurant-page__main {
   padding-top: 20px;
   padding-bottom: 20px;
   grid-column: 3 / span 1;
+
+  @media (max-width: 800px) {
+    display: grid;
+    grid-template-columns: 1fr 10fr 1fr;
+  }
 }
 
 // Блок с карточками
@@ -35,7 +73,11 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 800px) {
+    grid-column: 2 / span 1;
+  }
+
+  @media (max-width: 500px) {
     grid-template-columns: 1fr;
   }
 }

@@ -1,4 +1,23 @@
 .categories{
     display: flex;
     flex-direction: column;
+
+    @media (max-width: 800px) {
+        flex-direction: row;
+        justify-content: flex-start;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        gap: 10px;
+        border-radius: var(--border-radius);
+        box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+    }
+
+    & > * {
+        flex-shrink: 0; /* <-- здесь отдельно, вне @media */
+    }
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
 }
