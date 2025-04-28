@@ -1,23 +1,22 @@
 // Страница профиля
 .profile-page__body {
-    margin-top: 40px;
     width: 100%;
     box-sizing: border-box;
     gap: 40px;
     display: flex;
     flex-direction: column;
-    padding: 0 15vw;
+    padding: 40px 15vw;
 
     @media (max-width: 1200px) {
-        padding: 0 10vw;
+        padding: 40px 10vw;
     }
 
     @media (max-width: 900px) {
-        padding: 0 7vw;
+        padding: 40px 7vw;
     }
 
     @media (max-width: 450px) {
-        padding: 60px 5vw 0;
+        padding: 40px 5vw;
     }
 
     .button {
