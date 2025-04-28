@@ -12,6 +12,7 @@
 
 .toast {
   width: 400px;
+  pointer-events: auto;
   height: 80px;
   padding: 0 15px;
   background: var(--light-grey);
