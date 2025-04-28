@@ -30,6 +30,7 @@ export default class Header {
   private unsubscribeFromUserStore: (() => void) | null = null;
   private unsubscribeFromCartStore: (() => void) | null = null;
   private readonly handleResizeBound: () => void;
+  private lastScreenSizeCategory: 'mobile' | 'desktop' | 'large-desktop' | null = null;
 
   /**
    * Создает экземпляр заголовка.
@@ -46,26 +47,45 @@ export default class Header {
   }
 
   private handleResize(): void {
+    const width = window.innerWidth;
+    let currentCategory: 'mobile' | 'desktop' | 'large-desktop';
+
+    if (width <= 600) {
+      currentCategory = 'mobile';
+    } else if (width <= 1200) {
+      currentCategory = 'desktop';
+    } else {
+      currentCategory = 'large-desktop';
+    }
+
+    if (this.lastScreenSizeCategory === currentCategory) {
+      return;
+    }
+
+    this.lastScreenSizeCategory = currentCategory;
+
     const headerElement = this.parent;
     const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
+    const overlay = document.querySelector('.header__overlay') as HTMLElement;
 
-    if (window.innerWidth > 600) {
-      const overlay = document.querySelector('.header__overlay') as HTMLElement;
-      cartButtonContainer.style.setProperty('box-shadow', 'none');
-      overlay.style.display = 'none';
-      headerElement.classList.add('main_header');
-      headerElement.classList.remove('mobile_header');
-    } else {
+    if (currentCategory === 'mobile') {
       cartButtonContainer.style.boxShadow = '0 -8px 10px rgba(0, 0, 0, 0.2)';
       headerElement.classList.add('mobile_header');
       headerElement.classList.remove('main_header');
+      overlay.style.display = 'none';
+    } else {
+      cartButtonContainer.style.setProperty('box-shadow', 'none');
+      headerElement.classList.add('main_header');
+      headerElement.classList.remove('mobile_header');
+      overlay.style.display = 'none';
     }
+
     const logoElement: HTMLElement = this.self?.querySelector('.header__logo');
     if (!logoElement) return;
 
     this.logo?.remove();
 
-    if (window.innerWidth > 1200) {
+    if (currentCategory === 'large-desktop') {
       this.logo = new Logo(logoElement, logoImg);
       this.cartButton.setOnSubmit(() => {
         const restaurantId = cartStore.getState().restaurant_id;
