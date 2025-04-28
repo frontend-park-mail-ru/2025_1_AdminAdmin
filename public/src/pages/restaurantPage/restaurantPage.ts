@@ -19,7 +19,7 @@ export default class RestaurantPage {
   private cartComponent: Cart;
   private categoriesComponent: Categories;
   private productCards: ProductCard[] = [];
-  private categoriesWrapper: HTMLElement;
+  private readonly categoriesWrapper: HTMLDivElement;
 
   /**
    * Создает экземпляр страницы ресторана.
@@ -86,12 +86,7 @@ export default class RestaurantPage {
 
       const productCardsBody = this.self.querySelector('.product-cards__body') as HTMLElement;
 
-      if (window.innerWidth > 800) {
-        const mainDiv: HTMLDivElement = this.self.querySelector('.restaurant-page__main');
-        mainDiv.insertAdjacentElement('beforebegin', this.categoriesWrapper);
-      } else {
-        restaurantReviewsWrapper.insertAdjacentElement('afterend', this.categoriesWrapper);
-      }
+      this.handleResize();
 
       this.categoriesComponent = new Categories(this.categoriesWrapper, productCardsBody);
       this.categoriesComponent.render();
@@ -117,12 +112,8 @@ export default class RestaurantPage {
 
       this.categoriesComponent.hashChangeHandler();
 
-      if (window.innerWidth > 1200) {
-        const cartWrapper: HTMLElement = this.self.querySelector('.cart__wrapper');
-        this.cartComponent = new Cart(cartWrapper, this.props.id);
-        this.cartComponent.render();
-      }
       window.addEventListener('scroll', this.checkSticky);
+      window.addEventListener('resize', this.handleResize);
     } catch {
       router.goToPage('notFound');
     }
@@ -142,6 +133,47 @@ export default class RestaurantPage {
     }
   };
 
+  handleResize = (): void => {
+    this.relocateCategories();
+    this.manageCart();
+  };
+
+  private relocateCategories = (): void => {
+    const restaurantReviewsWrapper = this.self.querySelector(
+      '.restaurant-reviews__wrapper',
+    ) as HTMLElement;
+    const mainDiv = this.self.querySelector('.restaurant-page__main') as HTMLElement;
+
+    if (!restaurantReviewsWrapper || !mainDiv) {
+      return;
+    }
+
+    if (window.innerWidth <= 800) {
+      if (this.categoriesWrapper.parentElement !== restaurantReviewsWrapper.parentElement) {
+        restaurantReviewsWrapper.insertAdjacentElement('afterend', this.categoriesWrapper);
+      }
+    } else {
+      if (this.categoriesWrapper.parentElement !== mainDiv.parentElement) {
+        mainDiv.insertAdjacentElement('beforebegin', this.categoriesWrapper);
+        this.categoriesWrapper.classList.remove('is-sticky');
+      }
+    }
+  };
+
+  private manageCart = (): void => {
+    const cartWrapper = this.self.querySelector('.cart__wrapper') as HTMLElement;
+
+    if (window.innerWidth > 1200) {
+      if (!this.cartComponent && cartWrapper) {
+        this.cartComponent = new Cart(cartWrapper, this.props.id);
+        this.cartComponent.render();
+      }
+    } else {
+      this.cartComponent?.remove();
+      this.cartComponent = undefined;
+    }
+  };
+
   /**
    * Удаляет страницу ресторана и очищает содержимое родительского элемента.
    */
@@ -150,6 +182,7 @@ export default class RestaurantPage {
     this.productCards = [];
 
     window.removeEventListener('scroll', this.checkSticky);
+    window.removeEventListener('resize', this.handleResize);
     this.categoriesComponent?.remove();
     this.cartComponent?.remove();
     this.parent.innerHTML = '';
