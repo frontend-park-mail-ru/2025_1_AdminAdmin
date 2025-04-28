@@ -11,6 +11,11 @@
     justify-content: center;
   }
 
+  @media (max-width: 700px) {
+    padding-left: 40px;
+    justify-content: flex-start;
+  }
+
   img {
     height: 40px;
     object-fit: contain;

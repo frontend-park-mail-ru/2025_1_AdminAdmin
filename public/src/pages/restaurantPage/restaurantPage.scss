@@ -34,7 +34,7 @@
 
   @media (max-width: 800px) {
     top: calc(var(--real-header-height) - 10px);
-    padding: 10px;
+    padding: 20px 10px 10px 10px;
     background-color: var(--white);
     max-width: 100vw;
     box-sizing: border-box;
@@ -43,7 +43,7 @@
   }
 
   &.is-sticky {
-    z-index: 11;
+    z-index: 9;
     box-shadow: 0 8px 10px rgba(0, 0, 0, 0.2);
   }
 }

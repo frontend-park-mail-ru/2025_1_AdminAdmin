@@ -32,7 +32,6 @@
       height: 100%;
       display: none;
       grid-area: header__auth_button;
-      z-index: 1;
 
       &.active {
         // Если добавляем доп класс "active"
@@ -42,6 +41,7 @@
       // Сам дропдаун, те менюшка при клике на кнопку
       &__options {
         position: absolute;
+        z-index: 11;
         top: 100%;
         right: 0;
         margin-top: 10px; // Сколько вниз от хедера
@@ -53,7 +53,6 @@
         font-size: 16px;
         border-radius: 10px;
         display: none; // Скрываем по умолчанию
-        z-index: 1; // Накладываем на страницу сверху
 
         &.active {
           // Если добавляем доп класс "active"
@@ -245,7 +244,7 @@
       background-color: var(--white);
       bottom: 0;
       box-shadow: 0 -8px 10px rgba(0, 0, 0, 0.2);
-      z-index: 12;
+      z-index: 11;
     }
 
     @keyframes moveUp {
@@ -277,7 +276,7 @@
       left: 0;
       box-sizing: border-box;
       border: 14px solid var(--white);
-      z-index: 13;
+      z-index: 11;
 
       &_button {
         border-radius: 30px;
