@@ -3,6 +3,7 @@
     flex-direction: column;
 
     @media (max-width: 800px) {
+        box-sizing: border-box;
         flex-direction: row;
         justify-content: flex-start;
         overflow-x: auto;
@@ -14,7 +15,7 @@
     }
 
     & > * {
-        flex-shrink: 0; /* <-- здесь отдельно, вне @media */
+        flex-shrink: 0;
     }
 
     &::-webkit-scrollbar {
