@@ -133,12 +133,30 @@ export default class OrderPage {
     cartTotal.textContent = totalPrice.toLocaleString('ru-RU');
   }
 
+  setError(errorMessage: string) {
+    const errorElement = this.parent.querySelector('.form__error') as HTMLElement;
+    if (errorElement) {
+      errorElement.textContent = errorMessage;
+    }
+  }
+
+  clearError() {
+    const errorElement = this.parent.querySelector('.form__error') as HTMLElement;
+    if (errorElement) {
+      errorElement.textContent = '';
+    }
+  }
+
   async sendOrder() {
     const formValues: Record<string, string> = {};
 
+    this.clearError();
+
     for (const [key, input] of Object.entries(this.inputs)) {
       formValues[key] = input.value;
-      if (!input.checkValue()) {
+      const validationResult = input.checkValue();
+      if (typeof input.checkValue() === 'string') {
+        this.setError(validationResult.toString());
         return;
       }
     }

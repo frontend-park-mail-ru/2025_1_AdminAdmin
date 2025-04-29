@@ -11,6 +11,9 @@
   height: 100%;
   width: 100%;
   font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   background-color: var(--light-grey);
   border-radius: var(--border-radius);
 
@@ -77,9 +80,6 @@
 
 
 @media (max-width: 1200px) {
-  .button {
-    font-size: 12px;
-  }
 
   .form__button {
     font-size: 16px;
