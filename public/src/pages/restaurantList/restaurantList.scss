@@ -3,13 +3,9 @@
   box-sizing: border-box;
   margin-top: 20px;
   width: 100%;
-  padding: 0;
-  display: grid;
-  grid-template-columns: 1fr 10fr 1fr;
-  align-items: start;
+  padding: 0 7vw;
 
   .restaurant__container {
-    grid-column: 2 / span 1;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 5px;

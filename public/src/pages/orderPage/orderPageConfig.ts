@@ -16,6 +16,7 @@ export default {
       maxLength: 20,
       movePlaceholderOnInput: true,
       validator: ValidateFlat,
+      noErrorInHeader: true,
     },
     doorPhone: {
       id: 'form__line__door_phone__input',
@@ -25,6 +26,7 @@ export default {
       maxLength: 20,
       movePlaceholderOnInput: true,
       validator: ValidateDoorPhone,
+      noErrorInHeader: true,
     },
     porch: {
       id: 'form__line__porch__input',
@@ -34,6 +36,7 @@ export default {
       maxLength: 20,
       movePlaceholderOnInput: true,
       validator: ValidatePorch,
+      noErrorInHeader: true,
     },
     floor: {
       id: 'form__line__floor__input',
@@ -44,6 +47,7 @@ export default {
       max: 100,
       movePlaceholderOnInput: true,
       validator: ValidateFloor,
+      noErrorInHeader: true,
     },
   },
   commentInput: {

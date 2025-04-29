@@ -2,6 +2,7 @@
 .button {
   cursor: pointer;
   padding: 5px 15px;
+  box-sizing: border-box;
   border: none;
   display: flex;
   align-items: center;
@@ -10,6 +11,9 @@
   height: 100%;
   width: 100%;
   font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   background-color: var(--light-grey);
   border-radius: var(--border-radius);
 
@@ -67,13 +71,15 @@
   border-radius: 10px;
   font-size: 18px;
   background-color: var(--white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: auto;
+  max-width: 100%;
 }
 
 
 @media (max-width: 1200px) {
-  .button {
-    font-size: 12px;
-  }
 
   .form__button {
     font-size: 16px;

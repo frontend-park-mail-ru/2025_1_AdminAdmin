@@ -6,6 +6,7 @@ import template from './header.hbs';
 import { toasts } from '@modules/toasts';
 import MapModal from '@pages/mapModal/mapModal';
 import logoImg from '@assets/logo.png';
+import smallLogo from '@assets/small_logo.png';
 import { cartStore } from '@store/cartStore';
 import { modalController } from '@modules/modalController';
 import { AppUserRequests } from '@modules/ajax';
@@ -16,7 +17,7 @@ import { Address } from '@components/address/address';
  * Он управляет навигацией и отображением кнопок входа/выхода в зависимости от состояния авторизации пользователя.
  */
 export default class Header {
-  private parent: HTMLElement;
+  private readonly parent: HTMLElement;
   private logo!: Logo;
   private cartButton: Button;
   private loginButton!: Button;
@@ -28,6 +29,8 @@ export default class Header {
   private addressComponents: Address[] = [];
   private unsubscribeFromUserStore: (() => void) | null = null;
   private unsubscribeFromCartStore: (() => void) | null = null;
+  private readonly handleResizeBound: () => void;
+  private lastScreenSizeCategory: 'mobile' | 'desktop' | 'large-desktop' | null = null;
 
   /**
    * Создает экземпляр заголовка.
@@ -40,6 +43,63 @@ export default class Header {
     this.unsubscribeFromUserStore = userStore.subscribe(() => this.updateHeaderState());
     this.unsubscribeFromCartStore = cartStore.subscribe(() => this.updateHeaderState());
     this.clickHandler = this.handleClick.bind(this);
+    this.handleResizeBound = this.handleResize.bind(this);
+  }
+
+  private handleResize(): void {
+    const width = window.innerWidth;
+    let currentCategory: 'mobile' | 'desktop' | 'large-desktop';
+
+    if (width <= 600) {
+      currentCategory = 'mobile';
+    } else if (width <= 1200) {
+      currentCategory = 'desktop';
+    } else {
+      currentCategory = 'large-desktop';
+    }
+
+    if (this.lastScreenSizeCategory === currentCategory) {
+      return;
+    }
+
+    this.lastScreenSizeCategory = currentCategory;
+
+    const headerElement = this.parent;
+    const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
+    const overlay = document.querySelector('.header__overlay') as HTMLElement;
+
+    if (currentCategory === 'mobile') {
+      cartButtonContainer.style.boxShadow = '0 -8px 10px rgba(0, 0, 0, 0.2)';
+      headerElement.classList.add('mobile_header');
+      headerElement.classList.remove('main_header');
+      overlay.style.display = 'none';
+    } else {
+      const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
+      dropdown.style.setProperty('animation', '');
+
+      cartButtonContainer.style.setProperty('box-shadow', 'none');
+      headerElement.classList.add('main_header');
+      headerElement.classList.remove('mobile_header');
+      overlay.style.display = 'none';
+    }
+
+    const logoElement: HTMLElement = this.self?.querySelector('.header__logo');
+    if (!logoElement) return;
+
+    this.logo?.remove();
+
+    if (currentCategory === 'large-desktop') {
+      this.logo = new Logo(logoElement, logoImg);
+      this.cartButton.setOnSubmit(() => {
+        const restaurantId = cartStore.getState().restaurant_id;
+        if (restaurantId) router.goToPage('restaurantPage', restaurantId);
+      });
+    } else {
+      this.logo = new Logo(logoElement, smallLogo);
+      this.cartButton.setOnSubmit(() => router.goToPage('orderPage'));
+    }
+
+    this.logo.render();
   }
 
   private async handleClick(event: Event): Promise<void> {
@@ -79,9 +139,24 @@ export default class Header {
 
   private closeDropdown(): void {
     const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
-    dropdown.style.display = 'none';
+    const overlay = document.querySelector('.header__overlay') as HTMLElement;
     this.addressComponents.forEach((comp) => comp.remove());
     this.addressComponents = [];
+
+    if (this.parent.classList.contains('mobile_header')) {
+      dropdown.style.animation = 'moveDown 0.2s linear forwards';
+      const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
+      cartButtonContainer.style.boxShadow = '0 -8px 10px rgba(0, 0, 0, 0.2)';
+      setTimeout(() => {
+        dropdown.style.display = 'none';
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+          overlay.style.display = 'none';
+        }, 300);
+      }, 200);
+    } else {
+      dropdown.style.display = 'none';
+    }
   }
 
   private isSelectButtonClick(target: HTMLElement): boolean {
@@ -90,7 +165,19 @@ export default class Header {
 
   private async handleSelectButtonClick(): Promise<void> {
     const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
+
     dropdown.style.display = 'block';
+
+    if (this.parent.classList.contains('mobile_header')) {
+      const overlay = document.querySelector('.header__overlay') as HTMLElement;
+      overlay.style.display = 'block';
+      setTimeout(() => {
+        overlay.style.opacity = '1';
+      }, 0);
+      dropdown.style.animation = 'moveUp 0.2s linear forwards';
+      const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
+      cartButtonContainer.style.setProperty('box-shadow', 'none');
+    }
 
     if (!userStore.isAuth()) return;
 
@@ -146,28 +233,9 @@ export default class Header {
    */
   render(): void {
     this.parent.innerHTML = template();
-    this.parent.classList.add('main_header');
-
-    this.logo = new Logo(this.self.querySelector('.header__logo'), logoImg);
-    this.logo.render();
 
     const authButtonContainer = document.querySelector('.header__auth_button') as HTMLElement;
     if (!authButtonContainer) return;
-
-    const cartButtonContainer = document.querySelector('.header__cart_button') as HTMLElement;
-    if (!cartButtonContainer) return;
-
-    this.cartButton = new Button(cartButtonContainer, {
-      id: 'cart_button',
-      style: 'dark',
-      text: '0',
-      onSubmit: () => {
-        const restaurantId = cartStore.getState().restaurant_id;
-        if (restaurantId) router.goToPage('restaurantPage', restaurantId);
-      },
-    });
-
-    this.cartButton.render();
 
     this.loginButton = new Button(authButtonContainer, {
       id: 'login_button',
@@ -200,6 +268,17 @@ export default class Header {
       },
     });
     this.profileSettingsButton.render();
+
+    const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
+    if (!cartButtonContainer) return;
+
+    this.cartButton = new Button(cartButtonContainer, {
+      id: 'cart_button',
+      style: 'dark',
+      text: '0',
+    });
+    this.cartButton.render();
+
     this.logoutButton = new Button(profileDropdownButtonsContainer, {
       id: 'logout_button',
       text: 'Выйти',
@@ -210,8 +289,11 @@ export default class Header {
     });
     this.logoutButton.render();
 
+    this.handleResize();
+
     this.updateHeaderState();
 
+    window.addEventListener('resize', this.handleResizeBound);
     window.addEventListener('scroll', this.handleScrollBound);
     document.addEventListener('click', this.clickHandler);
 
@@ -276,11 +358,13 @@ export default class Header {
       locationText.textContent = 'Укажите адрес доставки';
     }
 
+    const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
+
     if (cartStore.getState().total_price) {
       this.cartButton.setText(cartStore.getState().total_price.toLocaleString('ru-RU') + ' ₽');
-      this.cartButton.show();
+      cartButtonContainer.style.display = 'block';
     } else {
-      this.cartButton.hide();
+      cartButtonContainer.style.display = 'none';
     }
   }
 
@@ -304,16 +388,18 @@ export default class Header {
    * Удаляет заголовок со страницы и снимает обработчики событий.
    */
   remove(): void {
-    this.logo?.remove();
+    if (this.logo) this.logo.remove();
     this.profileSettingsButton.remove();
     this.logoutButton?.remove();
     this.profileButton.remove();
     this.loginButton?.remove();
-    this.cartButton.remove();
+    if (this.cartButton) this.cartButton.remove();
     this.parent.innerHTML = '';
     this.addressComponents.forEach((comp) => comp.remove());
     this.addressComponents = [];
     this.parent.classList.remove('main_header');
+    this.parent.classList.remove('mobile_header');
+    window.removeEventListener('resize', this.handleResizeBound);
     window.removeEventListener('scroll', this.handleScrollBound);
     document.removeEventListener('click', this.clickHandler);
     if (this.unsubscribeFromUserStore) {

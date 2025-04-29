@@ -17,6 +17,19 @@ export interface I_FormConfig {
   };
 }
 
+const mobileOptions = [
+  { value: '7', text: 'RU (+7)' },
+  { value: '375', text: 'BY (+375)' },
+  { value: '7', text: 'KZ (+7)' },
+  { value: '374', text: 'AM (+374)' },
+  { value: '996', text: 'KG (+996)' },
+  { value: '373', text: 'MD (+373)' },
+  { value: '992', text: 'TJ (+992)' },
+  { value: '998', text: 'UZ (+998)' },
+  { value: '994', text: 'AZ (+994)' },
+  { value: '993', text: 'TM (+993)' },
+];
+
 export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
   const baseInputs = {
     firstName: {
@@ -103,6 +116,12 @@ export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
       ],
     },
   };
+
+  const isMobile = window.innerWidth < 600;
+
+  if (isMobile) {
+    selects.code.options = mobileOptions;
+  }
 
   const buttons = {
     submitButton: {

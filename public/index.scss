@@ -27,6 +27,7 @@
 @use './src/components/cart/cart' as *;
 @use './src/components/confirmRestaurantModal/confirmRestaurantModal' as *;
 @use './src/components/quantityControls/quantityControls' as *;
+@use './src/components/unifiedForm/unifiedForm' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;
@@ -57,8 +58,8 @@
   --light-brown: #442918;
   --light-yellow: #e4e6b2;
   --light-yellow-light: #eff0d1;
-  --header-height: 45px;
-  --real-header-height: calc(var(--header-height) + var(--header-height) / 2.5);
+  --header-content-height: 45px;
+  --real-header-height: 67.5px;
 }
 
 body {
@@ -76,18 +77,27 @@ img {
 }
 
 .header {
-  padding: calc(var(--header-height) / 5);
-  width: 100%;
+  padding-top: calc(var(--header-content-height) / 5);
+  padding-bottom: calc(var(--header-content-height) / 5);
   display: grid;
-  gap: 20px;
+  width: 100vw;
   align-items: center;
+  justify-content: center;
   position: fixed;
+  box-sizing: border-box;
   top: 0;
   left: 0;
   z-index: 10;
-  height: var(--header-height);
+  height: var(--real-header-height);
   background-color: var(--white);
   transition: box-shadow 0.3s ease;
+
+  &__logo {
+    grid-area: header__logo;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 main {
@@ -99,10 +109,18 @@ main {
   z-index: 1000;
   bottom: 30px;
   right: 30px;
+  gap: 20px;
   display: flex;
   align-items: flex-end;
   flex-direction: column;
+  pointer-events: none;
   padding: 20px;
+
+  @media (max-width: 450px) {
+    width: 100%;
+    box-sizing: border-box;
+    right: 0;
+  }
 }
 
 .form__line {

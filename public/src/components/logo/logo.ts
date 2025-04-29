@@ -1,4 +1,4 @@
-import { router } from '../../modules/routing';
+import { router } from '@modules/routing';
 import template from './logo.hbs';
 
 /**

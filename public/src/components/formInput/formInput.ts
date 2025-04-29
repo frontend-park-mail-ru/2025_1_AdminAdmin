@@ -6,7 +6,7 @@ import debounce from '@modules/debounce';
 export interface FormInputProps {
   id: string; // Идентификатор строки ввода
   label?: string; // Название поля (отображается сбоку от поля ввода)
-  error?: string; // Ошибка
+  noErrorInHeader?: boolean; // Ошибка
   placeholder?: string; // Начальное содержимое поля ввода
   type?: string; // Тип поля ввода
   required?: boolean; // true - обязательное поле, false - необязательное
@@ -116,7 +116,6 @@ export class FormInput {
     this.parent.insertAdjacentHTML('beforeend', html);
 
     this.setupPhoneMaskIfNeeded();
-    this.hideErrorIfNoError();
     this.setupPasswordToggleIfNeeded();
     this.attachInputListeners();
   }
@@ -127,15 +126,6 @@ export class FormInput {
     }
     if (this.props.type === 'tel') {
       this.addPhoneMask();
-    }
-  }
-
-  private hideErrorIfNoError(): void {
-    if (!this.props.error) {
-      const errorElement: HTMLElement | null = this.self?.querySelector('.form__error');
-      if (errorElement) {
-        errorElement.style.display = 'none';
-      }
     }
   }
 
@@ -203,10 +193,10 @@ export class FormInput {
     this.checkValue();
   }
 
-  checkValue(): boolean {
-    const value = this.input?.value.trim() || '';
+  checkValue(): boolean | string {
+    const value = this.getTrimmedValue();
 
-    if (!this.props.required && value === '') {
+    if (this.isOptionalAndEmpty(value)) {
       this.clearError();
       return true;
     }
@@ -216,20 +206,32 @@ export class FormInput {
     }
 
     const validationResult = this.props.validator(value);
+
     if (!validationResult.result) {
+      if (this.props.noErrorInHeader) {
+        return validationResult.message;
+      }
+
       this.setError(validationResult.message || '');
-    } else {
-      this.clearError();
+      return false;
     }
 
-    return validationResult.result;
+    this.clearError();
+    return true;
+  }
+
+  private getTrimmedValue(): string {
+    return this.input?.value.trim() || '';
+  }
+
+  private isOptionalAndEmpty(value: string): boolean {
+    return !this.props.required && value === '';
   }
 
   setError(message: string): void {
     const errorEl = this.parent.querySelector(`#${this.props.id}-error`) as HTMLElement;
     if (errorEl) {
       errorEl.textContent = message;
-      errorEl.style.display = 'block';
     }
     this.input?.classList.add('error');
   }
@@ -238,7 +240,6 @@ export class FormInput {
     const errorEl = this.parent.querySelector(`#${this.props.id}-error`) as HTMLElement;
     if (errorEl) {
       errorEl.textContent = '';
-      errorEl.style.display = 'none';
     }
     this.input?.classList.remove('error');
   }

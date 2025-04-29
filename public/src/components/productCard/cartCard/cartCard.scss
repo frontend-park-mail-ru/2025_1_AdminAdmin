@@ -13,6 +13,11 @@
   container-type: inline-size;
   box-sizing: border-box;
 
+  @media (max-width: 1200px) {
+    aspect-ratio: 10/1;
+    grid-template-columns: 40% 40% 20%;
+  }
+
   &.active,
   &:hover {
     background-color: var(--light-grey);

@@ -121,6 +121,7 @@ export default class UnifiedForm {
     // Контейнер для "Имя + Фамилия"
     const nameContainer = document.createElement('div');
     nameContainer.className = 'form__line';
+    nameContainer.id = 'name_container';
     this.parent.appendChild(nameContainer);
 
     const firstNameInput = new FormInput(nameContainer, formConfig.inputs.firstName);

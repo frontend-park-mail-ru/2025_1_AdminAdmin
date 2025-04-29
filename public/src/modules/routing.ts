@@ -67,7 +67,7 @@ class Router {
       profilePage: {
         href: '/profile',
         class: ProfilePage,
-        header: Header,
+        header: auxHeader,
         options: false,
       },
       orderPage: {

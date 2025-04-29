@@ -1,12 +1,13 @@
-/* Логотип */
 .logo {
-  grid-area: header__logo;
   display: flex;
   justify-content: center;
+  align-items: center;
+  height: var(--header-content-height);
   cursor: pointer;
 
   img {
-    height: var(--header-height);
+    height: 100%;
+    max-height: var(--header-content-height);
     object-fit: contain;
   }
 }

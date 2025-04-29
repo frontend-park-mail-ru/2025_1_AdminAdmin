@@ -72,6 +72,19 @@ export class Button {
   }
 
   /**
+   * Изменяет функцию обработчика события submit.
+   * @param newOnSubmit - Новая функция обработчика.
+   */
+  setOnSubmit(newOnSubmit: () => void): void {
+    this.props.onSubmit = newOnSubmit;
+
+    const button = this.self;
+    if (button) {
+      this.props.onSubmit = newOnSubmit;
+    }
+  }
+
+  /**
    * Рендерит кнопку в родительский элемент.
    */
   render(): void {
