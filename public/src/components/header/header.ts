@@ -74,6 +74,9 @@ export default class Header {
       headerElement.classList.remove('main_header');
       overlay.style.display = 'none';
     } else {
+      const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
+      dropdown.style.setProperty('animation', '');
+
       cartButtonContainer.style.setProperty('box-shadow', 'none');
       headerElement.classList.add('main_header');
       headerElement.classList.remove('mobile_header');

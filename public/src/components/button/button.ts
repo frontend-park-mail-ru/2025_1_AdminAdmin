@@ -80,9 +80,7 @@ export class Button {
 
     const button = this.self;
     if (button) {
-      button.removeEventListener('click', this.clickHandler);
-      this.clickHandler = this.handleClick.bind(this);
-      button.addEventListener('click', this.clickHandler);
+      this.props.onSubmit = newOnSubmit;
     }
   }
 
