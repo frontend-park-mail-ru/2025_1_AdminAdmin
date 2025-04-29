@@ -1,42 +1,53 @@
 // Страница профиля
 .profile-page__body {
-    margin-top: 40px;
     width: 100%;
-    padding: 0 0 40px 0;
-    display: grid;
-    grid-template-columns: 2fr 8fr 2fr;
-    gap: 40px 0;
-    grid-template-areas:
-        ". data ."
-        ". address . "
-        ". orders .";
-    // Если оставляем категории нужно вставить их в template-areas
+    box-sizing: border-box;
+    gap: 40px;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 15vw;
+
+    @media (max-width: 1200px) {
+        padding: 40px 10vw;
+    }
+
+    @media (max-width: 900px) {
+        padding: 40px 7vw;
+    }
+
+    @media (max-width: 450px) {
+        padding: 40px 5vw;
+    }
 
     .button {
         width: fit-content;
         padding: 5px 15px;
         height: 35px;
+
+        @media (max-width: 800px) {
+            width: 100%;
+        }
     }
 }
 
-/*
-// Обертка для блока категорий
-.profile-categories__wrapper {
-    grid-area: categories;
-}
-*/
 
 // Блок изменения данных
 .profile-data {
-    grid-area: data;
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: 25% 75%;
     gap: 20px;
     font-size: 16px;
     text-align: left;
+    align-items: center;
+    justify-content: center;
+
+    @media (max-width: 800px) {
+        display: flex;
+        flex-direction: column;
+    }
 
     &__header {
-        grid-column: span 12;
+        grid-column: span 2;
         grid-row: 1;
         font-size: 32px;
         font-weight: bold;
@@ -45,23 +56,30 @@
     // Основное тело с инпутами
     &__body {
         // * * * [* * * * * * * * *]
-        grid-column: 4 / span 9;
+        grid-column: 2 / span 1;
         grid-row: 2;
         display: flex;
         flex-direction: column;
         gap: 1vh;
+        width: 100%;
     }
 
     // Блок и изменением аватарки
     &__avatar {
         // [* * *] * * * * * * * * *
-        grid-column: span 3;
+        margin-top: 45px;
+        grid-column: 1 / span 1;
         grid-row: 2;
         position: relative;
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 15px;
+
+        @media (max-width: 800px) {
+            margin-top: 0;
+            max-width: 250px;
+        }
 
         &-image__wrapper {
             width: 100%;
@@ -83,7 +101,6 @@
 
 // Блок изменения/добавления/удаления адресов
 .profile-address {
-    grid-area: address;
     display: grid;
     gap: 20px;
     font-size: 16px;
@@ -99,11 +116,18 @@
         flex-direction: column;
         gap: 15px;
     }
+
+    @media (max-width: 1200px) {
+        gap: 10px;
+    }
+
+    @media (max-width: 1200px) {
+        gap: 7px;
+    }
 }
 
 // Блок заказов
 .profile-orders {
-    grid-area: orders;
     font-size: 16px;
     text-align: left;
     display: grid;

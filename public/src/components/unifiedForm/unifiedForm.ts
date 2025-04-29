@@ -29,62 +29,80 @@ export default class UnifiedForm {
   }
 
   async validateData() {
+    this.components.submitButton.disable();
     this.clearError();
-    // Валидация полей
-    for (const formInputComponent of Object.values(this.components.inputs)) {
-      if (!formInputComponent.checkValue()) {
-        return;
-      }
+
+    if (!this.validateInputs()) {
+      this.components.submitButton.enable();
+      return;
     }
-    // Задаем компоненты полей ввода
-    const userData: any = {
+
+    const userData = this.collectUserData();
+    if (!this.validatePasswords(userData)) {
+      this.components.submitButton.enable();
+      return;
+    }
+
+    try {
+      await this.handleRequest(userData);
+    } catch (err) {
+      const errorMessage = err.message || 'Непредвиденная ошибка';
+      this.setError(errorMessage);
+      toasts.error(errorMessage);
+      this.components.submitButton.enable();
+    }
+  }
+
+  private async handleRequest(userData: any) {
+    if (this.isEditMode) {
+      await this.updateUser(userData);
+      toasts.success('Ваш профиль успешно обновлен!');
+    } else {
+      await userStore.register(userData);
+      toasts.success('Вы успешно зарегистрировались!');
+    }
+  }
+
+  private validateInputs(): boolean {
+    return Object.values(this.components.inputs).every((input) => input.checkValue());
+  }
+
+  private collectUserData(): any {
+    return {
       first_name: this.components.inputs.firstName.value.trim(),
       last_name: this.components.inputs.secondName.value.trim(),
       phone_number:
         this.components.codeSelect.value +
         this.components.inputs.phoneNumber.value.trim().replace(/[\s()-]/g, ''),
-      login: this.components.inputs.login ? this.components.inputs.login.value.trim() : null,
+      login: this.components.inputs.login?.value.trim() || null,
       password: this.components.inputs.password.value,
     };
-    // Проверка на совпадение паролей
+  }
+
+  private validatePasswords(userData: any): boolean {
     if (userData.password && userData.password !== this.components.inputs.repeatPassword.value) {
       this.setError('Пароли не совпадают');
       toasts.error('Пароли не совпадают');
-      return;
+      return false;
     }
-    //
-    if (this.components.inputs.repeatPassword) {
-      delete userData.repeatPassword;
-    }
+    return true;
+  }
 
-    try {
-      if (this.isEditMode) {
-        // Форма редактирования (профиль)
-        const updateUserPayload: Partial<UpdateUserPayload> = {};
-        for (const key in userData) {
-          const value = userData[key];
-          if (value) {
-            (updateUserPayload as any)[key] = value;
-          }
-        }
-        await userStore.updateUser(updateUserPayload);
-        toasts.success('Ваш профиль успешно обновлен!');
-      } else {
-        await userStore.register(userData);
-        toasts.success('Вы успешно зарегистрировались!');
+  private async updateUser(userData: any) {
+    const payload: Partial<UpdateUserPayload> = {};
+    for (const key in userData) {
+      const value = userData[key];
+      if (value) {
+        (payload as any)[key] = value;
       }
-    } catch (err) {
-      const errorMessage = err?.message || 'Непредвиденная ошибка';
-      this.setError(errorMessage);
-      toasts.error(errorMessage);
     }
+    await userStore.updateUser(payload);
   }
 
   setError(errorMessage: string) {
     const errorElement = this.parent.querySelector('.form__error') as HTMLElement;
     if (errorElement) {
       errorElement.textContent = errorMessage;
-      errorElement.style.display = 'block';
     }
   }
 
@@ -92,7 +110,6 @@ export default class UnifiedForm {
     const errorElement = this.parent.querySelector('.form__error') as HTMLElement;
     if (errorElement) {
       errorElement.textContent = '';
-      errorElement.style.display = 'none';
     }
   }
 
@@ -104,6 +121,7 @@ export default class UnifiedForm {
     // Контейнер для "Имя + Фамилия"
     const nameContainer = document.createElement('div');
     nameContainer.className = 'form__line';
+    nameContainer.id = 'name_container';
     this.parent.appendChild(nameContainer);
 
     const firstNameInput = new FormInput(nameContainer, formConfig.inputs.firstName);
@@ -146,7 +164,9 @@ export default class UnifiedForm {
 
     this.components.submitButton = new Button(submitButtonContainer, {
       ...formConfig.buttons.submitButton,
-      onSubmit: () => this.validateData(),
+      onSubmit: async () => {
+        await this.validateData();
+      },
     });
     this.components.submitButton.render();
   }

@@ -5,15 +5,15 @@ import template from './profileTable.hbs';
 // Интерфейс таблицы
 export interface ProfileTableProps {
   id: string;
-  headers?: Array<string>;
-  rows: Array<ProfileTableRowProps>;
+  headers?: string[];
+  rows: ProfileTableRowProps[];
   onRowClick?: () => void; // Общая фукнция при нажатии на строку (чтобы не писать каждый раз)
 }
 
 export class ProfileTable {
   protected parent: HTMLElement;
   protected props: ProfileTableProps;
-  protected rowsList: Array<ProfileTableRow>;
+  protected rowsList: ProfileTableRow[];
 
   /**
    * @constructor Создает экземпляр таблицы
@@ -35,7 +35,7 @@ export class ProfileTable {
       id: props.id,
       headers: ['Статус', 'Дата', 'Сумма', 'Ресторан'],
       rows: props.rows,
-      onRowClick: () => console.log('TODO: Сделать переход на страницу заказа'),
+      //onRowClick: () => {}//'TODO: Сделать переход на страницу заказа',
     };
     this.rowsList = [];
   }

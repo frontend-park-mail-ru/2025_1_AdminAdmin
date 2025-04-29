@@ -9,6 +9,14 @@
   text-align: left;
   position: relative;
 
+  @media (max-width: 800px) {
+    max-width: 170px;
+  }
+
+  @media (max-width: 600px) {
+    max-width: 100px;
+  }
+
   &__label {
     font-size: 16px;
   }

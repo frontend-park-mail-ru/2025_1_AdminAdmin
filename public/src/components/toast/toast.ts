@@ -19,6 +19,7 @@ export class Toast {
     this.parent.insertAdjacentHTML('beforeend', html);
 
     setTimeout(() => this.close(), 5000);
+    this.self.addEventListener('click', this.close);
   }
 
   /**
@@ -32,7 +33,7 @@ export class Toast {
   /**
    * Закрывает тост
    */
-  close(): void {
+  close = () => {
     const toastElement = this.self;
     if (!toastElement) return;
 
@@ -48,8 +49,10 @@ export class Toast {
       },
     );
 
+    this.self.removeEventListener('click', this.close);
+
     setTimeout(() => {
       toastElement.remove();
     }, 500);
-  }
+  };
 }

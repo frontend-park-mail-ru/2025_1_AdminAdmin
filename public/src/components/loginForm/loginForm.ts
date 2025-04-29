@@ -43,7 +43,7 @@ export default class LoginForm {
       await userStore.login({ login, password });
       toasts.success('Вы успешно вошли в систему!');
     } catch (err) {
-      const errorMessage = err.error || 'Неверный логин или пароль';
+      const errorMessage = err.message || 'Неверный логин или пароль';
       this.setError(errorMessage);
       toasts.error(errorMessage);
       this.submitBtn.enable();

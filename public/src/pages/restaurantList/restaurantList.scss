@@ -3,17 +3,25 @@
   box-sizing: border-box;
   margin-top: 20px;
   width: 100%;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 10px;
-  align-items: start;
+  padding: 0 7vw;
 
   .restaurant__container {
-    grid-column: 2 / span 10;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 5px;
     align-items: start;
+    padding-bottom: 10vh;
+
+    @media (max-width: 1500px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 900px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
   }
 }

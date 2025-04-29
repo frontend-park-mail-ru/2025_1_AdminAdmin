@@ -10,11 +10,31 @@
   justify-content: center;
   align-items: center;
 
+  .form__line {
+    @media (max-width: 600px) {
+      flex-direction: column;
+    }
+  }
+
   &__content {
     width: 50%;
     background-color: var(--white);
     border-radius: 20px;
     padding: 20px;
+    box-sizing: border-box;
+
+    @media (max-width: 1200px) {
+      width: 90%;
+    }
+
+    @media (max-width: 600px) {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-radius: 0;
+    }
   }
 
   #form__line_search {
@@ -32,6 +52,7 @@
   &__close_icon {
     width: 20px;
     height: 20px;
+    cursor: pointer;
 
     &:hover {
       opacity: 0.6;
@@ -65,10 +86,16 @@
 
   &__map {
     margin-top: 25px;
+    margin-bottom: 25px;
     width: 100%;
     aspect-ratio: 2 / 1;
     border-radius: var(--border-radius);
     overflow: hidden;
+
+    @media (max-width: 600px) {
+      aspect-ratio: auto;
+      height: 100%;
+    }
   }
 
   &__marker {

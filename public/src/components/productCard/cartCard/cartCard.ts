@@ -9,9 +9,11 @@ import { toasts } from '@modules/toasts';
  */
 export class CartCard {
   private parent: HTMLElement;
+  private isDestroyed = false;
   private readonly props: CartProduct;
   private quantityControls: QuantityControls;
   private binClickHandler: () => void;
+  private unsubscribeFromStore: (() => void) | null = null;
 
   /**
    * Создает экземпляр карточки товара.
@@ -28,6 +30,7 @@ export class CartCard {
     if (this.props.price < 0 || this.props.weight < 0) {
       throw new Error('CartCard: price, and weight must be non-negative values!');
     }
+    this.unsubscribeFromStore = cartStore.subscribe(this.updateState);
   }
 
   /**
@@ -52,7 +55,7 @@ export class CartCard {
 
     this.props.amount = cartStore.getProductAmountById(this.props.id);
 
-    const total_price = this.props.amount * this.props.price;
+    const total_price = (this.props.amount * this.props.price).toLocaleString('ru-RU');
     const html = template({ total_price: total_price, ...this.props });
     this.parent.insertAdjacentHTML('beforeend', html);
 
@@ -84,10 +87,13 @@ export class CartCard {
   }
 
   private async incrementAmount() {
+    if (this.props.amount === 999) {
+      return;
+    }
     try {
       await cartStore.incrementProductAmount(this.props);
     } catch (error) {
-      toasts.error(`Ошибка при увеличении количества товара: ${error}`);
+      toasts.error(error.message);
     }
   }
 
@@ -95,7 +101,7 @@ export class CartCard {
     try {
       await cartStore.decrementProductAmount(this.props);
     } catch (error) {
-      toasts.error(`Ошибка при уменьшении количества товара: ${error}`);
+      toasts.error(error.message);
     }
   }
 
@@ -104,15 +110,39 @@ export class CartCard {
       try {
         await cartStore.setProductAmount(this.props.id, amount);
       } catch (error) {
-        toasts.error(`Ошибка при изменении количества товара: ${error}`);
+        toasts.error(error.message);
       }
     }
   }
+
+  private updateState = () => {
+    if (this.isDestroyed) return;
+    const storeAmount = cartStore.getProductAmountById(this.props.id);
+    if (storeAmount === this.props.amount) {
+      return;
+    }
+
+    this.props.amount = storeAmount;
+    this.input.value = storeAmount.toString();
+
+    const totalPriceValue = this.self.querySelector(
+      '.cart-card__content__total_price',
+    ) as HTMLDivElement;
+    const total = this.props.price * this.props.amount;
+    totalPriceValue.textContent = total.toLocaleString('ru-RU');
+  };
 
   /**
    * Удаляет карточку товара
    */
   remove() {
+    this.isDestroyed = true;
+
+    if (this.unsubscribeFromStore) {
+      this.unsubscribeFromStore();
+      this.unsubscribeFromStore = null;
+    }
+
     this.quantityControls.remove();
 
     const binIcon = this.self.querySelector('.cart-card__bin_icon') as HTMLElement;

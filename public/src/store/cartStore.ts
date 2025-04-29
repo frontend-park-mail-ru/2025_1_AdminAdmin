@@ -76,20 +76,18 @@ class CartStore {
   }
 
   async initCart() {
-    this.store.dispatch({
-      type: CartActions.CLEAR_CART,
-    });
+    this.clearLocalCart();
 
     if (userStore.isAuth()) {
       try {
         const remoteCart = await AppCartRequests.GetCart();
-        if (remoteCart.products) {
+        if (remoteCart && remoteCart.products) {
           this.setCart(remoteCart);
           clearCartInLocalStorage();
           return;
         }
       } catch (error) {
-        console.error('Ошибка при получении корзины: ', error);
+        console.error(error);
       }
     }
 
@@ -105,11 +103,10 @@ class CartStore {
             localCart.restaurant_id,
           );
         } catch (error) {
-          console.error('Ошибка при создании корзины: ', error);
+          console.error('Ошибка при создании корзины: ', error.message);
         }
       }
       clearCartInLocalStorage();
-      return;
     }
 
     this.setCart(localCart);

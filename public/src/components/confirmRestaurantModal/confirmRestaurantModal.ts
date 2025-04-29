@@ -26,6 +26,10 @@ export class ConfirmRestaurantModal {
     return document.querySelector('.confirm_restaurant_modal');
   }
 
+  get closeElem(): HTMLElement | null {
+    return document.querySelector('.confirm_restaurant_modal__close_icon');
+  }
+
   render() {
     const html = template({
       restaurant: this.restaurant,
@@ -58,7 +62,6 @@ export class ConfirmRestaurantModal {
           this.onSubmit();
         } finally {
           this.isSubmitting = false;
-          this.submitBtn.enable?.();
         }
       },
     });

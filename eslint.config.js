@@ -23,6 +23,7 @@ export default tseslint.config (
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       'no-debugger': 'error',
+      'complexity': ['error', { 'max': 9 }],
       'no-console': ['error', { allow: ['warn', 'error'] }],
     },
   },

@@ -1,12 +1,9 @@
-import {
-  getCSRFFromLocalStorage,
-  removeTokenFromLocalStorage,
-  storeAuthTokensFromResponse,
-} from './localStorage';
+import { removeTokenFromLocalStorage, storeAuthTokensFromResponse } from './localStorage';
 import { RestaurantResponse } from '@myTypes/restaurantTypes';
 import { I_Cart } from '@myTypes/cartTypes';
 import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
 import { CreateOrderPayload } from '@myTypes/orderTypes';
+import { getRequestOptions, parseResponseBody } from '@modules/fetchUtils';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -17,7 +14,7 @@ interface ErrorResponse {
   error: string;
 }
 
-const isDebug = false;
+const isDebug = process.env.IS_DEBUG === 'true';
 
 const baseUrl = `${isDebug ? 'http' : 'https'}://${isDebug ? 'localhost:5458' : 'doordashers.ru'}/api`;
 
@@ -46,36 +43,14 @@ const baseRequest = async <T = any>(
   params: RequestParams | null = null,
   contentType = 'application/json',
 ): Promise<ResponseData<T>> => {
-  const options: RequestInit = {
-    method,
-    mode: 'cors',
-    credentials: 'include',
-    headers: {
-      ...(contentType !== 'multipart/form-data' ? { 'Content-Type': contentType } : {}),
-      Accept: 'application/json',
-      ...getCSRFFromLocalStorage(),
-    },
-  };
-  if (data && contentType !== 'multipart/form-data') options.body = JSON.stringify(data);
-  else if (data && contentType === 'multipart/form-data') options.body = data;
-
   const queryUrl = new URL(baseUrl + url);
   if (params) queryUrl.search = new URLSearchParams(params).toString();
 
+  const options = getRequestOptions(method, data, contentType);
+
   try {
     const response = await fetch(queryUrl.toString(), options);
-    const contentType = response.headers.get('Content-Type') || '';
-
-    let body: any;
-    try {
-      if (contentType.includes('application/json')) {
-        body = await response.json();
-      } else if (contentType.includes('text/plain') || contentType.includes('text/html')) {
-        body = await response.text();
-      }
-    } catch {
-      body = null;
-    }
+    const body = await parseResponseBody(response);
 
     try {
       storeAuthTokensFromResponse(response.headers);
@@ -85,7 +60,7 @@ const baseRequest = async <T = any>(
 
     return { status: response.status, body };
   } catch (err) {
-    return { status: 503, body: err.error };
+    return { status: 503, body: err.message };
   }
 };
 
@@ -269,8 +244,10 @@ class RestaurantsRequests {
 
     if (status === 200) {
       return body;
+    } else if (status === 404) {
+      return;
     } else {
-      throw new Error(body.error);
+      throw new Error(body?.error);
     }
   };
 
@@ -334,20 +311,25 @@ class CartRequests {
 
     if (status === 200) {
       return body as I_Cart;
+    } else if (status === 404) {
+      return;
     } else {
       throw new Error((body as ErrorResponse).error ?? 'Не удалось получить корзину');
     }
   };
 
   ClearCart = async (): Promise<void> => {
-    const { status, body } = await baseRequest<ErrorResponse>(
+    const { status, body } = await baseRequest<ErrorResponse | undefined>(
       methods.POST,
       `${this.baseUrl}/clear`,
     );
 
-    if (status !== 200) {
-      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось очистить корзину');
+    if (status === 200) {
+      return;
     }
+
+    const error = (body as ErrorResponse)?.error ?? 'Не удалось очистить корзину';
+    throw new Error(error);
   };
 }
 

@@ -10,6 +10,8 @@ export class Categories {
   private readonly cardsComponent: HTMLElement;
   private categoryElements: { button: Button; header: CategoryHeader }[] = [];
   private activeCategoryId: number | null = null;
+  private readonly boundScrollHandler: () => void;
+  private readonly boundHashChangeHandler: () => void;
 
   /**
    * Создает экземпляр группы категорий.
@@ -20,6 +22,22 @@ export class Categories {
   constructor(parent: HTMLElement, cardsComponent: HTMLElement) {
     this.parent = parent;
     this.cardsComponent = cardsComponent;
+    this.boundScrollHandler = this.scrollHandler.bind(this);
+    this.boundHashChangeHandler = this.hashChangeHandler.bind(this);
+  }
+
+  hashChangeHandler(): void {
+    const hashCategoryId = parseInt(window.location.hash.replace('#category-', ''), 10);
+    if (
+      !isNaN(hashCategoryId) &&
+      hashCategoryId < this.categoryElements.length &&
+      hashCategoryId !== this.activeCategoryId
+    ) {
+      this.handleCategoryClick(hashCategoryId);
+    } else {
+      const currentUrl = window.location.href.split('#')[0];
+      history.replaceState(null, '', currentUrl);
+    }
   }
 
   /**
@@ -45,13 +63,8 @@ export class Categories {
     const html = template();
     this.parent.insertAdjacentHTML('beforeend', html);
 
-    const hashCategoryId = parseInt(window.location.hash.replace('#category-', ''), 10);
-    if (!isNaN(hashCategoryId)) {
-      this.activeCategoryId = hashCategoryId;
-    } else {
-      this.activeCategoryId = null;
-    }
-    window.addEventListener('scroll', this.scrollHandler.bind(this));
+    window.addEventListener('scroll', this.boundScrollHandler);
+    window.addEventListener('hashchange', this.boundHashChangeHandler);
   }
 
   addCategory(category: string): void {
@@ -109,12 +122,28 @@ export class Categories {
     const currentCategoryButton = this.categoryElements[categoryId]?.button;
     if (currentCategoryButton) {
       currentCategoryButton.self.classList.add('button_active');
+      currentCategoryButton.self.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
     }
 
     this.activeCategoryId = categoryId;
   }
 
   private scrollHandler(): void {
+    const scrollBottom = window.scrollY + window.innerHeight;
+    const pageBottom = document.documentElement.scrollHeight;
+
+    if (Math.abs(scrollBottom - pageBottom) < 2) {
+      const lastCategoryId = this.categoryElements.length - 1;
+      if (lastCategoryId !== this.activeCategoryId) {
+        this.updateActiveCategory(lastCategoryId);
+      }
+      return;
+    }
+
     let closestHeaderId: number | null = null;
     let closestDistance = Infinity;
 
@@ -141,7 +170,14 @@ export class Categories {
     const newButton = this.categoryElements[newCategoryId]?.button;
 
     if (prevButton) prevButton.self.classList.remove('button_active');
-    if (newButton) newButton.self.classList.add('button_active');
+    if (newButton) {
+      newButton.self.classList.add('button_active');
+      newButton.self.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+    }
 
     this.activeCategoryId = newCategoryId;
 
@@ -158,7 +194,8 @@ export class Categories {
       button.remove();
       header.remove();
     }
-    window.removeEventListener('scroll', this.scrollHandler.bind(this));
+    window.removeEventListener('scroll', this.boundScrollHandler);
+    window.removeEventListener('hashchange', this.boundHashChangeHandler);
 
     element.innerHTML = '';
     this.categoryElements = [];

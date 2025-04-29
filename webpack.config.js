@@ -100,6 +100,7 @@ const config = {
         new webpack.DefinePlugin({
             "process.env.GEOSUGGEST_API_KEY": JSON.stringify(process.env.GEOSUGGEST_API_KEY),
             "process.env.GEOCODER_API_KEY": JSON.stringify(process.env.GEOCODER_API_KEY),
+            "process.env.IS_DEBUG": JSON.stringify(process.env.IS_DEBUG),
         }),
         new CopyWebpackPlugin({
             patterns: [

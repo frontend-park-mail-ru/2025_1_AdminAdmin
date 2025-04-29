@@ -96,8 +96,15 @@ export class ProductCard {
 
   private async incrementAmount() {
     if (!userStore.getActiveAddress()) {
-      const mapModal = new MapModal((newAddress: string) => userStore.setAddress(newAddress));
+      const mapModal = new MapModal((newAddress: string) => {
+        userStore.setAddress(newAddress);
+        this.incrementAmount();
+      });
       modalController.openModal(mapModal);
+      return;
+    }
+
+    if (this.amount === 999) {
       return;
     }
 
@@ -118,7 +125,7 @@ export class ProductCard {
       try {
         await cartStore.incrementProductAmount(this.props);
       } catch (error) {
-        toasts.error(error.error);
+        toasts.error(error.message);
       } finally {
         this.plusButton.enable();
       }
@@ -130,8 +137,8 @@ export class ProductCard {
     try {
       await cartStore.decrementProductAmount(this.props);
     } catch (error) {
-      console.error(error.error);
-      toasts.error(error.error);
+      console.error(error.message);
+      toasts.error(error.message);
     } finally {
       this.minusButton.enable();
     }
@@ -143,7 +150,7 @@ export class ProductCard {
       cartStore.setRestaurant(this.restaurant_id, this.restaurant_name);
       await this.incrementAmount();
     } catch (error) {
-      toasts.error(error.error);
+      toasts.error(error.message);
     }
     modalController.closeModal();
   };
@@ -177,15 +184,15 @@ export class ProductCard {
       ) as HTMLSpanElement;
 
       const totalPriceValue = this.self.querySelector(
-        '.product-card__total-price .total-price-value',
+        '.product-card__total-price-value',
       ) as HTMLDivElement;
 
       if (amountValue) {
         amountValue.textContent = this.amount.toString();
       }
-
       if (totalPriceValue) {
-        totalPriceValue.textContent = (this.props.price * this.amount).toString();
+        const total = this.props.price * this.amount;
+        totalPriceValue.textContent = total.toLocaleString('ru-RU');
       }
 
       this.self.classList.add('active');

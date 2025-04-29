@@ -42,13 +42,14 @@ export default class MapModal {
   constructor(onSubmit: (address: string) => void) {
     this.onSubmit = onSubmit;
     this.debouncedOnInput = debounce(this.onInput.bind(this), 250);
+    this.handleResize = this.handleResize.bind(this);
   }
 
   /**
    * Получение HTML элемента формы
    * @returns {HTMLElement | null}
    */
-  private get self(): HTMLElement | null {
+  get self(): HTMLElement | null {
     return document.querySelector('.map_modal');
   }
 
@@ -75,22 +76,8 @@ export default class MapModal {
       this.handleSuggestClick.bind(this),
     );
     this.suggestsContainer.render();
+    this.handleResize();
 
-    const formLineSearch = document.getElementById('form__line_search');
-
-    this.submitBtn = new Button(formLineSearch, {
-      id: 'form__line__search_button',
-      text: 'ОК',
-      disabled: true,
-      style: 'dark big',
-      onSubmit: async () => {
-        const newAddress = this.input.value;
-        this.submitBtn.disable();
-        this.onSubmit(newAddress);
-      },
-    });
-
-    this.submitBtn.render();
     document.body.style.overflow = 'hidden';
 
     if (this.input) {
@@ -106,6 +93,8 @@ export default class MapModal {
     this.markerElement = document.createElement('img');
     this.markerElement.src = mapLocationImg;
     this.markerElement.className = 'map_modal__marker';
+
+    window.addEventListener('resize', this.handleResize);
   }
 
   private createMap() {
@@ -221,6 +210,44 @@ export default class MapModal {
     this.addNewMarker([lon, lat]);
   }
 
+  /**
+   * Обработчик изменения размера окна для переноса кнопки.
+   */
+  private handleResize() {
+    this.submitBtn?.remove();
+
+    if (window.innerWidth > 600) {
+      const formLineSearch = document.getElementById('form__line_search');
+      this.submitBtn = new Button(formLineSearch, {
+        id: 'form__line__search_button',
+        text: 'ОК',
+        disabled: true,
+        style: 'dark big',
+        onSubmit: async () => {
+          const newAddress = this.input.value;
+          this.submitBtn.disable();
+          this.onSubmit(newAddress);
+        },
+      });
+    } else {
+      const buttonContainer: HTMLDivElement = document.querySelector('.map_modal__content');
+
+      this.submitBtn = new Button(buttonContainer, {
+        id: 'form__line__search_button',
+        text: 'ОК',
+        disabled: true,
+        style: 'form__button dark',
+        onSubmit: async () => {
+          const newAddress = this.input.value;
+          this.submitBtn.disable();
+          this.onSubmit(newAddress);
+        },
+      });
+    }
+
+    this.submitBtn.render();
+  }
+
   private checkFinalAddresss(tags: string[]) {
     const finalTags = ['house', 'business', 'office', 'hotel'];
     const isFinalAddress = tags.some((tag) => finalTags.includes(tag));
@@ -294,6 +321,7 @@ export default class MapModal {
 
   remove(): void {
     document.body.style.overflow = '';
+    window.removeEventListener('resize', this.handleResize);
 
     if (this.input) {
       this.input.removeEventListener('input', (event) =>

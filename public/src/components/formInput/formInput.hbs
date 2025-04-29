@@ -4,9 +4,13 @@
         <div class="form__input__error" id="{{id}}-error"></div>
     </div>
     <div class="form__input__input-container">
-        <input type="{{type}}"
+        <input
+                type="{{type}}"
+                name="{{name}}"
             {{#unless movePlaceholderOnInput}} placeholder="{{placeholder}}" {{/unless}}
-            {{#if required}}required{{/if}} id="{{id}}-input" autocomplete="off"
+            {{#if required}}required{{/if}}
+                id="{{id}}-input"
+                autocomplete="{{autocomplete}}"
             {{#if value}} value="{{value}}" {{/if}}
         >
         {{#if movePlaceholderOnInput}}

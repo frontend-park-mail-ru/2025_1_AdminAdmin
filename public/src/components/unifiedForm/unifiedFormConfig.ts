@@ -17,44 +17,69 @@ export interface I_FormConfig {
   };
 }
 
+const mobileOptions = [
+  { value: '7', text: 'RU (+7)' },
+  { value: '375', text: 'BY (+375)' },
+  { value: '7', text: 'KZ (+7)' },
+  { value: '374', text: 'AM (+374)' },
+  { value: '996', text: 'KG (+996)' },
+  { value: '373', text: 'MD (+373)' },
+  { value: '992', text: 'TJ (+992)' },
+  { value: '998', text: 'UZ (+998)' },
+  { value: '994', text: 'AZ (+994)' },
+  { value: '993', text: 'TM (+993)' },
+];
+
 export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
   const baseInputs = {
     firstName: {
       id: 'form__input__first-name',
       label: 'Имя',
+      name: 'first-name',
+      type: 'text',
       placeholder: 'Введите имя',
       validator: ValidateName,
       required: !isEditMode,
+      autocomplete: 'given-name',
     },
     secondName: {
       id: 'form__input__second-name',
       label: 'Фамилия',
+      name: 'last-name',
+      type: 'text',
       placeholder: 'Введите фамилию',
       validator: ValidateName,
       required: !isEditMode,
+      autocomplete: 'family-name',
     },
     phoneNumber: {
       id: 'form__input__phone',
       label: 'Телефон',
+      name: 'phone',
+      type: 'tel',
       placeholder: 'Введите телефон',
-      type: 'phone',
       validator: ValidatePhone,
       required: !isEditMode,
+      autocomplete: 'tel',
     },
     password: {
       id: 'form__input__password',
       label: 'Пароль',
+      name: 'password',
       type: 'password',
-      placeholder: 'Введите пароль (не менее 10 символов)',
+      placeholder: 'Введите пароль (не менее 8 символов)',
       validator: ValidatePassword,
+      autocomplete: 'new-password',
       required: !isEditMode,
     },
     repeatPassword: {
       id: 'form__input__repeat-password',
       label: 'Повторите пароль',
+      name: 'repeat-password',
       type: 'password',
       placeholder: 'Повторите пароль',
       validator: ValidatePassword,
+      autocomplete: 'confirm-password',
       required: !isEditMode,
     },
   };
@@ -63,9 +88,12 @@ export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
     login: {
       id: 'form__input__login',
       label: 'Логин',
+      name: 'username',
+      type: 'text',
       placeholder: 'Введите логин',
       validator: ValidateLogin,
       required: true,
+      autocomplete: 'username',
     },
     ...baseInputs,
   };
@@ -89,9 +117,16 @@ export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
     },
   };
 
+  const isMobile = window.innerWidth < 600;
+
+  if (isMobile) {
+    selects.code.options = mobileOptions;
+  }
+
   const buttons = {
     submitButton: {
       id: 'form__button__submit',
+      type: 'submit',
       text: isEditMode ? 'Сохранить' : 'Зарегистрироваться',
       style: 'form__button button_active',
     },
