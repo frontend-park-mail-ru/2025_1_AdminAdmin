@@ -1,13 +1,24 @@
-<div class="restaurant-review" id="{{id}}">
-    <span id="restaurant-review__text">“{{review_text}}”</span>
-    <div class="restaurant-review__details">
-        <div class="restaurant-review__rating_stars">
-            <div class="restaurant-review__rating_stars__background">
-                <div class="restaurant-review__rating_stars__foreground">
+<div class="restaurant-review" id="review-{{id}}">
+    <div class="restaurant-review__image__wrapper">
+        <img
+                id="restaurant-review__avatar-image"
+                src="https://doordashers.ru/images_user/{{user_pic_path}}"
+                alt="Avatar"
+                onerror="this.onerror=null; this.src='./src/assets/profile.png';"
+        />
+    </div>
+    <div class="restaurant-review__right">
+        {{#if review_text}}
+            <span class="restaurant-review__right__text" id="restaurant-review__text" lang="ru">“{{review_text}}”</span>
+        {{/if}}
+        <div class="restaurant-review__details">
+            <div class="restaurant-review__rating_stars">
+                <div class="restaurant-review__rating_stars__background">
+                    <div class="restaurant-review__rating_stars__foreground"></div>
                 </div>
             </div>
+            <span>{{user}}</span>
+            <span>{{created_at}}</span>
         </div>
-        <span>{{user}}</span>
-        <span>{{created_at}}</span>
     </div>
 </div>

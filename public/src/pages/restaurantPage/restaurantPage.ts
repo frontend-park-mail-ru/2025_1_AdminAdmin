@@ -118,7 +118,8 @@ export default class RestaurantPage {
 
       window.addEventListener('scroll', this.checkSticky);
       window.addEventListener('resize', this.handleResize);
-    } catch {
+    } catch (error) {
+      console.error(error);
       router.goToPage('notFound');
     }
   }

@@ -29,6 +29,7 @@
 @use './src/components/quantityControls/quantityControls' as *;
 @use './src/components/unifiedForm/unifiedForm' as *;
 @use './src/components/reviewsModal/reviewsModal' as *;
+@use './src/components/starsWidget/starsWidget' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;

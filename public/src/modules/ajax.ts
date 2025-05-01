@@ -231,8 +231,6 @@ class RestaurantsRequests {
 
   /**
    * Получает список всех ресторанов.
-   * @param params - GET-параметры запроса
-   * @returns {Promise<any>}
    */
   GetAll = async (params: RequestParams | null = null): Promise<any> => {
     const { status, body } = await baseRequest<any>(
@@ -253,8 +251,6 @@ class RestaurantsRequests {
 
   /**
    * Получает информацию об одном ресторане.
-   * @param id - Идентификатор ресторана
-   * @returns {Promise<any>}
    */
   Get = async (id: string): Promise<RestaurantResponse> => {
     const { status, body } = await baseRequest<RestaurantResponse | ErrorResponse>(
@@ -264,63 +260,75 @@ class RestaurantsRequests {
     );
 
     if (status === 200) {
-      //return body as RestaurantResponse;
-      const restaurant = body as RestaurantResponse;
-
-      // Добавляем моки отзывов вручную
-      restaurant.reviews = [
-        {
-          id: '1',
-          user: 'Иван Иванов',
-          review_text: 'Отличное место, быстрая доставка!',
-          rating: 5,
-          created_at: '2025-04-29T10:00:00Z',
-        },
-        {
-          id: '2',
-          user: 'Анна Смирнова',
-          review_text: 'Все понравилось, но хотелось бы побольше соуса.',
-          rating: 4,
-          created_at: '2025-04-28T16:30:00Z',
-        },
-      ];
-
-      return restaurant;
+      return body as RestaurantResponse;
     } else {
       throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
     }
   };
 
   /**
-   * Получает список отзывов (рейтингов) ресторана.
-   * @param id - Идентификатор ресторана
-   * @returns {Promise<Review[]>}
+   * Получает список отзывов ресторана.
+   * @param id - ID ресторана
+   * @param count - количество отзывов (по умолчанию 1)
+   * @param offset - смещение (по умолчанию 0)
    */
-  GetReviews = async (): Promise<Review[]> => {
-    // Моковые данные отзывов
-    return [
-      {
-        id: '1',
-        user: 'Иван Иванов',
-        review_text: 'Отличное место, быстрая доставка!',
-        rating: 5,
-        created_at: '2025-04-29T10:00:00Z',
-      },
-      {
-        id: '2',
-        user: 'Анна Смирнова',
-        review_text: 'Все понравилось, но хотелось бы побольше соуса.',
-        rating: 4,
-        created_at: '2025-04-28T16:30:00Z',
-      },
-      {
-        id: '3',
-        user: 'Олег Кузнецов',
-        review_text: 'Еда была холодной, но вкусной.',
-        rating: 3,
-        created_at: '2025-04-27T12:15:00Z',
-      },
-    ];
+  GetReviews = async (id: string, count = 100, offset = 0): Promise<Review[]> => {
+    const url = `${this.baseUrl}/${id}/reviews`;
+    const params: RequestParams = {
+      count: count.toString(),
+      offset: offset.toString(),
+    };
+
+    const { status, body } = await baseRequest<Review[] | ErrorResponse>(
+      methods.GET,
+      url,
+      null,
+      params,
+    );
+
+    if (status === 200) {
+      return body as Review[];
+    } else {
+      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось загрузить отзывы');
+    }
+  };
+
+  /**
+   * Отправляет отзыв о ресторане.
+   * @param id - ID ресторана
+   * @param review - объект с текстом и рейтингом
+   */
+  SendReview = async (
+    id: string,
+    review: { review_text: string; rating: number },
+  ): Promise<Review> => {
+    const url = `${this.baseUrl}/${id}/reviews`;
+
+    const { status, body } = await baseRequest<Review | ErrorResponse>(methods.POST, url, review);
+
+    if (status === 200 || status === 201) {
+      return body as Review;
+    } else {
+      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось отправить отзыв');
+    }
+  };
+
+  /**
+   * Проверяет, может ли пользователь оставить отзыв.
+   * @param id - ID ресторана
+   * @returns Если можно — возвращает true.
+   *          Если нельзя — выбрасывает исключение с текстом ошибки и предыдущим отзывом.
+   */
+  CanLeaveReview = async (id: string): Promise<string | undefined> => {
+    const url = `${this.baseUrl}/${id}/check`;
+
+    const { status, body } = await baseRequest<{ id?: string }>(methods.GET, url);
+
+    if (status !== 200) {
+      throw new Error('Ошибка при проверке возможности оставить отзыв');
+    }
+
+    return body?.id;
   };
 }
 

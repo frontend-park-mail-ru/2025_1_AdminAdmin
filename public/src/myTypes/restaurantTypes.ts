@@ -31,6 +31,7 @@ export interface BaseRestaurant {
 export interface Review {
   id: string;
   user: string;
+  user_pic_path: string;
   review_text: string;
   rating: number;
   created_at: string;

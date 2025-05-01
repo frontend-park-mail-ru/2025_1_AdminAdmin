@@ -11,11 +11,14 @@ import clockImg from '@assets/clock.png';
 import type { WorkingMode } from '@myTypes/restaurantTypes';
 import { modalController } from '@modules/modalController';
 import { ReviewsModal } from '@components/reviewsModal/reviewsModal';
+import { StarsWidget } from '@components/starsWidget/starsWidget';
+import { toasts } from '@modules/toasts';
+import { AppRestaurantRequests } from '@modules/ajax';
 
 export interface RestaurantReviewsProps {
   id: string;
   rating: number;
-  rating_count: string | number;
+  rating_count: number;
   reviews?: Review[];
   working_mode: WorkingMode;
   address: string;
@@ -28,6 +31,7 @@ export class RestaurantReviews {
   protected parent: HTMLElement; // Родитель (где вызывается)
   protected props: RestaurantReviewsProps;
   protected moreButton: Button;
+  private starsWidget: StarsWidget;
 
   /**
    * Создает экземпляр блока отзывов на ресторан
@@ -40,14 +44,7 @@ export class RestaurantReviews {
       throw new Error('RestaurantReviews: no parent!');
     }
     this.parent = parent;
-    this.props = {
-      id: props.id,
-      rating: props.rating,
-      rating_count: this.getRatingText(props.rating_count as number),
-      reviews: props?.reviews || null,
-      working_mode: props.working_mode,
-      address: props.address,
-    };
+    this.props = props;
   }
 
   /**
@@ -70,41 +67,65 @@ export class RestaurantReviews {
     if (!template) {
       throw new Error('Error: restaurant-reviews template not found');
     }
+    const ratingString = this.getRatingText(this.props.rating_count);
     // Рендерим шаблончик с данными
-    const html = template(this.props);
+    const html = template({ ...this.props, ratingString });
     this.parent.insertAdjacentHTML('beforeend', html);
-    const ratingInStars = this.self.querySelector(
-      '.restaurant-reviews__rating_stars__foreground',
+    const starsContainer: HTMLElement = this.self.querySelector(
+      '.restaurant-reviews__rating_stars',
     ) as HTMLElement;
-    if (!ratingInStars) {
+    if (!starsContainer) {
       throw new Error(`Error: can't find rating in stars`);
     }
-    ratingInStars.style.width = `${(this.props.rating / 5) * 100}%`;
+
+    this.starsWidget = new StarsWidget(starsContainer, this.props.rating, this.sendRating);
+    this.starsWidget.render();
+
     // Заполняем
     const reviewsContainer = this.self.querySelector(
       '.restaurant-reviews__reviews-container',
     ) as HTMLElement;
+
     // Рендерим отзывы ресторана
-    if (this.props.reviews) {
+    let moreReviewsProps: ButtonProps;
+    if (Array.isArray(this.props.reviews) && this.props.reviews.length > 0) {
       this.props.reviews.forEach((reviewProps) => {
         const reviewComponent = new RestaurantReview(reviewsContainer, reviewProps);
         reviewComponent.render();
       });
       // Рендерим кнопку "Больше"
-      const moreReviewsProps: ButtonProps = {
-        id: 'more-reviews-button', // Id для идентификации
-        text: 'Больше', // text для отображения
+      moreReviewsProps = {
+        id: 'more-reviews-button',
+        text: 'Показать больше',
         onSubmit: () => {
-          const reviewsModal = new ReviewsModal(this.props.id);
+          const reviewsModal = new ReviewsModal(
+            this.props.id,
+            this.props.rating,
+            this.updateReviews,
+          );
           modalController.openModal(reviewsModal);
         },
       };
-      this.moreButton = new Button(reviewsContainer, moreReviewsProps);
-      this.moreButton.render();
     } else {
+      moreReviewsProps = {
+        id: 'more-reviews-button',
+        text: 'Станьте первым, кто оставит отзыв!',
+        onSubmit: () => {
+          const reviewsModal = new ReviewsModal(
+            this.props.id,
+            this.props.rating,
+            this.updateReviews,
+          );
+          modalController.openModal(reviewsModal);
+        },
+      };
+
       const noReviews: HTMLDivElement = this.self.querySelector('.restaurant-reviews__no_reviews');
       noReviews.style.display = 'block';
     }
+
+    this.moreButton = new Button(reviewsContainer, moreReviewsProps);
+    this.moreButton.render();
 
     const detailsContainer = this.self.querySelector(
       '.restaurant-reviews__details-container',
@@ -144,6 +165,19 @@ export class RestaurantReviews {
     hours.render();
   }
 
+  sendRating = async (value: number) => {
+    try {
+      const newReview = await AppRestaurantRequests.SendReview(this.props.id, {
+        review_text: '',
+        rating: value,
+      });
+      this.updateReviews(newReview);
+      toasts.success('Оценка успешно отправлена');
+    } catch (error) {
+      toasts.error(error.message);
+    }
+  };
+
   /**
    * Преобразует числовое значение часа в формат HH:MM
    * @param hour Час от 0 до 23
@@ -152,6 +186,45 @@ export class RestaurantReviews {
   private formatHour(hour: number): string {
     return `${hour.toString().padStart(2, '0')}:00`;
   }
+
+  public updateReviews = (newReview: Review) => {
+    if (this.props.reviews.length < 2) {
+      this.props.reviews.push(newReview);
+      const reviewsContainer: HTMLDivElement = this.self.querySelector(
+        '.restaurant-reviews__reviews-container',
+      );
+      const reviewComponent = new RestaurantReview(reviewsContainer, newReview, true);
+      reviewComponent.render('afterbegin');
+      this.moreButton.setText('Показать больше');
+
+      const noReviews: HTMLDivElement = this.self.querySelector('.restaurant-reviews__no_reviews');
+      noReviews.style.display = 'none';
+    }
+
+    const { rating, rating_count } = this.props;
+
+    const updatedRatingCount = rating_count + 1;
+    const updatedRating = (rating * rating_count + newReview.rating) / updatedRatingCount;
+
+    this.props.rating_count = updatedRatingCount;
+    this.props.rating = updatedRating;
+
+    const scoreElement = this.self.querySelector(
+      '.restaurant-reviews__rating_score',
+    ) as HTMLElement;
+    if (scoreElement) {
+      scoreElement.textContent = updatedRating.toFixed(1);
+    }
+
+    const amountElement = this.self.querySelector(
+      '.restaurant-reviews__rating_amount',
+    ) as HTMLElement;
+    if (amountElement) {
+      amountElement.textContent = this.getRatingText(updatedRatingCount);
+    }
+
+    this.starsWidget.setRating(updatedRating);
+  };
 
   getRatingText(ratingCount: number): string {
     const lastDigit = ratingCount % 10;
@@ -202,14 +275,8 @@ export class RestaurantReviews {
    * Удаляет блок отзывов и снимает обработчики событий.
    */
   remove() {
+    this.props.reviews = [];
     const element = this.self;
-    const reviews = document.querySelectorAll('.restaurant-review');
-    if (reviews.length) {
-      reviews.forEach((reviewElement) => {
-        reviewElement.remove();
-      });
-    }
-
     this.moreButton?.remove();
 
     element.remove();
