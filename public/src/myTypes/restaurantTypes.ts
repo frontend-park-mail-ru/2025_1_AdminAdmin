@@ -28,10 +28,19 @@ export interface BaseRestaurant {
   rating: number;
 }
 
+export interface Review {
+  id: string;
+  user: string;
+  review_text: string;
+  rating: number;
+  created_at: string;
+}
+
 export interface RestaurantResponse {
   id: string;
   name: string;
   banner_url: string;
+  reviews: Review[];
   address: string;
   rating: number;
   rating_count: number;

@@ -115,6 +115,10 @@ export class FormInput {
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
 
+    if (!this.props.label && this.props.noErrorInHeader) {
+      const inputHeader: HTMLDivElement = this.self.querySelector('.form__input-head');
+      inputHeader.style.display = 'none';
+    }
     this.setupPhoneMaskIfNeeded();
     this.setupPasswordToggleIfNeeded();
     this.attachInputListeners();

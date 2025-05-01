@@ -1,21 +1,12 @@
 import template from './restaurantReview.hbs';
-
-// Структура класса отзыва ресторана (нужно для конструктора)
-export interface RestaurantReviewProps {
-  // ? - необязательное поле
-  id: string; // Id для идентификации     | Обязательное поле
-  text?: string; // Текст отзыва          | Может быть не задано (как оценка, а не отзыв)
-  rating: number; // Поставленная оценка  | Обязательное поле
-  author: string; // Автор отзыва         | Обязательное поле
-  date: string; // Дата отзыва            | Обязательное поле
-}
+import { Review } from '@myTypes/restaurantTypes';
 
 /**
  * Класс отзыва ресторана
  */
 export class RestaurantReview {
   protected parent: HTMLElement; // Родитель (где вызывается)
-  protected props: RestaurantReviewProps;
+  protected props: Review;
 
   /**
    *Создает экземпляр отзыва ресторана.
@@ -23,18 +14,12 @@ export class RestaurantReview {
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться отзыв ресторана.
    * @param {Object} props - Словарь данных для определения свойств отзыв ресторана
    */
-  constructor(parent: HTMLElement, props: RestaurantReviewProps) {
+  constructor(parent: HTMLElement, props: Review) {
     if (!parent) {
       throw new Error('Review: no parent!');
     }
     this.parent = parent;
-    this.props = {
-      id: props.id,
-      text: props.text || null,
-      rating: props.rating,
-      author: props.author,
-      date: props.date,
-    };
+    this.props = props;
   }
 
   /**
@@ -56,8 +41,18 @@ export class RestaurantReview {
     if (!template) {
       throw new Error('Error: restaurant-review template not found');
     }
+
+    const date = new Date(this.props.created_at);
+    const formattedDate = date.toLocaleDateString('ru-RU');
+    const formattedDateSlashes = formattedDate.replace(/\./g, '/');
+
+    const propsForTemplate = {
+      ...this.props,
+      created_at: formattedDateSlashes,
+    };
+
     // Рендерим шаблончик
-    const html = template(this.props);
+    const html = template(propsForTemplate);
     this.parent.insertAdjacentHTML('beforeend', html);
     const ratingInStars = this.self.querySelector(
       '.restaurant-review__rating_stars__foreground',

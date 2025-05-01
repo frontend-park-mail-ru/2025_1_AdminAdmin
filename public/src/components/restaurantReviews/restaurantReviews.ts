@@ -1,4 +1,5 @@
-import { RestaurantReview, RestaurantReviewProps } from './restaurantReview/restaurantReview';
+import { RestaurantReview } from './restaurantReview/restaurantReview';
+import { Review } from '@myTypes/restaurantTypes';
 import { RestaurantDetail, RestaurantDetailProps } from './restaurantDetail/restaurantDetail';
 import { Button, ButtonProps } from '@components/button/button';
 
@@ -8,11 +9,14 @@ import locationImg from '@assets/location.png';
 import clockImg from '@assets/clock.png';
 
 import type { WorkingMode } from '@myTypes/restaurantTypes';
+import { modalController } from '@modules/modalController';
+import { ReviewsModal } from '@components/reviewsModal/reviewsModal';
 
 export interface RestaurantReviewsProps {
+  id: string;
   rating: number;
-  rating_count: string;
-  reviews_list?: RestaurantReviewProps[];
+  rating_count: string | number;
+  reviews?: Review[];
   working_mode: WorkingMode;
   address: string;
 }
@@ -23,6 +27,7 @@ export interface RestaurantReviewsProps {
 export class RestaurantReviews {
   protected parent: HTMLElement; // Родитель (где вызывается)
   protected props: RestaurantReviewsProps;
+  protected moreButton: Button;
 
   /**
    * Создает экземпляр блока отзывов на ресторан
@@ -30,24 +35,16 @@ export class RestaurantReviews {
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться блок отзывов на ресторан.
    * @param {Object} props - Словарь данных для определения свойств блока отзывов на ресторан
    */
-  constructor(
-    parent: HTMLElement,
-    props: {
-      rating: number;
-      rating_count: number;
-      reviews_list?: RestaurantReviewProps[];
-      working_mode: WorkingMode;
-      address: string;
-    },
-  ) {
+  constructor(parent: HTMLElement, props: RestaurantReviewsProps) {
     if (!parent) {
       throw new Error('RestaurantReviews: no parent!');
     }
     this.parent = parent;
     this.props = {
+      id: props.id,
       rating: props.rating,
-      rating_count: this.getRatingText(props.rating_count),
-      reviews_list: props?.reviews_list || null,
+      rating_count: this.getRatingText(props.rating_count as number),
+      reviews: props?.reviews || null,
       working_mode: props.working_mode,
       address: props.address,
     };
@@ -88,8 +85,8 @@ export class RestaurantReviews {
       '.restaurant-reviews__reviews-container',
     ) as HTMLElement;
     // Рендерим отзывы ресторана
-    if (this.props.reviews_list) {
-      this.props.reviews_list.forEach((reviewProps) => {
+    if (this.props.reviews) {
+      this.props.reviews.forEach((reviewProps) => {
         const reviewComponent = new RestaurantReview(reviewsContainer, reviewProps);
         reviewComponent.render();
       });
@@ -97,9 +94,13 @@ export class RestaurantReviews {
       const moreReviewsProps: ButtonProps = {
         id: 'more-reviews-button', // Id для идентификации
         text: 'Больше', // text для отображения
+        onSubmit: () => {
+          const reviewsModal = new ReviewsModal(this.props.id);
+          modalController.openModal(reviewsModal);
+        },
       };
-      const moreReviews = new Button(reviewsContainer, moreReviewsProps);
-      moreReviews.render();
+      this.moreButton = new Button(reviewsContainer, moreReviewsProps);
+      this.moreButton.render();
     } else {
       const noReviews: HTMLDivElement = this.self.querySelector('.restaurant-reviews__no_reviews');
       noReviews.style.display = 'block';
@@ -208,13 +209,9 @@ export class RestaurantReviews {
         reviewElement.remove();
       });
     }
-    const moreButtonElement = document.getElementById('more-reviews');
-    moreButtonElement.remove();
-    // Снять обработчик событий;
-    const hoursElement = document.getElementById('restaurant__hours');
-    hoursElement.remove();
-    const addressElement = document.getElementById('restaurant__hours');
-    addressElement.remove();
+
+    this.moreButton?.remove();
+
     element.remove();
   }
 }

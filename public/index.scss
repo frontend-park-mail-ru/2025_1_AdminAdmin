@@ -28,6 +28,7 @@
 @use './src/components/confirmRestaurantModal/confirmRestaurantModal' as *;
 @use './src/components/quantityControls/quantityControls' as *;
 @use './src/components/unifiedForm/unifiedForm' as *;
+@use './src/components/reviewsModal/reviewsModal' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;

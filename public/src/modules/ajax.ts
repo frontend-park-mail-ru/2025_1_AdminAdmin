@@ -1,5 +1,5 @@
 import { removeTokenFromLocalStorage, storeAuthTokensFromResponse } from './localStorage';
-import { RestaurantResponse } from '@myTypes/restaurantTypes';
+import { RestaurantResponse, Review } from '@myTypes/restaurantTypes';
 import { I_Cart } from '@myTypes/cartTypes';
 import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
 import { CreateOrderPayload } from '@myTypes/orderTypes';
@@ -264,10 +264,63 @@ class RestaurantsRequests {
     );
 
     if (status === 200) {
-      return body as RestaurantResponse;
+      //return body as RestaurantResponse;
+      const restaurant = body as RestaurantResponse;
+
+      // Добавляем моки отзывов вручную
+      restaurant.reviews = [
+        {
+          id: '1',
+          user: 'Иван Иванов',
+          review_text: 'Отличное место, быстрая доставка!',
+          rating: 5,
+          created_at: '2025-04-29T10:00:00Z',
+        },
+        {
+          id: '2',
+          user: 'Анна Смирнова',
+          review_text: 'Все понравилось, но хотелось бы побольше соуса.',
+          rating: 4,
+          created_at: '2025-04-28T16:30:00Z',
+        },
+      ];
+
+      return restaurant;
     } else {
       throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
     }
+  };
+
+  /**
+   * Получает список отзывов (рейтингов) ресторана.
+   * @param id - Идентификатор ресторана
+   * @returns {Promise<Review[]>}
+   */
+  GetReviews = async (): Promise<Review[]> => {
+    // Моковые данные отзывов
+    return [
+      {
+        id: '1',
+        user: 'Иван Иванов',
+        review_text: 'Отличное место, быстрая доставка!',
+        rating: 5,
+        created_at: '2025-04-29T10:00:00Z',
+      },
+      {
+        id: '2',
+        user: 'Анна Смирнова',
+        review_text: 'Все понравилось, но хотелось бы побольше соуса.',
+        rating: 4,
+        created_at: '2025-04-28T16:30:00Z',
+      },
+      {
+        id: '3',
+        user: 'Олег Кузнецов',
+        review_text: 'Еда была холодной, но вкусной.',
+        rating: 3,
+        created_at: '2025-04-27T12:15:00Z',
+      },
+    ];
   };
 }
 

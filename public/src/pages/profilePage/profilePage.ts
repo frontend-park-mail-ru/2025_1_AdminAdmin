@@ -173,27 +173,19 @@ export default class ProfilePage {
     try {
       const addresses = await AppUserRequests.GetAddresses();
 
-      if (!Array.isArray(addresses)) return;
+      if (!Array.isArray(addresses)) {
+        for (const [id, comp] of this.previousAddressMap.entries()) {
+          comp.close();
+          this.previousAddressMap.delete(id);
+        }
+        return;
+      }
 
       const currentAddressIds = new Set(addresses.map((a) => a.id));
 
       for (const [id, comp] of this.previousAddressMap.entries()) {
         if (!currentAddressIds.has(id)) {
-          comp.self.animate(
-            [
-              { opacity: 1, transform: 'translateX(0)' },
-              { opacity: 0, transform: 'translateX(100%)' },
-            ],
-            {
-              duration: 500,
-              easing: 'linear',
-              fill: 'forwards',
-            },
-          );
-
-          setTimeout(() => {
-            comp.remove();
-          }, 500);
+          comp.close();
           this.previousAddressMap.delete(id);
         }
       }

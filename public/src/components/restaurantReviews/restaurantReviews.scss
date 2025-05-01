@@ -22,20 +22,29 @@
     grid-template-areas: 'rating reviews reviews reviews details';
     gap: 20px;
     align-items: center;
-    padding: 10px 0;
+    padding: 20px;
+    box-sizing: border-box;
     border: 2px solid #f2f2f2;
     border-radius: 15px;
 
-    @media (max-width: 1200px) {
+    @media (max-width: 1800px) {
+      row-gap: 40px;
       grid-template-areas:
-          'rating reviews'
-          'details details';
+          'rating details'
+          'reviews reviews';
     }
 
     @media (max-width: 800px) {
+      column-gap: 10px;
       grid-template-areas:
-          'reviews'
-          'details';
+          'rating details'
+          'reviews reviews';
+    }
+
+    @media (max-width: 500px) {
+      grid-template-areas:
+          'details'
+          'reviews';
     }
   }
 
@@ -50,7 +59,7 @@
       justify-content: center;
       text-align: center;
 
-      @media (max-width: 800px) {
+      @media (max-width: 500px) {
         display: none;
       }
     }
@@ -98,11 +107,7 @@
     grid-area: reviews;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-
-    @media (max-width: 800px) {
-      align-items: center;
-    }
+    gap: 20px;
   }
 
   &__no_reviews {
