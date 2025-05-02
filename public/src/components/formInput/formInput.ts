@@ -111,6 +111,14 @@ export class FormInput {
     }
   }
 
+  disable(): void {
+    const input = this.input;
+    if (input) {
+      input.disabled = true;
+      input.classList.add('disabled');
+    }
+  }
+
   render(): void {
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);

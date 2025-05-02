@@ -32,9 +32,6 @@
   }
 
   &__content {
-    display: flex;
-    flex-direction: column;
-
     &__bottom {
       display: flex;
       margin-bottom: 4%;
@@ -117,11 +114,12 @@
 
     &__content {
       display: grid;
+      box-sizing: border-box;
       grid-template-columns: 25% 30% 25%;
+      align-items: center;
       gap: 10%;
 
       &__name {
-        font-size: 20px;
         grid-column: 1 / span 1;
         display: flex;
         align-items: center;

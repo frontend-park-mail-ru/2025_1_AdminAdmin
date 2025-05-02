@@ -33,6 +33,23 @@ export class CartCard {
     this.unsubscribeFromStore = cartStore.subscribe(this.updateState);
   }
 
+  disable() {
+    const controlsWrapper: HTMLDivElement = this.self.querySelector(
+      '.cart-card__content__quantity-controls-wrapper',
+    );
+    controlsWrapper.style.display = 'none';
+
+    const cardContent: HTMLDivElement = this.self.querySelector('.cart-card__content');
+
+    const newAmountContainer = document.createElement('span');
+    newAmountContainer.textContent = `${this.props.amount} шт.`;
+
+    cardContent.appendChild(newAmountContainer);
+
+    const bin: HTMLElement = this.self.querySelector('.cart-card__bin_icon');
+    bin.style.display = 'none';
+  }
+
   /**
    * Ссылка на объект
    * @returns {HTMLElement} - ссылка на объект

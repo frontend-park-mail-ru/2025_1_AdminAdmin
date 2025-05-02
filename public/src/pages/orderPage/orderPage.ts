@@ -1,14 +1,14 @@
 import template from './orderPage.hbs';
 import { FormInput } from '@components/formInput/formInput';
 import inputsConfig from './orderPageConfig';
-import { CartState, cartStore } from '@store/cartStore';
+import { cartStore } from '@store/cartStore';
 import { CartCard } from '@components/productCard/cartCard/cartCard';
 import { userStore } from '@store/userStore';
 import { CartProduct } from '@myTypes/cartTypes';
 import { toasts } from '@modules/toasts';
 import { Button } from '@components/button/button';
 import { AppOrderRequests } from '@modules/ajax';
-import { CreateOrderPayload } from '@myTypes/orderTypes';
+import { CreateOrderPayload, I_OrderResponse } from '@myTypes/orderTypes';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
 import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
@@ -16,30 +16,42 @@ import { router } from '@modules/routing';
 
 export default class OrderPage {
   private parent: HTMLElement;
+  private readonly orderId: string;
   private inputs: Record<string, FormInput> = {};
   private cartCards = new Map<string, CartCard>();
   private submitButton: Button;
   private unsubscribeFromStore: (() => void) | null = null;
   private youMoneyForm: YouMoneyForm = null;
+  private isRemoved = false;
 
-  constructor(parent: HTMLElement) {
+  constructor(parent: HTMLElement, orderId?: string) {
     if (!parent) {
       throw new Error('OrderPage: no parent!');
     }
     this.parent = parent;
+    this.orderId = orderId;
   }
 
-  get self(): HTMLElement {
+  get self(): HTMLElement | null {
     const element = this.parent.querySelector('.order-page');
-    if (!element) {
-      throw new Error(`OrderPage не найдена!`);
-    }
-    return element as HTMLElement;
+    return element as HTMLElement | null;
   }
 
-  render(): void {
-    const restaurantName = cartStore.getState().restaurant_name;
-    const address = userStore.getActiveAddress();
+  async render(): Promise<void> {
+    let restaurantName, address;
+    if (this.orderId) {
+      try {
+        const order = await AppOrderRequests.getOrderById(this.orderId);
+        restaurantName = order.order_products.restaurant_name;
+        address = order.address;
+      } catch {
+        router.goToPage('home');
+        return;
+      }
+    } else {
+      restaurantName = cartStore.getState().restaurant_name;
+      address = userStore.getActiveAddress();
+    }
     this.parent.innerHTML = template({ restaurantName: restaurantName, address: address });
 
     const inputsContainer = document.getElementById('form__line_order-page_address');
@@ -55,17 +67,17 @@ export default class OrderPage {
       console.error('OrderPage: контейнер не найден');
     }
 
-    const bin = this.self.querySelector('.order-page__products__header__clear');
-    if (bin) {
-      bin.addEventListener('click', this.handleClear);
-    }
-
     const orderPageComment: HTMLDivElement = this.self.querySelector('.order-page__comment');
     if (orderPageComment) {
       const inputComponent = new FormInput(orderPageComment, inputsConfig.commentInput);
       inputComponent.render();
 
       this.inputs['orderPageComment'] = inputComponent;
+    }
+
+    const bin = this.self.querySelector('.order-page__products__header__clear');
+    if (bin) {
+      bin.addEventListener('click', this.handleClear);
     }
 
     const submitButtonContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
@@ -192,19 +204,42 @@ export default class OrderPage {
     };
 
     try {
-      await AppOrderRequests.CreateOrder(payload);
+      const newOrder = await AppOrderRequests.CreateOrder(payload);
       toasts.success('Заказ успешно оформлен!');
 
-      const wrapper = this.self.querySelector('.order-page__body');
-      wrapper?.classList.add('dimmed');
-
-      this.submitButton.hide();
-      const container: HTMLDivElement = this.self.querySelector('.order-page__summary');
-      this.youMoneyForm = new YouMoneyForm(container, final_price);
-      this.youMoneyForm.render();
+      this.handleCreation(newOrder);
     } catch (err) {
       toasts.error(err.message || 'Не удалось оформить заказ');
     }
+  }
+
+  private handleCreation(newOrder: I_OrderResponse) {
+    window.history.replaceState({}, '', `/order/${newOrder.id}`);
+
+    const pageHeader: HTMLElement = this.parent.querySelector('.order-page__header');
+    pageHeader.textContent = `Заказ №${newOrder.id}`;
+    pageHeader.style.fontSize = '26px';
+
+    for (const input of Object.values(this.inputs)) {
+      input.disable();
+    }
+
+    for (const cartCard of this.cartCards.values()) {
+      cartCard.disable();
+    }
+
+    const checkBox: HTMLInputElement = this.parent.querySelector('#checkbox');
+    checkBox.disabled = true;
+    checkBox.style.pointerEvents = 'none';
+
+    const clearCart: HTMLDivElement = this.parent.querySelector(
+      '.order-page__products__header__clear',
+    );
+    clearCart.style.display = 'none';
+    this.submitButton.hide();
+    const container: HTMLDivElement = this.self.querySelector('.order-page__summary');
+    this.youMoneyForm = new YouMoneyForm(container, newOrder.final_price, newOrder.id);
+    this.youMoneyForm.render();
   }
 
   private handleClear = async (): Promise<void> => {
@@ -221,11 +256,11 @@ export default class OrderPage {
   };
 
   private updateCards(): void {
+    if (this.isRemoved) return;
     const container: HTMLDivElement = this.self.querySelector('.order-page__products');
     if (!container) return;
 
-    const state: CartState = cartStore.getState();
-    const products: CartProduct[] = state.products;
+    const products: CartProduct[] = cartStore.getState().products;
 
     this.updateTotalPrice();
 
@@ -248,6 +283,9 @@ export default class OrderPage {
   }
 
   remove(): void {
+    if (!this.self) return;
+    this.isRemoved = true;
+
     this.cartCards.forEach((card) => card.remove());
     this.cartCards.clear();
 
@@ -268,10 +306,7 @@ export default class OrderPage {
     Object.values(this.inputs).forEach((input) => input.remove());
     this.inputs = {};
 
-    if (this.unsubscribeFromStore) {
-      this.unsubscribeFromStore();
-      this.unsubscribeFromStore = null;
-    }
+    this.unsubscribeFromStore();
     this.parent.innerHTML = '';
   }
 }
