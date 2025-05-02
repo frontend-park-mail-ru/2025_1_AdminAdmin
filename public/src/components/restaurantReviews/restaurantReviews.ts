@@ -177,7 +177,10 @@ export class RestaurantReviews {
       this.updateReviews(newReview);
       toasts.success('Оценка успешно отправлена');
     } catch (error) {
-      toasts.error(error.message.charAt(0).toUpperCase() + error.message.slice(1));
+      const message = error.message;
+      toasts.error(
+        message ? message.charAt(0).toUpperCase() + message.slice(1) : 'Не удалось отправить отзыв',
+      );
     }
   };
 
