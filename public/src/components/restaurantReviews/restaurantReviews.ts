@@ -232,7 +232,7 @@ export class RestaurantReviews {
       amountElement.textContent = this.getRatingText(updatedRatingCount);
     }
 
-    this.starsWidget.setRating(updatedRating);
+    setTimeout(() => this.starsWidget.setRating(updatedRating), 1500);
   };
 
   getRatingText(ratingCount: number): string {

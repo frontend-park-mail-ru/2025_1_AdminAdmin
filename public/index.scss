@@ -233,7 +233,7 @@ input[type='number'] {
   -moz-appearance: textfield;
 }
 
-input[type='checkbox']{ height: 0; width: 0; }
+input[type='checkbox']{ opacity: 0; }
 
 input[type='checkbox'] + label{
   position: relative;

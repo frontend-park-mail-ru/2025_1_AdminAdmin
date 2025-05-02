@@ -23,6 +23,7 @@ export default class OrderPage {
   private unsubscribeFromStore: (() => void) | null = null;
   private youMoneyForm: YouMoneyForm = null;
   private isRemoved = false;
+  private isChecked = false;
 
   constructor(parent: HTMLElement, orderId?: string) {
     if (!parent) {
@@ -37,103 +38,155 @@ export default class OrderPage {
     return element as HTMLElement | null;
   }
 
-  async render(): Promise<void> {
-    let restaurantName, address;
-    if (this.orderId) {
-      try {
-        const order = await AppOrderRequests.getOrderById(this.orderId);
-        restaurantName = order.order_products.restaurant_name;
-        address = order.address;
-      } catch {
-        router.goToPage('home');
-        return;
-      }
-    } else {
-      restaurantName = cartStore.getState().restaurant_name;
-      address = userStore.getActiveAddress();
+  private async fetchOrderData(orderId: string) {
+    try {
+      const order = await AppOrderRequests.getOrderById(orderId);
+      return {
+        order,
+        orderId: order.id,
+        totalPrice: order.final_price,
+        leaveBytheDoor: order.leave_at_door,
+        restaurantName: order.order_products.restaurant_name,
+        address: order.address,
+        products: order.order_products.products,
+      };
+    } catch {
+      router.goToPage('home');
+      return null;
     }
-    this.parent.innerHTML = template({ restaurantName: restaurantName, address: address });
-
-    const inputsContainer = document.getElementById('form__line_order-page_address');
-
-    if (inputsContainer) {
-      for (const [key, config] of Object.entries(inputsConfig.addressInputs)) {
-        const inputComponent = new FormInput(inputsContainer, config);
-        inputComponent.render();
-
-        this.inputs[key] = inputComponent;
-      }
-    } else {
-      console.error('OrderPage: контейнер не найден');
-    }
-
-    const orderPageComment: HTMLDivElement = this.self.querySelector('.order-page__comment');
-    if (orderPageComment) {
-      const inputComponent = new FormInput(orderPageComment, inputsConfig.commentInput);
-      inputComponent.render();
-
-      this.inputs['orderPageComment'] = inputComponent;
-    }
-
-    const bin = this.self.querySelector('.order-page__products__header__clear');
-    if (bin) {
-      bin.addEventListener('click', this.handleClear);
-    }
-
-    const submitButtonContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
-    if (submitButtonContainer) {
-      if (userStore.isAuth()) {
-        this.submitButton = new Button(submitButtonContainer, {
-          id: 'order-page__submit__button',
-          text: 'Оформить заказ',
-          style: 'button_active',
-          onSubmit: async () => {
-            if (cartStore.getState().total_price > 100000) {
-              toasts.error(
-                'Сумма заказа не должна превышать 100 000 ₽. Разделите его на несколько',
-              );
-              return;
-            }
-            try {
-              this.submitButton.disable();
-              await this.sendOrder();
-            } catch (error) {
-              console.error(error);
-              toasts.error(error.message);
-            } finally {
-              this.submitButton.enable();
-            }
-          },
-        });
-      } else {
-        toasts.error('Для формирования заказа нужно авторизоваться');
-        this.submitButton = new Button(submitButtonContainer, {
-          id: 'order-page__submit__button',
-          text: 'Авторизоваться',
-          style: 'button_active',
-          onSubmit: () => {
-            router.goToPage('loginPage');
-          },
-        });
-      }
-      this.submitButton.render();
-    }
-
-    this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
-    this.updateCards();
-    this.createProductCards();
   }
 
-  private createProductCards(): void {
-    this.updateTotalPrice();
+  private renderInputs(order?: I_OrderResponse) {
+    const inputsContainer = document.getElementById('form__line_order-page_address');
+    if (!inputsContainer) {
+      console.error('OrderPage: контейнер не найден');
+      return;
+    }
+
+    for (const [key, config] of Object.entries(inputsConfig.addressInputs)) {
+      const inputComponent = new FormInput(inputsContainer, config);
+      inputComponent.render();
+      if (order) {
+        inputComponent.setValue(order[key as keyof I_OrderResponse] as string);
+        inputComponent.disable();
+      }
+      this.inputs[key] = inputComponent;
+    }
+  }
+
+  private renderCourierComment(order?: I_OrderResponse) {
+    const orderPageComment: HTMLDivElement = this.self.querySelector('.order-page__comment');
+    if (orderPageComment) {
+      const inputComponent = new FormInput(orderPageComment, inputsConfig.courier_comment);
+      inputComponent.render();
+      if (order) {
+        inputComponent.setValue(order.courier_comment);
+        inputComponent.disable();
+      }
+      this.inputs['orderPageComment'] = inputComponent;
+    }
+  }
+
+  private renderSubmitButton() {
+    const submitButtonContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
+    if (!submitButtonContainer) return;
+
+    if (userStore.isAuth()) {
+      this.submitButton = new Button(submitButtonContainer, {
+        id: 'order-page__submit__button',
+        text: 'Оформить заказ',
+        style: 'button_active',
+        onSubmit: async () => {
+          if (cartStore.getState().total_price > 100000) {
+            toasts.error('Сумма заказа не должна превышать 100 000 ₽. Разделите его на несколько');
+            return;
+          }
+          try {
+            this.submitButton.disable();
+            await this.sendOrder();
+          } catch (error) {
+            console.error(error);
+            toasts.error(error.message);
+          } finally {
+            this.submitButton.enable();
+          }
+        },
+      });
+    } else {
+      toasts.error('Для формирования заказа нужно авторизоваться');
+      this.submitButton = new Button(submitButtonContainer, {
+        id: 'order-page__submit__button',
+        text: 'Авторизоваться',
+        style: 'button_active',
+        onSubmit: () => router.goToPage('loginPage'),
+      });
+    }
+    this.submitButton.render();
+  }
+
+  async render(): Promise<void> {
+    let data;
+    if (this.orderId) {
+      data = await this.fetchOrderData(this.orderId);
+      if (!data) router.goToPage('home');
+    } else {
+      data = {
+        order: undefined,
+        orderId: undefined,
+        totalPrice: cartStore.getState().total_price,
+        leaveBytheDoor: undefined,
+        restaurantName: cartStore.getState().restaurant_name,
+        address: userStore.getActiveAddress(),
+        products: cartStore.getState().products,
+      };
+    }
+
+    const templateProps = {
+      idPreformed: data.order !== undefined,
+      orderId: data.orderId,
+      totalPrice: data.totalPrice,
+      leaveBytheDoor: data.leaveBytheDoor,
+      restaurantName: data.restaurantName,
+      address: data.address,
+    };
+
+    this.parent.innerHTML = template(templateProps);
+
+    this.renderInputs(data.order);
+    this.renderCourierComment(data.order);
+    this.createProductCards(data.products, Boolean(data.order));
+
+    if (!data.order) {
+      const bin = this.self.querySelector('.order-page__products__header__clear');
+      bin?.addEventListener('click', this.handleClear);
+      this.renderSubmitButton();
+      this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
+
+      const checkboxContainer = this.parent.querySelector('#orderPageCheckbox');
+      checkboxContainer.addEventListener('click', (e) => {
+        this.isChecked = !this.isChecked;
+        const checkbox = e.target as HTMLInputElement;
+        checkbox.checked = this.isChecked;
+      });
+    }
+  }
+
+  private createProductCards(products: CartProduct[], shouldDisable: boolean): void {
+    if (!products.length) {
+      setTimeout(() => {
+        import('@modules/routing').then(({ router }) => {
+          router.goToPage('home');
+        });
+      }, 0);
+    }
 
     const container = this.self.querySelector('.order-page__products') as HTMLDivElement;
     if (!container) return;
 
-    const state = cartStore.getState();
-    for (const product of state.products) {
+    for (const product of products) {
       const card = new CartCard(container, product);
       card.render();
+      if (shouldDisable) card.disable();
       this.cartCards.set(product.id, card);
     }
   }
@@ -173,8 +226,7 @@ export default class OrderPage {
       }
     }
 
-    const state = cartStore.getState();
-    const final_price = state.total_price;
+    const final_price = cartStore.getState().total_price;
     const address = userStore.getActiveAddress();
 
     if (!address) {
@@ -188,18 +240,15 @@ export default class OrderPage {
       return;
     }
 
-    const checkbox = this.self.querySelector<HTMLInputElement>('.order-page__checkbox');
-    const leaveAtDoor = checkbox?.checked ?? false;
-
     const payload: CreateOrderPayload = {
       status: 'new',
       address,
-      apartment_or_office: formValues.flat,
-      intercom: formValues.doorPhone,
-      entrance: formValues.porch,
+      apartment_or_office: formValues.apartment_or_office,
+      intercom: formValues.intercom,
+      entrance: formValues.entrance,
       floor: formValues.floor,
-      courier_comment: formValues.orderPageComment,
-      leave_at_door: leaveAtDoor,
+      courier_comment: formValues.courier_comment,
+      leave_at_door: this.isChecked,
       final_price,
     };
 
@@ -228,7 +277,7 @@ export default class OrderPage {
       cartCard.disable();
     }
 
-    const checkBox: HTMLInputElement = this.parent.querySelector('#checkbox');
+    const checkBox: HTMLInputElement = this.parent.querySelector('#orderPageCheckbox');
     checkBox.disabled = true;
     checkBox.style.pointerEvents = 'none';
 
@@ -274,11 +323,7 @@ export default class OrderPage {
     }
 
     if (!products.length) {
-      setTimeout(() => {
-        import('@modules/routing').then(({ router }) => {
-          router.goToPage('home');
-        });
-      }, 0);
+      router.goToPage('home');
     }
   }
 

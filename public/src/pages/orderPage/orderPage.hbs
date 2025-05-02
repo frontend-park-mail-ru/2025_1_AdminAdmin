@@ -1,6 +1,12 @@
 <div class="order-page">
     <div class="order-page__body">
-        <h1 class="order-page__header">Оформление заказа</h1>
+        <h1 class="order-page__header">
+            {{#if isPreformed}}
+                Заказ №{{orderId}}
+            {{else}}
+                Оформление заказа
+            {{/if}}
+        </h1>
 
         <div class="order-page__delivery">
             <h3>Доставка по адресу:</h3>
@@ -10,18 +16,20 @@
             <div class="order-page__comment"></div>
 
             <div class="order-page__leave_by_the_door">
-                <input type="checkbox" id="checkbox" />
-                <label for="checkbox">Оставить у двери</label>
+                <input type="checkbox" id="orderPageCheckbox" {{#if isPreformed}}disabled{{/if}}{{#if leaveBytheDoor}}checked{{/if}}>
+                <label for="orderPageCheckbox">Оставить у двери</label>
             </div>
         </div>
 
         <div class="order-page__products">
             <div class="order-page__products__header">
                 <h3>Ваш заказ</h3>
+                {{#unless isPreformed}}
                 <div class="order-page__products__header__clear">
                     <img src="/src/assets/bin.png" alt="bin img">
                     <span>Очистить корзину</span>
                 </div>
+                {{/unless}}
             </div>
         </div>
     </div>
@@ -33,7 +41,7 @@
         <div class="order-page__summary__content">
             <span>Товары в заказе</span>
             <div class="order-page__summary__price">
-                <span class="cart__total">0</span>
+                <span class="cart__total">{{totalPrice}}</span>
                 <span>₽</span>
             </div>
         </div>

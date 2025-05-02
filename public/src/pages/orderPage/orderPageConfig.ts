@@ -8,7 +8,7 @@ import {
 
 export default {
   addressInputs: {
-    flat: {
+    apartment_or_office: {
       id: 'form__line__flat__input',
       placeholder: 'Кв./Офис',
       type: 'text',
@@ -18,7 +18,7 @@ export default {
       validator: ValidateFlat,
       noErrorInHeader: true,
     },
-    doorPhone: {
+    intercom: {
       id: 'form__line__door_phone__input',
       placeholder: 'Домофон',
       type: 'text',
@@ -28,7 +28,7 @@ export default {
       validator: ValidateDoorPhone,
       noErrorInHeader: true,
     },
-    porch: {
+    entrance: {
       id: 'form__line__porch__input',
       placeholder: 'Подъезд',
       type: 'text',
@@ -50,7 +50,7 @@ export default {
       noErrorInHeader: true,
     },
   },
-  commentInput: {
+  courier_comment: {
     id: 'order_page_comment_input',
     placeholder: 'Комментарий курьеру',
     required: false,

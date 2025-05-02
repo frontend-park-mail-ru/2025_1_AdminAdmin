@@ -260,6 +260,19 @@ export class FormInput {
     return this.input?.value || '';
   }
 
+  setValue(value: string): void {
+    const input = this.input;
+    if (!input) return;
+
+    input.value = value;
+
+    if (this.props.type === 'tel') {
+      this.applyPhoneMask();
+    }
+
+    this.checkValue();
+  }
+
   remove(): void {
     const input = this.input;
     if (input) {
