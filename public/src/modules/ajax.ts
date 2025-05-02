@@ -1,5 +1,5 @@
 import { removeTokenFromLocalStorage, storeAuthTokensFromResponse } from './localStorage';
-import { RestaurantResponse } from '@myTypes/restaurantTypes';
+import { RestaurantResponse, Review } from '@myTypes/restaurantTypes';
 import { I_Cart } from '@myTypes/cartTypes';
 import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
 import { CreateOrderPayload } from '@myTypes/orderTypes';
@@ -231,8 +231,6 @@ class RestaurantsRequests {
 
   /**
    * Получает список всех ресторанов.
-   * @param params - GET-параметры запроса
-   * @returns {Promise<any>}
    */
   GetAll = async (params: RequestParams | null = null): Promise<any> => {
     const { status, body } = await baseRequest<any>(
@@ -253,8 +251,6 @@ class RestaurantsRequests {
 
   /**
    * Получает информацию об одном ресторане.
-   * @param id - Идентификатор ресторана
-   * @returns {Promise<any>}
    */
   Get = async (id: string): Promise<RestaurantResponse> => {
     const { status, body } = await baseRequest<RestaurantResponse | ErrorResponse>(
@@ -268,6 +264,71 @@ class RestaurantsRequests {
     } else {
       throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
     }
+  };
+
+  /**
+   * Получает список отзывов ресторана.
+   * @param id - ID ресторана
+   * @param count - количество отзывов (по умолчанию 1)
+   * @param offset - смещение (по умолчанию 0)
+   */
+  GetReviews = async (id: string, count = 100, offset = 0): Promise<Review[]> => {
+    const url = `${this.baseUrl}/${id}/reviews`;
+    const params: RequestParams = {
+      count: count.toString(),
+      offset: offset.toString(),
+    };
+
+    const { status, body } = await baseRequest<Review[] | ErrorResponse>(
+      methods.GET,
+      url,
+      null,
+      params,
+    );
+
+    if (status === 200) {
+      return body as Review[];
+    } else {
+      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось загрузить отзывы');
+    }
+  };
+
+  /**
+   * Отправляет отзыв о ресторане.
+   * @param id - ID ресторана
+   * @param review - объект с текстом и рейтингом
+   */
+  SendReview = async (
+    id: string,
+    review: { review_text: string; rating: number },
+  ): Promise<Review> => {
+    const url = `${this.baseUrl}/${id}/reviews`;
+
+    const { status, body } = await baseRequest<Review | ErrorResponse>(methods.POST, url, review);
+
+    if (status === 200 || status === 201) {
+      return body as Review;
+    } else {
+      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось отправить отзыв');
+    }
+  };
+
+  /**
+   * Проверяет, может ли пользователь оставить отзыв.
+   * @param id - ID ресторана
+   * @returns Если можно — возвращает true.
+   *          Если нельзя — выбрасывает исключение с текстом ошибки и предыдущим отзывом.
+   */
+  CanLeaveReview = async (id: string): Promise<string | undefined> => {
+    const url = `${this.baseUrl}/${id}/check`;
+
+    const { status, body } = await baseRequest<{ id?: string }>(methods.GET, url);
+
+    if (status !== 200) {
+      throw new Error('Ошибка при проверке возможности оставить отзыв');
+    }
+
+    return body?.id;
   };
 }
 

@@ -87,7 +87,7 @@ export default class OrderPage {
               await this.sendOrder();
             } catch (error) {
               console.error(error);
-              toasts.error(error);
+              toasts.error(error.message);
             } finally {
               this.submitButton.enable();
             }

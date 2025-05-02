@@ -1,0 +1,30 @@
+<div class="reviews_modal">
+    <div class="reviews_modal__content">
+        <div class="reviews_modal__header">
+            <div class="reviews_modal__title">
+                Отзывы
+            </div>
+            <img src="/src/assets/close.png" class="reviews_modal__close_icon" alt="close icon">
+        </div>
+        <div class="reviews_modal__reviews_container">
+            <div class="reviews_modal__no_reviews" id="no-reviews">
+                <div class="reviews_modal__no_reviews__text">Отзывов пока нет</div>
+                <img src="/src/assets/no-reviews.png" alt="no reviews">
+            </div>
+        </div>
+        {{#if canReview}}
+            <div class="reviews_modal__new_review">
+                <label>
+                    <textarea class="reviews_modal__new_review__textarea"
+                              lang="ru"
+                              placeholder="Что вы думаете об этом месте?"
+                    ></textarea>
+                </label>
+
+                <div class="reviews_modal__new_review__bottom">
+                    <div id="stars" class="reviews_modal__new_review__bottom_stars"></div>
+                </div>
+            </div>
+        {{/if}}
+    </div>
+</div>

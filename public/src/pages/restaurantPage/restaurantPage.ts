@@ -20,6 +20,8 @@ export default class RestaurantPage {
   private categoriesComponent: Categories;
   private productCards: ProductCard[] = [];
   private readonly categoriesWrapper: HTMLDivElement;
+  private restaurantHeaderComponent: RestaurantHeader;
+  private restaurantReviewsComponent: RestaurantReviews;
 
   /**
    * Создает экземпляр страницы ресторана.
@@ -68,21 +70,23 @@ export default class RestaurantPage {
         '.restaurant-header__wrapper',
       ) as HTMLElement;
 
-      const restaurantHeaderComponent = new RestaurantHeader(restaurantHeaderWrapper, this.props);
+      this.restaurantHeaderComponent = new RestaurantHeader(restaurantHeaderWrapper, this.props);
 
-      restaurantHeaderComponent.render();
+      this.restaurantHeaderComponent.render();
 
       const restaurantReviewsWrapper: HTMLElement = this.self.querySelector(
         '.restaurant-reviews__wrapper',
       );
 
-      const restaurantReviewsComponent = new RestaurantReviews(restaurantReviewsWrapper, {
+      this.restaurantReviewsComponent = new RestaurantReviews(restaurantReviewsWrapper, {
+        id: this.props.id,
         rating: this.props.rating,
         rating_count: this.props.rating_count,
+        reviews: this.props.reviews,
         address: this.props.address,
         working_mode: this.props.working_mode,
       });
-      restaurantReviewsComponent.render();
+      this.restaurantReviewsComponent.render();
 
       const productCardsBody = this.self.querySelector('.product-cards__body') as HTMLElement;
 
@@ -114,7 +118,8 @@ export default class RestaurantPage {
 
       window.addEventListener('scroll', this.checkSticky);
       window.addEventListener('resize', this.handleResize);
-    } catch {
+    } catch (error) {
+      console.error(error);
       router.goToPage('notFound');
     }
   }
@@ -180,6 +185,9 @@ export default class RestaurantPage {
   remove(): void {
     this.productCards.forEach((productCard) => productCard.remove());
     this.productCards = [];
+
+    this.restaurantHeaderComponent?.remove();
+    this.restaurantReviewsComponent?.remove();
 
     window.removeEventListener('scroll', this.checkSticky);
     window.removeEventListener('resize', this.handleResize);

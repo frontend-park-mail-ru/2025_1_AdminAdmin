@@ -1,0 +1,48 @@
+.rating_stars {
+  display: flex;
+  flex-direction: row;
+  font-size: 26px;
+  cursor: pointer;
+
+  .rating_star {
+    color: var(--light-grey);
+    position: relative;
+    transition: all 0.3s ease;
+
+    &.selected,
+    &.hover {
+      color: gold;
+    }
+
+    &.partial {
+      background: linear-gradient(to right, gold var(--percent), var(--light-grey) var(--percent));
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+    }
+
+    &.glowing {
+      color: gold;
+      animation: glowing 1.5s ease-in-out forwards;
+      will-change: transform, filter;
+    }
+
+    @keyframes glowing {
+      0% {
+        transform: scale3d(1, 1, 1);
+        filter: drop-shadow(0 0 2px gold);
+      }
+
+      50% {
+        transform: scale3d(1.1, 1.1, 1);
+        filter: drop-shadow(0 0 4px gold) drop-shadow(0 0 6px gold);
+      }
+
+      100% {
+        transform: scale3d(1, 1, 1);
+        filter: drop-shadow(0 0 2px gold);
+      }
+    }
+  }
+}
