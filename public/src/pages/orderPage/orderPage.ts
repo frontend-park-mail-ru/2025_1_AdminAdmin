@@ -45,7 +45,7 @@ export default class OrderPage {
         order,
         orderId: order.id,
         totalPrice: order.final_price,
-        leaveBytheDoor: order.leave_at_door,
+        leave_at_door: order.leave_at_door,
         restaurantName: order.order_products.restaurant_name,
         address: order.address,
         products: order.order_products.products,
@@ -134,7 +134,7 @@ export default class OrderPage {
         order: undefined,
         orderId: undefined,
         totalPrice: cartStore.getState().total_price,
-        leaveBytheDoor: undefined,
+        leave_at_door: undefined,
         restaurantName: cartStore.getState().restaurant_name,
         address: userStore.getActiveAddress(),
         products: cartStore.getState().products,
@@ -142,10 +142,10 @@ export default class OrderPage {
     }
 
     const templateProps = {
-      idPreformed: data.order !== undefined,
+      isPreformed: data.order !== undefined,
       orderId: data.orderId,
       totalPrice: data.totalPrice,
-      leaveBytheDoor: data.leaveBytheDoor,
+      leave_at_door: data.leave_at_door,
       restaurantName: data.restaurantName,
       address: data.address,
     };
@@ -156,20 +156,25 @@ export default class OrderPage {
     this.renderCourierComment(data.order);
     this.createProductCards(data.products, Boolean(data.order));
 
-    if (!data.order) {
-      const bin = this.self.querySelector('.order-page__products__header__clear');
-      bin?.addEventListener('click', this.handleClear);
-      this.renderSubmitButton();
-      this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
-
-      const checkboxContainer = this.parent.querySelector('#orderPageCheckbox');
-      checkboxContainer.addEventListener('click', (e) => {
-        this.isChecked = !this.isChecked;
-        const checkbox = e.target as HTMLInputElement;
-        checkbox.checked = this.isChecked;
-      });
+    if (data.order) {
+      if (data.order.status === 'new') this.createYouMoneyForm(data.order);
+      return;
     }
+
+    const bin = this.self.querySelector('.order-page__products__header__clear');
+    bin?.addEventListener('click', this.handleClear);
+    this.renderSubmitButton();
+    this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
+
+    const checkboxContainer = this.parent.querySelector('#orderPageCheckbox');
+    checkboxContainer.addEventListener('click', this.handleCheckBoxClick);
   }
+
+  private handleCheckBoxClick = (event: Event): void => {
+    this.isChecked = !this.isChecked;
+    const checkbox = event.target as HTMLInputElement;
+    checkbox.checked = this.isChecked;
+  };
 
   private createProductCards(products: CartProduct[], shouldDisable: boolean): void {
     if (!products.length) {
@@ -286,11 +291,15 @@ export default class OrderPage {
     );
     clearCart.style.display = 'none';
     this.submitButton.hide();
+
+    this.createYouMoneyForm(newOrder);
+  }
+
+  private createYouMoneyForm(newOrder: I_OrderResponse): void {
     const container: HTMLDivElement = this.self.querySelector('.order-page__summary');
     this.youMoneyForm = new YouMoneyForm(container, newOrder.final_price, newOrder.id);
     this.youMoneyForm.render();
   }
-
   private handleClear = async (): Promise<void> => {
     const bin: HTMLElement = this.self.querySelector('.order-page__products__header__clear');
     bin.style.pointerEvents = 'none';
@@ -339,6 +348,9 @@ export default class OrderPage {
       bin.removeEventListener('click', this.handleClear);
     }
 
+    const checkboxContainer = this.parent.querySelector('#orderPageCheckbox');
+    checkboxContainer.removeEventListener('click', this.handleCheckBoxClick);
+
     if (this.submitButton) {
       this.submitButton.remove();
     }
@@ -351,7 +363,7 @@ export default class OrderPage {
     Object.values(this.inputs).forEach((input) => input.remove());
     this.inputs = {};
 
-    this.unsubscribeFromStore();
+    if (this.unsubscribeFromStore) this.unsubscribeFromStore();
     this.parent.innerHTML = '';
   }
 }

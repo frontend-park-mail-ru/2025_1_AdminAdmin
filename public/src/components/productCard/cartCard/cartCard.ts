@@ -70,8 +70,6 @@ export class CartCard {
       throw new Error('Error: cartCard template not found');
     }
 
-    this.props.amount = cartStore.getProductAmountById(this.props.id);
-
     const total_price = (this.props.amount * this.props.price).toLocaleString('ru-RU');
     const html = template({ total_price: total_price, ...this.props });
     this.parent.insertAdjacentHTML('beforeend', html);

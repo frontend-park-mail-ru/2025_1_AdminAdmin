@@ -16,7 +16,11 @@
             <div class="order-page__comment"></div>
 
             <div class="order-page__leave_by_the_door">
-                <input type="checkbox" id="orderPageCheckbox" {{#if isPreformed}}disabled{{/if}}{{#if leaveBytheDoor}}checked{{/if}}>
+                <input
+                        type="checkbox"
+                        id="orderPageCheckbox"
+                    {{#if isPreformed}}disabled{{/if}}
+                    {{#if leave_at_door}}checked{{/if}} >
                 <label for="orderPageCheckbox">Оставить у двери</label>
             </div>
         </div>
