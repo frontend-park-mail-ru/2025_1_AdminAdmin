@@ -299,6 +299,7 @@ input[type=checkbox]:checked {
 
 input[type=checkbox]:disabled, input[type=checkbox]:disabled + label {
   opacity: .5;
+  cursor: not-allowed;
 }
 
 input[type=checkbox]:before {
