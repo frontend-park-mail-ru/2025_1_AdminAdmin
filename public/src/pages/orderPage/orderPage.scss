@@ -6,6 +6,10 @@
   align-items: start;
   font-size: 18px;
 
+  .formed {
+    font-size: 26px;
+  }
+
   @media (max-width: 1200px) {
     display: flex;
     flex-direction: column;

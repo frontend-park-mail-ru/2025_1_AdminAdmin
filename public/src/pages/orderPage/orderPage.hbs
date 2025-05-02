@@ -1,6 +1,6 @@
 <div class="order-page">
     <div class="order-page__body">
-        <h1 class="order-page__header">
+        <h1 class="order-page__header {{#if isPreformed}}formed{{/if}}" >
             {{#if isPreformed}}
                 Заказ №{{orderId}}
             {{else}}

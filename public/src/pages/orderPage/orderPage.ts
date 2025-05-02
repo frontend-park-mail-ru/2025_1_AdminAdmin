@@ -272,7 +272,7 @@ export default class OrderPage {
 
     const pageHeader: HTMLElement = this.parent.querySelector('.order-page__header');
     pageHeader.textContent = `Заказ №${newOrder.id}`;
-    pageHeader.style.fontSize = '26px';
+    pageHeader.classList.add('formed');
 
     for (const input of Object.values(this.inputs)) {
       input.disable();

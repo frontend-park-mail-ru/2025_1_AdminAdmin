@@ -42,7 +42,7 @@ export class CartCard {
     const cardContent: HTMLDivElement = this.self.querySelector('.cart-card__content');
 
     const newAmountContainer = document.createElement('span');
-    newAmountContainer.textContent = `${this.props.amount} шт.`;
+    newAmountContainer.textContent = `${this.props.amount.toLocaleString('ru-RU')} шт.`;
 
     cardContent.appendChild(newAmountContainer);
 
