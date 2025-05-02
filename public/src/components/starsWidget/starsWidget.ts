@@ -4,12 +4,14 @@ export class StarsWidget {
   private stars: NodeListOf<Element>;
   private readonly parent: HTMLElement;
   private currentRating: number;
+  private readonly areReviewsModalStars: boolean;
   private isGlowing = false;
   private readonly onSend: (value: number) => void;
 
   constructor(parent: HTMLElement, rating: number, onSend: (value: number) => void) {
     this.parent = parent;
     this.currentRating = rating;
+    this.areReviewsModalStars = rating === 0;
     this.onSend = onSend;
   }
 
@@ -53,6 +55,9 @@ export class StarsWidget {
     this.highlightStars(value, 'glowing');
     this.isGlowing = true;
 
+    if (this.areReviewsModalStars) {
+      this.currentRating = value;
+    }
     setTimeout(() => {
       this.isGlowing = false;
       this.highlightStars(this.currentRating, 'selected');

@@ -5,7 +5,6 @@ import { AppRestaurantRequests } from '@modules/ajax';
 import { RestaurantReview } from '@components/restaurantReviews/restaurantReview/restaurantReview';
 import { FormInput } from '@components/formInput/formInput';
 import { StarsWidget } from '@components/starsWidget/starsWidget';
-import { toasts } from '@modules/toasts';
 import { router } from '@modules/routing';
 import { modalController } from '@modules/modalController';
 const { userStore } = await import('@store/userStore');
@@ -76,7 +75,6 @@ export class ReviewsModal {
         this.previousReviewId = await AppRestaurantRequests.CanLeaveReview(this.restaurant_id);
         if (typeof this.previousReviewId === 'string') {
           canReview = false;
-          toasts.info('Вы уже оставляли отзыв на этот ресторан');
         } else {
           canReview = true;
         }
@@ -102,10 +100,10 @@ export class ReviewsModal {
     for (const review of this.reviews) {
       let reviewComponent: RestaurantReview;
       if (review.id === this.previousReviewId) {
-        reviewComponent = new RestaurantReview(reviewsContainer, review, true);
+        reviewComponent = new RestaurantReview(reviewsContainer, { ...review, isActive: true });
         this.previousReview = reviewComponent;
       } else {
-        reviewComponent = new RestaurantReview(reviewsContainer, review);
+        reviewComponent = new RestaurantReview(reviewsContainer, { ...review, isActive: false });
       }
       reviewComponent.render();
       this.reviewsComponents.push(reviewComponent);
@@ -163,7 +161,10 @@ export class ReviewsModal {
     const reviewsContainer: HTMLDivElement = this.self.querySelector(
       '.reviews_modal__reviews_container',
     );
-    const reviewComponent = new RestaurantReview(reviewsContainer, newReview, true);
+    const reviewComponent = new RestaurantReview(reviewsContainer, {
+      ...newReview,
+      isActive: true,
+    });
     reviewComponent.render('afterbegin');
     this.reviewsComponents.push(reviewComponent);
 
@@ -202,7 +203,7 @@ export class ReviewsModal {
 
     const starsContainer: HTMLElement = document.getElementById('stars');
 
-    this.starsWidget = new StarsWidget(starsContainer, this.rating, (rating) => {
+    this.starsWidget = new StarsWidget(starsContainer, 0, (rating) => {
       this.reviewRating = rating;
       this.submitBtn.enable();
     });

@@ -90,7 +90,10 @@ export class RestaurantReviews {
     let moreReviewsProps: ButtonProps;
     if (Array.isArray(this.props.reviews) && this.props.reviews.length > 0) {
       this.props.reviews.forEach((reviewProps) => {
-        const reviewComponent = new RestaurantReview(reviewsContainer, reviewProps);
+        const reviewComponent = new RestaurantReview(reviewsContainer, {
+          ...reviewProps,
+          isActive: false,
+        });
         reviewComponent.render();
       });
       // Рендерим кнопку "Больше"
@@ -174,7 +177,7 @@ export class RestaurantReviews {
       this.updateReviews(newReview);
       toasts.success('Оценка успешно отправлена');
     } catch (error) {
-      toasts.error(error.message);
+      toasts.error(error.message.charAt(0).toUpperCase() + error.message.slice(1));
     }
   };
 
@@ -193,7 +196,10 @@ export class RestaurantReviews {
       const reviewsContainer: HTMLDivElement = this.self.querySelector(
         '.restaurant-reviews__reviews-container',
       );
-      const reviewComponent = new RestaurantReview(reviewsContainer, newReview, true);
+      const reviewComponent = new RestaurantReview(reviewsContainer, {
+        ...newReview,
+        isActive: true,
+      });
       reviewComponent.render('afterbegin');
       this.moreButton.setText('Показать больше');
 

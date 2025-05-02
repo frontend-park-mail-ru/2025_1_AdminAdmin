@@ -1,28 +1,29 @@
 import template from './restaurantReview.hbs';
 import { Review } from '@myTypes/restaurantTypes';
 
+interface RestaurantReviewProps extends Review {
+  isActive: boolean;
+}
+
 /**
  * Класс отзыва ресторана
  */
 export class RestaurantReview {
   protected parent: HTMLElement; // Родитель (где вызывается)
-  protected props: Review;
-  private isActive: boolean;
+  protected props: RestaurantReviewProps;
 
   /**
    *Создает экземпляр отзыва ресторана.
    * @constructor
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться отзыв ресторана.
    * @param {Object} props - Словарь данных для определения свойств отзыв ресторана
-   * @param isActive
    */
-  constructor(parent: HTMLElement, props: Review, isActive = false) {
+  constructor(parent: HTMLElement, props: RestaurantReviewProps) {
     if (!parent) {
       throw new Error('Review: no parent!');
     }
     this.parent = parent;
     this.props = props;
-    this.isActive = isActive;
   }
 
   /**
@@ -69,7 +70,7 @@ export class RestaurantReview {
 
     ratingInStars.style.width = `${(this.props.rating / 5) * 100}%`;
 
-    if (this.isActive) {
+    if (this.props.isActive) {
       this.self.style.backgroundColor = 'var(--light-grey)';
     }
   }
