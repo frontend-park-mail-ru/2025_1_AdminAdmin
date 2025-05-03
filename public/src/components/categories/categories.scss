@@ -2,6 +2,10 @@
     display: flex;
     flex-direction: column;
 
+    .button {
+        transition: unset;
+    }
+
     @media (max-width: 800px) {
         box-sizing: border-box;
         flex-direction: row;
