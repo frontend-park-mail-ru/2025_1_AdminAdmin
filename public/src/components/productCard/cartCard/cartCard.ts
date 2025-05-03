@@ -33,6 +33,23 @@ export class CartCard {
     this.unsubscribeFromStore = cartStore.subscribe(this.updateState);
   }
 
+  disable() {
+    const controlsWrapper: HTMLDivElement = this.self.querySelector(
+      '.cart-card__content__quantity-controls-wrapper',
+    );
+    controlsWrapper.style.display = 'none';
+
+    const cardContent: HTMLDivElement = this.self.querySelector('.cart-card__content');
+
+    const newAmountContainer = document.createElement('span');
+    newAmountContainer.textContent = `${this.props.amount.toLocaleString('ru-RU')} шт.`;
+
+    cardContent.appendChild(newAmountContainer);
+
+    const bin: HTMLElement = this.self.querySelector('.cart-card__bin_icon');
+    bin.style.display = 'none';
+  }
+
   /**
    * Ссылка на объект
    * @returns {HTMLElement} - ссылка на объект
@@ -52,8 +69,6 @@ export class CartCard {
     if (!template) {
       throw new Error('Error: cartCard template not found');
     }
-
-    this.props.amount = cartStore.getProductAmountById(this.props.id);
 
     const total_price = (this.props.amount * this.props.price).toLocaleString('ru-RU');
     const html = template({ total_price: total_price, ...this.props });

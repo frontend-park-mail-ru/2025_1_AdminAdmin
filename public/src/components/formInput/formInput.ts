@@ -111,6 +111,14 @@ export class FormInput {
     }
   }
 
+  disable(): void {
+    const input = this.input;
+    if (input) {
+      input.disabled = true;
+      input.classList.add('disabled');
+    }
+  }
+
   render(): void {
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
@@ -250,6 +258,19 @@ export class FormInput {
 
   get value(): string {
     return this.input?.value || '';
+  }
+
+  setValue(value: string): void {
+    const input = this.input;
+    if (!input) return;
+
+    input.value = value;
+
+    if (this.props.type === 'tel') {
+      this.applyPhoneMask();
+    }
+
+    this.checkValue();
   }
 
   remove(): void {

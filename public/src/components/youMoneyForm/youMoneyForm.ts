@@ -8,6 +8,7 @@ export default class YouMoneyForm {
   private parent: HTMLElement;
   private readonly amount: number;
   private submitBtn: Button;
+  private orderId: string;
 
   get self(): HTMLElement {
     const element = this.parent.querySelector('.payment-form');
@@ -22,17 +23,22 @@ export default class YouMoneyForm {
    * @constructor
    * @param parent {HTMLElement} - родительский элемент
    * @param amount
+   * @param orderId
    */
-  constructor(parent: HTMLElement, amount: number) {
+  constructor(parent: HTMLElement, amount: number, orderId: string) {
     this.parent = parent;
     this.amount = amount;
+    this.orderId = orderId;
   }
 
   /**
    * Рендеринг формы
    */
   render() {
-    this.parent.insertAdjacentHTML('beforeend', template({ amount: this.amount }));
+    this.parent.insertAdjacentHTML(
+      'beforeend',
+      template({ amount: this.amount, orderId: this.orderId }),
+    );
 
     this.submitBtn = new Button(this.self, {
       id: 'payment-form__submit-btn',

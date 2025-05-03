@@ -2,7 +2,7 @@ import { removeTokenFromLocalStorage, storeAuthTokensFromResponse } from './loca
 import { RestaurantResponse, Review } from '@myTypes/restaurantTypes';
 import { I_Cart } from '@myTypes/cartTypes';
 import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
-import { CreateOrderPayload } from '@myTypes/orderTypes';
+import { CreateOrderPayload, I_OrderResponse } from '@myTypes/orderTypes';
 import { getRequestOptions, parseResponseBody } from '@modules/fetchUtils';
 
 export interface ResponseData<T = any> {
@@ -400,20 +400,58 @@ class OrderRequests {
   /**
    * Создает новый заказ.
    * @param payload - Данные заказа
-   * @returns {Promise<{ message: string; order_id?: string }>}
+   * @returns {Promise<I_OrderResponse>}
    */
-  CreateOrder = async (
-    payload: CreateOrderPayload,
-  ): Promise<{ message: string; order_id?: string }> => {
-    const { status, body } = await baseRequest<
-      { message: string; order_id?: string } | ErrorResponse
-    >(methods.POST, this.baseUrl + '/create', payload);
+  CreateOrder = async (payload: CreateOrderPayload): Promise<I_OrderResponse> => {
+    const { status, body } = await baseRequest<I_OrderResponse | ErrorResponse>(
+      methods.POST,
+      this.baseUrl + '/create',
+      payload,
+    );
 
     if (status === 200 || status === 201) {
-      return body as { message: string; order_id?: string };
+      return body as I_OrderResponse;
     }
 
     throw new Error((body as ErrorResponse)?.error ?? 'Не удалось создать заказ');
+  };
+
+  /**
+   * Получает список заказов пользователя.
+   * @param count - Количество заказов (по умолчанию 15)
+   * @param offset - Смещение (по умолчанию 0)
+   * @returns {Promise<I_OrderResponse[]>}
+   */
+  getUserOrders = async (count = 15, offset = 0): Promise<I_OrderResponse[]> => {
+    const query = `?count=${count}&offset=${offset}`;
+    const { status, body } = await baseRequest<I_OrderResponse[] | ErrorResponse>(
+      methods.GET,
+      this.baseUrl + query,
+    );
+
+    if (status === 200) {
+      return body as I_OrderResponse[];
+    }
+
+    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось получить заказы пользователя');
+  };
+
+  /**
+   * Получает заказ по ID.
+   * @param orderId - UUID заказа
+   * @returns {Promise<I_OrderResponse>}
+   */
+  getOrderById = async (orderId: string): Promise<I_OrderResponse> => {
+    const { status, body } = await baseRequest<I_OrderResponse | ErrorResponse>(
+      methods.GET,
+      `${this.baseUrl}/${orderId}`,
+    );
+
+    if (status === 200) {
+      return body as I_OrderResponse;
+    }
+
+    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось получить заказ');
   };
 }
 
