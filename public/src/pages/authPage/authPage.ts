@@ -124,7 +124,7 @@ export class AuthPage {
 
   private updateAuthState(): void {
     if (userStore.isAuth()) {
-      router.goToPage('home');
+      router.goBack();
     }
   }
 

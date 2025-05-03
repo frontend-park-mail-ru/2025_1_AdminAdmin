@@ -2,7 +2,9 @@ import template from './button.hbs';
 
 export interface ButtonProps {
   id: string;
-  text: string;
+  text?: string;
+  iconSrc?: string;
+  iconAlt?: string;
   style?: string;
   insert?: InsertPosition;
   onSubmit?: () => void;
@@ -31,6 +33,8 @@ export class Button {
       text: props.text,
       style: props.style,
       insert: props.insert || 'beforeend',
+      iconSrc: props.iconSrc,
+      iconAlt: props.iconAlt,
       onSubmit: props.onSubmit,
       disabled: props.disabled || false,
       type: props.type,
@@ -134,9 +138,9 @@ export class Button {
    * @param newText - Новый текст, который будет установлен на кнопке.
    */
   setText(newText: string): void {
-    const button = this.self;
-    if (button) {
-      button.textContent = newText;
+    const buttonText = this.self.querySelector('.button__text');
+    if (buttonText) {
+      buttonText.textContent = newText;
     }
   }
 
