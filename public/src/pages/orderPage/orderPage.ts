@@ -43,7 +43,7 @@ export default class OrderPage {
       const order = await AppOrderRequests.getOrderById(orderId);
       return {
         order,
-        orderId: order.id,
+        orderId: order.id.slice(-4),
         totalPrice: order.final_price,
         leave_at_door: order.leave_at_door,
         restaurantName: order.order_products.restaurant_name,
@@ -128,7 +128,10 @@ export default class OrderPage {
     let data;
     if (this.orderId) {
       data = await this.fetchOrderData(this.orderId);
-      if (!data) router.goToPage('home');
+      if (!data) {
+        router.goToPage('home');
+        return;
+      }
     } else {
       data = {
         order: undefined,
@@ -271,7 +274,7 @@ export default class OrderPage {
     window.history.replaceState({}, '', `/order/${newOrder.id}`);
 
     const pageHeader: HTMLElement = this.parent.querySelector('.order-page__header');
-    pageHeader.textContent = `Заказ №${newOrder.id}`;
+    pageHeader.textContent = `Заказ №${newOrder.id.slice(-4)}`;
     pageHeader.classList.add('formed');
 
     for (const input of Object.values(this.inputs)) {

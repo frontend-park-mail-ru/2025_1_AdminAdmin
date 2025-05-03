@@ -178,9 +178,7 @@ export class RestaurantReviews {
       toasts.success('Оценка успешно отправлена');
     } catch (error) {
       const message = error.message;
-      toasts.error(
-        message ? message.charAt(0).toUpperCase() + message.slice(1) : 'Не удалось отправить отзыв',
-      );
+      toasts.error(message ? message : 'Не удалось отправить отзыв');
     }
   };
 

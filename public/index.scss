@@ -236,6 +236,7 @@ input[type='number'] {
 input[type='checkbox']{ opacity: 0; }
 
 input[type='checkbox'] + label{
+  cursor: pointer;
   position: relative;
   display: flex;
   margin: .6em 0;
