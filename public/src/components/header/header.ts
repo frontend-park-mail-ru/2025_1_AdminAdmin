@@ -12,6 +12,7 @@ import { cartStore } from '@store/cartStore';
 import { modalController } from '@modules/modalController';
 import { AppUserRequests } from '@modules/ajax';
 import { Address } from '@components/address/address';
+import { FormInput } from '@components/formInput/formInput';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -32,6 +33,9 @@ export default class Header {
   private unsubscribeFromCartStore: (() => void) | null = null;
   private readonly handleResizeBound: () => void;
   private lastScreenSizeCategory: 'mobile' | 'desktop' | 'large-desktop' | null = null;
+  private searchInput: FormInput;
+  private searchButton: Button;
+  private searchAll: boolean;
 
   /**
    * Создает экземпляр заголовка.
@@ -228,6 +232,23 @@ export default class Header {
     const authButtonContainer = document.querySelector('.header__auth_button') as HTMLElement;
     if (!authButtonContainer) return;
 
+    const headerSearchContainer: HTMLDivElement = this.parent.querySelector('.header__search');
+    this.searchInput = new FormInput(headerSearchContainer, {
+      id: 'header__search__input',
+      placeholder: 'Найти ресторан или блюдо',
+      type: 'search',
+      noErrorInHeader: true,
+    });
+    this.searchInput.render();
+
+    this.searchButton = new Button(headerSearchContainer, {
+      id: 'header__search__button',
+      text: 'Найти',
+      style: 'search_button dark',
+      type: 'submit',
+    });
+    this.searchButton.render();
+
     this.loginButton = new Button(authButtonContainer, {
       id: 'login_button',
       text: 'Вход',
@@ -376,6 +397,25 @@ export default class Header {
     }
   }
 
+  updateHeader(searchAll: boolean): void {
+    if (this.searchAll !== undefined && this.searchAll === searchAll) {
+      return;
+    }
+    this.searchAll = searchAll;
+    if (searchAll) {
+      this.searchButton.setOnSubmit(() => {
+        router.goToPage('searchPage', this.searchInput.value);
+      });
+
+      this.searchInput.setPlaceholder('Найти ресторан или блюдо');
+      return;
+    }
+
+    /*    this.searchButton.setOnSubmit(() => {
+    });*/
+
+    this.searchInput.setPlaceholder('Поиск по ресторану');
+  }
   /**
    * Удаляет заголовок со страницы и снимает обработчики событий.
    */
@@ -385,6 +425,8 @@ export default class Header {
     this.logoutButton?.remove();
     this.profileButton.remove();
     this.loginButton?.remove();
+    this.searchButton?.remove();
+    this.searchInput?.remove();
     if (this.cartButton) this.cartButton.remove();
     this.parent.innerHTML = '';
     this.addressComponents.forEach((comp) => comp.remove());

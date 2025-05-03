@@ -273,6 +273,13 @@ export class FormInput {
     this.checkValue();
   }
 
+  setPlaceholder(value: string): void {
+    const input = this.input;
+    if (!input) return;
+
+    input.placeholder = value;
+  }
+
   remove(): void {
     const input = this.input;
     if (input) {

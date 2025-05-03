@@ -1,0 +1,15 @@
+.search_page {
+  &__container {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+  }
+
+  &__body {
+    min-height: 100vh;
+    box-sizing: border-box;
+    margin-top: 20px;
+    width: 100%;
+    padding: 0 7vw;
+  }
+}

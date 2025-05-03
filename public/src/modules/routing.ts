@@ -6,11 +6,13 @@ import { AuthPage } from '@pages/authPage/authPage';
 import NotFoundPage from '@pages/404/404';
 import ProfilePage from '@pages/profilePage/profilePage';
 import OrderPage from '@pages/orderPage/orderPage';
+import SearchPage from '@pages/searchPage/searchPage';
 
 interface RouteConfig {
   href: string;
   class: new (...args: any[]) => any;
   header: new (parent: HTMLElement) => any;
+  searchAll?: boolean;
   options?: boolean;
 }
 
@@ -46,11 +48,13 @@ class Router {
         href: '/',
         class: RestaurantList,
         header: Header,
+        searchAll: true,
       },
       restaurantPage: {
         href: '/restaurants/',
         class: RestaurantPage,
         header: Header,
+        searchAll: false,
       },
       loginPage: {
         href: '/login',
@@ -75,6 +79,13 @@ class Router {
         class: OrderPage,
         header: auxHeader,
         options: false,
+      },
+      searchPage: {
+        href: '/search',
+        class: SearchPage,
+        header: Header,
+        options: true,
+        searchAll: true,
       },
       notFound: {
         href: '/404',
@@ -158,6 +169,7 @@ class Router {
       this.currentPage?.remove();
       this.currentPage = new pageData.class(this.pageElement, id);
       this.currentId = id;
+      if (this.currentHeader instanceof Header) this.currentHeader.updateHeader(pageData.searchAll);
       this.currentPage.render(pageData.options);
       return;
     }
@@ -171,7 +183,7 @@ class Router {
   goBack(): void {
     const prevUrl = window.history.state?.prevUrl;
 
-    if (prevUrl && prevUrl.startsWith('/')) {
+    if (prevUrl && prevUrl.startsWith('/') && !(this.currentPage instanceof NotFoundPage)) {
       history.pushState({}, '', prevUrl);
       this.handleRouteChange();
     } else {

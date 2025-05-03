@@ -10,6 +10,7 @@
 @use './src/components/profileTableRow/profileTableRow.scss' as *;
 @use './src/components/categories/categoryHeader/categoryHeader' as *;
 @use './src/components/youMoneyForm/youMoneyForm' as *;
+@use './src/components/productCard/morePlaceholder/morePlaceholder' as *;
 
 /* Импорт сложных компонентов */
 @use './src/components/header/header' as *;
@@ -30,6 +31,7 @@
 @use './src/components/unifiedForm/unifiedForm' as *;
 @use './src/components/reviewsModal/reviewsModal' as *;
 @use './src/components/starsWidget/starsWidget' as *;
+@use './src/components/searchBlock/searchBlock' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;
@@ -39,6 +41,7 @@
 @use './src/pages/mapModal/mapModal' as *;
 @use './src/pages/404/404' as *;
 @use './src/pages/orderPage/orderPage' as *;
+@use './src/pages/searchPage/searchPage' as *;
 
 @import '~@yandex/ymaps3-default-ui-theme/dist/esm/index.css';
 
@@ -62,6 +65,11 @@
   --light-yellow-light: #eff0d1;
   --header-content-height: 45px;
   --real-header-height: 67.5px;
+
+  @media (max-width: 1000px) {
+    --header-height: 100px;
+    --real-header-height: 140px;
+  }
 }
 
 body {
