@@ -113,23 +113,6 @@ export class Categories {
     if (this.activeCategoryId === categoryId) {
       return;
     }
-
-    const previousCategoryButton = this.categoryElements[this.activeCategoryId]?.button;
-    if (previousCategoryButton) {
-      previousCategoryButton.self.classList.remove('button_active');
-    }
-
-    const currentCategoryButton = this.categoryElements[categoryId]?.button;
-    if (currentCategoryButton) {
-      currentCategoryButton.self.classList.add('button_active');
-      currentCategoryButton.self.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center',
-      });
-    }
-
-    this.activeCategoryId = categoryId;
   }
 
   private scrollHandler(): void {

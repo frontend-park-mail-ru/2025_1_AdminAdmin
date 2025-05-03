@@ -28,6 +28,10 @@ export interface BaseRestaurant {
   rating: number;
 }
 
+export interface SearchRestaurant extends BaseRestaurant {
+  products: Product[];
+}
+
 export interface Review {
   id: string;
   user: string;
