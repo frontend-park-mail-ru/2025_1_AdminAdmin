@@ -30,6 +30,7 @@
 
     @media (max-width: 1800px) {
       row-gap: 40px;
+      grid-template-columns: 2fr 10fr;
       grid-template-areas:
           'rating details'
           'reviews reviews';
@@ -84,6 +85,10 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+
+    @media (max-width: 1800px) {
+      margin-left: 0;
+    }
   }
 
   &__no_reviews {

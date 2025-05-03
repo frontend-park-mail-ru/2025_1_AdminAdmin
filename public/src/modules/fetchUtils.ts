@@ -37,3 +37,13 @@ export const getRequestOptions = (method: string, data: any, contentType: string
 
   return options;
 };
+
+/**
+ * Делает первую букву строки заглавной.
+ * @param error - Текст ошибки
+ * @returns Строка с заглавной первой буквой
+ */
+export const capitalizeError = (error: string): string => {
+  if (!error) return '';
+  return error.charAt(0).toUpperCase() + error.slice(1);
+};

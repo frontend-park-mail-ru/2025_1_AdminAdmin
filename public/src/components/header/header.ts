@@ -6,6 +6,7 @@ import template from './header.hbs';
 import { toasts } from '@modules/toasts';
 import MapModal from '@pages/mapModal/mapModal';
 import logoImg from '@assets/logo.png';
+import cartImg from '@assets/cart.svg';
 import smallLogo from '@assets/small_logo.png';
 import { cartStore } from '@store/cartStore';
 import { modalController } from '@modules/modalController';
@@ -119,8 +120,6 @@ export default class Header {
       await this.handleSelectButtonClick();
       return;
     }
-
-    this.toggleProfileDropdown(target);
   }
 
   private isMapButtonClick(target: HTMLElement): boolean {
@@ -205,20 +204,12 @@ export default class Header {
     }
   }
 
-  private toggleProfileDropdown(target: HTMLElement): void {
+  private toggleProfileDropdown = () => {
     const profileDropdownOptions = document.querySelector(
       '.header__profile-dropdown__options',
     ) as HTMLElement;
-
-    if (target.id === 'profile_button') {
-      profileDropdownOptions.classList.toggle('active');
-    } else if (
-      profileDropdownOptions.classList.contains('active') &&
-      !profileDropdownOptions.contains(target)
-    ) {
-      profileDropdownOptions.classList.remove('active');
-    }
-  }
+    profileDropdownOptions.classList.toggle('active');
+  };
 
   /**
    * Ссылка на объект
@@ -252,7 +243,7 @@ export default class Header {
     this.profileButton = new Button(profileButtonWrapper, {
       id: 'profile_button',
       text: 'Профиль',
-      onSubmit: undefined,
+      onSubmit: this.toggleProfileDropdown,
     });
     this.profileButton.render();
 
@@ -271,10 +262,11 @@ export default class Header {
 
     const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
     if (!cartButtonContainer) return;
-
     this.cartButton = new Button(cartButtonContainer, {
       id: 'cart_button',
       style: 'dark',
+      iconSrc: cartImg,
+      iconAlt: 'cartIcon',
       text: '0',
     });
     this.cartButton.render();

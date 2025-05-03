@@ -76,7 +76,7 @@ export default class ProfilePage {
     if (!userStore.isAuth()) {
       setTimeout(() => {
         import('@modules/routing').then(({ router }) => {
-          router.goToPage('home');
+          router.goBack();
         });
       }, 0);
       return;

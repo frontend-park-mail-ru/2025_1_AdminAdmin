@@ -142,8 +142,11 @@ class Router {
     if (!shouldPush) return;
 
     const newPath = id ? `${pageData.href}${id}` : pageData.href;
+
+    const prevUrl = window.location.pathname;
+
     if (window.location.pathname !== newPath) {
-      history.pushState(id ? { id } : {}, '', newPath);
+      history.pushState({ prevUrl }, '', newPath);
     }
   }
 
@@ -160,6 +163,20 @@ class Router {
     }
 
     if (this.currentPage instanceof AuthPage) this.currentPage.render(pageData.options);
+  }
+
+  /**
+   * Возврат на предыдущую страницу.
+   */
+  goBack(): void {
+    const prevUrl = window.history.state?.prevUrl;
+
+    if (prevUrl && prevUrl.startsWith('/')) {
+      history.pushState({}, '', prevUrl);
+      this.handleRouteChange();
+    } else {
+      this.goToPage('home');
+    }
   }
 
   /**

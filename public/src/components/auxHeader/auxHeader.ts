@@ -1,5 +1,8 @@
 import { Logo } from '@components/logo/logo';
 import logoImg from '@assets/logo.png';
+import leftArrowImg from '@assets/left-arrow.png';
+import { Button } from '@components/button/button';
+import { router } from '@modules/routing';
 
 /**
  * Класс AuxHeader представляет заголовок страниц логина и авторизации.
@@ -7,6 +10,7 @@ import logoImg from '@assets/logo.png';
 export default class AuxHeader {
   private readonly parent: HTMLElement;
   private logo?: Logo;
+  private backButton: Button;
 
   /**
    * Создает экземпляр заголовка.
@@ -24,6 +28,15 @@ export default class AuxHeader {
     this.parent.classList.add('aux_header');
     this.logo = new Logo(this.parent, logoImg);
     this.logo.render();
+
+    this.backButton = new Button(this.parent, {
+      id: 'header-back-button',
+      iconSrc: leftArrowImg,
+      iconAlt: 'back',
+      onSubmit: () => router.goBack(),
+    });
+
+    this.backButton.render();
   }
 
   /**

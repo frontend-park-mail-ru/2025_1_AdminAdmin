@@ -3,7 +3,7 @@ import { RestaurantResponse, Review } from '@myTypes/restaurantTypes';
 import { I_Cart } from '@myTypes/cartTypes';
 import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
 import { CreateOrderPayload, I_OrderResponse } from '@myTypes/orderTypes';
-import { getRequestOptions, parseResponseBody } from '@modules/fetchUtils';
+import { capitalizeError, getRequestOptions, parseResponseBody } from '@modules/fetchUtils';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -83,7 +83,7 @@ class UserRequests {
       return body as User;
     }
 
-    throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
+    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
   };
 
   /**
@@ -104,7 +104,7 @@ class UserRequests {
       return body as User;
     }
 
-    throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
+    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
   };
 
   /**
@@ -118,7 +118,7 @@ class UserRequests {
       removeTokenFromLocalStorage();
       return { message: 'ok' };
     } else {
-      throw new Error(body.message ?? 'Что-то пошло не так...');
+      throw new Error(capitalizeError(body.message) ?? 'Что-то пошло не так...');
     }
   };
 
@@ -155,7 +155,7 @@ class UserRequests {
       return body as User;
     }
 
-    throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
+    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
   };
 
   /**
@@ -171,7 +171,9 @@ class UserRequests {
       return body as { address: string; id: string; user_id: string }[];
     }
 
-    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось получить адреса пользователя');
+    throw new Error(
+      capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось получить адреса пользователя',
+    );
   };
 
   AddAddress = async (address: string): Promise<void> => {
@@ -186,7 +188,9 @@ class UserRequests {
     if (status === 200) {
       return;
     } else {
-      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось добавить адрес');
+      throw new Error(
+        capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось добавить адрес',
+      );
     }
   };
 
@@ -206,7 +210,7 @@ class UserRequests {
       return;
     }
 
-    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось удалить адрес');
+    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось удалить адрес');
   };
 
   SetAvatar = async (picture: FormData) => {
@@ -222,7 +226,7 @@ class UserRequests {
       return body;
     }
 
-    throw new Error(body?.error ?? 'Не удалось загрузить аватарку');
+    throw new Error(capitalizeError(body?.error) ?? 'Не удалось загрузить аватар');
   };
 }
 
@@ -245,7 +249,7 @@ class RestaurantsRequests {
     } else if (status === 404) {
       return;
     } else {
-      throw new Error(body?.error);
+      throw new Error(capitalizeError(body?.error));
     }
   };
 
@@ -262,7 +266,7 @@ class RestaurantsRequests {
     if (status === 200) {
       return body as RestaurantResponse;
     } else {
-      throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
+      throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
     }
   };
 
@@ -289,7 +293,9 @@ class RestaurantsRequests {
     if (status === 200) {
       return body as Review[];
     } else {
-      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось загрузить отзывы');
+      throw new Error(
+        capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось загрузить отзывы',
+      );
     }
   };
 
@@ -309,7 +315,9 @@ class RestaurantsRequests {
     if (status === 200 || status === 201) {
       return body as Review;
     } else {
-      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось отправить отзыв');
+      throw new Error(
+        capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось отправить отзыв',
+      );
     }
   };
 
@@ -359,7 +367,10 @@ class CartRequests {
     if (status === 200) {
       return body as I_Cart;
     } else {
-      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось обновить количество продуктов');
+      throw new Error(
+        capitalizeError((body as ErrorResponse)?.error) ??
+          'Не удалось обновить количество продуктов',
+      );
     }
   };
 
@@ -375,7 +386,9 @@ class CartRequests {
     } else if (status === 404) {
       return;
     } else {
-      throw new Error((body as ErrorResponse).error ?? 'Не удалось получить корзину');
+      throw new Error(
+        capitalizeError((body as ErrorResponse).error) ?? 'Не удалось получить корзину',
+      );
     }
   };
 
@@ -389,7 +402,7 @@ class CartRequests {
       return;
     }
 
-    const error = (body as ErrorResponse)?.error ?? 'Не удалось очистить корзину';
+    const error = capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось очистить корзину';
     throw new Error(error);
   };
 }
@@ -413,7 +426,7 @@ class OrderRequests {
       return body as I_OrderResponse;
     }
 
-    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось создать заказ');
+    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось создать заказ');
   };
 
   /**
@@ -433,7 +446,9 @@ class OrderRequests {
       return body as I_OrderResponse[];
     }
 
-    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось получить заказы пользователя');
+    throw new Error(
+      capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось получить заказы пользователя',
+    );
   };
 
   /**
@@ -451,7 +466,7 @@ class OrderRequests {
       return body as I_OrderResponse;
     }
 
-    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось получить заказ');
+    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось получить заказ');
   };
 }
 

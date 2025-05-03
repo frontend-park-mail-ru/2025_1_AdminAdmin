@@ -6,6 +6,7 @@
 
   .rating_star {
     color: var(--light-grey);
+    user-select: none;
     position: relative;
     transition: all 0.3s ease;
 
