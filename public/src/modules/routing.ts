@@ -26,7 +26,6 @@ class Router {
   private currentPage: RestaurantList | RestaurantPage | AuthPage | null = null;
   private currentId: string | null = null;
   private readonly routes: Record<string, RouteConfig>;
-  private historyStack: string[] = [];
 
   /**
    * @constructor
@@ -143,9 +142,11 @@ class Router {
     if (!shouldPush) return;
 
     const newPath = id ? `${pageData.href}${id}` : pageData.href;
+
+    const prevUrl = window.location.pathname;
+
     if (window.location.pathname !== newPath) {
-      this.historyStack.push(window.location.pathname);
-      history.pushState(id ? { id } : {}, '', newPath);
+      history.pushState({ prevUrl }, '', newPath);
     }
   }
 
@@ -168,12 +169,11 @@ class Router {
    * Возврат на предыдущую страницу.
    */
   goBack(): void {
-    if (this.historyStack.length > 0) {
-      const previousPath = this.historyStack.pop();
-      if (previousPath) {
-        history.pushState({}, '', previousPath);
-        this.handleRouteChange();
-      }
+    const prevUrl = window.history.state?.prevUrl;
+
+    if (prevUrl && prevUrl.startsWith('/')) {
+      history.pushState({}, '', prevUrl);
+      this.handleRouteChange();
     } else {
       this.goToPage('home');
     }
