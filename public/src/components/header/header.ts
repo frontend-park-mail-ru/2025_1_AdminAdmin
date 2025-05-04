@@ -413,17 +413,21 @@ export default class Header {
     this.searchInput.setValue(query);
   }
 
+  onSearchAllEnter = () => {
+    if (!this.searchInput.value) return;
+    router.goToPage('searchPage', null, this.searchInput.value);
+  };
+
   updateHeader(searchAll: boolean): void {
     if (this.searchAll !== undefined && this.searchAll === searchAll) {
       return;
     }
     this.searchAll = searchAll;
     if (searchAll) {
-      this.searchButton.setOnSubmit(() => {
-        router.goToPage('searchPage', null, this.searchInput.value);
-      });
+      this.searchButton.setOnSubmit(this.onSearchAllEnter);
 
       this.searchInput.setPlaceholder('Найти ресторан или блюдо');
+      this.searchInput.setOnEnter(this.onSearchAllEnter);
       return;
     }
 

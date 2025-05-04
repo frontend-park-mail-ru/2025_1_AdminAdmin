@@ -38,6 +38,15 @@
       overflow-wrap: break-word;
       word-break: break-word;
       white-space: pre-wrap;
+
+      @media (max-width: 1000px) {
+        font-size: 16px;
+      }
+
+
+      @media (max-width: 800px) {
+        font-size: 14px;
+      }
     }
   }
 
