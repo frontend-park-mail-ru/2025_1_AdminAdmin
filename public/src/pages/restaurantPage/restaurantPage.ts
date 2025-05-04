@@ -19,6 +19,7 @@ export default class RestaurantPage {
   private cartComponent: Cart;
   private categoriesComponent: Categories;
   private productCards: ProductCard[] = [];
+  private query: string;
   private readonly categoriesWrapper: HTMLDivElement;
   private restaurantHeaderComponent: RestaurantHeader;
   private restaurantReviewsComponent: RestaurantReviews;
@@ -27,13 +28,15 @@ export default class RestaurantPage {
    * Создает экземпляр страницы ресторана.
    * @param parent - Родительский элемент, в который будет рендериться страница ресторана
    * @param id - Идентификатор ресторана, который нужно отобразить
+   * @param query
    */
-  constructor(parent: HTMLElement, id: string) {
+  constructor(parent: HTMLElement, id: string, query: string) {
     if (!parent) {
       throw new Error('RestaurantPage: no parent!');
     }
     this.parent = parent;
     this.id = id;
+    this.query = query;
     this.categoriesWrapper = document.createElement('div');
     this.categoriesWrapper.classList.add('product-categories__wrapper');
   }

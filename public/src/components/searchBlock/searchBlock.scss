@@ -1,0 +1,28 @@
+.search-block {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  &__products {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    align-items: start;
+
+    @media (max-width: 1500px) {
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    @media (max-width: 1200px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    @media (max-width: 850px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 600px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}

@@ -12,19 +12,17 @@
                 <img src="/src/assets/no-reviews.png" alt="no reviews">
             </div>
         </div>
-        {{#if canReview}}
-            <div class="reviews_modal__new_review">
-                <label>
-                    <textarea class="reviews_modal__new_review__textarea"
-                              lang="ru"
-                              placeholder="Что вы думаете об этом месте?"
-                    ></textarea>
-                </label>
+        <div class="reviews_modal__new_review {{#unless canReview}}hidden{{/unless}}">
+            <label>
+                <textarea class="reviews_modal__new_review__textarea"
+                          lang="ru"
+                          placeholder="Что вы думаете об этом месте?"
+                ></textarea>
+            </label>
 
-                <div class="reviews_modal__new_review__bottom">
-                    <div id="stars" class="reviews_modal__new_review__bottom_stars"></div>
-                </div>
+            <div class="reviews_modal__new_review__bottom">
+                <div id="stars" class="reviews_modal__new_review__bottom_stars"></div>
             </div>
-        {{/if}}
+        </div>
     </div>
 </div>

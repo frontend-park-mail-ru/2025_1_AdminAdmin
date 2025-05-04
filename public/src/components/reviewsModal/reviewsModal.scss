@@ -6,6 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 
   &__content {
     background-color: white;
@@ -18,6 +19,7 @@
     display: flex;
     flex-direction: column;
     gap: 30px;
+    overflow: hidden;
 
     @media (max-width: 600px) {
       max-width: 90vw;
@@ -66,6 +68,10 @@
     gap: 20px;
   }
 
+  .hidden {
+    display: none;
+  }
+
   &__new_review {
     border-radius: 20px;
     border: 4px solid var(--light-grey);
@@ -73,6 +79,16 @@
     flex-direction: column;
     gap: 10px;
     padding: 7px;
+
+    @keyframes moveDown {
+      0% {
+        transform: translateY(0);
+      }
+
+      100% {
+        transform: translateY(100%);
+      }
+    }
 
     &__textarea {
       height: 100px;
