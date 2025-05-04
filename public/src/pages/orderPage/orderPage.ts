@@ -15,6 +15,12 @@ import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
 import { router } from '@modules/routing';
 import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
 
+const statusMap: Record<string, number> = {
+  creation: 0,
+  new: 1,
+  paid: 2,
+};
+
 export default class OrderPage {
   private parent: HTMLElement;
   private readonly orderId: string;
@@ -47,6 +53,7 @@ export default class OrderPage {
         order,
         orderId: order.id.slice(-4),
         totalPrice: order.final_price,
+        status: order.status,
         leave_at_door: order.leave_at_door,
         restaurantName: order.order_products.restaurant_name,
         address: order.address,
@@ -61,21 +68,23 @@ export default class OrderPage {
   /**
    * Функция рендера прогресс бара на странице
    */
-  private renderProgressBar(/*order?: I_OrderResponse*/) {
+  private renderProgressBar(step: number) {
     const orderProgressSteps = [
       { id: 'order-progress_cart', image: { src: '/src/assets/cart.png' } },
       { id: 'order-progress_address', image: { src: '/src/assets/user_location.png' } },
       { id: 'order-progress_paid', image: { src: '/src/assets/credit_card.png' } },
       { id: 'order-progress_travel', image: { src: '/src/assets/delivery.png' } },
-      { id: 'order-progress_finish', image: { src: '/src/assets/complete_ordder.png' } },
+      { id: 'order-progress_finish', image: { src: '/src/assets/complete_order.png' } },
     ];
     const stepProgressBarContainer = this.self.querySelector(
       '.step-progress-bar-container',
     ) as HTMLElement;
     this.stepProgressBar = new StepProgressBar(stepProgressBarContainer, {
       steps: orderProgressSteps,
-      lastCompleted: 0, // Тут можно написать шаг, который пришёл с сервера
+      lastCompleted: step,
     });
+
+    this.stepProgressBar.render();
   }
 
   private renderInputs(order?: I_OrderResponse) {
@@ -86,10 +95,7 @@ export default class OrderPage {
     }
 
     for (const [key, config] of Object.entries(inputsConfig.addressInputs)) {
-      const inputComponent = new FormInput(inputsContainer, {
-        ...config,
-        onInput: () => this.handleAddressStep(),
-      });
+      const inputComponent = new FormInput(inputsContainer, config);
       inputComponent.render();
       if (order) {
         inputComponent.setValue(order[key as keyof I_OrderResponse] as string);
@@ -161,6 +167,7 @@ export default class OrderPage {
       data = {
         order: undefined,
         orderId: undefined,
+        status: 'creation',
         totalPrice: cartStore.getState().total_price,
         leave_at_door: undefined,
         restaurantName: cartStore.getState().restaurant_name,
@@ -180,13 +187,13 @@ export default class OrderPage {
 
     this.parent.innerHTML = template(templateProps);
 
-    this.renderProgressBar();
+    this.renderProgressBar(statusMap[data.status]);
     this.renderInputs(data.order);
     this.renderCourierComment(data.order);
     this.createProductCards(data.products, Boolean(data.order));
 
-    if (data.order) {
-      if (data.order.status === 'new') this.createYouMoneyForm(data.order);
+    if (data.status === 'new') {
+      this.createYouMoneyForm(data.order);
       return;
     }
 
@@ -322,6 +329,7 @@ export default class OrderPage {
     this.submitButton.hide();
 
     this.createYouMoneyForm(newOrder);
+    this.stepProgressBar.next();
   }
 
   private createYouMoneyForm(newOrder: I_OrderResponse): void {
@@ -366,35 +374,6 @@ export default class OrderPage {
   }
 
   /**
-   * Валидирует все поля адреса (инпуты на странице)
-   * @returns boolean 1 - все поля прошли проверку, инчае 0
-   */
-  private validateAllAddressInputs(): boolean {
-    const inputKeys = ['flat', 'doorPhone', 'porch', 'floor']; // Поля в словаре инпутов
-    return inputKeys.every((key) => {
-      // Если все прошли проверку, то true, иначе false
-      const inputComponent = this.inputs[key];
-      if (!inputComponent) {
-        // Если не нашли компонент по ключу
-        throw new Error(`OrderPage: can't find input with key=${key}`);
-      }
-      return inputComponent.checkValue();
-    });
-  }
-
-  /**
-   * Проверка на выполнение шага заполнения адресных полей
-   */
-  private handleAddressStep(): void {
-    if (this.stepProgressBar.getLastCompletedIndex() == 0 && this.validateAllAddressInputs()) {
-      // Здесь первым условием учитываем следующие шаги, чтобы не было такого, что с 3 переходим на 2 из-за изменения данных
-      this.stepProgressBar.goto(1); // Переходим на 1-ый этап (корзина -> введенный адрес)
-    } else if (!this.validateAllAddressInputs()) {
-      this.stepProgressBar.goto(0); // Если данные адреса не прошли валидацию откатываемся к 1-ому этапу (корзина)
-    }
-  }
-
-  /**
    * Устанавливает статус от сервера (оплачено, в пути, завершен или другой, но с сервера)
    */
   /*
@@ -418,6 +397,8 @@ export default class OrderPage {
     if (bin) {
       bin.removeEventListener('click', this.handleClear);
     }
+
+    this.stepProgressBar?.remove();
 
     const checkboxContainer = this.parent.querySelector('#orderPageCheckbox');
     checkboxContainer.removeEventListener('click', this.handleCheckBoxClick);

@@ -33,6 +33,10 @@ export class AuthPage {
    * Отображает страницу авторизации.
    */
   render = (isLoginPage: boolean): void => {
+    if (userStore.isAuth()) {
+      router.goBack();
+      return;
+    }
     if (!this.slider) {
       this.parent.innerHTML = template();
 

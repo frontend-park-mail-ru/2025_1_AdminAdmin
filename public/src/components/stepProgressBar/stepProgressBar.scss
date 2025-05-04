@@ -34,7 +34,7 @@
         background-color: var(--background-color);
         z-index: 1;
 
-        &__image {
+        &__icon {
             position: absolute;
             width: 20px;
             height: 20px;
@@ -42,7 +42,7 @@
         }
     }
 
-    .step.completed {
+    .completed {
         background-color: var(--line-color);
     }
 }

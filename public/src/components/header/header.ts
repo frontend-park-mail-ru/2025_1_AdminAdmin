@@ -133,7 +133,14 @@ export default class Header {
 
   private isDropdownOpen(): boolean {
     const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
-    return dropdown && dropdown.style.display === 'block';
+    const profileDropdownOptions = document.querySelector(
+      '.header__profile-dropdown__options',
+    ) as HTMLElement;
+
+    return (
+      (dropdown && dropdown.style.display === 'block') ||
+      (profileDropdownOptions && profileDropdownOptions.classList.contains('active'))
+    );
   }
 
   private closeDropdown(): void {
@@ -141,6 +148,11 @@ export default class Header {
     const overlay = document.querySelector('.header__overlay') as HTMLElement;
     this.addressComponents.forEach((comp) => comp.remove());
     this.addressComponents = [];
+
+    const profileDropdownOptions = document.querySelector(
+      '.header__profile-dropdown__options',
+    ) as HTMLElement;
+    if (profileDropdownOptions.classList.contains('active')) this.toggleProfileDropdown();
 
     if (this.parent.classList.contains('mobile_header')) {
       dropdown.style.animation = 'moveDown 0.2s linear forwards';

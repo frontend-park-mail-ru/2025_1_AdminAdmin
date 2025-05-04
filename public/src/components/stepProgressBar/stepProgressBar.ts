@@ -13,7 +13,7 @@ export interface StepProgressBarProps {
 
 export class StepProgressBar {
   private parent: HTMLElement;
-  private props: StepProgressBarProps;
+  private readonly props: StepProgressBarProps;
   private stepElements: HTMLElement[] = [];
 
   /**
@@ -48,7 +48,7 @@ export class StepProgressBar {
   /**
    * Отображает прогресс бар на странице
    */
-  private render(): void {
+  render(): void {
     if (!template) {
       throw new Error('Error: categories template not found');
     }
@@ -75,7 +75,7 @@ export class StepProgressBar {
     if (this.props.lastCompleted >= 0 && this.props.lastCompleted + 1 < this.props.steps.length) {
       this.props.lastCompleted += 1;
       this.props.steps[this.props.lastCompleted].completed = true;
-      this.stepElements[this.props.lastCompleted].classList.add('active');
+      this.stepElements[this.props.lastCompleted].classList.add('completed');
     }
   }
 
@@ -86,7 +86,7 @@ export class StepProgressBar {
   public prev(): void {
     if (this.props.lastCompleted >= 1) {
       this.props.steps[this.props.lastCompleted].completed = false;
-      this.stepElements[this.props.lastCompleted].classList.remove('active');
+      this.stepElements[this.props.lastCompleted].classList.remove('completed');
       this.props.lastCompleted -= 1;
     }
   }
@@ -107,5 +107,13 @@ export class StepProgressBar {
 
   public getLastCompletedIndex(): number {
     return this.props.lastCompleted;
+  }
+
+  public remove(): void {
+    this.stepElements = [];
+    const stepProgressBarElement = this.self;
+    if (stepProgressBarElement) {
+      this.parent.removeChild(stepProgressBarElement);
+    }
   }
 }
