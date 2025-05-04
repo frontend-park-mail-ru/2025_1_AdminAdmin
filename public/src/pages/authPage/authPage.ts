@@ -34,7 +34,11 @@ export class AuthPage {
    */
   render = (isLoginPage: boolean): void => {
     if (userStore.isAuth()) {
-      router.goBack();
+      setTimeout(() => {
+        import('@modules/routing').then(({ router }) => {
+          router.goBack();
+        });
+      }, 0);
       return;
     }
     if (!this.slider) {

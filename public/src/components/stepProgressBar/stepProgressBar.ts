@@ -3,6 +3,7 @@ import template from './stepProgressBar.hbs';
 interface StepProps {
   id: string;
   image: { src: string; alt?: string };
+  text: string;
   completed?: boolean;
 }
 
@@ -31,6 +32,11 @@ export class StepProgressBar {
       })),
       lastCompleted: props.lastCompleted ?? 0,
     };
+  }
+
+  private updateProgressLine(): void {
+    const percentage = (this.props.lastCompleted / (this.props.steps.length - 1)) * 100;
+    this.self.style.setProperty('--progress', `${percentage}%`);
   }
 
   /**
@@ -66,16 +72,18 @@ export class StepProgressBar {
       // Добавялем в массив элементов чтобы не искать каждый раз
       this.stepElements.push(document.getElementById(props.id));
     });
+    this.updateProgressLine();
   }
 
   /**
    * Завершает текущий шаг и переходит к следующему (если он есть)
    */
   public next(): void {
-    if (this.props.lastCompleted >= 0 && this.props.lastCompleted + 1 < this.props.steps.length) {
+    if (this.props.lastCompleted + 1 < this.props.steps.length) {
       this.props.lastCompleted += 1;
       this.props.steps[this.props.lastCompleted].completed = true;
       this.stepElements[this.props.lastCompleted].classList.add('completed');
+      this.updateProgressLine();
     }
   }
 
@@ -88,6 +96,7 @@ export class StepProgressBar {
       this.props.steps[this.props.lastCompleted].completed = false;
       this.stepElements[this.props.lastCompleted].classList.remove('completed');
       this.props.lastCompleted -= 1;
+      this.updateProgressLine();
     }
   }
 
@@ -103,6 +112,7 @@ export class StepProgressBar {
         this.next();
       }
     }
+    this.updateProgressLine();
   }
 
   public getLastCompletedIndex(): number {

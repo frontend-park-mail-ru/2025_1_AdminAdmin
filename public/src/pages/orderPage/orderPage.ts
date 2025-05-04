@@ -16,9 +16,9 @@ import { router } from '@modules/routing';
 import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
 
 const statusMap: Record<string, number> = {
-  creation: 0,
-  new: 1,
-  paid: 2,
+  creation: -1,
+  new: 0,
+  paid: 1,
 };
 
 export default class OrderPage {
@@ -70,11 +70,14 @@ export default class OrderPage {
    */
   private renderProgressBar(step: number) {
     const orderProgressSteps = [
-      { id: 'order-progress_cart', image: { src: '/src/assets/cart.png' } },
-      { id: 'order-progress_address', image: { src: '/src/assets/user_location.png' } },
-      { id: 'order-progress_paid', image: { src: '/src/assets/credit_card.png' } },
-      { id: 'order-progress_travel', image: { src: '/src/assets/delivery.png' } },
-      { id: 'order-progress_finish', image: { src: '/src/assets/complete_order.png' } },
+      { id: 'order-progress_cart', image: { src: '/src/assets/cart.png' }, text: 'Оформлен' },
+      { id: 'order-progress_paid', image: { src: '/src/assets/credit_card.png' }, text: 'Оплачен' },
+      { id: 'order-progress_travel', image: { src: '/src/assets/delivery.png' }, text: 'В пути' },
+      {
+        id: 'order-progress_finish',
+        image: { src: '/src/assets/complete_order.png' },
+        text: 'Вручен',
+      },
     ];
     const stepProgressBarContainer = this.self.querySelector(
       '.step-progress-bar-container',

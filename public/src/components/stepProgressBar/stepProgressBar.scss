@@ -3,6 +3,7 @@
     --line-width: 2px; // Ширина линий обводки и соединяющей линии
     --line-color: var(--orange); // Цвет линии и фона проеденного шага
     --background-color: var(--light-grey); // Стандартный цвет фона
+    --progress: 0%;
 
     display: flex;
     flex-direction: row;
@@ -14,13 +15,24 @@
 
     // Линия между шагами
     &::before {
-      content: '';
-      position: absolute;
-      left: 20px;
-      width: calc(100% - 40px);
-      height: var(--line-width);
-      background-color: var(--line-color);
-      z-index: 0;
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 20px;
+        width: 100%;
+        height: var(--line-width);
+        background: linear-gradient(
+                        to right,
+                        var(--orange) var(--progress),
+                        var(--dark-gray) 0%
+        );
+        z-index: 0;
+    }
+
+    &__step-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .step {
@@ -30,7 +42,7 @@
         width: 40px;
         aspect-ratio: 1 / 1;
         border-radius: 50%;
-        border: var(--line-width) solid var(--line-color);
+        border: var(--line-width) solid var(--dark-gray);
         background-color: var(--background-color);
         z-index: 1;
 
@@ -40,9 +52,25 @@
             height: 20px;
             object-fit: contain;
         }
+
+        &__text {
+            position: absolute;
+            z-index: 1;
+            top: 100%;
+            color: var(--dark-gray);
+            font-size: 12px;
+        }
     }
 
     .completed {
-        background-color: var(--line-color);
+        .step {
+            border: var(--line-width) solid var(--line-color);
+            background-color: var(--orange);
+
+            &__text {
+                color: var(--black);
+                font-size: 12px;
+            }
+        }
     }
 }

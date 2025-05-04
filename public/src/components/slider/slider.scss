@@ -10,23 +10,23 @@
   border: none;
   overflow: hidden;
 
-button {
-  color: var(--white);
-  z-index: 2;
-  background-color: transparent;
-}
+  button {
+    color: var(--white);
+    z-index: 2;
+    background-color: transparent;
+  }
 
-&__indicator {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 0;
-  background-color: var(--orange);
-  border-radius: 25px;
-  transition: transform 0.3s ease;
-  border: none;
-  z-index: 1;
-  overflow: hidden;
-}
+  &__indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background-color: var(--orange);
+    border-radius: 25px;
+    transition: transform 0.3s ease;
+    border: none;
+    z-index: 1;
+    overflow: hidden;
+  }
 }
