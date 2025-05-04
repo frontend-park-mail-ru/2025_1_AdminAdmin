@@ -35,7 +35,9 @@ export class StepProgressBar {
   }
 
   private updateProgressLine(): void {
-    const percentage = (this.props.lastCompleted / (this.props.steps.length - 1)) * 100;
+    const totalSteps = this.props.steps.length;
+    const nextStepIndex = Math.min(this.props.lastCompleted + 1, totalSteps - 1);
+    const percentage = (nextStepIndex / (totalSteps - 1)) * 100;
     this.self.style.setProperty('--progress', `${percentage}%`);
   }
 
