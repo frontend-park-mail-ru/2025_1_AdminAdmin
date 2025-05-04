@@ -3,6 +3,7 @@ import template from './searchPage.hbs';
 import { SearchRestaurant } from '@myTypes/restaurantTypes';
 import { mockSearchRestaurants } from '@pages/searchPage/mockRestaurants';
 import { SearchBlock } from '@components/searchBlock/searchBlock';
+import { router } from '@modules/routing';
 
 // Константы
 const LOAD_COUNT = 4;
@@ -16,6 +17,7 @@ export default class SearchPage {
   private restaurantList: SearchRestaurant[];
   private renderedIds: Set<string>;
   private observer: IntersectionObserver;
+  private query: string;
   private lastSearchBlockId: number;
   private searchBlocks: SearchBlock[] = [];
   private readonly loadMoreEndThrottle: () => void;
@@ -23,12 +25,15 @@ export default class SearchPage {
   /**
    * Создает экземпляр списка ресторанов.
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться список ресторанов
+   * @param id
+   * @param query
    */
-  constructor(parent: HTMLElement) {
+  constructor(parent: HTMLElement, query: string) {
     this.parent = parent;
     this.restaurantList = [];
     this.renderedIds = new Set();
     this.lastSearchBlockId = -1;
+    this.query = query;
 
     this.observer = new IntersectionObserver(
       () => {
@@ -56,6 +61,11 @@ export default class SearchPage {
    * Рендерит список ресторанов в родительский элемент.
    */
   async render(): Promise<void> {
+    if (!this.query) {
+      router.goToPage('home');
+      return;
+    }
+
     try {
       this.parent.innerHTML = template();
 
@@ -78,6 +88,7 @@ export default class SearchPage {
         const newRestaurants: SearchRestaurant[] = await mockSearchRestaurants(
           this.restaurantList.length,
           LOAD_COUNT,
+          this.query,
         );
 
         if (!newRestaurants) return;

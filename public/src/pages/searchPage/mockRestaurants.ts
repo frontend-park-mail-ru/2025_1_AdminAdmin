@@ -26,9 +26,15 @@ function generateMockRestaurant(id: number): SearchRestaurant {
  * Мок-асинхронная функция, имитирующая загрузку ресторанов.
  * @param offset - с какого ресторана начинать
  * @param limit - сколько ресторанов вернуть
+ * @param query
  */
-export async function mockSearchRestaurants(offset = 0, limit = 16): Promise<SearchRestaurant[]> {
+export async function mockSearchRestaurants(
+  offset = 0,
+  limit = 16,
+  query: string,
+): Promise<SearchRestaurant[]> {
   await new Promise((res) => setTimeout(res, 300));
 
+  query.trim();
   return Array.from({ length: limit }, (_, i) => generateMockRestaurant(offset + i));
 }

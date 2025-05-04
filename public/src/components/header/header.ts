@@ -397,6 +397,10 @@ export default class Header {
     }
   }
 
+  setQuery(query: string | null = null): void {
+    this.searchInput.setValue(query);
+  }
+
   updateHeader(searchAll: boolean): void {
     if (this.searchAll !== undefined && this.searchAll === searchAll) {
       return;
@@ -404,7 +408,7 @@ export default class Header {
     this.searchAll = searchAll;
     if (searchAll) {
       this.searchButton.setOnSubmit(() => {
-        router.goToPage('searchPage', this.searchInput.value);
+        router.goToPage('searchPage', null, this.searchInput.value);
       });
 
       this.searchInput.setPlaceholder('Найти ресторан или блюдо');
