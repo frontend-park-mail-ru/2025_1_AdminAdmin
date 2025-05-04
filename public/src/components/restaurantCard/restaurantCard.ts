@@ -10,16 +10,18 @@ import { BaseRestaurant } from '@myTypes/restaurantTypes';
 export class RestaurantCard {
   private parent: HTMLElement; // Родитель (где вызывается)
   private readonly props: BaseRestaurant;
-
+  private readonly isSearchCard: boolean;
   /**
    * Создает экземпляр карточки ресторана.
    * @constructor
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться карточка.
    * @param {Object} props - Словарь данных для определения свойств карточки
+   * @param isSearchCard
    */
-  constructor(parent: HTMLElement, props: BaseRestaurant) {
+  constructor(parent: HTMLElement, props: BaseRestaurant, isSearchCard = false) {
     this.parent = parent;
     this.props = props;
+    this.isSearchCard = isSearchCard;
   }
 
   /**
@@ -34,30 +36,25 @@ export class RestaurantCard {
    * Обработчик нажатия на карточку.
    * @private
    */
-  private handleClick() {
-    this.self.addEventListener('click', (event: Event) => {
-      event.preventDefault();
-      router.goToPage('restaurantPage', this.props.id);
-    });
-  }
+  private handleClick = () => {
+    router.goToPage('restaurantPage', this.props.id);
+  };
 
   /**
    * Отображает карточку на странице.
    * @param pushDirection {"beforebegin" | "afterbegin" | "beforeend" | "afterend"} - Определяет, куда вставлять карточку относительно родителя.
    */
-  render(pushDirection: 'beforebegin' | 'afterbegin' | 'beforeend' | 'afterend') {
+  render(pushDirection: InsertPosition = 'beforeend') {
     const html = template(this.props);
     this.parent.insertAdjacentHTML(pushDirection, html);
-    this.handleClick();
+    if (this.isSearchCard) this.self.classList.add('restaurant__search-card');
+    this.self.addEventListener('click', this.handleClick);
   }
 
   /**
    * Удаляет карточку ресторана со страницы и снимает обработчики событий.
    */
   remove() {
-    this.self.removeEventListener('click', (event: Event) => {
-      event.preventDefault();
-      router.goToPage('restaurantPage', this.props.id);
-    });
+    this.self.removeEventListener('click', this.handleClick);
   }
 }

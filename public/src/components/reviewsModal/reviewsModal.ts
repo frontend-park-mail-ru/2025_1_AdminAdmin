@@ -173,7 +173,7 @@ export class ReviewsModal {
     const newReviewContainer: HTMLDivElement = this.self.querySelector(
       '.reviews_modal__new_review',
     );
-    newReviewContainer.style.display = 'none';
+    newReviewContainer.classList.add('hidden');
 
     const noReviews = document.getElementById('no-reviews');
     noReviews.style.display = 'none';

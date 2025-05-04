@@ -6,11 +6,13 @@ import { AuthPage } from '@pages/authPage/authPage';
 import NotFoundPage from '@pages/404/404';
 import ProfilePage from '@pages/profilePage/profilePage';
 import OrderPage from '@pages/orderPage/orderPage';
+import SearchPage from '@pages/searchPage/searchPage';
 
 interface RouteConfig {
   href: string;
   class: new (...args: any[]) => any;
   header: new (parent: HTMLElement) => any;
+  searchAll?: boolean;
   options?: boolean;
 }
 
@@ -26,6 +28,7 @@ class Router {
   private currentPage: RestaurantList | RestaurantPage | AuthPage | null = null;
   private currentId: string | null = null;
   private readonly routes: Record<string, RouteConfig>;
+  private historyStack: { pageClass: string; path: string }[] = [];
 
   /**
    * @constructor
@@ -46,11 +49,13 @@ class Router {
         href: '/',
         class: RestaurantList,
         header: Header,
+        searchAll: true,
       },
       restaurantPage: {
         href: '/restaurants/',
         class: RestaurantPage,
         header: Header,
+        searchAll: false,
       },
       loginPage: {
         href: '/login',
@@ -68,13 +73,17 @@ class Router {
         href: '/profile',
         class: ProfilePage,
         header: auxHeader,
-        options: false,
       },
       orderPage: {
         href: '/order',
         class: OrderPage,
         header: auxHeader,
-        options: false,
+      },
+      searchPage: {
+        href: '/search',
+        class: SearchPage,
+        header: Header,
+        searchAll: true,
       },
       notFound: {
         href: '/404',
@@ -93,27 +102,38 @@ class Router {
    */
   private handleRouteChange(): void {
     const currentPath = window.location.pathname;
+    const searchParams = new URLSearchParams(window.location.search);
+    const query = searchParams.get('query');
+
     if (currentPath === '/') {
-      this.goToPage('home', null, false);
+      this.goToPage('home', null, query, false);
       return;
     }
+
     for (const [page, { href }] of Object.entries(this.routes).slice(1)) {
       if (currentPath.startsWith(href)) {
         const id = currentPath.split('/')[2] || null;
-        this.goToPage(page, id, false);
+        this.goToPage(page, id, query, false);
         return;
       }
     }
 
-    this.goToPage('notFound', null, false);
+    this.goToPage('notFound', null, null, false);
   }
+
   /**
    * Переход на указанную страницу.
    * @param {string} page - Имя страницы, указанное в `routes`.
    * @param {string | null} [id=null] - Идентификатор ресурса, если требуется.
+   * @param query
    * @param {boolean} [shouldPushState=true] - Нужно ли обновлять `history.pushState`.
    */
-  goToPage(page: string, id: string | null = null, shouldPushState = true): void {
+  goToPage(
+    page: string,
+    id: string | null = null,
+    query: string | null = null,
+    shouldPushState = true,
+  ): void {
     window.scrollTo(0, 0);
 
     const pageData = this.routes[page];
@@ -121,62 +141,114 @@ class Router {
       return this.handleMissingRoute(page);
     }
 
-    this.updateHeader(pageData);
-    this.updateHistory(pageData, id, shouldPushState);
-    this.updatePage(pageData, id);
+    this.updateHeader(pageData, query);
+    this.updateHistory(pageData, id, query, shouldPushState);
+    this.updatePage(pageData, id, query);
   }
 
   private handleMissingRoute(page: string): void {
     console.error(`Page "${page}" not found in routes.`);
   }
 
-  private updateHeader(pageData: RouteConfig): void {
+  private updateHeader(pageData: RouteConfig, query: string | null = null): void {
     if (!(this.currentHeader instanceof pageData.header)) {
       this.currentHeader?.remove();
       this.currentHeader = new pageData.header(this.headerElement);
       this.currentHeader.render();
     }
+
+    if (this.currentHeader instanceof Header) this.currentHeader.setQuery(query);
   }
 
-  private updateHistory(pageData: RouteConfig, id: string | null, shouldPush: boolean): void {
+  private updateHistory(
+    pageData: RouteConfig,
+    id: string | null,
+    query: string | null = null,
+    shouldPush: boolean,
+  ): void {
     if (!shouldPush) return;
 
     const newPath = id ? `${pageData.href}${id}` : pageData.href;
+    const fullNewPath = query ? `${newPath}?query=${encodeURIComponent(query)}` : newPath;
 
-    const prevUrl = window.location.pathname;
+    const currentFullPath = window.location.pathname + window.location.search;
 
-    if (window.location.pathname !== newPath) {
-      history.pushState({ prevUrl }, '', newPath);
+    if (currentFullPath !== fullNewPath) {
+      this.historyStack.push({
+        pageClass: this.currentPage?.constructor.name || '',
+        path: currentFullPath,
+      });
+      history.pushState({}, '', fullNewPath);
     }
   }
 
-  private updatePage(pageData: RouteConfig, id: string | null): void {
-    const pageChanged = !(this.currentPage instanceof pageData.class);
-    const idChanged = id && this.currentId !== id;
-
-    if (pageChanged || idChanged) {
-      this.currentPage?.remove();
-      this.currentPage = new pageData.class(this.pageElement, id);
+  private updatePage(pageData: RouteConfig, id: string | null, query: string | null = null): void {
+    if (this.pageChanged(pageData, id) || this.idChanged(id)) {
+      this.removeCurrentPage();
+      this.createNewPage(pageData, id, query);
       this.currentId = id;
+      this.updateHeaderIfNeeded(pageData);
       this.currentPage.render(pageData.options);
       return;
     }
 
-    if (this.currentPage instanceof AuthPage) this.currentPage.render(pageData.options);
+    if (this.currentPage instanceof AuthPage) {
+      this.currentPage.render(pageData.options);
+    }
+  }
+
+  private pageChanged(pageData: RouteConfig, id: string | null): boolean {
+    return !(this.currentPage instanceof pageData.class) || (id && this.currentId !== id);
+  }
+
+  private idChanged(id: string | null): boolean {
+    return id && this.currentId !== id;
+  }
+
+  private removeCurrentPage(): void {
+    this.currentPage?.remove();
+  }
+
+  private createNewPage(pageData: RouteConfig, id: string | null, query: string | null): void {
+    if (id && query) {
+      this.currentPage = new pageData.class(this.pageElement, id, query);
+    } else if (id && !query) {
+      this.currentPage = new pageData.class(this.pageElement, id);
+    } else {
+      this.currentPage = new pageData.class(this.pageElement, query);
+    }
+  }
+
+  private updateHeaderIfNeeded(pageData: RouteConfig): void {
+    if (this.currentHeader instanceof Header) {
+      this.currentHeader.updateHeader(pageData.searchAll);
+    }
   }
 
   /**
    * Возврат на предыдущую страницу.
    */
   goBack(): void {
-    const prevUrl = window.history.state?.prevUrl;
-
-    if (prevUrl && prevUrl.startsWith('/')) {
-      history.pushState({}, '', prevUrl);
-      this.handleRouteChange();
-    } else {
+    if (this.currentPage instanceof NotFoundPage) {
       this.goToPage('home');
+      return;
     }
+
+    while (this.historyStack.length > 0) {
+      const previous = this.historyStack.pop();
+      if (!previous) break;
+
+      const isAuthPage = this.currentPage instanceof AuthPage;
+      const wasAuthPage = previous.pageClass === 'AuthPage';
+
+      if (!(isAuthPage && wasAuthPage)) {
+        history.pushState({}, '', previous.path);
+        this.handleRouteChange();
+        return;
+      }
+    }
+
+    this.goToPage('home');
   }
 
   /**
