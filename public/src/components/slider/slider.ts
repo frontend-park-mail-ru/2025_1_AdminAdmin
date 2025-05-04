@@ -21,7 +21,7 @@ export class Slider {
    * Создает экземпляр слайдера
    * @constructor
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться слайдер
-   * @param cardsComponent
+   * @param props
    */
   constructor(parent: HTMLElement, props: SliderProps) {
     if (props.buttonsProps.length <= 0) {
@@ -63,7 +63,7 @@ export class Slider {
       throw new Error(`Slider: this id (${this.props.id}) is already in use`);
     }
     const html = template(this.props);
-    this.parent.insertAdjacentHTML('beforeend', html);
+    this.parent.insertAdjacentHTML('afterbegin', html);
     this.props.buttonsProps.forEach((props, index) => {
       // Рендерим кнопки внутрь слайдера
       const ButtonComponent = new Button(this.self, props);

@@ -4,17 +4,16 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  background-color: var(--light-grey);
-  border-radius: var(--border-radius);
+  width: 80%;
+  background-color: var(--dark-gray);
+  border-radius: 25px;
   border: none;
   overflow: hidden;
 
 button {
-  flex: 1;
-  transition: color 0.3s ease;
+  color: var(--white);
   z-index: 2;
-  background-color: transparent !important;
+  background-color: transparent;
 }
 
 &__indicator {
@@ -24,7 +23,7 @@ button {
   height: 100%;
   width: 0;
   background-color: var(--orange);
-  border-radius: var(--border-radius);
+  border-radius: 25px;
   transition: transform 0.3s ease;
   border: none;
   z-index: 1;

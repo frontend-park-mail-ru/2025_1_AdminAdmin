@@ -40,25 +40,25 @@ export class AuthPage {
     if (!this.slider) {
       this.parent.innerHTML = template();
 
-      const formLine = this.parent.querySelector(this.formLineSelector) as HTMLElement;
-
       const sliderProps: SliderProps = {
         id: 'auth-page__slider',
         buttonsProps: [
           {
             id: 'form__tab_login',
             text: 'Вход',
+            style: 'form__button',
             onSubmit: this.toggleLoginForm,
           },
           {
             id: 'form__tab_register',
             text: 'Регистрация',
+            style: 'form__button',
             onSubmit: this.toggleRegisterForm,
           },
         ],
         activeButtonIndex: isLoginPage ? 0 : 1,
       };
-      this.slider = new Slider(formLine, sliderProps);
+      this.slider = new Slider(this.self, sliderProps);
       this.slider.render();
     }
     this.slider.updateSlider(isLoginPage ? 0 : 1);
@@ -66,6 +66,9 @@ export class AuthPage {
     else this.renderRegisterForm();
   };
 
+  get self(): HTMLElement | null {
+    return this.parent.querySelector('.authPage');
+  }
   /**
    * Отображение формы входа
    */
@@ -133,6 +136,8 @@ export class AuthPage {
       this.unsubscribeFromUserStore();
       this.unsubscribeFromUserStore = null;
     }
+
+    this.slider.remove();
 
     this.loginForm?.remove();
     this.registerForm?.remove();
