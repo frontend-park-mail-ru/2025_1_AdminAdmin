@@ -106,6 +106,9 @@ export default class RestaurantPage {
   }
 
   checkSticky = (): void => {
+    if (window.innerWidth > 800) {
+      return;
+    }
     const computedStyle = getComputedStyle(document.body);
 
     const cssVariableValue = parseInt(computedStyle.getPropertyValue('--real-header-height'), 10);
@@ -153,9 +156,18 @@ export default class RestaurantPage {
 
       const noResultsWrapper: HTMLElement = this.self.querySelector('.restaurant-page__no-results');
       noResultsWrapper.style.display = 'none';
+
+      const categoriesWrapper = this.self.querySelector(
+        '.product-categories__wrapper',
+      ) as HTMLElement;
+      categoriesWrapper.style.display = 'unset';
       this.categoriesComponent.hashChangeHandler();
     } catch (error) {
       console.error(error);
+      const categoriesWrapper = this.self.querySelector(
+        '.product-categories__wrapper',
+      ) as HTMLElement;
+      categoriesWrapper.style.display = 'none';
       const cartWrapper = this.self.querySelector('.cart__wrapper') as HTMLElement;
       cartWrapper.style.display = 'none';
       const noResultsWrapper: HTMLElement = this.self.querySelector('.restaurant-page__no-results');
