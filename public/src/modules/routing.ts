@@ -121,13 +121,6 @@ class Router {
     this.goToPage('notFound', null, null, false);
   }
 
-  /**
-   * Переход на указанную страницу.
-   * @param {string} page - Имя страницы, указанное в `routes`.
-   * @param {string | null} [id=null] - Идентификатор ресурса, если требуется.
-   * @param query
-   * @param {boolean} [shouldPushState=true] - Нужно ли обновлять `history.pushState`.
-   */
   goToPage(
     page: string,
     id: string | null = null,
@@ -157,7 +150,10 @@ class Router {
       this.currentHeader.render();
     }
 
-    if (this.currentHeader instanceof Header) this.currentHeader.setQuery(query);
+    if (this.currentHeader instanceof Header) {
+      this.currentHeader.setQuery(query);
+      this.currentHeader.updateHeader(pageData.searchAll);
+    }
   }
 
   private updateHistory(

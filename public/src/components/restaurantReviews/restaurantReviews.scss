@@ -43,7 +43,8 @@
           'reviews reviews';
     }
 
-    @media (max-width: 500px) {
+    @media (max-width: 400px) {
+      grid-template-columns: 12fr;
       grid-template-areas:
           'details'
           'reviews';
@@ -62,7 +63,7 @@
       align-items: center;
       text-align: center;
 
-      @media (max-width: 500px) {
+      @media (max-width: 400px) {
         display: none;
       }
     }

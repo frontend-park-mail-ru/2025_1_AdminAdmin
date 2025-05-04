@@ -13,6 +13,13 @@ import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
 import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
 import { router } from '@modules/routing';
+import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
+
+const statusMap: Record<string, number> = {
+  creation: -1,
+  new: 0,
+  paid: 1,
+};
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -24,6 +31,7 @@ export default class OrderPage {
   private youMoneyForm: YouMoneyForm = null;
   private isRemoved = false;
   private isChecked = false;
+  private stepProgressBar: StepProgressBar = null;
 
   constructor(parent: HTMLElement, orderId?: string) {
     if (!parent) {
@@ -45,6 +53,7 @@ export default class OrderPage {
         order,
         orderId: order.id.slice(-4),
         totalPrice: order.final_price,
+        status: order.status,
         leave_at_door: order.leave_at_door,
         restaurantName: order.order_products.restaurant_name,
         address: order.address,
@@ -54,6 +63,31 @@ export default class OrderPage {
       router.goToPage('home');
       return null;
     }
+  }
+
+  /**
+   * Функция рендера прогресс бара на странице
+   */
+  private renderProgressBar(step: number) {
+    const orderProgressSteps = [
+      { id: 'order-progress_cart', image: { src: '/src/assets/cart.png' }, text: 'Оформлен' },
+      { id: 'order-progress_paid', image: { src: '/src/assets/credit_card.png' }, text: 'Оплачен' },
+      { id: 'order-progress_travel', image: { src: '/src/assets/delivery.png' }, text: 'В пути' },
+      {
+        id: 'order-progress_finish',
+        image: { src: '/src/assets/complete_order.png' },
+        text: 'Вручен',
+      },
+    ];
+    const stepProgressBarContainer = this.self.querySelector(
+      '.step-progress-bar-container',
+    ) as HTMLElement;
+    this.stepProgressBar = new StepProgressBar(stepProgressBarContainer, {
+      steps: orderProgressSteps,
+      lastCompleted: step,
+    });
+
+    this.stepProgressBar.render();
   }
 
   private renderInputs(order?: I_OrderResponse) {
@@ -136,6 +170,7 @@ export default class OrderPage {
       data = {
         order: undefined,
         orderId: undefined,
+        status: 'creation',
         totalPrice: cartStore.getState().total_price,
         leave_at_door: undefined,
         restaurantName: cartStore.getState().restaurant_name,
@@ -155,12 +190,13 @@ export default class OrderPage {
 
     this.parent.innerHTML = template(templateProps);
 
+    this.renderProgressBar(statusMap[data.status]);
     this.renderInputs(data.order);
     this.renderCourierComment(data.order);
     this.createProductCards(data.products, Boolean(data.order));
 
-    if (data.order) {
-      if (data.order.status === 'new') this.createYouMoneyForm(data.order);
+    if (data.status === 'new') {
+      this.createYouMoneyForm(data.order);
       return;
     }
 
@@ -296,6 +332,7 @@ export default class OrderPage {
     this.submitButton.hide();
 
     this.createYouMoneyForm(newOrder);
+    this.stepProgressBar.next();
   }
 
   private createYouMoneyForm(newOrder: I_OrderResponse): void {
@@ -339,6 +376,19 @@ export default class OrderPage {
     }
   }
 
+  /**
+   * Устанавливает статус от сервера (оплачено, в пути, завершен или другой, но с сервера)
+   */
+  /*
+  private handleStepFromServer(status: number): void {
+    if (status >= 0 && status <= 4) {
+      this.stepProgressBar.goto(status);
+    } else {
+      throw new Error('OrderPage: invalid status! Must be 0...4')
+    }
+  }
+  */
+
   remove(): void {
     if (!this.self) return;
     this.isRemoved = true;
@@ -350,6 +400,8 @@ export default class OrderPage {
     if (bin) {
       bin.removeEventListener('click', this.handleClear);
     }
+
+    this.stepProgressBar?.remove();
 
     const checkboxContainer = this.parent.querySelector('#orderPageCheckbox');
     checkboxContainer.removeEventListener('click', this.handleCheckBoxClick);

@@ -1,5 +1,6 @@
 <div class="order-page">
     <div class="order-page__body">
+        <div class="step-progress-bar-container"></div>
         <h1 class="order-page__header {{#if isPreformed}}formed{{/if}}" >
             {{#if isPreformed}}
                 Заказ №{{orderId}}
@@ -7,7 +8,6 @@
                 Оформление заказа
             {{/if}}
         </h1>
-
         <div class="order-page__delivery">
             <h3>Доставка по адресу:</h3>
             <h4>{{address}}</h4>

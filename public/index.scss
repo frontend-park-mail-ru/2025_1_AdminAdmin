@@ -32,6 +32,8 @@
 @use './src/components/reviewsModal/reviewsModal' as *;
 @use './src/components/starsWidget/starsWidget' as *;
 @use './src/components/searchBlock/searchBlock' as *;
+@use './src/components/slider/slider' as *;
+@use './src/components/stepProgressBar/stepProgressBar' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;

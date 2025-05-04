@@ -1,0 +1,32 @@
+.slider {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 80%;
+  background-color: var(--dark-gray);
+  border-radius: 25px;
+  border: none;
+  overflow: hidden;
+
+  button {
+    color: var(--white);
+    z-index: 2;
+    background-color: transparent;
+  }
+
+  &__indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background-color: var(--orange);
+    border-radius: 25px;
+    transition: transform 0.3s ease;
+    border: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+}

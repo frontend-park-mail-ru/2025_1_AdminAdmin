@@ -5,6 +5,7 @@
   padding: 60px 32vw 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
   background-image: url('~@assets/background.jpg');
   background-attachment: fixed;
   background-size: cover;
@@ -29,19 +30,6 @@
 
   @media (max-width: 450px) {
     padding: 60px 5vw 0;
-  }
-
-  &__line {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-end;
-    width: 80%;
-    gap: 5px;
-    padding: 0;
-    background-color: #686868;
-    border-radius: 25px;
-    margin: 0 auto 15px;
   }
 
   &__body {

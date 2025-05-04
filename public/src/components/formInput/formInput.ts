@@ -19,6 +19,7 @@ export interface FormInputProps {
   maxLength?: number;
   movePlaceholderOnInput?: boolean;
   value?: string;
+  onEnter?: () => void;
 }
 
 export class FormInput {
@@ -40,6 +41,12 @@ export class FormInput {
   get input(): HTMLInputElement | null {
     return this.self?.querySelector('input');
   }
+
+  private readonly handleKeyDown = (e: KeyboardEvent): void => {
+    if (e.key === 'Enter' && this.props.onEnter) {
+      this.props.onEnter();
+    }
+  };
 
   constructor(parent: HTMLElement, props: FormInputProps) {
     if (!parent) {
@@ -163,6 +170,23 @@ export class FormInput {
     }
 
     input.addEventListener('input', this.inputHandler);
+
+    if (this.props.onEnter) {
+      input.addEventListener('keydown', this.handleKeyDown);
+    }
+  }
+
+  public setOnEnter(callback: () => void): void {
+    const input = this.input;
+    if (!input) return;
+
+    if (this.props.onEnter) {
+      input.removeEventListener('keydown', this.handleKeyDown);
+    }
+
+    this.props.onEnter = callback;
+
+    input.addEventListener('keydown', this.handleKeyDown);
   }
 
   private addPhoneMask(): void {
@@ -289,6 +313,10 @@ export class FormInput {
 
     if (this.phoneInputHandler) {
       this.input?.removeEventListener('input', this.phoneInputHandler);
+    }
+
+    if (this.props.onEnter) {
+      input.removeEventListener('keydown', this.handleKeyDown);
     }
 
     const eyeIcon = this.self?.querySelector('.form__input__eye-icon') as HTMLElement;
