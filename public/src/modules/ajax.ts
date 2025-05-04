@@ -257,7 +257,8 @@ class RestaurantsRequests {
    * Получает информацию об одном ресторане.
    */
   Get = async (id: string, query = ''): Promise<RestaurantResponse> => {
-    const url = this.baseUrl + '/' + id + (query ? `?${query}` : '');
+    const params = new URLSearchParams(query);
+    const url = `${this.baseUrl}/${id}${params.toString() ? `?${params.toString()}` : ''}`;
 
     const { status, body } = await baseRequest<RestaurantResponse | ErrorResponse>(
       methods.GET,

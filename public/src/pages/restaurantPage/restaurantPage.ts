@@ -65,9 +65,8 @@ export default class RestaurantPage {
     }
 
     try {
-      this.props = await AppRestaurantRequests.Get(this.id, this.query);
-
       this.parent.innerHTML = template();
+      await this.handleProductsRendering();
 
       const restaurantHeaderWrapper = this.self.querySelector(
         '.restaurant-header__wrapper',
@@ -91,34 +90,6 @@ export default class RestaurantPage {
       });
       this.restaurantReviewsComponent.render();
 
-      const productCardsBody = this.self.querySelector('.product-cards__body') as HTMLElement;
-
-      this.handleResize();
-
-      this.categoriesComponent = new Categories(this.categoriesWrapper, productCardsBody);
-      this.categoriesComponent.render();
-
-      if (!this.props.categories) return;
-
-      this.props.categories.forEach((category) => {
-        this.categoriesComponent.addCategory(category.name);
-
-        if (!category.products?.length) return;
-
-        category.products.forEach((product) => {
-          const productCardComponent = new ProductCard(
-            productCardsBody,
-            this.props.id,
-            this.props.name,
-            product,
-          );
-          productCardComponent.render();
-          this.productCards.push(productCardComponent);
-        });
-      });
-
-      this.categoriesComponent.hashChangeHandler();
-
       window.addEventListener('scroll', this.checkSticky);
       window.addEventListener('resize', this.handleResize);
     } catch (error) {
@@ -140,6 +111,45 @@ export default class RestaurantPage {
       this.categoriesWrapper.classList.remove('is-sticky');
     }
   };
+
+  async handleProductsRendering(): Promise<void> {
+    this.props = await AppRestaurantRequests.Get(this.id, this.query);
+    const productCardsBody = this.self.querySelector('.product-cards__body') as HTMLElement;
+
+    this.handleResize();
+
+    this.categoriesComponent = new Categories(this.categoriesWrapper, productCardsBody);
+    this.categoriesComponent.render();
+
+    if (!this.props.categories) return;
+
+    this.props.categories.forEach((category) => {
+      this.categoriesComponent.addCategory(category.name);
+
+      if (!category.products?.length) return;
+
+      category.products.forEach((product) => {
+        const productCardComponent = new ProductCard(
+          productCardsBody,
+          this.props.id,
+          this.props.name,
+          product,
+        );
+        productCardComponent.render();
+        this.productCards.push(productCardComponent);
+      });
+    });
+
+    this.categoriesComponent.hashChangeHandler();
+  }
+
+  async updateQuery(query: string): Promise<void> {
+    this.query = query;
+    this.categoriesComponent?.remove();
+    this.productCards.forEach((productCard) => productCard.remove());
+    this.productCards = [];
+    await this.handleProductsRendering();
+  }
 
   handleResize = (): void => {
     this.relocateCategories();

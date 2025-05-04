@@ -414,8 +414,15 @@ export default class Header {
   }
 
   onSearchAllEnter = () => {
-    if (!this.searchInput.value) return;
+    if (!this.searchInput.value) {
+      router.goToPage('home');
+      return;
+    }
     router.goToPage('searchPage', null, this.searchInput.value);
+  };
+
+  onSearch = async () => {
+    await router.updateQuery(this.searchInput.value);
   };
 
   updateHeader(searchAll: boolean): void {
@@ -431,9 +438,8 @@ export default class Header {
       return;
     }
 
-    /*    this.searchButton.setOnSubmit(() => {
-    });*/
-
+    this.searchButton.setOnSubmit(this.onSearch);
+    this.searchInput.setOnEnter(this.onSearch);
     this.searchInput.setPlaceholder('Поиск по ресторану');
   }
   /**

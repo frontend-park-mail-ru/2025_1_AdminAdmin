@@ -128,7 +128,6 @@ class Router {
     query: string | null = null,
     shouldPushState = true,
   ): void {
-    window.scrollTo(0, 0);
     const pageData = this.routes[page];
     if (!pageData) {
       return this.handleMissingRoute(page);
@@ -180,6 +179,7 @@ class Router {
 
   private updatePage(pageData: RouteConfig, id: string | null, query: string | null = null): void {
     if (this.pageChanged(pageData, id, query)) {
+      window.scrollTo(0, 0);
       this.removeCurrentPage();
       this.createNewPage(pageData, id, query);
       this.currentId = id;
@@ -214,6 +214,27 @@ class Router {
     } else {
       this.currentPage = new pageData.class(this.pageElement, query);
     }
+  }
+
+  async updateQuery(query: string): Promise<void> {
+    if (this.currentQuery === query) {
+      return;
+    }
+    this.currentQuery = query;
+
+    if (this.currentPage instanceof RestaurantPage) {
+      await this.currentPage.updateQuery(query);
+    }
+
+    const url = new URL(window.location.href);
+
+    url.searchParams.delete('#category');
+    if (query.trim()) {
+      url.searchParams.set('query', query);
+    } else {
+      url.searchParams.delete('query');
+    }
+    history.replaceState({}, '', url.toString());
   }
 
   private updateHeaderIfNeeded(pageData: RouteConfig): void {
