@@ -100,6 +100,7 @@
 .cart__wrapper {
   grid-column: 3 / span 1;
   position: sticky;
+  width: 100%;
   top: calc(var(--real-header-height) + 20px);
 
   @media (max-width: 1200px) {
