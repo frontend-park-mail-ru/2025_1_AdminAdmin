@@ -277,7 +277,7 @@ class RestaurantsRequests {
 
   Search = async (id: string, query: string): Promise<Category[]> => {
     const params = new URLSearchParams(query);
-    const url = `${this.baseUrl}/${id}/search?${params.toString()}`;
+    const url = `${this.baseUrl}/${id}/search?query=${params.toString()}`;
 
     const { status, body } = await baseRequest<Category[] | ErrorResponse>(methods.GET, url, null);
 
