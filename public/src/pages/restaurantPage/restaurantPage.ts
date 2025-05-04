@@ -160,7 +160,7 @@ export default class RestaurantPage {
       const categoriesWrapper = this.self.querySelector(
         '.product-categories__wrapper',
       ) as HTMLElement;
-      categoriesWrapper.style.display = 'unset';
+      categoriesWrapper.style.display = 'block';
       this.categoriesComponent.hashChangeHandler();
     } catch {
       const categoriesWrapper = this.self.querySelector(
