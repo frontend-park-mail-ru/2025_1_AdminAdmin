@@ -44,12 +44,6 @@ export class SearchBlock {
     let columnNumber = 1;
 
     for (const product of this.restaurant.products) {
-      if (columnNumber > 3) {
-        this.moreButton = new MorePlaceHolder(productContainer, this.restaurant.id);
-        this.moreButton.render();
-        return;
-      }
-
       const productCard = new ProductCard(
         productContainer,
         this.restaurant.id,
@@ -60,6 +54,12 @@ export class SearchBlock {
       this.productCards.push(productCard);
 
       columnNumber++;
+    }
+
+    if (columnNumber === 5) {
+      this.moreButton = new MorePlaceHolder(productContainer, this.restaurant.id);
+      this.moreButton.render();
+      return;
     }
   }
 
