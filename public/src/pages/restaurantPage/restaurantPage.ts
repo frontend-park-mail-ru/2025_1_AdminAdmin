@@ -65,7 +65,7 @@ export default class RestaurantPage {
     }
 
     try {
-      this.props = await AppRestaurantRequests.Get(this.id);
+      this.props = await AppRestaurantRequests.Get(this.id, this.query);
 
       this.parent.innerHTML = template();
 

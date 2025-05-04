@@ -1,5 +1,5 @@
 import { removeTokenFromLocalStorage, storeAuthTokensFromResponse } from './localStorage';
-import { RestaurantResponse, Review } from '@myTypes/restaurantTypes';
+import { RestaurantResponse, Review, SearchRestaurant } from '@myTypes/restaurantTypes';
 import { I_Cart } from '@myTypes/cartTypes';
 import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
 import { CreateOrderPayload, I_OrderResponse } from '@myTypes/orderTypes';
@@ -256,10 +256,12 @@ class RestaurantsRequests {
   /**
    * Получает информацию об одном ресторане.
    */
-  Get = async (id: string): Promise<RestaurantResponse> => {
+  Get = async (id: string, query = ''): Promise<RestaurantResponse> => {
+    const url = this.baseUrl + '/' + id + (query ? `?${query}` : '');
+
     const { status, body } = await baseRequest<RestaurantResponse | ErrorResponse>(
       methods.GET,
-      this.baseUrl + '/' + id,
+      url,
       null,
     );
 
@@ -468,6 +470,23 @@ class OrderRequests {
 
     throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось получить заказ');
   };
+}
+
+export async function searchRestaurants(
+  query: string,
+  count: number,
+  offset: number,
+): Promise<SearchRestaurant[] | null> {
+  const { status, body } = await baseRequest<SearchRestaurant[] | null>(
+    methods.GET,
+    `/search?query=${query}&count=${count}&offset=${offset}`,
+  );
+
+  if (status === 200) {
+    return body;
+  }
+
+  throw new Error('Не удалось выполнить поиск');
 }
 
 export const AppRestaurantRequests = new RestaurantsRequests();

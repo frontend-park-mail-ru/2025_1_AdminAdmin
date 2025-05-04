@@ -27,6 +27,7 @@ class Router {
   private currentHeader: Header | auxHeader | null = null;
   private currentPage: RestaurantList | RestaurantPage | AuthPage | null = null;
   private currentId: string | null = null;
+  private currentQuery: string | null = null;
   private readonly routes: Record<string, RouteConfig>;
   private historyStack: { pageClass: string; path: string }[] = [];
 
@@ -128,7 +129,6 @@ class Router {
     shouldPushState = true,
   ): void {
     window.scrollTo(0, 0);
-
     const pageData = this.routes[page];
     if (!pageData) {
       return this.handleMissingRoute(page);
@@ -179,10 +179,11 @@ class Router {
   }
 
   private updatePage(pageData: RouteConfig, id: string | null, query: string | null = null): void {
-    if (this.pageChanged(pageData, id) || this.idChanged(id)) {
+    if (this.pageChanged(pageData, id, query)) {
       this.removeCurrentPage();
       this.createNewPage(pageData, id, query);
       this.currentId = id;
+      this.currentQuery = query;
       this.updateHeaderIfNeeded(pageData);
       this.currentPage.render(pageData.options);
       return;
@@ -193,12 +194,12 @@ class Router {
     }
   }
 
-  private pageChanged(pageData: RouteConfig, id: string | null): boolean {
-    return !(this.currentPage instanceof pageData.class) || (id && this.currentId !== id);
-  }
-
-  private idChanged(id: string | null): boolean {
-    return id && this.currentId !== id;
+  private pageChanged(pageData: RouteConfig, id: string | null, query: string | null): boolean {
+    return (
+      !(this.currentPage instanceof pageData.class) ||
+      (id && this.currentId !== id) ||
+      (query && this.currentQuery !== query)
+    );
   }
 
   private removeCurrentPage(): void {
