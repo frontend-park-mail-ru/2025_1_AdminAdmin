@@ -154,7 +154,8 @@ export default class RestaurantPage {
       const noResultsWrapper: HTMLElement = this.self.querySelector('.restaurant-page__no-results');
       noResultsWrapper.style.display = 'none';
       this.categoriesComponent.hashChangeHandler();
-    } catch {
+    } catch (error) {
+      console.error(error);
       const cartWrapper = this.self.querySelector('.cart__wrapper') as HTMLElement;
       cartWrapper.style.display = 'none';
       const noResultsWrapper: HTMLElement = this.self.querySelector('.restaurant-page__no-results');
