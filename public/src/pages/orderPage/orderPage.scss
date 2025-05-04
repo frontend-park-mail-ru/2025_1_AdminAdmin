@@ -70,6 +70,12 @@
   &__body {
     grid-column: 1 / span 1;
     width: 100%;
+
+    .step-progress-bar-container {
+      display: flex;
+      justify-content: center;
+      height: fit-content;
+    }
   }
 
   &__delivery {

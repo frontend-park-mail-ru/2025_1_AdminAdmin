@@ -1,0 +1,7 @@
+<div class="step-progress-bar">
+        {{#each steps}}
+        <div class="step{{#if this.completed}} completed{{/if}}" id="{{this.id}}">
+            <img class="step__icon" src="{{this.image.src}}" alt="{{this.image.alt}}"/>
+        </div>
+        {{/each}}
+</div>

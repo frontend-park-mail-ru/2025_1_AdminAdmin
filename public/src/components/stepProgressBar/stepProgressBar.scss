@@ -1,0 +1,48 @@
+.step-progress-bar {
+    // Переменные
+    --line-width: 2px; // Ширина линий обводки и соединяющей линии
+    --line-color: var(--orange); // Цвет линии и фона проеденного шага
+    --background-color: var(--light-grey); // Стандартный цвет фона
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 512px;
+    position: relative;
+
+    // Линия между шагами
+    &::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      width: calc(100% - 40px);
+      height: var(--line-width);
+      background-color: var(--line-color);
+      z-index: 0;
+    }
+
+    .step {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        aspect-ratio: 1 / 1;
+        border-radius: 50%;
+        border: var(--line-width) solid var(--line-color);
+        background-color: var(--background-color);
+        z-index: 1;
+
+        &__image {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+    }
+
+    .step.completed {
+        background-color: var(--line-color);
+    }
+}
