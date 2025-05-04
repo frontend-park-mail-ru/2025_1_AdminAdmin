@@ -228,7 +228,8 @@ class Router {
 
     const url = new URL(window.location.href);
 
-    url.searchParams.delete('#category');
+    url.hash = '';
+
     if (query.trim()) {
       url.searchParams.set('query', query);
     } else {

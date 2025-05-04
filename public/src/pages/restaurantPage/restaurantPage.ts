@@ -8,6 +8,7 @@ import { AppRestaurantRequests } from '@modules/ajax';
 import template from './restaurantPage.hbs';
 import type { RestaurantResponse } from '@myTypes/restaurantTypes';
 import { router } from '@modules/routing';
+import { toasts } from '@modules/toasts';
 
 /**
  * Класс, представляющий страницу конкретного ресторана.
@@ -66,6 +67,8 @@ export default class RestaurantPage {
 
     try {
       this.parent.innerHTML = template();
+      this.props = await AppRestaurantRequests.Get(this.id);
+
       await this.handleProductsRendering();
 
       const restaurantHeaderWrapper = this.self.querySelector(
@@ -90,6 +93,10 @@ export default class RestaurantPage {
       });
       this.restaurantReviewsComponent.render();
 
+      const cartWrapper = this.self.querySelector('.cart__wrapper') as HTMLElement;
+      this.cartComponent = new Cart(cartWrapper, this.props.id);
+      this.cartComponent.render();
+
       window.addEventListener('scroll', this.checkSticky);
       window.addEventListener('resize', this.handleResize);
     } catch (error) {
@@ -113,34 +120,46 @@ export default class RestaurantPage {
   };
 
   async handleProductsRendering(): Promise<void> {
-    this.props = await AppRestaurantRequests.Get(this.id, this.query);
-    const productCardsBody = this.self.querySelector('.product-cards__body') as HTMLElement;
+    try {
+      if (this.query) {
+        this.props.categories = await AppRestaurantRequests.Search(this.id, this.query);
+      }
 
-    this.handleResize();
+      const productCardsBody = this.self.querySelector('.product-cards__body') as HTMLElement;
 
-    this.categoriesComponent = new Categories(this.categoriesWrapper, productCardsBody);
-    this.categoriesComponent.render();
+      this.handleResize();
 
-    if (!this.props.categories) return;
+      this.categoriesComponent = new Categories(this.categoriesWrapper, productCardsBody);
+      this.categoriesComponent.render();
 
-    this.props.categories.forEach((category) => {
-      this.categoriesComponent.addCategory(category.name);
+      if (!this.props.categories) return;
 
-      if (!category.products?.length) return;
+      this.props.categories.forEach((category) => {
+        this.categoriesComponent.addCategory(category.name);
 
-      category.products.forEach((product) => {
-        const productCardComponent = new ProductCard(
-          productCardsBody,
-          this.props.id,
-          this.props.name,
-          product,
-        );
-        productCardComponent.render();
-        this.productCards.push(productCardComponent);
+        if (!category.products?.length) return;
+
+        category.products.forEach((product) => {
+          const productCardComponent = new ProductCard(
+            productCardsBody,
+            this.props.id,
+            this.props.name,
+            product,
+          );
+          productCardComponent.render();
+          this.productCards.push(productCardComponent);
+        });
       });
-    });
 
-    this.categoriesComponent.hashChangeHandler();
+      const noResultsWrapper: HTMLElement = this.self.querySelector('.restaurant-page__no-results');
+      noResultsWrapper.style.display = 'none';
+      this.categoriesComponent.hashChangeHandler();
+    } catch {
+      const cartWrapper = this.self.querySelector('.cart__wrapper') as HTMLElement;
+      cartWrapper.style.display = 'none';
+      const noResultsWrapper: HTMLElement = this.self.querySelector('.restaurant-page__no-results');
+      noResultsWrapper.style.display = 'flex';
+    }
   }
 
   async updateQuery(query: string): Promise<void> {
@@ -148,6 +167,13 @@ export default class RestaurantPage {
     this.categoriesComponent?.remove();
     this.productCards.forEach((productCard) => productCard.remove());
     this.productCards = [];
+    if (!this.query) {
+      try {
+        this.props = await AppRestaurantRequests.Get(this.id);
+      } catch (error) {
+        toasts.error(error.message);
+      }
+    }
     await this.handleProductsRendering();
   }
 
@@ -182,13 +208,9 @@ export default class RestaurantPage {
     const cartWrapper = this.self.querySelector('.cart__wrapper') as HTMLElement;
 
     if (window.innerWidth > 1200) {
-      if (!this.cartComponent && cartWrapper) {
-        this.cartComponent = new Cart(cartWrapper, this.props.id);
-        this.cartComponent.render();
-      }
+      cartWrapper.style.display = 'flex';
     } else {
-      this.cartComponent?.remove();
-      this.cartComponent = undefined;
+      cartWrapper.style.display = 'none';
     }
   };
 

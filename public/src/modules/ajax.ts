@@ -1,5 +1,5 @@
 import { removeTokenFromLocalStorage, storeAuthTokensFromResponse } from './localStorage';
-import { RestaurantResponse, Review, SearchRestaurant } from '@myTypes/restaurantTypes';
+import { Category, RestaurantResponse, Review, SearchRestaurant } from '@myTypes/restaurantTypes';
 import { I_Cart } from '@myTypes/cartTypes';
 import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
 import { CreateOrderPayload, I_OrderResponse } from '@myTypes/orderTypes';
@@ -256,18 +256,33 @@ class RestaurantsRequests {
   /**
    * Получает информацию об одном ресторане.
    */
-  Get = async (id: string, query = ''): Promise<RestaurantResponse> => {
-    const params = new URLSearchParams(query);
-    const url = `${this.baseUrl}/${id}${params.toString() ? `?${params.toString()}` : ''}`;
-
+  /**
+   * Получает информацию об одном ресторане.
+   * @param id - Идентификатор ресторана
+   * @returns {Promise<any>}
+   */
+  Get = async (id: string): Promise<RestaurantResponse> => {
     const { status, body } = await baseRequest<RestaurantResponse | ErrorResponse>(
       methods.GET,
-      url,
+      this.baseUrl + '/' + id,
       null,
     );
 
     if (status === 200) {
       return body as RestaurantResponse;
+    } else {
+      throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
+    }
+  };
+
+  Search = async (id: string, query: string): Promise<Category[]> => {
+    const params = new URLSearchParams(query);
+    const url = `${this.baseUrl}/${id}/search?${params.toString()}`;
+
+    const { status, body } = await baseRequest<Category[] | ErrorResponse>(methods.GET, url, null);
+
+    if (status === 200) {
+      return body as Category[];
     } else {
       throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
     }
@@ -478,9 +493,11 @@ export async function searchRestaurants(
   count: number,
   offset: number,
 ): Promise<SearchRestaurant[] | null> {
+  const params = new URLSearchParams(query);
+
   const { status, body } = await baseRequest<SearchRestaurant[] | null>(
     methods.GET,
-    `/search?query=${query}&count=${count}&offset=${offset}`,
+    `/search?query=${params.toString()}&count=${count}&offset=${offset}`,
   );
 
   if (status === 200) {
