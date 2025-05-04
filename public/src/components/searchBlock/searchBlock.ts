@@ -56,7 +56,7 @@ export class SearchBlock {
       columnNumber++;
     }
 
-    if (columnNumber === 5) {
+    if (columnNumber === 6) {
       this.moreButton = new MorePlaceHolder(productContainer, this.restaurant.id);
       this.moreButton.render();
       return;
