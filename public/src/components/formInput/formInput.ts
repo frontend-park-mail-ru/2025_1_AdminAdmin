@@ -19,6 +19,7 @@ export interface FormInputProps {
   maxLength?: number;
   movePlaceholderOnInput?: boolean;
   value?: string;
+  onEnter?: () => void;
 }
 
 export class FormInput {
@@ -40,6 +41,12 @@ export class FormInput {
   get input(): HTMLInputElement | null {
     return this.self?.querySelector('input');
   }
+
+  private readonly handleKeyDown = (e: KeyboardEvent): void => {
+    if (e.key === 'Enter' && this.props.onEnter) {
+      this.props.onEnter();
+    }
+  };
 
   constructor(parent: HTMLElement, props: FormInputProps) {
     if (!parent) {
@@ -111,10 +118,22 @@ export class FormInput {
     }
   }
 
+  disable(): void {
+    const input = this.input;
+    if (input) {
+      input.disabled = true;
+      input.classList.add('disabled');
+    }
+  }
+
   render(): void {
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
 
+    if (!this.props.label && this.props.noErrorInHeader) {
+      const inputHeader: HTMLDivElement = this.self.querySelector('.form__input-head');
+      inputHeader.style.display = 'none';
+    }
     this.setupPhoneMaskIfNeeded();
     this.setupPasswordToggleIfNeeded();
     this.attachInputListeners();
@@ -151,6 +170,23 @@ export class FormInput {
     }
 
     input.addEventListener('input', this.inputHandler);
+
+    if (this.props.onEnter) {
+      input.addEventListener('keydown', this.handleKeyDown);
+    }
+  }
+
+  public setOnEnter(callback: () => void): void {
+    const input = this.input;
+    if (!input) return;
+
+    if (this.props.onEnter) {
+      input.removeEventListener('keydown', this.handleKeyDown);
+    }
+
+    this.props.onEnter = callback;
+
+    input.addEventListener('keydown', this.handleKeyDown);
   }
 
   private addPhoneMask(): void {
@@ -248,6 +284,26 @@ export class FormInput {
     return this.input?.value || '';
   }
 
+  setValue(value: string): void {
+    const input = this.input;
+    if (!input) return;
+
+    input.value = value;
+
+    if (this.props.type === 'tel') {
+      this.applyPhoneMask();
+    }
+
+    this.checkValue();
+  }
+
+  setPlaceholder(value: string): void {
+    const input = this.input;
+    if (!input) return;
+
+    input.placeholder = value;
+  }
+
   remove(): void {
     const input = this.input;
     if (input) {
@@ -257,6 +313,10 @@ export class FormInput {
 
     if (this.phoneInputHandler) {
       this.input?.removeEventListener('input', this.phoneInputHandler);
+    }
+
+    if (this.props.onEnter) {
+      input.removeEventListener('keydown', this.handleKeyDown);
     }
 
     const eyeIcon = this.self?.querySelector('.form__input__eye-icon') as HTMLElement;

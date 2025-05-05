@@ -1,9 +1,9 @@
 import { removeTokenFromLocalStorage, storeAuthTokensFromResponse } from './localStorage';
-import { RestaurantResponse } from '@myTypes/restaurantTypes';
+import { Category, RestaurantResponse, Review, SearchRestaurant } from '@myTypes/restaurantTypes';
 import { I_Cart } from '@myTypes/cartTypes';
 import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
-import { CreateOrderPayload } from '@myTypes/orderTypes';
-import { getRequestOptions, parseResponseBody } from '@modules/fetchUtils';
+import { CreateOrderPayload, I_OrderResponse } from '@myTypes/orderTypes';
+import { capitalizeError, getRequestOptions, parseResponseBody } from '@modules/fetchUtils';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -83,7 +83,7 @@ class UserRequests {
       return body as User;
     }
 
-    throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
+    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
   };
 
   /**
@@ -104,7 +104,7 @@ class UserRequests {
       return body as User;
     }
 
-    throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
+    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
   };
 
   /**
@@ -118,7 +118,7 @@ class UserRequests {
       removeTokenFromLocalStorage();
       return { message: 'ok' };
     } else {
-      throw new Error(body.message ?? 'Что-то пошло не так...');
+      throw new Error(capitalizeError(body.message) ?? 'Что-то пошло не так...');
     }
   };
 
@@ -155,7 +155,7 @@ class UserRequests {
       return body as User;
     }
 
-    throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
+    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
   };
 
   /**
@@ -171,7 +171,9 @@ class UserRequests {
       return body as { address: string; id: string; user_id: string }[];
     }
 
-    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось получить адреса пользователя');
+    throw new Error(
+      capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось получить адреса пользователя',
+    );
   };
 
   AddAddress = async (address: string): Promise<void> => {
@@ -186,7 +188,9 @@ class UserRequests {
     if (status === 200) {
       return;
     } else {
-      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось добавить адрес');
+      throw new Error(
+        capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось добавить адрес',
+      );
     }
   };
 
@@ -206,7 +210,7 @@ class UserRequests {
       return;
     }
 
-    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось удалить адрес');
+    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось удалить адрес');
   };
 
   SetAvatar = async (picture: FormData) => {
@@ -222,7 +226,7 @@ class UserRequests {
       return body;
     }
 
-    throw new Error(body?.error ?? 'Не удалось загрузить аватарку');
+    throw new Error(capitalizeError(body?.error) ?? 'Не удалось загрузить аватар');
   };
 }
 
@@ -231,8 +235,6 @@ class RestaurantsRequests {
 
   /**
    * Получает список всех ресторанов.
-   * @param params - GET-параметры запроса
-   * @returns {Promise<any>}
    */
   GetAll = async (params: RequestParams | null = null): Promise<any> => {
     const { status, body } = await baseRequest<any>(
@@ -247,10 +249,13 @@ class RestaurantsRequests {
     } else if (status === 404) {
       return;
     } else {
-      throw new Error(body?.error);
+      throw new Error(capitalizeError(body?.error));
     }
   };
 
+  /**
+   * Получает информацию об одном ресторане.
+   */
   /**
    * Получает информацию об одном ресторане.
    * @param id - Идентификатор ресторана
@@ -266,8 +271,90 @@ class RestaurantsRequests {
     if (status === 200) {
       return body as RestaurantResponse;
     } else {
-      throw new Error((body as ErrorResponse)?.error ?? 'Что-то пошло не так...');
+      throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
     }
+  };
+
+  Search = async (id: string, query: string): Promise<Category[]> => {
+    const params = new URLSearchParams(query);
+    const url = `${this.baseUrl}/${id}/search?query=${params.toString()}`;
+
+    const { status, body } = await baseRequest<Category[] | ErrorResponse>(methods.GET, url, null);
+
+    if (status === 200) {
+      return body as Category[];
+    } else {
+      throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
+    }
+  };
+
+  /**
+   * Получает список отзывов ресторана.
+   * @param id - ID ресторана
+   * @param count - количество отзывов (по умолчанию 1)
+   * @param offset - смещение (по умолчанию 0)
+   */
+  GetReviews = async (id: string, count = 100, offset = 0): Promise<Review[]> => {
+    const url = `${this.baseUrl}/${id}/reviews`;
+    const params: RequestParams = {
+      count: count.toString(),
+      offset: offset.toString(),
+    };
+
+    const { status, body } = await baseRequest<Review[] | ErrorResponse>(
+      methods.GET,
+      url,
+      null,
+      params,
+    );
+
+    if (status === 200) {
+      return body as Review[];
+    } else {
+      throw new Error(
+        capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось загрузить отзывы',
+      );
+    }
+  };
+
+  /**
+   * Отправляет отзыв о ресторане.
+   * @param id - ID ресторана
+   * @param review - объект с текстом и рейтингом
+   */
+  SendReview = async (
+    id: string,
+    review: { review_text: string; rating: number },
+  ): Promise<Review> => {
+    const url = `${this.baseUrl}/${id}/reviews`;
+
+    const { status, body } = await baseRequest<Review | ErrorResponse>(methods.POST, url, review);
+
+    if (status === 200 || status === 201) {
+      return body as Review;
+    } else {
+      throw new Error(
+        capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось отправить отзыв',
+      );
+    }
+  };
+
+  /**
+   * Проверяет, может ли пользователь оставить отзыв.
+   * @param id - ID ресторана
+   * @returns Если можно — возвращает true.
+   *          Если нельзя — выбрасывает исключение с текстом ошибки и предыдущим отзывом.
+   */
+  CanLeaveReview = async (id: string): Promise<string | undefined> => {
+    const url = `${this.baseUrl}/${id}/check`;
+
+    const { status, body } = await baseRequest<{ id?: string }>(methods.GET, url);
+
+    if (status !== 200) {
+      throw new Error('Ошибка при проверке возможности оставить отзыв');
+    }
+
+    return body?.id;
   };
 }
 
@@ -298,7 +385,10 @@ class CartRequests {
     if (status === 200) {
       return body as I_Cart;
     } else {
-      throw new Error((body as ErrorResponse)?.error ?? 'Не удалось обновить количество продуктов');
+      throw new Error(
+        capitalizeError((body as ErrorResponse)?.error) ??
+          'Не удалось обновить количество продуктов',
+      );
     }
   };
 
@@ -314,7 +404,9 @@ class CartRequests {
     } else if (status === 404) {
       return;
     } else {
-      throw new Error((body as ErrorResponse).error ?? 'Не удалось получить корзину');
+      throw new Error(
+        capitalizeError((body as ErrorResponse).error) ?? 'Не удалось получить корзину',
+      );
     }
   };
 
@@ -328,7 +420,7 @@ class CartRequests {
       return;
     }
 
-    const error = (body as ErrorResponse)?.error ?? 'Не удалось очистить корзину';
+    const error = capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось очистить корзину';
     throw new Error(error);
   };
 }
@@ -339,21 +431,80 @@ class OrderRequests {
   /**
    * Создает новый заказ.
    * @param payload - Данные заказа
-   * @returns {Promise<{ message: string; order_id?: string }>}
+   * @returns {Promise<I_OrderResponse>}
    */
-  CreateOrder = async (
-    payload: CreateOrderPayload,
-  ): Promise<{ message: string; order_id?: string }> => {
-    const { status, body } = await baseRequest<
-      { message: string; order_id?: string } | ErrorResponse
-    >(methods.POST, this.baseUrl + '/create', payload);
+  CreateOrder = async (payload: CreateOrderPayload): Promise<I_OrderResponse> => {
+    const { status, body } = await baseRequest<I_OrderResponse | ErrorResponse>(
+      methods.POST,
+      this.baseUrl + '/create',
+      payload,
+    );
 
     if (status === 200 || status === 201) {
-      return body as { message: string; order_id?: string };
+      return body as I_OrderResponse;
     }
 
-    throw new Error((body as ErrorResponse)?.error ?? 'Не удалось создать заказ');
+    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось создать заказ');
   };
+
+  /**
+   * Получает список заказов пользователя.
+   * @param count - Количество заказов (по умолчанию 15)
+   * @param offset - Смещение (по умолчанию 0)
+   * @returns {Promise<I_OrderResponse[]>}
+   */
+  getUserOrders = async (count = 15, offset = 0): Promise<I_OrderResponse[]> => {
+    const query = `?count=${count}&offset=${offset}`;
+    const { status, body } = await baseRequest<I_OrderResponse[] | ErrorResponse>(
+      methods.GET,
+      this.baseUrl + query,
+    );
+
+    if (status === 200) {
+      return body as I_OrderResponse[];
+    }
+
+    throw new Error(
+      capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось получить заказы пользователя',
+    );
+  };
+
+  /**
+   * Получает заказ по ID.
+   * @param orderId - UUID заказа
+   * @returns {Promise<I_OrderResponse>}
+   */
+  getOrderById = async (orderId: string): Promise<I_OrderResponse> => {
+    const { status, body } = await baseRequest<I_OrderResponse | ErrorResponse>(
+      methods.GET,
+      `${this.baseUrl}/${orderId}`,
+    );
+
+    if (status === 200) {
+      return body as I_OrderResponse;
+    }
+
+    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось получить заказ');
+  };
+}
+
+export async function searchRestaurants(
+  query: string,
+  count: number,
+  offset: number,
+): Promise<SearchRestaurant[] | null> {
+  const params = new URLSearchParams(query);
+
+  const { status, body } = await baseRequest<SearchRestaurant[] | null>(
+    methods.GET,
+    `/search?query=${params.toString()}&count=${count}&offset=${offset}`,
+  );
+
+  if (status === 200) {
+    return body;
+  }
+
+  throw new Error('Не удалось выполнить поиск');
 }
 
 export const AppRestaurantRequests = new RestaurantsRequests();

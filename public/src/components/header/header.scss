@@ -17,6 +17,22 @@
   }
 
   .header {
+    &__search {
+      grid-area: header__search;
+      display: flex;
+      gap: 0;
+      height: 100%;
+      width: 100%;
+
+      input {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        height: 100%;
+        padding-right: 10px;
+        border: 2px solid var(--black);
+        box-sizing: border-box;
+      }
+    }
 
     &__auth_button {
       max-width: 100%;;
@@ -191,12 +207,20 @@
 
 .main_header {
   grid-template-areas:
-    "header__logo header__location header__cart_button header__auth_button";
+    "header__logo header__search header__location . header__cart_button header__auth_button";
   column-gap: 20px;
-  grid-template-columns: 2fr 8fr 1fr 1fr;
+  grid-template-columns: 2fr 4fr 2fr 2fr 1fr 1fr;
   padding-left: 7vw;
   padding-right: 7vw;
 
+  @media (max-width: 1000px) {
+    grid-template-areas:
+    "header__logo header__location header__cart_button header__auth_button"
+    "header__search header__search header__search header__search";
+    gap: 20px;
+
+    grid-template-columns: 2fr 6fr 2fr 2fr;
+  }
 
   .header {
     &__cart_button {
@@ -222,17 +246,42 @@
         margin-right: 10px;
         width: auto;
       }
+
+      @media (max-width: 1000px) {
+        position: fixed;
+        bottom: 0;
+        border-top-left-radius: 30px;
+        border-top-right-radius: 30px;
+        width: 100%;
+        left: 0;
+        box-sizing: border-box;
+        border: 14px solid var(--white);
+        z-index: 13;
+
+        &_button {
+          border-radius: 30px;
+          font-size: 20px;
+          background-size: 25px 25px;
+        }
+
+        &_icon {
+          height: 50px;
+          margin: 0 10px;
+          width: auto;
+        }
+      }
     }
   }
 }
 
 .mobile_header {
   grid-template-areas:
-    "header__logo header__location header__auth_button";
+    "header__logo header__location header__auth_button"
+    "header__search header__search header__search";
   grid-template-columns: 4fr auto 4fr;
   padding-left: 2vw;
   padding-right: 2vw;
-  column-gap: 10px;
+  gap: 10px;
 
   .header {
     &__cart_button {

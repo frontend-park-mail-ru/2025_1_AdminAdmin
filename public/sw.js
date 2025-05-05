@@ -1,10 +1,10 @@
 self.addEventListener('install', event => {
-    console.log('[SW] Install event fired');
+    //console.log('[SW] Install event fired');
 
     event.waitUntil((async () => {
         try {
             const cache = await caches.open('static');
-            console.log('[SW] Opened static cache');
+            //console.log('[SW] Opened static cache');
 
             const appShell = [
                 '/',
@@ -13,7 +13,7 @@ self.addEventListener('install', event => {
                 '/index.scss',
             ];
 
-            console.log('[SW] Adding app shell to cache:', appShell);
+            //console.log('[SW] Adding app shell to cache:', appShell);
             await cache.addAll(appShell);
 
             const images = [
@@ -44,43 +44,43 @@ self.addEventListener('install', event => {
                 '/src/assets/yandex-maps-logo.png',
             ];
 
-            console.log('[SW] Adding image assets to cache:', images);
+            //console.log('[SW] Adding image assets to cache:', images);
             await cache.addAll(images);
-            console.log('[SW] Precaching complete');
+            //console.log('[SW] Precaching complete');
         } catch (err) {
-            console.error('[SW] Precaching failed:', err);
+            //console.error('[SW] Precaching failed:', err);
         }
     })());
 });
 
 self.addEventListener('activate', event => {
-    console.log('[SW] Activate event fired');
+    //console.log('[SW] Activate event fired');
     event.waitUntil((async () => {
         const cacheNames = await caches.keys();
-        console.log('[SW] Existing caches:', cacheNames);
+        //console.log('[SW] Existing caches:', cacheNames);
         await Promise.all(
             cacheNames.map(cacheName => {
                 if (cacheName !== 'static') {
-                    console.log(`[SW] Deleting old cache: ${cacheName}`);
+                    //console.log(`[SW] Deleting old cache: ${cacheName}`);
                     return caches.delete(cacheName);
                 }
                 return null;
             })
         );
         await self.clients.claim();
-        console.log('[SW] Activation complete');
+        //console.log('[SW] Activation complete');
     })());
 });
 
 self.addEventListener('fetch', event => {
-    console.log(`[SW] Fetch event for: ${event.request.url}`);
+    //console.log(`[SW] Fetch event for: ${event.request.url}`);
     if (event.request.method !== 'GET')
         return;
 
     event.respondWith((async () => {
         try {
             const response = await fetch(event.request);
-            console.log(`[SW] Fetched from network: ${event.request.url}`);
+            //console.log(`[SW] Fetched from network: ${event.request.url}`);
 
             const staticCache = await caches.open('static');
             const cachedStatic = await staticCache.match(event.request);
@@ -88,14 +88,14 @@ self.addEventListener('fetch', event => {
             if (!cachedStatic && response.ok) {
                 const dynamicCache = await caches.open('dynamic');
                 await dynamicCache.put(event.request, response.clone());
-                console.log(`[SW] Cached in dynamic: ${event.request.url}`);
+                //console.log(`[SW] Cached in dynamic: ${event.request.url}`);
             } else if (cachedStatic) {
-                console.log(`[SW] Not caching in dynamic, already in static: ${event.request.url}`);
+                //console.log(`[SW] Not caching in dynamic, already in static: ${event.request.url}`);
             }
 
             return response;
         } catch (err) {
-            console.warn(`[SW] Network failed, checking cache: ${event.request.url}`, err);
+            //console.warn(`[SW] Network failed, checking cache: ${event.request.url}`, err);
 
             const cachedResponse = await caches.match(event.request);
             if (cachedResponse) {

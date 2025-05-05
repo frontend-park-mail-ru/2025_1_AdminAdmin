@@ -49,6 +49,7 @@ export default class UnifiedForm {
       const errorMessage = err.message || 'Непредвиденная ошибка';
       this.setError(errorMessage);
       toasts.error(errorMessage);
+    } finally {
       this.components.submitButton.enable();
     }
   }

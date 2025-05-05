@@ -10,12 +10,22 @@
   transition: background-color 0.3s ease;
   height: 100%;
   width: 100%;
-  font-size: 16px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  gap: 6px;
   background-color: var(--light-grey);
   border-radius: var(--border-radius);
+
+  &__icon {
+    height: 25px;
+    pointer-events: auto;
+  }
+
+  &__text {
+    pointer-events: auto;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
   &_inactive {
     color: var(--white);
@@ -51,6 +61,12 @@
       background-image: linear-gradient(rgb(0 0 0 / 20%), rgb(0 0 0 / 20%));
       background-color: var(--dark-gray);
     }
+  }
+
+  &.search_button {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    width: 100px;
   }
 
   &.big {

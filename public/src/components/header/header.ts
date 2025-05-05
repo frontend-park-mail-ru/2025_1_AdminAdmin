@@ -6,11 +6,13 @@ import template from './header.hbs';
 import { toasts } from '@modules/toasts';
 import MapModal from '@pages/mapModal/mapModal';
 import logoImg from '@assets/logo.png';
+import cartImg from '@assets/cart.svg';
 import smallLogo from '@assets/small_logo.png';
 import { cartStore } from '@store/cartStore';
 import { modalController } from '@modules/modalController';
 import { AppUserRequests } from '@modules/ajax';
 import { Address } from '@components/address/address';
+import { FormInput } from '@components/formInput/formInput';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -31,6 +33,9 @@ export default class Header {
   private unsubscribeFromCartStore: (() => void) | null = null;
   private readonly handleResizeBound: () => void;
   private lastScreenSizeCategory: 'mobile' | 'desktop' | 'large-desktop' | null = null;
+  private searchInput: FormInput;
+  private searchButton: Button;
+  private searchAll: boolean;
 
   /**
    * Создает экземпляр заголовка.
@@ -119,8 +124,6 @@ export default class Header {
       await this.handleSelectButtonClick();
       return;
     }
-
-    this.toggleProfileDropdown(target);
   }
 
   private isMapButtonClick(target: HTMLElement): boolean {
@@ -134,7 +137,14 @@ export default class Header {
 
   private isDropdownOpen(): boolean {
     const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
-    return dropdown && dropdown.style.display === 'block';
+    const profileDropdownOptions = document.querySelector(
+      '.header__profile-dropdown__options',
+    ) as HTMLElement;
+
+    return (
+      (dropdown && dropdown.style.display === 'block') ||
+      (profileDropdownOptions && profileDropdownOptions.classList.contains('active'))
+    );
   }
 
   private closeDropdown(): void {
@@ -142,6 +152,11 @@ export default class Header {
     const overlay = document.querySelector('.header__overlay') as HTMLElement;
     this.addressComponents.forEach((comp) => comp.remove());
     this.addressComponents = [];
+
+    const profileDropdownOptions = document.querySelector(
+      '.header__profile-dropdown__options',
+    ) as HTMLElement;
+    if (profileDropdownOptions.classList.contains('active')) this.toggleProfileDropdown();
 
     if (this.parent.classList.contains('mobile_header')) {
       dropdown.style.animation = 'moveDown 0.2s linear forwards';
@@ -205,20 +220,12 @@ export default class Header {
     }
   }
 
-  private toggleProfileDropdown(target: HTMLElement): void {
+  private toggleProfileDropdown = () => {
     const profileDropdownOptions = document.querySelector(
       '.header__profile-dropdown__options',
     ) as HTMLElement;
-
-    if (target.id === 'profile_button') {
-      profileDropdownOptions.classList.toggle('active');
-    } else if (
-      profileDropdownOptions.classList.contains('active') &&
-      !profileDropdownOptions.contains(target)
-    ) {
-      profileDropdownOptions.classList.remove('active');
-    }
-  }
+    profileDropdownOptions.classList.toggle('active');
+  };
 
   /**
    * Ссылка на объект
@@ -237,6 +244,23 @@ export default class Header {
     const authButtonContainer = document.querySelector('.header__auth_button') as HTMLElement;
     if (!authButtonContainer) return;
 
+    const headerSearchContainer: HTMLDivElement = this.parent.querySelector('.header__search');
+    this.searchInput = new FormInput(headerSearchContainer, {
+      id: 'header__search__input',
+      placeholder: 'Найти ресторан или блюдо',
+      type: 'search',
+      noErrorInHeader: true,
+    });
+    this.searchInput.render();
+
+    this.searchButton = new Button(headerSearchContainer, {
+      id: 'header__search__button',
+      text: 'Найти',
+      style: 'search_button dark',
+      type: 'submit',
+    });
+    this.searchButton.render();
+
     this.loginButton = new Button(authButtonContainer, {
       id: 'login_button',
       text: 'Вход',
@@ -252,7 +276,7 @@ export default class Header {
     this.profileButton = new Button(profileButtonWrapper, {
       id: 'profile_button',
       text: 'Профиль',
-      onSubmit: undefined,
+      onSubmit: this.toggleProfileDropdown,
     });
     this.profileButton.render();
 
@@ -271,10 +295,11 @@ export default class Header {
 
     const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
     if (!cartButtonContainer) return;
-
     this.cartButton = new Button(cartButtonContainer, {
       id: 'cart_button',
       style: 'dark',
+      iconSrc: cartImg,
+      iconAlt: 'cartIcon',
       text: '0',
     });
     this.cartButton.render();
@@ -384,6 +409,39 @@ export default class Header {
     }
   }
 
+  setQuery(query: string | null = null): void {
+    this.searchInput.setValue(query);
+  }
+
+  onSearchAllEnter = () => {
+    if (!this.searchInput.value) {
+      router.goToPage('home');
+      return;
+    }
+    router.goToPage('searchPage', null, this.searchInput.value);
+  };
+
+  onSearch = async () => {
+    await router.updateQuery(this.searchInput.value);
+  };
+
+  updateHeader(searchAll: boolean): void {
+    if (this.searchAll !== undefined && this.searchAll === searchAll) {
+      return;
+    }
+    this.searchAll = searchAll;
+    if (searchAll) {
+      this.searchButton.setOnSubmit(this.onSearchAllEnter);
+
+      this.searchInput.setPlaceholder('Найти ресторан или блюдо');
+      this.searchInput.setOnEnter(this.onSearchAllEnter);
+      return;
+    }
+
+    this.searchButton.setOnSubmit(this.onSearch);
+    this.searchInput.setOnEnter(this.onSearch);
+    this.searchInput.setPlaceholder('Поиск по ресторану');
+  }
   /**
    * Удаляет заголовок со страницы и снимает обработчики событий.
    */
@@ -393,6 +451,8 @@ export default class Header {
     this.logoutButton?.remove();
     this.profileButton.remove();
     this.loginButton?.remove();
+    this.searchButton?.remove();
+    this.searchInput?.remove();
     if (this.cartButton) this.cartButton.remove();
     this.parent.innerHTML = '';
     this.addressComponents.forEach((comp) => comp.remove());

@@ -104,46 +104,11 @@ export class Categories {
   handleCategoryClick(categoryId: number): void {
     const targetHeader = document.getElementById(`category-header-${categoryId}`);
     if (targetHeader) {
-      targetHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-      const currentUrl = window.location.href.split('#')[0];
-      history.pushState(null, '', `${currentUrl}#category-${categoryId}`);
+      targetHeader.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
-
-    if (this.activeCategoryId === categoryId) {
-      return;
-    }
-
-    const previousCategoryButton = this.categoryElements[this.activeCategoryId]?.button;
-    if (previousCategoryButton) {
-      previousCategoryButton.self.classList.remove('button_active');
-    }
-
-    const currentCategoryButton = this.categoryElements[categoryId]?.button;
-    if (currentCategoryButton) {
-      currentCategoryButton.self.classList.add('button_active');
-      currentCategoryButton.self.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center',
-      });
-    }
-
-    this.activeCategoryId = categoryId;
   }
 
   private scrollHandler(): void {
-    const scrollBottom = window.scrollY + window.innerHeight;
-    const pageBottom = document.documentElement.scrollHeight;
-
-    if (Math.abs(scrollBottom - pageBottom) < 2) {
-      const lastCategoryId = this.categoryElements.length - 1;
-      if (lastCategoryId !== this.activeCategoryId) {
-        this.updateActiveCategory(lastCategoryId);
-      }
-      return;
-    }
-
     let closestHeaderId: number | null = null;
     let closestDistance = Infinity;
 
@@ -152,11 +117,15 @@ export class Categories {
       if (!headerElement) continue;
 
       const rect = headerElement.getBoundingClientRect();
-      const distance = Math.abs(rect.top);
 
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestHeaderId = header.id;
+      const isVisible = rect.top < window.innerHeight && rect.bottom >= 0;
+
+      if (isVisible) {
+        const distanceFromBottom = Math.abs(rect.top + rect.height - window.innerHeight);
+        if (distanceFromBottom < closestDistance) {
+          closestDistance = distanceFromBottom;
+          closestHeaderId = header.id;
+        }
       }
     }
 
@@ -172,11 +141,6 @@ export class Categories {
     if (prevButton) prevButton.self.classList.remove('button_active');
     if (newButton) {
       newButton.self.classList.add('button_active');
-      newButton.self.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center',
-      });
     }
 
     this.activeCategoryId = newCategoryId;

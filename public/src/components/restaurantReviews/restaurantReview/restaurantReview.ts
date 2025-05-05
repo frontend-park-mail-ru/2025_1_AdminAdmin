@@ -1,13 +1,8 @@
 import template from './restaurantReview.hbs';
+import { Review } from '@myTypes/restaurantTypes';
 
-// Структура класса отзыва ресторана (нужно для конструктора)
-export interface RestaurantReviewProps {
-  // ? - необязательное поле
-  id: string; // Id для идентификации     | Обязательное поле
-  text?: string; // Текст отзыва          | Может быть не задано (как оценка, а не отзыв)
-  rating: number; // Поставленная оценка  | Обязательное поле
-  author: string; // Автор отзыва         | Обязательное поле
-  date: string; // Дата отзыва            | Обязательное поле
+interface RestaurantReviewProps extends Review {
+  isActive: boolean;
 }
 
 /**
@@ -28,13 +23,7 @@ export class RestaurantReview {
       throw new Error('Review: no parent!');
     }
     this.parent = parent;
-    this.props = {
-      id: props.id,
-      text: props.text || null,
-      rating: props.rating,
-      author: props.author,
-      date: props.date,
-    };
+    this.props = props;
   }
 
   /**
@@ -42,7 +31,8 @@ export class RestaurantReview {
    * @returns {HTMLElement} - ссылка на объект
    */
   get self(): HTMLElement {
-    const element = document.getElementById(this.props.id);
+    const selector = `#review-${this.props.id}`;
+    const element: HTMLDivElement = this.parent.querySelector(selector);
     if (!element) {
       throw new Error(`Error: can't find restaurant-review with id ${this.props.id}`);
     }
@@ -52,20 +42,37 @@ export class RestaurantReview {
   /**
    * Отображает отзыв ресторана на странице
    */
-  render(): void {
+  render(position: InsertPosition = 'beforeend'): void {
     if (!template) {
       throw new Error('Error: restaurant-review template not found');
     }
+
+    const date = new Date(this.props.created_at);
+    const formattedDate = date.toLocaleDateString('ru-RU');
+    const formattedDateSlashes = formattedDate.replace(/\./g, '/');
+
+    const propsForTemplate = {
+      ...this.props,
+      created_at: formattedDateSlashes,
+    };
+
     // Рендерим шаблончик
-    const html = template(this.props);
-    this.parent.insertAdjacentHTML('beforeend', html);
+    const html = template(propsForTemplate);
+    this.parent.insertAdjacentHTML(position, html);
+
     const ratingInStars = this.self.querySelector(
       '.restaurant-review__rating_stars__foreground',
     ) as HTMLElement;
+
     if (!ratingInStars) {
       throw new Error(`Error: can't find rating in stars`);
     }
+
     ratingInStars.style.width = `${(this.props.rating / 5) * 100}%`;
+
+    if (this.props.isActive) {
+      this.self.style.backgroundColor = 'var(--light-grey)';
+    }
   }
 
   /**

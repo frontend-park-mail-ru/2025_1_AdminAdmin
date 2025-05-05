@@ -47,3 +47,31 @@
     display: inline-block;
   }
 }
+
+.restaurant__search-card {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 20px;
+  align-items: center;
+  .restaurant__card {
+
+    &__image {
+      max-width: 70px;
+      aspect-ratio: 1 / 1;
+    }
+
+    &__name {
+      font-size: 20px;
+    }
+
+    &__content {
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+
+    &__description {
+      display: none;
+    }
+  }
+}

@@ -10,6 +10,7 @@
 @use './src/components/profileTableRow/profileTableRow.scss' as *;
 @use './src/components/categories/categoryHeader/categoryHeader' as *;
 @use './src/components/youMoneyForm/youMoneyForm' as *;
+@use './src/components/productCard/morePlaceholder/morePlaceholder' as *;
 
 /* Импорт сложных компонентов */
 @use './src/components/header/header' as *;
@@ -28,6 +29,11 @@
 @use './src/components/confirmRestaurantModal/confirmRestaurantModal' as *;
 @use './src/components/quantityControls/quantityControls' as *;
 @use './src/components/unifiedForm/unifiedForm' as *;
+@use './src/components/reviewsModal/reviewsModal' as *;
+@use './src/components/starsWidget/starsWidget' as *;
+@use './src/components/searchBlock/searchBlock' as *;
+@use './src/components/slider/slider' as *;
+@use './src/components/stepProgressBar/stepProgressBar' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;
@@ -37,6 +43,7 @@
 @use './src/pages/mapModal/mapModal' as *;
 @use './src/pages/404/404' as *;
 @use './src/pages/orderPage/orderPage' as *;
+@use './src/pages/searchPage/searchPage' as *;
 
 @import '~@yandex/ymaps3-default-ui-theme/dist/esm/index.css';
 
@@ -60,6 +67,11 @@
   --light-yellow-light: #eff0d1;
   --header-content-height: 45px;
   --real-header-height: 67.5px;
+
+  @media (max-width: 1000px) {
+    --header-height: 100px;
+    --real-header-height: 140px;
+  }
 }
 
 body {
@@ -229,4 +241,88 @@ input[type='number'] {
     margin: 0;
   }
   -moz-appearance: textfield;
+}
+
+input[type='checkbox']{ opacity: 0; }
+
+input[type='checkbox'] + label{
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  margin: .6em 0;
+  align-items: center;
+  color: var(--dark-gray);
+  transition: color 250ms cubic-bezier(.4,.0,.23,1);
+}
+
+@keyframes shrink-bounce{
+  0%{
+    transform: scale(1);
+  }
+  33%{
+    transform: scale(.85);
+  }
+  100%{
+    transform: scale(1);
+  }
+}
+@keyframes checkbox-check{
+  0%{
+    width: 0;
+    height: 0;
+    border-color: var(--light-grey);
+    transform: translate3d(0,0,0) rotate(45deg);
+  }
+  33%{
+    width: .2em;
+    height: 0;
+    transform: translate3d(0,0,0) rotate(45deg);
+  }
+  100%{
+    width: .2em;
+    height: .5em;
+    border-color: var(--light-grey);
+    transform: translate3d(0,-.5em,0) rotate(45deg);
+  }
+}
+
+input[type=checkbox] {
+  position: relative;
+  border: 2px solid var(--dark-gray);
+  border-radius: 2px;
+  background: none;
+  cursor: pointer;
+  line-height: 0;
+  margin: 0 .6em 0 0;
+  outline: 0;
+  padding: 0 !important;
+  vertical-align: text-top;
+  height: 20px;
+  width: 20px;
+  -webkit-appearance: none;
+  opacity: .5;
+}
+
+input[type=checkbox]:checked {
+  background-color: var(--orange);
+  opacity: 1;
+}
+
+input[type=checkbox]:disabled, input[type=checkbox]:disabled + label {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+input[type=checkbox]:before {
+  content: '';
+  position: absolute;
+  right: 50%;
+  top: 50%;
+  width: 4px;
+  height: 10px;
+  border: solid var(--white);
+  border-width: 0 2px 2px 0;
+  margin: -1px -1px 0 -1px;
+  transform: rotate(45deg) translate(-50%, -50%);
+  z-index: 2;
 }

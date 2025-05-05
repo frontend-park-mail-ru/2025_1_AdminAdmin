@@ -21,6 +21,7 @@ export default class RestaurantList {
   private firstCardId: number;
   private lastCardId: number;
   private _deletionScheduled: boolean;
+  private readonly loadMoreBegThrottle: () => void;
   private readonly loadMoreEndThrottle: () => void;
   private readonly deleteFromDomThrottle: () => void;
 
@@ -41,7 +42,7 @@ export default class RestaurantList {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             if (entry.target.classList.contains('upper-sentinel')) {
-              this.loadMoreBeg();
+              this.loadMoreBegThrottle();
             } else if (entry.target.classList.contains('lower-sentinel')) {
               this.loadMoreEndThrottle();
             }
@@ -51,6 +52,7 @@ export default class RestaurantList {
       { rootMargin: `${SCROLL_MARGIN}px` },
     );
 
+    this.loadMoreBegThrottle = throttle(this.loadMoreBeg.bind(this), 500);
     this.loadMoreEndThrottle = throttle(this.loadMoreEnd.bind(this), 500);
     this.deleteFromDomThrottle = throttle(this.deleteFromDom.bind(this), 10);
   }

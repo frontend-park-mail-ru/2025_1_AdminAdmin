@@ -8,6 +8,7 @@ import { AppRestaurantRequests } from '@modules/ajax';
 import template from './restaurantPage.hbs';
 import type { RestaurantResponse } from '@myTypes/restaurantTypes';
 import { router } from '@modules/routing';
+import { toasts } from '@modules/toasts';
 
 /**
  * Класс, представляющий страницу конкретного ресторана.
@@ -19,19 +20,24 @@ export default class RestaurantPage {
   private cartComponent: Cart;
   private categoriesComponent: Categories;
   private productCards: ProductCard[] = [];
+  private query: string;
   private readonly categoriesWrapper: HTMLDivElement;
+  private restaurantHeaderComponent: RestaurantHeader;
+  private restaurantReviewsComponent: RestaurantReviews;
 
   /**
    * Создает экземпляр страницы ресторана.
    * @param parent - Родительский элемент, в который будет рендериться страница ресторана
    * @param id - Идентификатор ресторана, который нужно отобразить
+   * @param query
    */
-  constructor(parent: HTMLElement, id: string) {
+  constructor(parent: HTMLElement, id: string, query: string) {
     if (!parent) {
       throw new Error('RestaurantPage: no parent!');
     }
     this.parent = parent;
     this.id = id;
+    this.query = query;
     this.categoriesWrapper = document.createElement('div');
     this.categoriesWrapper.classList.add('product-categories__wrapper');
   }
@@ -60,29 +66,67 @@ export default class RestaurantPage {
     }
 
     try {
+      this.parent.innerHTML = template();
       this.props = await AppRestaurantRequests.Get(this.id);
 
-      this.parent.innerHTML = template();
+      await this.handleProductsRendering();
 
       const restaurantHeaderWrapper = this.self.querySelector(
         '.restaurant-header__wrapper',
       ) as HTMLElement;
 
-      const restaurantHeaderComponent = new RestaurantHeader(restaurantHeaderWrapper, this.props);
+      this.restaurantHeaderComponent = new RestaurantHeader(restaurantHeaderWrapper, this.props);
 
-      restaurantHeaderComponent.render();
+      this.restaurantHeaderComponent.render();
 
       const restaurantReviewsWrapper: HTMLElement = this.self.querySelector(
         '.restaurant-reviews__wrapper',
       );
 
-      const restaurantReviewsComponent = new RestaurantReviews(restaurantReviewsWrapper, {
+      this.restaurantReviewsComponent = new RestaurantReviews(restaurantReviewsWrapper, {
+        id: this.props.id,
         rating: this.props.rating,
         rating_count: this.props.rating_count,
+        reviews: this.props.reviews,
         address: this.props.address,
         working_mode: this.props.working_mode,
       });
-      restaurantReviewsComponent.render();
+      this.restaurantReviewsComponent.render();
+
+      const cartWrapper = this.self.querySelector('.cart__wrapper') as HTMLElement;
+      this.cartComponent = new Cart(cartWrapper, this.props.id);
+      this.cartComponent.render();
+
+      window.addEventListener('scroll', this.checkSticky);
+      window.addEventListener('resize', this.handleResize);
+    } catch (error) {
+      console.error(error);
+      router.goToPage('notFound');
+    }
+  }
+
+  checkSticky = (): void => {
+    if (window.innerWidth > 800) {
+      return;
+    }
+    const computedStyle = getComputedStyle(document.body);
+
+    const cssVariableValue = parseInt(computedStyle.getPropertyValue('--real-header-height'), 10);
+
+    const rect = this.categoriesWrapper.getBoundingClientRect();
+
+    if (rect.top <= cssVariableValue) {
+      this.categoriesWrapper.classList.add('is-sticky');
+    } else {
+      this.categoriesWrapper.classList.remove('is-sticky');
+    }
+  };
+
+  async handleProductsRendering(): Promise<void> {
+    try {
+      if (this.query) {
+        this.props.categories = await AppRestaurantRequests.Search(this.id, this.query);
+      }
 
       const productCardsBody = this.self.querySelector('.product-cards__body') as HTMLElement;
 
@@ -110,28 +154,40 @@ export default class RestaurantPage {
         });
       });
 
-      this.categoriesComponent.hashChangeHandler();
+      const noResultsWrapper: HTMLElement = this.self.querySelector('.restaurant-page__no-results');
+      noResultsWrapper.style.display = 'none';
 
-      window.addEventListener('scroll', this.checkSticky);
-      window.addEventListener('resize', this.handleResize);
+      const categoriesWrapper = this.self.querySelector(
+        '.product-categories__wrapper',
+      ) as HTMLElement;
+      categoriesWrapper.style.display = 'block';
+      this.categoriesComponent.hashChangeHandler();
     } catch {
-      router.goToPage('notFound');
+      const categoriesWrapper = this.self.querySelector(
+        '.product-categories__wrapper',
+      ) as HTMLElement;
+      categoriesWrapper.style.display = 'none';
+      const cartWrapper = this.self.querySelector('.cart__wrapper') as HTMLElement;
+      cartWrapper.style.display = 'none';
+      const noResultsWrapper: HTMLElement = this.self.querySelector('.restaurant-page__no-results');
+      noResultsWrapper.style.display = 'flex';
     }
   }
 
-  checkSticky = (): void => {
-    const computedStyle = getComputedStyle(document.body);
-
-    const cssVariableValue = parseInt(computedStyle.getPropertyValue('--real-header-height'), 10);
-
-    const rect = this.categoriesWrapper.getBoundingClientRect();
-
-    if (rect.top <= cssVariableValue) {
-      this.categoriesWrapper.classList.add('is-sticky');
-    } else {
-      this.categoriesWrapper.classList.remove('is-sticky');
+  async updateQuery(query: string): Promise<void> {
+    this.query = query;
+    this.categoriesComponent?.remove();
+    this.productCards.forEach((productCard) => productCard.remove());
+    this.productCards = [];
+    if (!this.query) {
+      try {
+        this.props = await AppRestaurantRequests.Get(this.id);
+      } catch (error) {
+        toasts.error(error.message);
+      }
     }
-  };
+    await this.handleProductsRendering();
+  }
 
   handleResize = (): void => {
     this.relocateCategories();
@@ -164,13 +220,9 @@ export default class RestaurantPage {
     const cartWrapper = this.self.querySelector('.cart__wrapper') as HTMLElement;
 
     if (window.innerWidth > 1200) {
-      if (!this.cartComponent && cartWrapper) {
-        this.cartComponent = new Cart(cartWrapper, this.props.id);
-        this.cartComponent.render();
-      }
+      cartWrapper.style.display = 'flex';
     } else {
-      this.cartComponent?.remove();
-      this.cartComponent = undefined;
+      cartWrapper.style.display = 'none';
     }
   };
 
@@ -180,6 +232,9 @@ export default class RestaurantPage {
   remove(): void {
     this.productCards.forEach((productCard) => productCard.remove());
     this.productCards = [];
+
+    this.restaurantHeaderComponent?.remove();
+    this.restaurantReviewsComponent?.remove();
 
     window.removeEventListener('scroll', this.checkSticky);
     window.removeEventListener('resize', this.handleResize);

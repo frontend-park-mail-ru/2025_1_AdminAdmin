@@ -19,23 +19,35 @@
   &__body {
     display: grid;
     width: 100%;
-    grid-template-areas: 'rating reviews reviews reviews details';
+    grid-template-areas: 'rating reviews details';
+    grid-template-columns: 1fr 7fr 4fr;
     gap: 20px;
     align-items: center;
-    padding: 10px 0;
+    padding: 20px;
+    box-sizing: border-box;
     border: 2px solid #f2f2f2;
     border-radius: 15px;
 
-    @media (max-width: 1200px) {
+    @media (max-width: 1800px) {
+      row-gap: 40px;
+      grid-template-columns: 2fr 10fr;
       grid-template-areas:
-          'rating reviews'
-          'details details';
+          'rating details'
+          'reviews reviews';
     }
 
     @media (max-width: 800px) {
+      column-gap: 10px;
       grid-template-areas:
-          'reviews'
-          'details';
+          'rating details'
+          'reviews reviews';
+    }
+
+    @media (max-width: 400px) {
+      grid-template-columns: 12fr;
+      grid-template-areas:
+          'details'
+          'reviews';
     }
   }
 
@@ -48,9 +60,10 @@
       flex-direction: column;
       gap: 0;
       justify-content: center;
+      align-items: center;
       text-align: center;
 
-      @media (max-width: 800px) {
+      @media (max-width: 400px) {
         display: none;
       }
     }
@@ -58,33 +71,7 @@
     &_score {
       font-size: 35px;
     }
-    // В звездах
-    &_stars {
-      font-size: 24px;
-      
-      &__background { // Пустые, белые звезды
-        position: relative;
-        display: inline-block;
- 
-        &::before {
-          content: "★★★★★";
-          color: #f2f2f2;
-        }
-      }
-      &__foreground { // Заполненные, золотые звезды
-        position: absolute;
-        left: 0px;
-        top: 0px;
 
-        width: 0%; // По умолчанию рейтинг 0
-        overflow: hidden;
-
-        &::before {
-          content: "★★★★★";
-          color: gold;
-        }
-      }
-    }
     // Количество оценок
     &_amount {
       margin-top: 10px;
@@ -98,10 +85,10 @@
     grid-area: reviews;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
 
-    @media (max-width: 800px) {
-      align-items: center;
+    @media (max-width: 1800px) {
+      margin-left: 0;
     }
   }
 

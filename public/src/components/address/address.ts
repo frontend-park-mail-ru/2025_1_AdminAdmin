@@ -158,10 +158,27 @@ export class Address {
       }
       this.onDelete();
     } catch (error) {
-      toasts.error(error);
+      toasts.error(error.message);
     }
   }
 
+  close() {
+    this.self.animate(
+      [
+        { opacity: 1, transform: 'translateX(0)' },
+        { opacity: 0, transform: 'translateX(100%)' },
+      ],
+      {
+        duration: 500,
+        easing: 'linear',
+        fill: 'forwards',
+      },
+    );
+
+    setTimeout(() => {
+      this.remove();
+    }, 500);
+  }
   /**
    * Удаляет компонент адреса со страницы
    */
