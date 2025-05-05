@@ -14,6 +14,7 @@ import { ReviewsModal } from '@components/reviewsModal/reviewsModal';
 import { StarsWidget } from '@components/starsWidget/starsWidget';
 import { toasts } from '@modules/toasts';
 import { AppRestaurantRequests } from '@modules/ajax';
+import { userStore } from '@store/userStore';
 
 export interface RestaurantReviewsProps {
   id: string;
@@ -78,7 +79,14 @@ export class RestaurantReviews {
       throw new Error(`Error: can't find rating in stars`);
     }
 
-    this.starsWidget = new StarsWidget(starsContainer, this.props.rating, this.sendRating);
+    let editableStars = true;
+    if (!userStore.isAuth()) editableStars = false;
+    this.starsWidget = new StarsWidget(
+      starsContainer,
+      this.props.rating,
+      this.sendRating,
+      editableStars,
+    );
     this.starsWidget.render();
 
     // Заполняем

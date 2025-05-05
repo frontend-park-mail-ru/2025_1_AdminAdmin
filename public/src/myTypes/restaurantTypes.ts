@@ -26,6 +26,7 @@ export interface BaseRestaurant {
   name: string;
   description: string;
   rating: number;
+  image_url: string;
 }
 
 export interface SearchRestaurant extends BaseRestaurant {

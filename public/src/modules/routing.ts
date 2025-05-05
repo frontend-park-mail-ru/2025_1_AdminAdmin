@@ -27,6 +27,7 @@ class Router {
   private currentHeader: Header | auxHeader | null = null;
   private currentPage: RestaurantList | RestaurantPage | AuthPage | null = null;
   private currentId: string | null = null;
+  private currentQuery: string | null = null;
   private readonly routes: Record<string, RouteConfig>;
   private historyStack: { pageClass: string; path: string }[] = [];
 
@@ -127,8 +128,6 @@ class Router {
     query: string | null = null,
     shouldPushState = true,
   ): void {
-    window.scrollTo(0, 0);
-
     const pageData = this.routes[page];
     if (!pageData) {
       return this.handleMissingRoute(page);
@@ -179,10 +178,12 @@ class Router {
   }
 
   private updatePage(pageData: RouteConfig, id: string | null, query: string | null = null): void {
-    if (this.pageChanged(pageData, id) || this.idChanged(id)) {
+    if (this.pageChanged(pageData, id, query)) {
+      window.scrollTo(0, 0);
       this.removeCurrentPage();
       this.createNewPage(pageData, id, query);
       this.currentId = id;
+      this.currentQuery = query;
       this.updateHeaderIfNeeded(pageData);
       this.currentPage.render(pageData.options);
       return;
@@ -193,12 +194,12 @@ class Router {
     }
   }
 
-  private pageChanged(pageData: RouteConfig, id: string | null): boolean {
-    return !(this.currentPage instanceof pageData.class) || (id && this.currentId !== id);
-  }
-
-  private idChanged(id: string | null): boolean {
-    return id && this.currentId !== id;
+  private pageChanged(pageData: RouteConfig, id: string | null, query: string | null): boolean {
+    return (
+      !(this.currentPage instanceof pageData.class) ||
+      (id && this.currentId !== id) ||
+      (query && this.currentQuery !== query)
+    );
   }
 
   private removeCurrentPage(): void {
@@ -213,6 +214,28 @@ class Router {
     } else {
       this.currentPage = new pageData.class(this.pageElement, query);
     }
+  }
+
+  async updateQuery(query: string): Promise<void> {
+    if (this.currentQuery === query) {
+      return;
+    }
+    this.currentQuery = query;
+
+    if (this.currentPage instanceof RestaurantPage) {
+      await this.currentPage.updateQuery(query);
+    }
+
+    const url = new URL(window.location.href);
+
+    url.hash = '';
+
+    if (query.trim()) {
+      url.searchParams.set('query', query);
+    } else {
+      url.searchParams.delete('query');
+    }
+    history.replaceState({}, '', url.toString());
   }
 
   private updateHeaderIfNeeded(pageData: RouteConfig): void {

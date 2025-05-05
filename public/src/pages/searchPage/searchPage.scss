@@ -1,15 +1,50 @@
 .search_page {
+  min-height: calc(100vh - 100px);
+  box-sizing: border-box;
+  margin-top: 20px;
+  width: 100%;
+  padding: 0 7vw;
+
+  &__no-results {
+    display: none;
+  }
+
   &__container {
     display: flex;
     flex-direction: column;
     gap: 60px;
   }
 
-  &__body {
-    min-height: 100vh;
-    box-sizing: border-box;
-    margin-top: 20px;
-    width: 100%;
-    padding: 0 7vw;
+  &.no-results {
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .search_page__header {
+      display: none;
+    }
+
+    .search_page__no-results {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        width: 50%;
+        max-width: 400px;
+      }
+
+      h1 {
+        text-align: center;
+      }
+    }
+
+    .search_page__container {
+      display: none;
+    }
   }
 }

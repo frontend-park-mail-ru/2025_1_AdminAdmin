@@ -5,7 +5,6 @@ import {
   saveActiveAddressToLocalStorage,
 } from '@modules/localStorage';
 import { User, LoginPayload, RegisterPayload, UpdateUserPayload } from '@myTypes/userTypes';
-import { cartStore } from '@store/cartStore';
 
 interface UserState extends User {
   isAuth: boolean;
@@ -124,6 +123,7 @@ class UserStore {
       payload: res,
     });
 
+    const { cartStore } = await import('@store/cartStore');
     await cartStore.initCart();
   }
 
@@ -139,6 +139,7 @@ class UserStore {
       payload: res,
     });
 
+    const { cartStore } = await import('@store/cartStore');
     await cartStore.initCart();
   }
 
@@ -150,6 +151,7 @@ class UserStore {
     await AppUserRequests.Logout();
     this.dispatch({ type: UserActions.LOGOUT_SUCCESS });
 
+    const { cartStore } = await import('@store/cartStore');
     await cartStore.initCart();
   }
 

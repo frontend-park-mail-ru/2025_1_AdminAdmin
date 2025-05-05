@@ -7,20 +7,36 @@ export class StarsWidget {
   private readonly areReviewsModalStars: boolean;
   private isGlowing = false;
   private readonly onSend: (value: number) => void;
+  private readonly editable: boolean;
 
-  constructor(parent: HTMLElement, rating: number, onSend: (value: number) => void) {
+  constructor(
+    parent: HTMLElement,
+    rating: number,
+    onSend: (value: number) => void,
+    editable = true,
+  ) {
     this.parent = parent;
     this.currentRating = rating;
     this.areReviewsModalStars = rating === 0;
     this.onSend = onSend;
+    this.editable = editable;
+  }
+
+  get self(): HTMLDivElement {
+    return this.parent.querySelector('.rating_stars');
   }
 
   render() {
-    const html = template({ stars: [1, 2, 3, 4, 5] });
+    const html = template({ stars: [1, 2, 3, 4, 5], editable: this.editable });
     this.parent.insertAdjacentHTML('beforeend', html);
     this.stars = this.parent.querySelectorAll('.rating_star');
 
     this.highlightStars(this.currentRating);
+
+    if (!this.editable) {
+      this.self.style.cursor = 'not-allowed';
+      return;
+    }
 
     this.stars.forEach((star) => {
       star.addEventListener('mouseenter', this.handleMouseEnter);
@@ -86,6 +102,7 @@ export class StarsWidget {
   }
 
   remove() {
+    if (!this.editable) return;
     this.stars.forEach((star) => {
       star.removeEventListener('mouseenter', this.handleMouseEnter);
       star.removeEventListener('mouseleave', this.handleMouseLeave);

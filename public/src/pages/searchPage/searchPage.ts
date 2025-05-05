@@ -1,8 +1,8 @@
 import throttle from '@modules/throttle';
 import template from './searchPage.hbs';
 import { SearchRestaurant } from '@myTypes/restaurantTypes';
-import { mockSearchRestaurants } from '@pages/searchPage/mockRestaurants';
 import { SearchBlock } from '@components/searchBlock/searchBlock';
+import { searchRestaurants } from '@modules/ajax';
 
 // Константы
 const LOAD_COUNT = 4;
@@ -16,7 +16,7 @@ export default class SearchPage {
   private restaurantList: SearchRestaurant[];
   private renderedIds: Set<string>;
   private observer: IntersectionObserver;
-  private query: string;
+  private readonly query: string;
   private lastSearchBlockId: number;
   private searchBlocks: SearchBlock[] = [];
   private readonly loadMoreEndThrottle: () => void;
@@ -86,19 +86,22 @@ export default class SearchPage {
 
     if (endCount >= this.restaurantList.length) {
       try {
-        const newRestaurants: SearchRestaurant[] = await mockSearchRestaurants(
-          this.restaurantList.length,
-          LOAD_COUNT,
+        const newRestaurants: SearchRestaurant[] = await searchRestaurants(
           this.query,
+          LOAD_COUNT,
+          this.restaurantList.length,
         );
 
-        if (!newRestaurants) return;
+        if (!newRestaurants) {
+          this.showNoResults();
+          return;
+        }
 
         const uniqueRestaurants = newRestaurants.filter((r) => !this.renderedIds.has(r.id));
         this.restaurantList.push(...uniqueRestaurants);
         uniqueRestaurants.forEach((r) => this.renderedIds.add(r.id));
-      } catch (err) {
-        console.error(err);
+      } catch {
+        this.showNoResults();
       }
     }
 
@@ -111,6 +114,13 @@ export default class SearchPage {
     }
 
     this.lastSearchBlockId = endCount - 1;
+  }
+
+  showNoResults() {
+    if (!this.restaurantList.length) {
+      const page = this.parent.querySelector('.search_page');
+      page.classList.add('no-results');
+    }
   }
 
   /**
