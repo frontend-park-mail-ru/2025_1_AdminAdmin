@@ -78,8 +78,8 @@ export class ReviewsModal {
         } else {
           canReview = true;
         }
-      } catch (error) {
-        console.error(error);
+      } catch {
+        canReview = false;
       }
     }
 
