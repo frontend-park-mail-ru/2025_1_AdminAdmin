@@ -60,7 +60,8 @@ export default class OrderPage {
         address: order.address,
         products: order.order_products.products,
       };
-    } catch {
+    } catch (error) {
+      console.error(error);
       router.goToPage('home');
       return null;
     }
