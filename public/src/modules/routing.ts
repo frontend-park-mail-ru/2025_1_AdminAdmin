@@ -96,6 +96,10 @@ class Router {
     window.addEventListener('popstate', this.handleRouteChange.bind(this));
     this.handleRouteChange();
   }
+
+  getCurrentPageId() {
+    return this.currentId;
+  }
   /**
    * Обработчик изменения маршрута.
    * Определяет текущий путь и перенаправляет на соответствующую страницу.

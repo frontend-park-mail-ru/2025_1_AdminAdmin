@@ -96,8 +96,16 @@ export default class Header {
     if (currentCategory === 'large-desktop') {
       this.logo = new Logo(logoElement, logoImg);
       this.cartButton.setOnSubmit(() => {
-        const restaurantId = cartStore.getState().restaurant_id;
-        if (restaurantId) router.goToPage('restaurantPage', restaurantId);
+        const cartRestaurantId = cartStore.getState().restaurant_id;
+        const urlRestaurantId = router.getCurrentPageId();
+
+        if (!cartRestaurantId) {
+          return;
+        } else if (cartRestaurantId !== urlRestaurantId) {
+          router.goToPage('restaurantPage', cartRestaurantId);
+        } else {
+          router.goToPage('orderPage');
+        }
       });
     } else {
       this.logo = new Logo(logoElement, smallLogo);
