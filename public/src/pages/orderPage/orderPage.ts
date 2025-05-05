@@ -20,6 +20,7 @@ const statusMap: Record<string, number> = {
   new: 0,
   paid: 1,
   in_delivery: 2,
+  delivered: 3,
 };
 
 export default class OrderPage {
@@ -197,8 +198,10 @@ export default class OrderPage {
     this.renderCourierComment(data.order);
     this.createProductCards(data.products, Boolean(data.order));
 
-    if (data.status === 'new') {
-      this.createYouMoneyForm(data.order);
+    if (data.status !== 'creation') {
+      if (data.status === 'new') {
+        this.createYouMoneyForm(data.order);
+      }
       return;
     }
 
