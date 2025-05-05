@@ -8,6 +8,16 @@
   justify-content: center;
   overflow: hidden;
 
+  @keyframes moveDown {
+    0% {
+      transform: translateY(0);
+    }
+
+    100% {
+      transform: translateY(100%);
+    }
+  }
+
   &__content {
     background-color: white;
     padding: 32px;
