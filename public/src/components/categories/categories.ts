@@ -104,7 +104,7 @@ export class Categories {
   handleCategoryClick(categoryId: number): void {
     const targetHeader = document.getElementById(`category-header-${categoryId}`);
     if (targetHeader) {
-      targetHeader.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      targetHeader.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 
@@ -118,12 +118,11 @@ export class Categories {
 
       const rect = headerElement.getBoundingClientRect();
 
-      const isVisible = rect.top < window.innerHeight && rect.bottom >= 0;
-
+      const isVisible = rect.bottom >= 0 && rect.top <= window.innerHeight;
       if (isVisible) {
-        const distanceFromBottom = Math.abs(rect.top + rect.height - window.innerHeight);
-        if (distanceFromBottom < closestDistance) {
-          closestDistance = distanceFromBottom;
+        const distanceFromCenter = Math.abs((rect.top + rect.bottom) / 2 - window.innerHeight / 2);
+        if (distanceFromCenter < closestDistance) {
+          closestDistance = distanceFromCenter;
           closestHeaderId = header.id;
         }
       }

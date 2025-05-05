@@ -19,6 +19,7 @@ const statusMap: Record<string, number> = {
   creation: -1,
   new: 0,
   paid: 1,
+  'in delivery': 2,
 };
 
 export default class OrderPage {
