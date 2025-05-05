@@ -119,7 +119,7 @@ export const ValidatePhone = (value: string): ValidationResultType => {
   }
 
   if (cleanedValue.length < 9 || cleanedValue.length > 10) {
-    return ValidationResult(false, 'От 9 до 10 цифр без кода');
+    return ValidationResult(false, 'От 9 до 10 цифр без учета префикса');
   }
 
   return ValidationResult(true);
