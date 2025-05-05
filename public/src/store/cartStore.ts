@@ -76,8 +76,6 @@ class CartStore {
   }
 
   async initCart() {
-    this.clearLocalCart();
-
     if (userStore.isAuth()) {
       try {
         const remoteCart = await AppCartRequests.GetCart();
