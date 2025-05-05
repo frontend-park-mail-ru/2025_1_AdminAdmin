@@ -78,8 +78,8 @@ export class ReviewsModal {
         } else {
           canReview = true;
         }
-      } catch (error) {
-        console.error(error);
+      } catch {
+        canReview = false;
       }
     }
 
@@ -173,7 +173,12 @@ export class ReviewsModal {
     const newReviewContainer: HTMLDivElement = this.self.querySelector(
       '.reviews_modal__new_review',
     );
-    newReviewContainer.classList.add('hidden');
+
+    newReviewContainer.style.animation = 'moveDown 0.5s linear forwards';
+
+    setTimeout(() => {
+      newReviewContainer.classList.add('hidden');
+    }, 500);
 
     const noReviews = document.getElementById('no-reviews');
     noReviews.style.display = 'none';
