@@ -376,6 +376,14 @@ export default class OrderPage {
       }
     }
 
+    for (const product of products) {
+      if (!this.cartCards.has(product.id)) {
+        const card = new CartCard(container, product);
+        card.render();
+        this.cartCards.set(product.id, card);
+      }
+    }
+
     if (!products.length) {
       router.goToPage('home');
     }

@@ -31,6 +31,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin-bottom: 70px;
 
   img {
     width: 50%;
@@ -77,11 +78,12 @@
 // Блок с карточками
 .product-cards__body {
   margin-top: 40px;
+  margin-bottom: 70px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
 
-  @media (max-width: 1500px) {
+  @media (max-width: 1800px) {
     margin-top: 20px;
     grid-template-columns: repeat(3, 1fr);
   }

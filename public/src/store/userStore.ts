@@ -152,7 +152,7 @@ class UserStore {
     this.dispatch({ type: UserActions.LOGOUT_SUCCESS });
 
     const { cartStore } = await import('@store/cartStore');
-    await cartStore.initCart();
+    cartStore.clearLocalCart();
   }
 
   /**
