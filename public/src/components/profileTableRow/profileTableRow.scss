@@ -40,7 +40,7 @@ tr {
         &:last-child { // Колонка ресторана
             font-weight: bold;
 
-            img {
+            object, img {
                 object-fit: contain;
                 border-radius: 10px;
             }

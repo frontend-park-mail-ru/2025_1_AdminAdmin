@@ -7,14 +7,16 @@
         {{/if}}
     </td>
     <td>
-        {{create_date}}
+        {{created_at}}
     </td>
     <td>
-        <span>{{price}}</span>
+        <span>{{final_price}}</span>
         <span>{{products_amount}}</span>
     </td>
     <td>
-        <img src="{{restaurant.image.src}}" alt="{{restaurant.image.alt}}">
-        <span>{{restaurant.name}}</span>
+        <object data="https://doordashers.ru/images_restaurant/{{banner_url}}" type="image/jpg">
+            <img src="/src/assets/default_restaurant.jpg" alt="restaurant_image"/>
+        </object>
+        <span>{{order_products.restaurant_name}}</span>
     </td>
 </tr>
