@@ -6,14 +6,15 @@ import template from './profilePage.hbs';
 import { User } from '@myTypes/userTypes';
 import { userStore } from '@store/userStore';
 import UnifiedForm from '@components/unifiedForm/unifiedForm';
-import { AppUserRequests } from '@modules/ajax';
+import { AppOrderRequests, AppUserRequests } from '@modules/ajax';
 import { toasts } from '@modules/toasts';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
+import { I_OrderResponse } from '@myTypes/orderTypes';
 
 interface ProfilePageProps {
   data?: User;
-  //orders?: ProfileTableProps;
+  orders?: I_OrderResponse[];
 }
 
 /**
@@ -46,7 +47,6 @@ export default class ProfilePage {
 
     this.props = {
       data: userStore.getState(),
-      // orders: [],
     };
 
     this.components = {
@@ -81,82 +81,87 @@ export default class ProfilePage {
       }, 0);
       return;
     }
-    if (!template) {
-      throw new Error('Error: profile page template not found');
-    }
-    try {
-      // Генерируем HTML
-      const html = template({ path: this.props.data.path });
-      this.parent.insertAdjacentHTML('beforeend', html);
-      // Заполняем
-      // Если оставляем категории то тут рендерим категории, у них свой враппер
-      // Рендерим блок изменения данных профиля
-      this.components.loadAvatarButton = new Button(
-        document.getElementById('profile-data__avatar-load-button__wrapper'),
-        {
-          id: 'profile-data__load-avatar-button',
-          text: 'Загрузить аватар',
-          onSubmit: () => {
-            const avatarInputElement = document.getElementById(
-              'profile-data__avatar-input',
-            ) as HTMLInputElement;
-            avatarInputElement.click(); // Нажимаем на инпут чтобы выбрать файл
-          },
-        },
-      );
-      this.components.loadAvatarButton.render();
-      const profileFormElement: HTMLDivElement = this.self.querySelector('.profile-data__body');
-      const profileFormComponent = new UnifiedForm(profileFormElement, true);
-      profileFormComponent.render();
-      this.components.profileForm = profileFormComponent;
 
-      // Ренденрим блок изменения/удаления/добавления адресов
-      await this.refreshAddresses();
-
-      const profileAddressBody: HTMLDivElement = this.self.querySelector('.profile-address__body');
-      const addAddressButtonProps = {
-        id: 'profile-page__address-add',
-        text: 'Добавить',
+    // Генерируем HTML
+    const html = template({ path: this.props.data.path });
+    this.parent.insertAdjacentHTML('beforeend', html);
+    // Заполняем
+    // Если оставляем категории то тут рендерим категории, у них свой враппер
+    // Рендерим блок изменения данных профиля
+    this.components.loadAvatarButton = new Button(
+      document.getElementById('profile-data__avatar-load-button__wrapper'),
+      {
+        id: 'profile-data__load-avatar-button',
+        text: 'Загрузить аватар',
         onSubmit: () => {
-          if (this.previousAddressMap.size > 10) {
-            toasts.error('У Вас максимальное количество адресов.');
-            return;
-          }
-          const mapModal = new MapModal(async (newAddress: string) => {
-            try {
-              await userStore.addAddress(newAddress);
-              modalController.closeModal();
-              await this.refreshAddresses();
-            } catch (error) {
-              toasts.error(error);
-            }
-          });
-
-          modalController.openModal(mapModal);
+          const avatarInputElement = document.getElementById(
+            'profile-data__avatar-input',
+          ) as HTMLInputElement;
+          avatarInputElement.click(); // Нажимаем на инпут чтобы выбрать файл
         },
-      } as ButtonProps;
+      },
+    );
+    this.components.loadAvatarButton.render();
+    const profileFormElement: HTMLDivElement = this.self.querySelector('.profile-data__body');
+    const profileFormComponent = new UnifiedForm(profileFormElement, true);
+    profileFormComponent.render();
+    this.components.profileForm = profileFormComponent;
 
-      const addAddressButtonComponent = new Button(profileAddressBody, addAddressButtonProps);
-      addAddressButtonComponent.render();
-      this.components.addAddressButton = addAddressButtonComponent;
-      const avatarInputElement = document.getElementById(
-        'profile-data__avatar-input',
-      ) as HTMLInputElement;
-      avatarInputElement.addEventListener('change', this.avatarChangeHandler);
+    // Ренденрим блок изменения/удаления/добавления адресов
+    await this.refreshAddresses();
 
-      /*      // Рендерим блок таблицы заказов
+    const profileAddressBody: HTMLDivElement = this.self.querySelector('.profile-address__body');
+    const addAddressButtonProps = {
+      id: 'profile-page__address-add',
+      text: 'Добавить',
+      onSubmit: () => {
+        if (this.previousAddressMap.size > 10) {
+          toasts.error('У Вас максимальное количество адресов.');
+          return;
+        }
+        const mapModal = new MapModal(async (newAddress: string) => {
+          try {
+            await userStore.addAddress(newAddress);
+            modalController.closeModal();
+            await this.refreshAddresses();
+          } catch (error) {
+            toasts.error(error);
+          }
+        });
+
+        modalController.openModal(mapModal);
+      },
+    } as ButtonProps;
+
+    const addAddressButtonComponent = new Button(profileAddressBody, addAddressButtonProps);
+    addAddressButtonComponent.render();
+    this.components.addAddressButton = addAddressButtonComponent;
+    const avatarInputElement = document.getElementById(
+      'profile-data__avatar-input',
+    ) as HTMLInputElement;
+    avatarInputElement.addEventListener('change', this.avatarChangeHandler);
+
+    try {
+      this.props.orders = await AppOrderRequests.getUserOrders();
+      if (!this.props.orders.length) {
+        this.hideProfileOrders();
+        return;
+      }
+      // Рендерим блок таблицы заказов
       const profileTableWrapper = this.self.querySelector(
         '.profile-orders__table__wrapper',
       ) as HTMLElement;
-      const ordersTableComponent = new ProfileTable(profileTableWrapper, this.props.orders);
-      ordersTableComponent.render();
-      this.components.ordersTable = ordersTableComponent;*/
-    } catch (error) {
-      console.error(error);
-      console.error('Error rendering profile page:', error);
+      this.components.ordersTable = new ProfileTable(profileTableWrapper, this.props.orders);
+      this.components.ordersTable.render();
+    } catch {
+      this.hideProfileOrders();
     }
   }
 
+  hideProfileOrders() {
+    const profileOrdersContainer: HTMLDivElement = this.self.querySelector('.profile-orders');
+    profileOrdersContainer.style.display = 'none';
+  }
   private updateState() {
     if (this.props.data.path !== userStore.getState().path) {
       this.props.data.path = userStore.getState().path;
@@ -205,7 +210,6 @@ export default class ProfilePage {
         }
       });
     } catch (error) {
-      console.error(error);
       toasts.error(error.message);
     }
   }
@@ -222,11 +226,6 @@ export default class ProfilePage {
     if (avatarInputElement.files && avatarInputElement.files[0]) {
       const file = avatarInputElement.files[0];
       const reader = new FileReader();
-
-      /*      // Читаем файл как DataURL
-      reader.onload = (event) => {
-        avatarImageElement.src = event.target?.result as string;
-      };*/
       reader.readAsDataURL(file);
 
       try {
@@ -254,10 +253,7 @@ export default class ProfilePage {
       address.remove();
     }
     this.previousAddressMap.clear();
-    //this.components.ordersTable.remove();
-    /*    this.components.addresses.forEach((component) => {
-      component.remove();
-    });*/
+    this.components.ordersTable.remove();
     const element = this.self;
     if (element) element.remove();
   }

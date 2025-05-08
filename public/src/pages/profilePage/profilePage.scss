@@ -5,7 +5,7 @@
     gap: 40px;
     display: flex;
     flex-direction: column;
-    padding: 40px 15vw;
+    padding: 60px 15vw;
 
     @media (max-width: 1200px) {
         padding: 40px 10vw;
@@ -141,6 +141,6 @@
     &__body {
         display: flex;
         flex-direction: column;
-        gap: 0px;
+        gap: 0;
     }
 }
