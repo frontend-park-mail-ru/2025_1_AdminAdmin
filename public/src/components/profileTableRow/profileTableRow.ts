@@ -1,6 +1,7 @@
 import template from './profileTableRow.hbs';
-import { I_OrderResponse } from '@myTypes/orderTypes';
+import { I_OrderResponse, statusMap } from '@myTypes/orderTypes';
 import { router } from '@modules/routing';
+import { Button } from '@components/button/button';
 
 //Интерфейс картинки ресторана
 export interface ImageProps {
@@ -17,6 +18,7 @@ export interface RestaurantProps {
 export class ProfileTableRow {
   protected parent: HTMLElement;
   protected props: I_OrderResponse;
+  protected showOrderButton: Button;
 
   /**
    * @constructor Создает экземпляр строки таблицы на странице профиля
@@ -52,9 +54,27 @@ export class ProfileTableRow {
       throw new Error('ProfileTableRow: profile-table-row template not found');
     }
     // Рендерим шаблончик с данными
-    const html = template(this.props);
+    const date = new Date(this.props.created_at);
+    const formattedDate = date.toLocaleDateString('ru-RU');
+    this.props.created_at = formattedDate.replace(/\./g, '/');
+
+    const status = statusMap[this.props.status].text;
+    const html = template({
+      ...this.props,
+      products_amount: this.props.order_products.products.length,
+      status: status,
+      completed: status === statusMap.delivered.text,
+    });
     this.parent.insertAdjacentHTML('beforeend', html);
     this.self.addEventListener('click', this.handleClick);
+
+    const buttonWrapper: HTMLDivElement = this.self.querySelector('.show-order-button-wrapper');
+    this.showOrderButton = new Button(buttonWrapper, {
+      id: 'show-order-button',
+      text: 'Посмотреть',
+    });
+
+    this.showOrderButton.render();
   }
 
   /**
@@ -70,6 +90,7 @@ export class ProfileTableRow {
    */
   remove(): void {
     const element = this.self;
+    this.showOrderButton.remove();
     element.removeEventListener('click', this.handleClick); // Удаляем обработчик
     element.remove();
   }

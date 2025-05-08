@@ -1,15 +1,27 @@
 .profile-table {
     width: 100%;
     border-collapse: collapse;
+    box-sizing: border-box;
     background-color: #fff;
     table-layout: fixed;
     border-spacing: 0;
     text-align: center;
 
     thead {
+        box-sizing: border-box;
+        font-size: 20px;
+
+        th {
+            padding: 30px 0;
+        }
+
         tr:hover {
             background-color: #fff;
             cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            display: none;
         }
     }
 

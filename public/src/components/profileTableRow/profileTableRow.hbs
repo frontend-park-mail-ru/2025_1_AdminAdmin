@@ -1,22 +1,18 @@
-<tr id="{{id}}" {{#if status}}class="completed"{{/if}}>
-    <td>
-        {{#if status}}
-        Завершён
-        {{else}}
-        В пути
-        {{/if}}
+<tr id="{{id}}" {{#if completed}}class="completed"{{/if}}>
+    <td data-label="Статус">
+        {{status}}
     </td>
-    <td>
+    <td data-label="Дата">
         {{created_at}}
     </td>
-    <td>
-        <span>{{final_price}}</span>
-        <span>{{products_amount}}</span>
+    <td data-label="Сумма">
+        <span>{{final_price}} ₽</span>
+        <span>{{products_amount}} продуктов</span>
     </td>
-    <td>
-        <object data="https://doordashers.ru/images_restaurant/{{banner_url}}" type="image/jpg">
-            <img src="/src/assets/default_restaurant.jpg" alt="restaurant_image"/>
-        </object>
+    <td data-label="Ресторан">
+        <!--<img src="/src/assets/default_restaurant.jpg" alt="restaurant_image"/>-->
         <span>{{order_products.restaurant_name}}</span>
+    </td>
+    <td class="show-order-button-wrapper">
     </td>
 </tr>

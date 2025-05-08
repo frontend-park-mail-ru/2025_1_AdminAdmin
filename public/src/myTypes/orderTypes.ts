@@ -27,3 +27,25 @@ export interface I_OrderResponse {
   final_price: number;
   order_products: I_Cart;
 }
+
+export const statusMap: Record<string, { step_no: number; text?: string }> = {
+  creation: {
+    step_no: -1,
+  },
+  new: {
+    step_no: 0,
+    text: 'Оформлен',
+  },
+  paid: {
+    step_no: 1,
+    text: 'Оплачен',
+  },
+  in_delivery: {
+    step_no: 2,
+    text: 'В пути',
+  },
+  delivered: {
+    step_no: 3,
+    text: 'Вручен',
+  },
+};

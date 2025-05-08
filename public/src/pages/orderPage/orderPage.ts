@@ -8,20 +8,12 @@ import { CartProduct } from '@myTypes/cartTypes';
 import { toasts } from '@modules/toasts';
 import { Button } from '@components/button/button';
 import { AppOrderRequests } from '@modules/ajax';
-import { CreateOrderPayload, I_OrderResponse } from '@myTypes/orderTypes';
+import { CreateOrderPayload, I_OrderResponse, statusMap } from '@myTypes/orderTypes';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
 import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
 import { router } from '@modules/routing';
 import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
-
-const statusMap: Record<string, number> = {
-  creation: -1,
-  new: 0,
-  paid: 1,
-  in_delivery: 2,
-  delivered: 3,
-};
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -73,13 +65,25 @@ export default class OrderPage {
    */
   private renderProgressBar(step: number) {
     const orderProgressSteps = [
-      { id: 'order-progress_cart', image: { src: '/src/assets/cart.png' }, text: 'Оформлен' },
-      { id: 'order-progress_paid', image: { src: '/src/assets/credit_card.png' }, text: 'Оплачен' },
-      { id: 'order-progress_travel', image: { src: '/src/assets/delivery.png' }, text: 'В пути' },
+      {
+        id: 'order-progress_cart',
+        image: { src: '/src/assets/cart.png' },
+        text: statusMap.new.text,
+      },
+      {
+        id: 'order-progress_paid',
+        image: { src: '/src/assets/credit_card.png' },
+        text: statusMap.paid.text,
+      },
+      {
+        id: 'order-progress_travel',
+        image: { src: '/src/assets/delivery.png' },
+        text: statusMap.in_delivery.text,
+      },
       {
         id: 'order-progress_finish',
         image: { src: '/src/assets/complete_order.png' },
-        text: 'Вручен',
+        text: statusMap.delivered.text,
       },
     ];
     const stepProgressBarContainer = this.self.querySelector(
@@ -193,7 +197,7 @@ export default class OrderPage {
 
     this.parent.innerHTML = template(templateProps);
 
-    this.renderProgressBar(statusMap[data.status]);
+    this.renderProgressBar(statusMap[data.status].step_no);
     this.renderInputs(data.order);
     this.renderCourierComment(data.order);
     this.createProductCards(data.products, Boolean(data.order));

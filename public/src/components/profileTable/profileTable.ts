@@ -46,7 +46,7 @@ export class ProfileTable {
       throw new Error('Error: profile-table template not found');
     }
     // Рендерим шаблончик с данными
-    const html = template(this.headers);
+    const html = template({ headers: this.headers });
     this.parent.insertAdjacentHTML('beforeend', html);
     // Заполняем
     const tbodyElement = this.self.querySelector('tbody') as HTMLElement;

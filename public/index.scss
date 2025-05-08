@@ -67,11 +67,6 @@
   --light-yellow-light: #eff0d1;
   --header-content-height: 45px;
   --real-header-height: 67.5px;
-
-  @media (max-width: 1000px) {
-    --header-height: 100px;
-    --real-header-height: 140px;
-  }
 }
 
 body {
