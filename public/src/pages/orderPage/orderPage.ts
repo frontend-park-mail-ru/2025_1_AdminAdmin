@@ -203,6 +203,12 @@ export default class OrderPage {
     this.renderProgressBar(statusMap[data.status].step_no);
     this.renderInputs(data.order);
     this.renderCourierComment(data.order);
+
+    if (!data.products.length) {
+      router.goToPage('home');
+      return;
+    }
+
     this.createProductCards(data.products, Boolean(data.order));
 
     if (data.status !== 'creation') {
@@ -228,14 +234,6 @@ export default class OrderPage {
   };
 
   private createProductCards(products: CartProduct[], shouldDisable: boolean): void {
-    if (!products.length) {
-      setTimeout(() => {
-        import('@modules/routing').then(({ router }) => {
-          router.goToPage('home');
-        });
-      }, 0);
-    }
-
     const container = this.self.querySelector('.order-page__products') as HTMLDivElement;
     if (!container) return;
 

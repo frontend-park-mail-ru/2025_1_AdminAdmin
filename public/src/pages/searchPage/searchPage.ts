@@ -3,6 +3,7 @@ import template from './searchPage.hbs';
 import { SearchRestaurant } from '@myTypes/restaurantTypes';
 import { SearchBlock } from '@components/searchBlock/searchBlock';
 import { searchRestaurants } from '@modules/ajax';
+import { router } from '@modules/routing';
 
 // Константы
 const LOAD_COUNT = 4;
@@ -61,9 +62,7 @@ export default class SearchPage {
    */
   async render(): Promise<void> {
     if (!this.query) {
-      import('@modules/routing').then(({ router }) => {
-        router.goBack();
-      });
+      router.goBack();
       return;
     }
 
