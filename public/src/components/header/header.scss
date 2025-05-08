@@ -71,9 +71,17 @@
         border: 1px solid black;
         background-color: #fff;
         color: black;
-        font-size: 16px;
         border-radius: 10px;
         display: none; // Скрываем по умолчанию
+
+        span {
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: 16px;
+          display: inline-block;
+        }
 
         &.active {
           // Если добавляем доп класс "active"
