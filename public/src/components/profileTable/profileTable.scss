@@ -2,7 +2,7 @@
     width: 100%;
     border-collapse: collapse;
     box-sizing: border-box;
-    background-color: #fff;
+    background-color: var(--white);
     table-layout: fixed;
     border-spacing: 0;
     text-align: center;
@@ -16,18 +16,12 @@
         }
 
         tr:hover {
-            background-color: #fff;
+            background-color: var(--white);
             cursor: default;
         }
 
         @media (max-width: 600px) {
             display: none;
         }
-    }
-
-    tbody:before {
-        content: ''; // Без контента не работает
-        display: block;
-        height: 10px; // Отступ между хедером и первой строкой
     }
 }

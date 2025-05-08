@@ -58,13 +58,21 @@ export class ProfileTableRow {
     const formattedDate = date.toLocaleDateString('ru-RU');
     this.props.created_at = formattedDate.replace(/\./g, '/');
 
+    let products_amount = 0;
+
+    for (const product of this.props.order_products.products) products_amount += product.amount;
+
     const status = statusMap[this.props.status].text;
+    const productWord = this.getProductWordForm(products_amount);
+
     const html = template({
       ...this.props,
-      products_amount: this.props.order_products.products.length,
-      status: status,
+      products_amount,
+      productWord,
+      status,
       completed: status === statusMap.delivered.text,
     });
+
     this.parent.insertAdjacentHTML('beforeend', html);
     this.self.addEventListener('click', this.handleClick);
 
@@ -75,6 +83,15 @@ export class ProfileTableRow {
     });
 
     this.showOrderButton.render();
+  }
+
+  getProductWordForm(count: number): string {
+    const mod10 = count % 10;
+    const mod100 = count % 100;
+
+    if (mod10 === 1 && mod100 !== 11) return 'продукт';
+    if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) return 'продукта';
+    return 'продуктов';
   }
 
   /**
