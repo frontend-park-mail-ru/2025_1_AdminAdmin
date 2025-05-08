@@ -1,115 +1,34 @@
-import { createStore } from './store';
+import { store } from './store';
 import { AppUserRequests } from '@modules/ajax';
-import {
-  getActiveAddressFromLocalStorage,
-  saveActiveAddressToLocalStorage,
-} from '@modules/localStorage';
-import { User, LoginPayload, RegisterPayload, UpdateUserPayload } from '@myTypes/userTypes';
+import { saveActiveAddressToLocalStorage } from '@modules/localStorage';
+import { LoginPayload, RegisterPayload, UpdateUserPayload } from '@myTypes/userTypes';
+import { cartStore } from '@store/cartStore';
+import { UserActions, UserState } from '@store/reducers/userReducer';
 
-interface UserState extends User {
-  isAuth: boolean;
-  activeAddress: string;
-}
-
-interface Action {
-  type: string;
-  payload?: any;
-}
-
-const initialUserState: UserState = {
-  id: '',
-  login: '',
-  first_name: '',
-  last_name: '',
-  phone_number: '',
-  path: '',
-  description: '',
-  isAuth: false,
-  activeAddress: getActiveAddressFromLocalStorage(),
-};
-
-const userReducer = (state = initialUserState, action: Action): UserState => {
-  switch (action.type) {
-    case UserActions.LOGIN_SUCCESS:
-    case UserActions.REGISTER_SUCCESS:
-    case UserActions.CHECK_SUCCESS:
-      return {
-        ...state,
-        ...action.payload,
-        isAuth: true,
-      };
-
-    case UserActions.LOGOUT_SUCCESS:
-      return {
-        ...initialUserState,
-        activeAddress: '',
-      };
-
-    case UserActions.SET_ADDRESS:
-      return {
-        ...state,
-        activeAddress: action.payload,
-      };
-
-    case UserActions.UPDATE_USER_SUCCESS:
-      return {
-        ...state,
-        ...action.payload,
-      };
-
-    default:
-      return state;
-  }
-};
-
-export const UserActions = {
-  LOGIN_SUCCESS: 'LOGIN_SUCCESS',
-  REGISTER_SUCCESS: 'REGISTER_SUCCESS',
-  LOGOUT_SUCCESS: 'LOGOUT_SUCCESS',
-  CHECK_SUCCESS: 'CHECK_SUCCESS',
-  ADD_ADDRESS_SUCCESS: 'ADD_ADDRESS_SUCCESS',
-  SET_ADDRESS: 'SET_ADDRESS',
-  UPDATE_USER_SUCCESS: 'UPDATE_USER_SUCCESS',
-};
-
-class UserStore {
-  private store;
-
-  constructor() {
-    this.store = createStore(userReducer);
-  }
-
+export const userStore = {
   /**
    * Проверяет, авторизован ли пользователь.
    * @returns {boolean} - true, если пользователь авторизован, иначе false
    */
   isAuth(): boolean {
-    return this.store.getState().isAuth;
-  }
+    return this.getState().isAuth;
+  },
 
   /**
    * Возвращает активный адрес пользователя.
    * @returns {string} - активный адрес пользователя
    */
   getActiveAddress(): string {
-    return this.store.getState().activeAddress;
-  }
+    return this.getState().activeAddress;
+  },
 
   /**
    * Возвращает текущее состояние пользователя.
    * @returns {UserState} - текущее состояние пользователя
    */
   getState(): UserState {
-    return this.store.getState();
-  }
-
-  /**
-   * Отправляет action в хранилище.
-   * @param {Action} action - действие для отправки в хранилище
-   */
-  private dispatch(action: Action): void {
-    this.store.dispatch(action);
-  }
+    return store.getState().userState;
+  },
 
   /**
    * Вход пользователя в систему.
@@ -118,14 +37,13 @@ class UserStore {
    */
   async login(payload: LoginPayload): Promise<void> {
     const res = await AppUserRequests.Login(payload);
-    this.dispatch({
+    store.dispatch({
       type: UserActions.LOGIN_SUCCESS,
       payload: res,
     });
 
-    const { cartStore } = await import('@store/cartStore');
     await cartStore.initCart();
-  }
+  },
 
   /**
    * Регистрация нового пользователя.
@@ -134,14 +52,13 @@ class UserStore {
    */
   async register(payload: RegisterPayload): Promise<void> {
     const res = await AppUserRequests.SignUp(payload);
-    this.dispatch({
+    store.dispatch({
       type: UserActions.REGISTER_SUCCESS,
       payload: res,
     });
 
-    const { cartStore } = await import('@store/cartStore');
     await cartStore.initCart();
-  }
+  },
 
   /**
    * Выход пользователя из системы.
@@ -149,11 +66,9 @@ class UserStore {
    */
   async logout(): Promise<void> {
     await AppUserRequests.Logout();
-    this.dispatch({ type: UserActions.LOGOUT_SUCCESS });
-
-    const { cartStore } = await import('@store/cartStore');
+    store.dispatch({ type: UserActions.LOGOUT_SUCCESS });
     cartStore.clearLocalCart();
-  }
+  },
 
   /**
    * Проверяет авторизацию пользователя.
@@ -162,14 +77,16 @@ class UserStore {
   async checkUser(): Promise<void> {
     try {
       const res = await AppUserRequests.CheckUser();
-      this.dispatch({
+      store.dispatch({
         type: UserActions.CHECK_SUCCESS,
         payload: res,
       });
+
+      await cartStore.initCart();
     } catch (err) {
       console.error('Ошибка при проверке пользователя:', (err as Error).message);
     }
-  }
+  },
 
   /**
    * Обновляет информацию о пользователе.
@@ -179,51 +96,45 @@ class UserStore {
   async updateUser(payload: Partial<UpdateUserPayload>): Promise<void> {
     try {
       const res = await AppUserRequests.UpdateUser(payload);
-
-      this.dispatch({
+      store.dispatch({
         type: UserActions.UPDATE_USER_SUCCESS,
         payload: res,
       });
     } catch (err) {
-      console.error('Ошибка при обновлении данных пользователя:', (err as Error).message);
+      console.error('Ошибка при обновлении пользователя:', (err as Error).message);
     }
-  }
+  },
 
-  async SetAvatar(file: File) {
+  async SetAvatar(file: File): Promise<void> {
     const formData = new FormData();
     formData.append('user_pic', file);
-    // Отправляем аватарку на сервер
     const res = await AppUserRequests.SetAvatar(formData);
-
-    this.dispatch({
+    store.dispatch({
       type: UserActions.UPDATE_USER_SUCCESS,
       payload: res,
     });
-  }
+  },
 
   async addAddress(address: string): Promise<void> {
     try {
       await AppUserRequests.AddAddress(address);
-      this.dispatch({
-        type: UserActions.ADD_ADDRESS_SUCCESS,
-        payload: { address: address },
-      });
     } catch (err) {
-      console.error('Ошибка при добавлении адреса:', err.message);
+      console.error('Ошибка при добавлении адреса:', (err as Error).message);
     }
-  }
+  },
 
   /**
    * Устанавливает активный адрес пользователя.
    * @param {string} address - новый активный адрес
    */
-  setAddress(address: string) {
+
+  setAddress(address: string): void {
     saveActiveAddressToLocalStorage(address);
-    this.dispatch({
+    store.dispatch({
       type: UserActions.SET_ADDRESS,
       payload: address,
     });
-  }
+  },
 
   /**
    * Подписывает listener на изменение состояния пользователя.
@@ -231,9 +142,8 @@ class UserStore {
    * @returns {Function} - функция для отписки от изменений
    */
   subscribe(listener: () => void): () => void {
-    return this.store.subscribe(listener);
-  }
-}
+    return store.subscribe(listener);
+  },
+};
 
-export const userStore = new UserStore();
 await userStore.checkUser();

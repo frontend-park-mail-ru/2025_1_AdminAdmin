@@ -12,11 +12,7 @@
 }
 
 .main_header, .mobile_header {
-  @media (max-width: 1000px) {
-    --header-height: 100px;
-    --real-header-height: 140px;
-  }
-
+  height: var(--real-header-height);
   &.scrolled {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   }
