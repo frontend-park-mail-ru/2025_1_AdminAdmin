@@ -1,5 +1,6 @@
 import template from './restaurantReview.hbs';
 import { Review } from '@myTypes/restaurantTypes';
+import { formatDate } from '@modules/utils';
 
 interface RestaurantReviewProps extends Review {
   isActive: boolean;
@@ -47,13 +48,9 @@ export class RestaurantReview {
       throw new Error('Error: restaurant-review template not found');
     }
 
-    const date = new Date(this.props.created_at);
-    const formattedDate = date.toLocaleDateString('ru-RU');
-    const formattedDateSlashes = formattedDate.replace(/\./g, '/');
-
     const propsForTemplate = {
       ...this.props,
-      created_at: formattedDateSlashes,
+      created_at: formatDate(this.props.created_at),
     };
 
     // Рендерим шаблончик

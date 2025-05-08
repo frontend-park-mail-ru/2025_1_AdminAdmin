@@ -2,6 +2,7 @@ import template from './profileTableRow.hbs';
 import { I_OrderResponse, statusMap } from '@myTypes/orderTypes';
 import { router } from '@modules/routing';
 import { Button } from '@components/button/button';
+import { formatDate } from '@modules/utils';
 
 //Интерфейс картинки ресторана
 export interface ImageProps {
@@ -54,9 +55,7 @@ export class ProfileTableRow {
       throw new Error('ProfileTableRow: profile-table-row template not found');
     }
     // Рендерим шаблончик с данными
-    const date = new Date(this.props.created_at);
-    const formattedDate = date.toLocaleDateString('ru-RU');
-    this.props.created_at = formattedDate.replace(/\./g, '/');
+    this.props.created_at = formatDate(this.props.created_at);
 
     let products_amount = 0;
 

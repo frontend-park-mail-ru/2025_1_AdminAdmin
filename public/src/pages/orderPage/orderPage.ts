@@ -14,6 +14,7 @@ import { modalController } from '@modules/modalController';
 import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
 import { router } from '@modules/routing';
 import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
+import { formatDate } from '@modules/utils';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -46,6 +47,7 @@ export default class OrderPage {
       return {
         order,
         orderId: order.id.slice(-4),
+        created_at: order.created_at,
         totalPrice: order.final_price,
         status: order.status,
         leave_at_door: order.leave_at_door,
@@ -189,6 +191,7 @@ export default class OrderPage {
     const templateProps = {
       isPreformed: data.order !== undefined,
       orderId: data.orderId,
+      orderDate: formatDate(data?.created_at),
       totalPrice: data.totalPrice,
       leave_at_door: data.leave_at_door,
       restaurantName: data.restaurantName,
@@ -317,9 +320,9 @@ export default class OrderPage {
 
   private handleCreation(newOrder: I_OrderResponse) {
     window.history.replaceState({}, '', `/order/${newOrder.id}`);
-
     const pageHeader: HTMLElement = this.parent.querySelector('.order-page__header');
-    pageHeader.textContent = `Заказ №${newOrder.id.slice(-4)}`;
+
+    pageHeader.textContent = `Заказ ${newOrder.id.slice(-4)} от ${formatDate(newOrder.created_at)}`;
     pageHeader.classList.add('formed');
 
     for (const input of Object.values(this.inputs)) {
