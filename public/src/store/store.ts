@@ -1,3 +1,6 @@
+import { userReducer } from '@store/reducers/userReducer';
+import { cartReducer } from '@store/reducers/cartReducer';
+
 interface T_Action {
   type: string;
   [key: string]: any;
@@ -60,3 +63,22 @@ export const createStore = <Success, Action extends T_Action>(
 
   return store;
 };
+
+const combineReducers = <Success, Action extends T_Action>(reducersMap: {
+  [K in keyof Success]: T_Reducer<Success[K], Action>;
+}): T_Reducer<Success, Action> => {
+  return (state: Success | undefined, action: Action): Success => {
+    const nextState = {} as Success;
+
+    for (const key in reducersMap) {
+      const reducer = reducersMap[key];
+      const prevSlice = state ? state[key] : undefined;
+      nextState[key] = reducer(prevSlice, action);
+    }
+
+    return nextState;
+  };
+};
+
+const rootReducer = combineReducers({ userState: userReducer, cartState: cartReducer });
+export const store = createStore(rootReducer);

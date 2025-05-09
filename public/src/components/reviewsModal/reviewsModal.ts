@@ -7,7 +7,7 @@ import { FormInput } from '@components/formInput/formInput';
 import { StarsWidget } from '@components/starsWidget/starsWidget';
 import { router } from '@modules/routing';
 import { modalController } from '@modules/modalController';
-const { userStore } = await import('@store/userStore');
+import { userStore } from '@store/userStore';
 
 const MAX_LENGTH = 300;
 
@@ -87,26 +87,31 @@ export class ReviewsModal {
   }
 
   async renderReviews() {
-    this.reviews = await AppRestaurantRequests.GetReviews(this.restaurant_id);
+    try {
+      this.reviews = await AppRestaurantRequests.GetReviews(this.restaurant_id);
 
-    if (!Array.isArray(this.reviews) || this.reviews.length === 0) {
+      if (!Array.isArray(this.reviews) || this.reviews.length === 0) {
+        const noReviews = document.getElementById('no-reviews');
+        noReviews.style.display = 'block';
+      }
+
+      const reviewsContainer: HTMLDivElement = this.self.querySelector(
+        '.reviews_modal__reviews_container',
+      );
+      for (const review of this.reviews) {
+        let reviewComponent: RestaurantReview;
+        if (review.id === this.previousReviewId) {
+          reviewComponent = new RestaurantReview(reviewsContainer, { ...review, isActive: true });
+          this.previousReview = reviewComponent;
+        } else {
+          reviewComponent = new RestaurantReview(reviewsContainer, { ...review, isActive: false });
+        }
+        reviewComponent.render();
+        this.reviewsComponents.push(reviewComponent);
+      }
+    } catch {
       const noReviews = document.getElementById('no-reviews');
       noReviews.style.display = 'block';
-    }
-
-    const reviewsContainer: HTMLDivElement = this.self.querySelector(
-      '.reviews_modal__reviews_container',
-    );
-    for (const review of this.reviews) {
-      let reviewComponent: RestaurantReview;
-      if (review.id === this.previousReviewId) {
-        reviewComponent = new RestaurantReview(reviewsContainer, { ...review, isActive: true });
-        this.previousReview = reviewComponent;
-      } else {
-        reviewComponent = new RestaurantReview(reviewsContainer, { ...review, isActive: false });
-      }
-      reviewComponent.render();
-      this.reviewsComponents.push(reviewComponent);
     }
   }
 

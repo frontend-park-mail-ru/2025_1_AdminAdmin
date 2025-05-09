@@ -67,6 +67,11 @@
   --light-yellow-light: #eff0d1;
   --header-content-height: 45px;
   --real-header-height: 67.5px;
+
+  @media (max-width: 1000px) {
+    --header-height: 100px;
+    --real-header-height: 140px;
+  }
 }
 
 body {
@@ -95,7 +100,6 @@ img {
   top: 0;
   left: 0;
   z-index: 10;
-  height: var(--real-header-height);
   background-color: var(--white);
   transition: box-shadow 0.3s ease;
 

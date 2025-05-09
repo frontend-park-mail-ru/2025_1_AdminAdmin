@@ -1,5 +1,5 @@
 import template from './cart.hbs';
-import { CartState, cartStore } from '@store/cartStore';
+import { cartStore } from '@store/cartStore';
 import { CartCard } from '@components/productCard/cartCard/cartCard';
 import { router } from '@modules/routing';
 import { CartProduct } from '@myTypes/cartTypes';
@@ -29,7 +29,7 @@ export default class Cart {
   private updateCards = () => {
     if (!this.container) return;
 
-    const state: CartState = cartStore.getState();
+    const state = cartStore.getState();
 
     if (state.restaurant_id && state.restaurant_id !== this.restaurant_id) return;
 
