@@ -7,7 +7,7 @@ import { userStore } from '@store/userStore';
 import { CartProduct } from '@myTypes/cartTypes';
 import { toasts } from '@modules/toasts';
 import { Button } from '@components/button/button';
-import { AppOrderRequests } from '@modules/ajax';
+import { AppOrderRequests, AppRecommendationRequests } from '@modules/ajax';
 import { CreateOrderPayload, I_OrderResponse, statusMap } from '@myTypes/orderTypes';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
@@ -15,6 +15,7 @@ import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
 import { router } from '@modules/routing';
 import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
 import { formatDate } from '@modules/utils';
+import { ProductsCarousel } from '@components/productsCarousel/productsCarousel';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -27,6 +28,7 @@ export default class OrderPage {
   private isRemoved = false;
   private isChecked = false;
   private stepProgressBar: StepProgressBar = null;
+  private recommendedProductsCarousel: ProductsCarousel;
 
   constructor(parent: HTMLElement, orderId?: string) {
     if (!parent) {
@@ -218,6 +220,7 @@ export default class OrderPage {
       return;
     }
 
+    await this.createRecommendedProducts();
     const bin = this.self.querySelector('.order-page__products__header__clear');
     bin?.addEventListener('click', this.handleClear);
     this.renderSubmitButton();
@@ -232,6 +235,26 @@ export default class OrderPage {
     const checkbox = event.target as HTMLInputElement;
     checkbox.checked = this.isChecked;
   };
+
+  private async createRecommendedProducts(): Promise<void> {
+    const recommendedProductsWrapper: HTMLDivElement = this.parent.querySelector(
+      '.order-page__recommended_products',
+    );
+    try {
+      const recommendedProducts = await AppRecommendationRequests.GetRecommendedProducts();
+      if (!recommendedProducts) {
+        recommendedProductsWrapper.style.display = 'none';
+        return;
+      }
+      this.recommendedProductsCarousel = new ProductsCarousel(
+        recommendedProductsWrapper,
+        recommendedProducts,
+      );
+      this.recommendedProductsCarousel.render();
+    } catch {
+      recommendedProductsWrapper.style.display = 'none';
+    }
+  }
 
   private createProductCards(products: CartProduct[], shouldDisable: boolean): void {
     const container = this.self.querySelector('.order-page__products') as HTMLDivElement;
@@ -423,6 +446,8 @@ export default class OrderPage {
 
     const checkboxContainer = this.parent.querySelector('#orderPageCheckbox');
     checkboxContainer.removeEventListener('click', this.handleCheckBoxClick);
+
+    this.recommendedProductsCarousel?.remove();
 
     if (this.submitButton) {
       this.submitButton.remove();

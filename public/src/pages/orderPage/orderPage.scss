@@ -2,9 +2,11 @@
   display: grid;
   grid-template-columns: 6fr 4fr;
   column-gap: 7vw;
-  padding: 20px 15vw;
+  padding: 20px 15vw 60px;
   align-items: start;
   font-size: 18px;
+  width: 100%;
+  box-sizing: border-box;
 
   .formed {
     font-size: 26px;
@@ -69,6 +71,8 @@
 
   &__body {
     grid-column: 1 / span 1;
+    min-width: 0;
+
     width: 100%;
 
     .step-progress-bar-container {
@@ -112,6 +116,7 @@
   }
 
   &__products{
+    margin-bottom: 40px;
     &__header {
       display: flex;
       justify-content: space-between;
@@ -198,5 +203,10 @@
       display: flex;
       justify-content: space-between;
     }
+  }
+
+  &__recommended_products {
+    width: 100%;
+    min-width: 0;
   }
 }
