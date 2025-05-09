@@ -11,6 +11,7 @@ import { toasts } from '@modules/toasts';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
 import { I_OrderResponse } from '@myTypes/orderTypes';
+import { router } from '@modules/routing';
 
 interface ProfilePageProps {
   data?: User;
@@ -74,11 +75,7 @@ export default class ProfilePage {
    */
   async render(): Promise<void> {
     if (!userStore.isAuth()) {
-      setTimeout(() => {
-        import('@modules/routing').then(({ router }) => {
-          router.goBack();
-        });
-      }, 0);
+      router.goBack();
       return;
     }
 
@@ -253,7 +250,7 @@ export default class ProfilePage {
       address.remove();
     }
     this.previousAddressMap.clear();
-    this.components.ordersTable.remove();
+    this.components.ordersTable?.remove();
     const element = this.self;
     if (element) element.remove();
   }
