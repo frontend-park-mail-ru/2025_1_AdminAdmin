@@ -142,7 +142,7 @@ export default class OrderPage {
         text: 'Оформить заказ',
         style: 'button_active',
         onSubmit: async () => {
-          if (cartStore.getState().total_price > 100000) {
+          if (cartStore.getState().total_sum > 100000) {
             toasts.error('Сумма заказа не должна превышать 100 000 ₽. Разделите его на несколько');
             return;
           }
@@ -182,7 +182,7 @@ export default class OrderPage {
         order: undefined,
         orderId: undefined,
         status: 'creation',
-        totalPrice: cartStore.getState().total_price,
+        totalPrice: cartStore.getState().total_sum,
         leave_at_door: undefined,
         restaurantName: cartStore.getState().restaurant_name,
         address: userStore.getActiveAddress(),
@@ -269,7 +269,7 @@ export default class OrderPage {
   }
 
   private updateTotalPrice() {
-    const totalPrice: number = cartStore.getState().total_price;
+    const totalPrice: number = cartStore.getState().total_sum;
 
     const cartTotal: HTMLDivElement = this.self.querySelector('.cart__total');
     cartTotal.textContent = totalPrice.toLocaleString('ru-RU');
@@ -303,7 +303,7 @@ export default class OrderPage {
       }
     }
 
-    const final_price = cartStore.getState().total_price;
+    const final_price = cartStore.getState().total_sum;
     const address = userStore.getActiveAddress();
 
     if (!address) {

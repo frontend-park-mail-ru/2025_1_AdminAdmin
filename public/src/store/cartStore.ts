@@ -67,18 +67,15 @@ export const cartStore = {
   setCart(cart: I_Cart): void {
     store.dispatch({
       type: CartActions.SET_CART,
-      payload: {
-        ...cart,
-        total_price: this.calculateTotalPrice(cart.products),
-      },
+      payload: cart,
     });
   },
 
   updateCartState(products: CartProduct[], actionType: string): void {
-    const total_price = this.calculateTotalPrice(products);
+    const total_sum = this.calculateTotalPrice(products);
     store.dispatch({
       type: actionType,
-      payload: { products, total_price },
+      payload: { products, total_sum },
     });
     this.saveToLocalStorageIfGuest();
   },

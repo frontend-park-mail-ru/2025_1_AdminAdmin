@@ -393,8 +393,8 @@ export default class Header {
 
     const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
 
-    if (cartStore.getState().total_price) {
-      this.cartButton.setText(cartStore.getState().total_price.toLocaleString('ru-RU') + ' ₽');
+    if (cartStore.getState().total_sum) {
+      this.cartButton.setText(cartStore.getState().total_sum.toLocaleString('ru-RU') + ' ₽');
       cartButtonContainer.style.display = 'block';
     } else {
       cartButtonContainer.style.display = 'none';
