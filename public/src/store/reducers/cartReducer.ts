@@ -6,14 +6,14 @@ interface CartAction {
 }
 
 export interface CartState extends I_Cart {
-  total_price: number;
+  total_sum: number;
 }
 
 const initialCartState: CartState = {
   restaurant_id: null,
   restaurant_name: null,
   products: [],
-  total_price: 0,
+  total_sum: 0,
 };
 
 export const CartActions = {
@@ -33,7 +33,7 @@ export const cartReducer = (state = initialCartState, action: CartAction): CartS
       return {
         ...state,
         products: action.payload.products,
-        total_price: action.payload.total_price,
+        total_sum: action.payload.total_sum,
       };
 
     case CartActions.SET_RESTAURANT:
@@ -51,7 +51,7 @@ export const cartReducer = (state = initialCartState, action: CartAction): CartS
         restaurant_id: action.payload.restaurant_id,
         restaurant_name: action.payload.restaurant_name,
         products: action.payload.products,
-        total_price: action.payload.total_price,
+        total_sum: action.payload.total_sum,
       };
 
     default:

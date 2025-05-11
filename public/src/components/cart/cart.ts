@@ -34,7 +34,7 @@ export default class Cart {
     if (state.restaurant_id && state.restaurant_id !== this.restaurant_id) return;
 
     const products: CartProduct[] = state.products;
-    const totalPrice: number = state.total_price;
+    const totalPrice: number = state.total_sum;
 
     const currentProductIds = new Set(products.map((p) => p.id));
 

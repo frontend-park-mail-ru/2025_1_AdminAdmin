@@ -108,7 +108,7 @@ export class ProductCard {
       return;
     }
 
-    if (!cartStore.getState().total_price) {
+    if (!cartStore.getState().total_sum) {
       cartStore.setRestaurant(this.restaurant_id, this.restaurant_name);
     }
 
