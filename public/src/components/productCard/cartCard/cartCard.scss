@@ -59,10 +59,8 @@
     width: 100%;
     aspect-ratio: 6 / 5;
     object-fit: cover;
-  }
-
-  &__product_icon {
     border-radius: 10px;
+    filter: brightness(0.95);
   }
 
   &__bin_icon {

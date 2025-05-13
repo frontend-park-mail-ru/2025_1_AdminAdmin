@@ -31,6 +31,7 @@ export interface RestaurantReviewsProps {
 export class RestaurantReviews {
   protected parent: HTMLElement; // Родитель (где вызывается)
   protected props: RestaurantReviewsProps;
+  protected reviewsComponents: RestaurantReview[] = [];
   protected moreButton: Button;
   private starsWidget: StarsWidget;
 
@@ -98,11 +99,20 @@ export class RestaurantReviews {
     let moreReviewsProps: ButtonProps;
     if (Array.isArray(this.props.reviews) && this.props.reviews.length > 0) {
       this.props.reviews.forEach((reviewProps) => {
-        const reviewComponent = new RestaurantReview(reviewsContainer, {
-          ...reviewProps,
-          isActive: false,
-        });
+        let reviewComponent;
+        if (reviewProps.user === userStore.getState().login) {
+          reviewComponent = new RestaurantReview(reviewsContainer, {
+            ...reviewProps,
+            isActive: true,
+          });
+        } else {
+          reviewComponent = new RestaurantReview(reviewsContainer, {
+            ...reviewProps,
+            isActive: false,
+          });
+        }
         reviewComponent.render();
+        this.reviewsComponents.push(reviewComponent);
       });
       // Рендерим кнопку "Больше"
       moreReviewsProps = {
@@ -200,20 +210,23 @@ export class RestaurantReviews {
   }
 
   public updateReviews = (newReview: Review) => {
-    if (this.props.reviews.length < 2) {
-      this.props.reviews.push(newReview);
-      const reviewsContainer: HTMLDivElement = this.self.querySelector(
-        '.restaurant-reviews__reviews-container',
-      );
-      const reviewComponent = new RestaurantReview(reviewsContainer, {
-        ...newReview,
-        isActive: true,
-      });
-      reviewComponent.render('afterbegin');
-      this.moreButton.setText('Показать больше');
+    this.props.reviews.unshift(newReview);
+    const reviewsContainer: HTMLDivElement = this.self.querySelector(
+      '.restaurant-reviews__reviews-container',
+    );
+    const reviewComponent = new RestaurantReview(reviewsContainer, {
+      ...newReview,
+      isActive: true,
+    });
+    reviewComponent.render('afterbegin');
+    this.reviewsComponents.unshift(reviewComponent);
+    this.moreButton.setText('Показать больше');
 
-      const noReviews: HTMLDivElement = this.self.querySelector('.restaurant-reviews__no_reviews');
-      noReviews.style.display = 'none';
+    const noReviews: HTMLDivElement = this.self.querySelector('.restaurant-reviews__no_reviews');
+    noReviews.style.display = 'none';
+
+    if (this.reviewsComponents.length > 2) {
+      this.reviewsComponents.pop()?.remove();
     }
 
     const { rating, rating_count } = this.props;
@@ -291,6 +304,10 @@ export class RestaurantReviews {
    */
   remove() {
     this.props.reviews = [];
+    this.reviewsComponents.forEach((review) => {
+      review.remove();
+    });
+    this.reviewsComponents = [];
     const element = this.self;
     this.moreButton?.remove();
 
