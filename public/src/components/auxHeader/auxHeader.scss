@@ -2,13 +2,13 @@
 .aux_header {
   padding: 0 20px;
   grid-template-areas: 'back__button header__logo .';
-  grid-template-columns: 40px 1fr 40px;
+  grid-template-columns: 60px 1fr 60px;
   box-shadow: 0 2px 10px rgb(0 0 0 / 10%);
   height: 67.5px;
 
   @media (max-width: 500px) {
     grid-template-areas: 'back__button header__logo';
-    grid-template-columns: 40px 1fr;
+    grid-template-columns: 60px 1fr;
     column-gap: 10px;
   }
 
