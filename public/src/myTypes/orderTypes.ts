@@ -28,6 +28,10 @@ export interface I_OrderResponse {
   order_products: I_Cart;
 }
 
+export interface I_UserOrderResponse {
+  orders: I_OrderResponse[];
+  total: number;
+}
 export const statusMap: Record<string, { step_no: number; text?: string }> = {
   creation: {
     step_no: -1,

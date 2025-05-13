@@ -8,7 +8,7 @@ import {
 } from '@myTypes/restaurantTypes';
 import { I_Cart } from '@myTypes/cartTypes';
 import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
-import { CreateOrderPayload, I_OrderResponse } from '@myTypes/orderTypes';
+import { CreateOrderPayload, I_OrderResponse, I_UserOrderResponse } from '@myTypes/orderTypes';
 import { capitalizeError, getRequestOptions, parseResponseBody } from '@modules/fetchUtils';
 
 export interface ResponseData<T = any> {
@@ -457,17 +457,17 @@ class OrderRequests {
    * Получает список заказов пользователя.
    * @param count - Количество заказов (по умолчанию 15)
    * @param offset - Смещение (по умолчанию 0)
-   * @returns {Promise<I_OrderResponse[]>}
+   * @returns {Promise<I_UserOrderResponse>}
    */
-  getUserOrders = async (count = 15, offset = 0): Promise<I_OrderResponse[]> => {
+  getUserOrders = async (count = 15, offset = 0): Promise<I_UserOrderResponse> => {
     const query = `?count=${count}&offset=${offset}`;
-    const { status, body } = await baseRequest<I_OrderResponse[] | ErrorResponse>(
+    const { status, body } = await baseRequest<I_UserOrderResponse | ErrorResponse>(
       methods.GET,
       this.baseUrl + query,
     );
 
     if (status === 200) {
-      return body as I_OrderResponse[];
+      return body as I_UserOrderResponse;
     }
 
     throw new Error(
