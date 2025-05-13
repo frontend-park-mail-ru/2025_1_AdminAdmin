@@ -35,6 +35,7 @@
 @use './src/components/slider/slider' as *;
 @use './src/components/stepProgressBar/stepProgressBar' as *;
 @use './src/components/productsCarousel/productsCarousel' as *;
+@use './src/components/pagination/pagination' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;
