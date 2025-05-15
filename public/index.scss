@@ -164,23 +164,6 @@ main {
   color: var(--red);
 }
 
-input:not([type="radio"]) {
-  box-sizing: border-box;
-  height: 45px;
-  border-radius: var(--border-radius);
-  border: 2px solid transparent;
-  background-color: var(--light-grey);
-  color: var(--dark-gray);
-  padding-left: 10px;
-  padding-right: 20px;
-  transition: border 0.3s ease;
-
-  &:focus {
-    border-top: none;
-    border-bottom-color: var(--orange);
-  }
-}
-
 input[type="radio"]:not(:checked) {
   width: 18px;
   height: 18px;
