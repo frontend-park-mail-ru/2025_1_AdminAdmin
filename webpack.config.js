@@ -116,7 +116,7 @@ const config = {
             crossorigin: 'use-credentials',
             icons: [
                 {
-                    src: path.resolve('/src/assets/logo.png'),
+                    src: path.resolve('/src/assets/small_logo.png'),
                     sizes: [96, 128, 192, 256, 384, 512, 1024],
                     purpose: 'any maskable'
                 }
