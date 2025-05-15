@@ -6,7 +6,7 @@ import webpack from 'webpack';
 import ImageMinimizerPlugin from 'image-minimizer-webpack-plugin';
 import * as dotenv from "dotenv";
 import CopyWebpackPlugin from 'copy-webpack-plugin';
-
+import WebpackPwaManifest from 'webpack-pwa-manifest'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -108,7 +108,20 @@ const config = {
                 { from: path.resolve(__dirname, 'public/sw.js'), to: path.resolve(__dirname, 'dist/sw.js') },
             ]
         }),
-
+        new WebpackPwaManifest({
+            name: 'DoorDashers Mobile',
+            short_name: 'DoorDashers',
+            description: 'My awesome Progressive Web App!',
+            background_color: '#FF4D00',
+            crossorigin: 'use-credentials',
+            icons: [
+                {
+                    src: path.resolve('/src/assets/logo.png'),
+                    sizes: [96, 128, 192, 256, 384, 512, 1024],
+                    purpose: 'any maskable'
+                }
+            ]
+        })
     ],
     experiments: {
         topLevelAwait: true,
