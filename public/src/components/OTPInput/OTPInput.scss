@@ -1,0 +1,31 @@
+.otp-input-wrapper {
+
+  .otp-input {
+    display: flex;
+    gap: 7px;
+
+    input {
+      all: unset;
+      appearance: none;
+      border: none;
+      border-bottom: 2px solid var(--dark-gray);
+      text-align: center;
+      width: 25px;
+      font-size: 24px;
+      padding: 7px 0;
+      transition: border-bottom-color 500ms ease;
+
+      @media (max-width: 600px) {
+        width: 18px;
+        font-size: 16px;
+      }
+
+      &:focus {
+        outline: none !important;
+        box-shadow: none !important;
+        border-bottom-color: var(--orange) !important;
+      }
+
+    }
+  }
+}
