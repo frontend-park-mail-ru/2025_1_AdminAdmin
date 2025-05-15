@@ -56,5 +56,7 @@ export default {
     required: false,
     type: 'text',
     validator: ValidateCourierComment,
+    maxLength: 300,
+    noErrorInHeader: true,
   },
 };
