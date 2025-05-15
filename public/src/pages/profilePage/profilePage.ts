@@ -149,20 +149,20 @@ export default class ProfilePage {
         this.hideProfileOrders();
         return;
       }
+
+      if (this.props.orders.total > ORDERS_PER_PAGE) {
+        const profileOrderWrapper: HTMLDivElement = this.parent.querySelector('.profile-orders');
+        this.components.pagination = new Pagination(
+          profileOrderWrapper,
+          Math.ceil(this.props.orders.total / ORDERS_PER_PAGE),
+          this.handleOrdersPageChange,
+        );
+
+        this.components.pagination.render();
+      }
     } catch (error) {
       console.error(error);
       this.hideProfileOrders();
-    }
-
-    if (this.props.orders.total > ORDERS_PER_PAGE) {
-      const profileOrderWrapper: HTMLDivElement = this.parent.querySelector('.profile-orders');
-      this.components.pagination = new Pagination(
-        profileOrderWrapper,
-        Math.ceil(this.props.orders.total / ORDERS_PER_PAGE),
-        this.handleOrdersPageChange,
-      );
-
-      this.components.pagination.render();
     }
   }
 

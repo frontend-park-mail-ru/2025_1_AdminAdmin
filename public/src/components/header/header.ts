@@ -257,7 +257,7 @@ export default class Header {
       id: 'header__search__input',
       placeholder: 'Найти ресторан или блюдо',
       type: 'search',
-      noErrorInHeader: true,
+      hideErrors: true,
     });
     this.searchInput.render();
 
