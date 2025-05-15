@@ -6,62 +6,15 @@ import template from './profilePage.hbs';
 import { User } from '@myTypes/userTypes';
 import { userStore } from '@store/userStore';
 import UnifiedForm from '@components/unifiedForm/unifiedForm';
-import { AppUserRequests } from '@modules/ajax';
+import { AppOrderRequests, AppUserRequests } from '@modules/ajax';
 import { toasts } from '@modules/toasts';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
-import { I_OrderResponse, I_UserOrderResponse } from '@myTypes/orderTypes';
+import { I_UserOrderResponse } from '@myTypes/orderTypes';
 import { router } from '@modules/routing';
 import { Pagination } from '@components/pagination/pagination';
-import { CartProduct, I_Cart } from '@myTypes/cartTypes';
 
 const ORDERS_PER_PAGE = 10;
-
-const generateMockOrder = (index: number): I_OrderResponse => {
-  const orderNumber = index + 1; // Чтобы начинать с 1
-
-  const product: CartProduct = {
-    id: `product-${orderNumber}`,
-    name: `Товар ${orderNumber}`,
-    price: 100 + (orderNumber % 5) * 20,
-    weight: 200,
-    image_url: '',
-    amount: 1 + (orderNumber % 3),
-  };
-
-  const cart: I_Cart = {
-    restaurant_id: `rest-${orderNumber % 5}`,
-    restaurant_name: `Ресторан ${orderNumber}`,
-    products: [product],
-    total_sum: product.price * product.amount,
-  };
-
-  return {
-    id: `order-${orderNumber}`,
-    user: 'mock-user-id',
-    status: 'new',
-    address: `Улица ${orderNumber}, дом ${orderNumber % 50}`,
-    apartment_or_office: `${orderNumber % 100}`,
-    intercom: '1234',
-    entrance: '1',
-    floor: `${1 + (orderNumber % 10)}`,
-    courier_comment: 'Позвонить заранее',
-    leave_at_door: orderNumber % 2 === 0,
-    created_at: new Date(Date.now() - orderNumber * 86400000).toISOString(),
-    final_price: cart.total_sum,
-    order_products: cart,
-  };
-};
-
-const allOrders: I_OrderResponse[] = Array.from({ length: 105 }, (_, i) => generateMockOrder(i));
-
-export const mockGetUserOrders = async (count = 15, offset = 0): Promise<I_UserOrderResponse> => {
-  const sliced = allOrders.slice(offset, offset + count);
-  return Promise.resolve({
-    orders: sliced,
-    total: allOrders.length,
-  });
-};
 
 interface ProfilePageProps {
   data?: User;
@@ -219,7 +172,7 @@ export default class ProfilePage {
   };
 
   createProfileTable = async (offset: number) => {
-    this.props.orders = await mockGetUserOrders(ORDERS_PER_PAGE, offset);
+    this.props.orders = await AppOrderRequests.getUserOrders(ORDERS_PER_PAGE, offset);
     // Рендерим блок таблицы заказов
     const profileTableWrapper = this.self.querySelector(
       '.profile-orders__table__wrapper',
