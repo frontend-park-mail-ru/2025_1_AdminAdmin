@@ -111,7 +111,7 @@ const config = {
         new WebpackPwaManifest({
             name: 'DoorDashers Mobile',
             short_name: 'DoorDashers',
-            description: 'My awesome Progressive Web App!',
+            description: 'DoorDashers Progressive Web App',
             background_color: '#FF4D00',
             crossorigin: 'use-credentials',
             icons: [
