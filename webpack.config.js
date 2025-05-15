@@ -20,16 +20,7 @@ const config = {
     target: 'web',
     devServer: {
         watchFiles: path.resolve(__dirname, 'public/src'),
-        static: [
-            {
-                directory: path.resolve(__dirname, 'public'),
-                publicPath: '/',
-            },
-            {
-                directory: path.resolve(__dirname, 'dist'),
-                publicPath: '/auto/',
-            }
-        ],
+        static: path.resolve(__dirname, 'public'),
         port: 3000,
         compress: true,
         hot: true,
@@ -98,6 +89,7 @@ const config = {
     },
     output: {
         filename: 'bundle.js',
+        publicPath: '/',
         path: path.resolve(__dirname, 'dist'),
     },
     plugins: [
