@@ -6,7 +6,7 @@ import debounce from '@modules/debounce';
 export interface FormInputProps {
   id: string; // Идентификатор строки ввода
   label?: string; // Название поля (отображается сбоку от поля ввода)
-  showNoError?: boolean; // Ошибка
+  hideErrors?: boolean; // Ошибка
   placeholder?: string; // Начальное содержимое поля ввода
   type?: string; // Тип поля ввода
   required?: boolean; // true - обязательное поле, false - необязательное
@@ -130,7 +130,7 @@ export class FormInput {
     const html = template(this.props);
     this.parent.insertAdjacentHTML('beforeend', html);
 
-    if (!this.props.label && this.props.showNoError) {
+    if (!this.props.label && this.props.hideErrors) {
       const inputHeader: HTMLDivElement = this.self.querySelector('.form__input-head');
       inputHeader.style.display = 'none';
     }
@@ -244,7 +244,7 @@ export class FormInput {
     const validationResult = this.props.validator(value);
 
     if (!validationResult.result) {
-      if (this.props.showNoError) {
+      if (this.props.hideErrors) {
         return validationResult.message;
       }
 
