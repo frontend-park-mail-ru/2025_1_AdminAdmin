@@ -20,7 +20,16 @@ const config = {
     target: 'web',
     devServer: {
         watchFiles: path.resolve(__dirname, 'public/src'),
-        static: path.resolve(__dirname, 'public'),
+        static: [
+            {
+                directory: path.resolve(__dirname, 'public'),
+                publicPath: '/',
+            },
+            {
+                directory: path.resolve(__dirname, 'dist'),
+                publicPath: '/auto/',
+            }
+        ],
         port: 3000,
         compress: true,
         hot: true,
