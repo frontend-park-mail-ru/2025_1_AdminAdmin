@@ -103,7 +103,12 @@ const config = {
                 {
                     src: path.resolve(__dirname, 'public', 'src', 'assets', 'small_logo.png'),
                     sizes: [96, 128, 192, 256, 384, 512, 1024],
-                    purpose: 'any maskable'
+                    purpose: 'any'
+                },
+                {
+                    src: path.resolve(__dirname, 'public', 'src', 'assets', 'maskable_icon.png'),
+                    sizes: [192, 512],
+                    purpose: 'maskable'
                 }
             ]
         }),
