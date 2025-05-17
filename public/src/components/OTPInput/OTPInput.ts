@@ -91,6 +91,8 @@ export class OTPInput {
     if (input.value === '' && i !== 0) {
       this.setInputValue(i - 1, '');
       this.inputs[i - 1].focus();
+    } else {
+      input.value = '';
     }
   }
 
