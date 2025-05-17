@@ -7,6 +7,14 @@
   align-items: center;
   justify-content: center;
 
+  &__blocker {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    background: transparent;
+    pointer-events: all;
+  }
+
   &__content {
     background-color: white;
     padding: 32px;

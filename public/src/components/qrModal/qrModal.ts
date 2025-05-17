@@ -1,5 +1,6 @@
 import template from './qrModal.hbs';
 import { Button } from '@components/button/button';
+import { modalController } from '@modules/modalController';
 
 export class QRModal {
   private submitBtn: Button;
@@ -14,14 +15,18 @@ export class QRModal {
     return document.querySelector('.qr_modal');
   }
 
-  get closeElem(): HTMLElement | null {
-    return this.submitBtn?.self ?? null;
+  get closeElem(): HTMLElement {
+    return this.submitBtn.self;
   }
 
   render() {
     const html = template({ qrSrc: this.qrSrc });
     document.body.insertAdjacentHTML('beforeend', html);
     document.body.style.overflow = 'hidden';
+
+    const blocker = document.createElement('div');
+    blocker.classList.add('qr_modal__blocker');
+    this.self.appendChild(blocker);
 
     const buttonContainer: HTMLElement = this.self.querySelector('.form__line');
 
@@ -31,17 +36,16 @@ export class QRModal {
       text: `Подождите ${this.delaySeconds} сек`,
       disabled: true,
       onSubmit: async () => {
-        this.closeElem?.click();
+        modalController.closeModal();
       },
     });
 
     this.submitBtn.render();
 
-    this.self.style.pointerEvents = 'none';
-    this.startCountdown();
+    this.startCountdown(blocker);
   }
 
-  private startCountdown() {
+  private startCountdown(blocker: HTMLElement) {
     let secondsLeft = this.delaySeconds;
 
     const interval = setInterval(() => {
@@ -51,10 +55,10 @@ export class QRModal {
         this.submitBtn.setText(`Подождите ${secondsLeft} сек`);
       } else {
         clearInterval(interval);
-        this.submitBtn.setText('Продолжить');
+        this.submitBtn.setText('Я сохранил QR-код');
         this.submitBtn.enable();
 
-        this.self.style.pointerEvents = '';
+        blocker.remove();
       }
     }, 1000);
   }
