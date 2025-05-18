@@ -38,7 +38,7 @@ jobs:
         run: rm -rf dist
 
       - name: Сборка проекта
-        run: npm run
+        run: npm run build
 
       - name: Очистка папки на сервере
         uses: appleboy/ssh-action@master
