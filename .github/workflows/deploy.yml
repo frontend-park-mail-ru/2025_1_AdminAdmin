@@ -26,6 +26,9 @@ jobs:
       - name: Установка зависимостей
         run: npm install
 
+      - name: Прогон линтера
+        run: npm run lint
+
       - name: Создание env файла
         run: |
           touch .env
