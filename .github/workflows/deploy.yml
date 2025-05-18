@@ -67,7 +67,7 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            ❗ Произошла ошибка во время деплоя ❗
+            ❗ Произошла ошибка во время деплоя
             
             🔗 Ссылка на пайплайн 🔗
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -79,7 +79,7 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            ✅ Изменения успешно задеплоены ✅
+            ✅ Изменения успешно задеплоены
             
             🔗 Ссылка на прод 🔗
             https://doordashers.ru/
