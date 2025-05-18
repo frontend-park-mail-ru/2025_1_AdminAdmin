@@ -1,6 +1,9 @@
 .categories{
     display: flex;
     flex-direction: column;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overflow-y: auto;
 
     .button {
         transition: unset;
@@ -11,8 +14,6 @@
         flex-direction: row;
         justify-content: flex-start;
         overflow-x: auto;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
         gap: 10px;
         border-radius: 10px;
         box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);

@@ -1,0 +1,76 @@
+.carousel {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  position: relative;
+
+  &__cards {
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    flex-wrap: nowrap;
+    box-sizing: border-box;
+    overflow-x: auto;
+    min-width: 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-snap-type: x mandatory;
+    gap: 5px;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    > * {
+      scroll-snap-align: start;
+      flex: 0 0 calc((100% - 15px)/ 4);
+      box-sizing: border-box;
+    }
+  }
+
+  &__buttons {
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+
+   &__button-prev, &__button-next {
+     pointer-events: auto;
+      border-radius: 50px;
+      border: 0;
+      font-weight: bold;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      opacity: 0;
+      background-color: var(--light-grey);
+     box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+
+     &:hover {
+       background-image: linear-gradient(rgb(0 0 0 / 20%), rgb(0 0 0 / 20%));
+     }
+    }
+  }
+
+  @media (max-width: 1600px) {
+    &__cards > * {
+      flex: 0 0 calc((100% - 10px)/ 3);
+    }
+  }
+
+  @media (max-width: 768px) {
+    &__cards > * {
+      flex: 0 0 calc((100% - 5px) / 2);
+    }
+  }
+
+  @media (max-width: 480px) {
+    &__cards > * {
+      flex: 0 0 100%;
+    }
+  }
+}

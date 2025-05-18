@@ -1,20 +1,18 @@
-<tr id="{{id}}" {{#if status}}class="completed"{{/if}}>
-    <td>
-        {{#if status}}
-        Завершён
-        {{else}}
-        В пути
-        {{/if}}
+<tr id="{{id}}" {{#if completed}}class="completed"{{/if}}>
+    <td data-label="Статус">
+        {{status}}
     </td>
-    <td>
-        {{create_date}}
+    <td data-label="Дата">
+        {{created_at}}
     </td>
-    <td>
-        <span>{{price}}</span>
-        <span>{{products_amount}}</span>
+    <td data-label="Сумма">
+        <span>{{final_price}} ₽</span>
+        <span>{{products_amount}} {{productWord}}</span>
     </td>
-    <td>
-        <img src="{{restaurant.image.src}}" alt="{{restaurant.image.alt}}">
-        <span>{{restaurant.name}}</span>
+    <td data-label="Ресторан">
+        <!--<img src="/src/assets/default_restaurant.jpg" alt="restaurant_image"/>-->
+        <span>{{order_products.restaurant_name}}</span>
+    </td>
+    <td class="show-order-button-wrapper">
     </td>
 </tr>

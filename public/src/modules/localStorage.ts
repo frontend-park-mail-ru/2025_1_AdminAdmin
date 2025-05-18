@@ -1,4 +1,4 @@
-import { CartState } from '@store/cartStore';
+import { CartState } from '@store/reducers/cartReducer';
 
 export interface RequestOptions {
   headers?: Record<string, string>;

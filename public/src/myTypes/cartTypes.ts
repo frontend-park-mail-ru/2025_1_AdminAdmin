@@ -8,4 +8,5 @@ export interface I_Cart {
   restaurant_id: string;
   restaurant_name: string;
   products: CartProduct[];
+  total_sum: number;
 }

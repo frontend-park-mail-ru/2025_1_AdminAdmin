@@ -30,6 +30,10 @@
     font-weight: bold;
   }
 
+  &__rating {
+    margin: 10px 0 5px;
+  }
+
   &__description {
     color: var(--dark-gray);
     font-size: 12px;

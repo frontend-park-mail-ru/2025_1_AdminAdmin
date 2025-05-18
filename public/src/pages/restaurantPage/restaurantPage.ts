@@ -135,7 +135,10 @@ export default class RestaurantPage {
       this.categoriesComponent = new Categories(this.categoriesWrapper, productCardsBody);
       this.categoriesComponent.render();
 
-      if (!this.props.categories) return;
+      if (!this.props.categories) {
+        this.handleNoResults();
+        return;
+      }
 
       this.props.categories.forEach((category) => {
         this.categoriesComponent.addCategory(category.name);
@@ -163,15 +166,19 @@ export default class RestaurantPage {
       categoriesWrapper.style.display = 'block';
       this.categoriesComponent.hashChangeHandler();
     } catch {
-      const categoriesWrapper = this.self.querySelector(
-        '.product-categories__wrapper',
-      ) as HTMLElement;
-      categoriesWrapper.style.display = 'none';
-      const cartWrapper = this.self.querySelector('.cart__wrapper') as HTMLElement;
-      cartWrapper.style.display = 'none';
-      const noResultsWrapper: HTMLElement = this.self.querySelector('.restaurant-page__no-results');
-      noResultsWrapper.style.display = 'flex';
+      this.handleNoResults();
     }
+  }
+
+  handleNoResults() {
+    const categoriesWrapper = this.self.querySelector(
+      '.product-categories__wrapper',
+    ) as HTMLElement;
+    categoriesWrapper.style.display = 'none';
+    const cartWrapper = this.self.querySelector('.cart__wrapper') as HTMLElement;
+    cartWrapper.style.display = 'none';
+    const noResultsWrapper: HTMLElement = this.self.querySelector('.restaurant-page__no-results');
+    noResultsWrapper.style.display = 'flex';
   }
 
   async updateQuery(query: string): Promise<void> {

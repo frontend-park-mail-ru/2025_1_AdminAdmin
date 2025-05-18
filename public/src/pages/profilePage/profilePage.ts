@@ -6,14 +6,21 @@ import template from './profilePage.hbs';
 import { User } from '@myTypes/userTypes';
 import { userStore } from '@store/userStore';
 import UnifiedForm from '@components/unifiedForm/unifiedForm';
-import { AppUserRequests } from '@modules/ajax';
+import { AppOrderRequests, AppUserRequests } from '@modules/ajax';
 import { toasts } from '@modules/toasts';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
+import { I_UserOrderResponse } from '@myTypes/orderTypes';
+import { router } from '@modules/routing';
+import { Pagination } from '@components/pagination/pagination';
+import { Checkbox } from '@components/checkbox/checkbox';
+import { QRModal } from '@components/qrModal/qrModal';
+
+const ORDERS_PER_PAGE = 10;
 
 interface ProfilePageProps {
   data?: User;
-  //orders?: ProfileTableProps;
+  orders?: I_UserOrderResponse;
 }
 
 /**
@@ -27,6 +34,8 @@ export default class ProfilePage {
     profileForm?: UnifiedForm;
     addAddressButton?: Button;
     ordersTable?: ProfileTable;
+    pagination?: Pagination;
+    twoFactorCheckbox: Checkbox;
   };
   private readonly avatarChangeHandler: (event: Event) => void; // Функция при изменении файла аватарки
   private unsubscribeFromUserStore: (() => void) | null = null;
@@ -46,7 +55,6 @@ export default class ProfilePage {
 
     this.props = {
       data: userStore.getState(),
-      // orders: [],
     };
 
     this.components = {
@@ -54,6 +62,7 @@ export default class ProfilePage {
       profileForm: undefined,
       addAddressButton: undefined,
       ordersTable: undefined,
+      twoFactorCheckbox: undefined,
     };
     this.unsubscribeFromUserStore = userStore.subscribe(() => this.updateState());
     this.avatarChangeHandler = this.handleAvatarChange.bind(this);
@@ -74,87 +83,120 @@ export default class ProfilePage {
    */
   async render(): Promise<void> {
     if (!userStore.isAuth()) {
-      setTimeout(() => {
-        import('@modules/routing').then(({ router }) => {
-          router.goBack();
-        });
-      }, 0);
+      router.goBack();
       return;
     }
-    if (!template) {
-      throw new Error('Error: profile page template not found');
-    }
-    try {
-      // Генерируем HTML
-      const html = template({ path: this.props.data.path });
-      this.parent.insertAdjacentHTML('beforeend', html);
-      // Заполняем
-      // Если оставляем категории то тут рендерим категории, у них свой враппер
-      // Рендерим блок изменения данных профиля
-      this.components.loadAvatarButton = new Button(
-        document.getElementById('profile-data__avatar-load-button__wrapper'),
-        {
-          id: 'profile-data__load-avatar-button',
-          text: 'Загрузить аватар',
-          onSubmit: () => {
-            const avatarInputElement = document.getElementById(
-              'profile-data__avatar-input',
-            ) as HTMLInputElement;
-            avatarInputElement.click(); // Нажимаем на инпут чтобы выбрать файл
-          },
-        },
-      );
-      this.components.loadAvatarButton.render();
-      const profileFormElement: HTMLDivElement = this.self.querySelector('.profile-data__body');
-      const profileFormComponent = new UnifiedForm(profileFormElement, true);
-      profileFormComponent.render();
-      this.components.profileForm = profileFormComponent;
 
-      // Ренденрим блок изменения/удаления/добавления адресов
-      await this.refreshAddresses();
-
-      const profileAddressBody: HTMLDivElement = this.self.querySelector('.profile-address__body');
-      const addAddressButtonProps = {
-        id: 'profile-page__address-add',
-        text: 'Добавить',
+    // Генерируем HTML
+    const html = template({ path: this.props.data.path });
+    this.parent.insertAdjacentHTML('beforeend', html);
+    // Заполняем
+    // Если оставляем категории то тут рендерим категории, у них свой враппер
+    // Рендерим блок изменения данных профиля
+    this.components.loadAvatarButton = new Button(
+      document.getElementById('profile-data__avatar-load-button__wrapper'),
+      {
+        id: 'profile-data__load-avatar-button',
+        text: 'Загрузить аватар',
         onSubmit: () => {
-          if (this.previousAddressMap.size > 10) {
-            toasts.error('У Вас максимальное количество адресов.');
-            return;
-          }
-          const mapModal = new MapModal(async (newAddress: string) => {
-            try {
-              await userStore.addAddress(newAddress);
-              modalController.closeModal();
-              await this.refreshAddresses();
-            } catch (error) {
-              toasts.error(error);
-            }
-          });
-
-          modalController.openModal(mapModal);
+          const avatarInputElement = document.getElementById(
+            'profile-data__avatar-input',
+          ) as HTMLInputElement;
+          avatarInputElement.click(); // Нажимаем на инпут чтобы выбрать файл
         },
-      } as ButtonProps;
+      },
+    );
+    this.components.loadAvatarButton.render();
+    const profileFormElement: HTMLDivElement = this.self.querySelector('.profile-data__body');
+    const profileFormComponent = new UnifiedForm(profileFormElement, true);
+    profileFormComponent.render();
+    this.components.profileForm = profileFormComponent;
 
-      const addAddressButtonComponent = new Button(profileAddressBody, addAddressButtonProps);
-      addAddressButtonComponent.render();
-      this.components.addAddressButton = addAddressButtonComponent;
-      const avatarInputElement = document.getElementById(
-        'profile-data__avatar-input',
-      ) as HTMLInputElement;
-      avatarInputElement.addEventListener('change', this.avatarChangeHandler);
+    const checkboxWrapper: HTMLDivElement = this.parent.querySelector('.profile-data__checkbox');
+    this.components.twoFactorCheckbox = new Checkbox(checkboxWrapper, {
+      id: 'profile-data__twoFactorCheckbox',
+      label: 'Двухфакторная аутентификация',
+      onClick: this.handleTwoFactorUpdate,
+    });
+    this.components.twoFactorCheckbox.render();
 
-      /*      // Рендерим блок таблицы заказов
-      const profileTableWrapper = this.self.querySelector(
-        '.profile-orders__table__wrapper',
-      ) as HTMLElement;
-      const ordersTableComponent = new ProfileTable(profileTableWrapper, this.props.orders);
-      ordersTableComponent.render();
-      this.components.ordersTable = ordersTableComponent;*/
+    // Ренденрим блок изменения/удаления/добавления адресов
+    await this.refreshAddresses();
+
+    const profileAddressBody: HTMLDivElement = this.self.querySelector('.profile-address__body');
+    const addAddressButtonProps = {
+      id: 'profile-page__address-add',
+      text: 'Добавить',
+      onSubmit: () => {
+        if (this.previousAddressMap.size > 10) {
+          toasts.error('У Вас максимальное количество адресов.');
+          return;
+        }
+        const mapModal = new MapModal(async (newAddress: string) => {
+          try {
+            await userStore.addAddress(newAddress);
+            modalController.closeModal();
+            await this.refreshAddresses();
+          } catch (error) {
+            toasts.error(error);
+          }
+        });
+
+        modalController.openModal(mapModal);
+      },
+    } as ButtonProps;
+
+    const addAddressButtonComponent = new Button(profileAddressBody, addAddressButtonProps);
+    addAddressButtonComponent.render();
+    this.components.addAddressButton = addAddressButtonComponent;
+    const avatarInputElement = document.getElementById(
+      'profile-data__avatar-input',
+    ) as HTMLInputElement;
+    avatarInputElement.addEventListener('change', this.avatarChangeHandler);
+
+    try {
+      await this.createProfileTable(0);
+
+      if (!this.props.orders.total) {
+        this.hideProfileOrders();
+        return;
+      }
+
+      if (this.props.orders.total > ORDERS_PER_PAGE) {
+        const profileOrderWrapper: HTMLDivElement = this.parent.querySelector('.profile-orders');
+        this.components.pagination = new Pagination(
+          profileOrderWrapper,
+          Math.ceil(this.props.orders.total / ORDERS_PER_PAGE),
+          this.handleOrdersPageChange,
+        );
+
+        this.components.pagination.render();
+      }
     } catch (error) {
       console.error(error);
-      console.error('Error rendering profile page:', error);
+      this.hideProfileOrders();
     }
+  }
+
+  handleOrdersPageChange = async (pageNumber: number) => {
+    this.components.ordersTable.remove();
+    await this.createProfileTable((pageNumber - 1) * ORDERS_PER_PAGE);
+  };
+
+  createProfileTable = async (offset: number) => {
+    this.props.orders = await AppOrderRequests.getUserOrders(ORDERS_PER_PAGE, offset);
+    // Рендерим блок таблицы заказов
+    const profileTableWrapper = this.self.querySelector(
+      '.profile-orders__table__wrapper',
+    ) as HTMLElement;
+
+    this.components.ordersTable = new ProfileTable(profileTableWrapper, this.props.orders.orders);
+    this.components.ordersTable.render();
+  };
+
+  hideProfileOrders() {
+    const profileOrdersContainer: HTMLDivElement = this.self.querySelector('.profile-orders');
+    profileOrdersContainer.style.display = 'none';
   }
 
   private updateState() {
@@ -166,6 +208,14 @@ export default class ProfilePage {
       avatarImageElement.src = `https://doordashers.ru/images_user/${this.props.data.path}`;
     }
   }
+
+  private handleTwoFactorUpdate = () => {
+    if (this.components.twoFactorCheckbox.isChecked) return;
+    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=test123&format=svg';
+
+    const qrModal = new QRModal(qrUrl);
+    modalController.openModal(qrModal);
+  };
 
   private async refreshAddresses() {
     const wrapper: HTMLElement = this.self.querySelector('.profile-address__addresses__wrapper');
@@ -205,7 +255,6 @@ export default class ProfilePage {
         }
       });
     } catch (error) {
-      console.error(error);
       toasts.error(error.message);
     }
   }
@@ -222,11 +271,6 @@ export default class ProfilePage {
     if (avatarInputElement.files && avatarInputElement.files[0]) {
       const file = avatarInputElement.files[0];
       const reader = new FileReader();
-
-      /*      // Читаем файл как DataURL
-      reader.onload = (event) => {
-        avatarImageElement.src = event.target?.result as string;
-      };*/
       reader.readAsDataURL(file);
 
       try {
@@ -254,10 +298,8 @@ export default class ProfilePage {
       address.remove();
     }
     this.previousAddressMap.clear();
-    //this.components.ordersTable.remove();
-    /*    this.components.addresses.forEach((component) => {
-      component.remove();
-    });*/
+    this.components.ordersTable?.remove();
+    this.components.pagination?.remove();
     const element = this.self;
     if (element) element.remove();
   }

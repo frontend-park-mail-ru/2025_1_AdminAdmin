@@ -34,11 +34,7 @@ export class AuthPage {
    */
   render = (isLoginPage: boolean): void => {
     if (userStore.isAuth()) {
-      setTimeout(() => {
-        import('@modules/routing').then(({ router }) => {
-          router.goBack();
-        });
-      }, 0);
+      router.goBack();
       return;
     }
     if (!this.slider) {
@@ -141,7 +137,7 @@ export class AuthPage {
       this.unsubscribeFromUserStore = null;
     }
 
-    this.slider.remove();
+    this.slider?.remove();
 
     this.loginForm?.remove();
     this.registerForm?.remove();

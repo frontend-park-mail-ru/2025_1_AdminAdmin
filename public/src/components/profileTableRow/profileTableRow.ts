@@ -1,4 +1,8 @@
 import template from './profileTableRow.hbs';
+import { I_OrderResponse, statusMap } from '@myTypes/orderTypes';
+import { router } from '@modules/routing';
+import { Button } from '@components/button/button';
+import { formatDate } from '@modules/utils';
 
 //Интерфейс картинки ресторана
 export interface ImageProps {
@@ -12,62 +16,22 @@ export interface RestaurantProps {
   image?: ImageProps | string; // Будем передавать как строку, а преобразовывать как ImageProps
 }
 
-// Интерфейс пропсов строки в таблице
-export interface ProfileTableRowProps {
-  id: string;
-  status: boolean; // 0 - в пути, 1 - завершен
-  create_date: string; // Дата создания заказа
-  price: number; // Общая стоимость заказа
-  products_amount: number; // Количество товаров в заказе
-  restaurant: RestaurantProps; // Пропсы ресторана (название + картинка)
-  onClick?: () => void;
-}
-
 export class ProfileTableRow {
   protected parent: HTMLElement;
-  protected props: ProfileTableRowProps;
-  protected clickHandler: (event: Event) => void;
+  protected props: I_OrderResponse;
+  protected showOrderButton: Button;
 
   /**
    * @constructor Создает экземпляр строки таблицы на странице профиля
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться строка таблицы
    * @param {TableRowProps} props - Словарь данных для определения свойств строки таблицы
    */
-  constructor(parent: HTMLElement, props: ProfileTableRowProps) {
+  constructor(parent: HTMLElement, props: I_OrderResponse) {
     if (!parent) {
       throw new Error('TableRow: no parent!');
     }
     this.parent = parent;
-    this.props = {
-      id: props.id,
-      status: props.status,
-      create_date: props.create_date,
-      price: props.price,
-      products_amount: props.products_amount,
-      restaurant: {
-        image: {
-          src: '/src/assets/burgerking.png',
-          alt: 'burgerking',
-        },
-        name: props.restaurant.name,
-      },
-      onClick: props.onClick || undefined,
-    };
-    if (props.restaurant.image) {
-      // Обработка переданной картинки ресторана
-      if (typeof props.restaurant.image === 'string') {
-        this.props.restaurant.image = {
-          src: props.restaurant.image,
-          alt: props.restaurant.image.split('/').pop()?.split('.').shift() || 'restaurant-image',
-        } as ImageProps;
-      } else {
-        this.props.restaurant.image = {
-          src: props.restaurant.image.src,
-          alt: props.restaurant.image.alt || 'restaurant-image',
-        } as ImageProps;
-      }
-    }
-    this.clickHandler = this.handleClick.bind(this);
+    this.props = props;
   }
 
   /**
@@ -91,28 +55,59 @@ export class ProfileTableRow {
       throw new Error('ProfileTableRow: profile-table-row template not found');
     }
     // Рендерим шаблончик с данными
-    const html = template(this.props);
+    this.props.created_at = formatDate(this.props.created_at);
+
+    let products_amount = 0;
+
+    for (const product of this.props.order_products.products) products_amount += product.amount;
+
+    const status = statusMap[this.props.status].text;
+    const productWord = this.getProductWordForm(products_amount);
+
+    const html = template({
+      ...this.props,
+      products_amount,
+      productWord,
+      status,
+      completed: status === statusMap.delivered.text,
+    });
+
     this.parent.insertAdjacentHTML('beforeend', html);
-    this.self.addEventListener('click', this.clickHandler);
+    this.self.addEventListener('click', this.handleClick);
+
+    const buttonWrapper: HTMLDivElement = this.self.querySelector('.show-order-button-wrapper');
+    this.showOrderButton = new Button(buttonWrapper, {
+      id: 'show-order-button',
+      text: 'Посмотреть',
+    });
+
+    this.showOrderButton.render();
+  }
+
+  getProductWordForm(count: number): string {
+    const mod10 = count % 10;
+    const mod100 = count % 100;
+
+    if (mod10 === 1 && mod100 !== 11) return 'продукт';
+    if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) return 'продукта';
+    return 'продуктов';
   }
 
   /**
    * Обработчик нажатия на строку таблицы
    * @private
    */
-  handleClick(event: Event): void {
-    event.preventDefault();
-    if (this.props.onClick !== undefined) {
-      this.props.onClick();
-    }
-  }
+  handleClick = () => {
+    router.goToPage('orderPage', this.props.id);
+  };
 
   /**
    * Удаляет строку из таблицы и убирает обработчики
    */
   remove(): void {
     const element = this.self;
-    element.removeEventListener('click', this.clickHandler); // Удаляем обработчик
+    this.showOrderButton.remove();
+    element.removeEventListener('click', this.handleClick); // Удаляем обработчик
     element.remove();
   }
 }

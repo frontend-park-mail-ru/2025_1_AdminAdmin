@@ -3,7 +3,7 @@
         <div class="step-progress-bar-container"></div>
         <h1 class="order-page__header {{#if isPreformed}}formed{{/if}}" >
             {{#if isPreformed}}
-                Заказ №{{orderId}}
+                Заказ {{orderId}} от {{orderDate}}
             {{else}}
                 Оформление заказа
             {{/if}}
@@ -14,15 +14,6 @@
             <div class="form__error"></div>
             <div class="order-page__inputs-container" id="form__line_order-page_address"></div>
             <div class="order-page__comment"></div>
-
-            <div class="order-page__leave_by_the_door">
-                <input
-                        type="checkbox"
-                        id="orderPageCheckbox"
-                    {{#if isPreformed}}disabled{{/if}}
-                    {{#if leave_at_door}}checked{{/if}} >
-                <label for="orderPageCheckbox">Оставить у двери</label>
-            </div>
         </div>
 
         <div class="order-page__products">
@@ -35,6 +26,10 @@
                 </div>
                 {{/unless}}
             </div>
+        </div>
+
+        <div class="order-page__recommended_products">
+            <h3>Вместе с этим часто берут</h3>
         </div>
     </div>
     <div class="order-page__summary">

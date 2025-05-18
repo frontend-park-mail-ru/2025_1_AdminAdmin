@@ -7,21 +7,16 @@ import { userStore } from '@store/userStore';
 import { CartProduct } from '@myTypes/cartTypes';
 import { toasts } from '@modules/toasts';
 import { Button } from '@components/button/button';
-import { AppOrderRequests } from '@modules/ajax';
-import { CreateOrderPayload, I_OrderResponse } from '@myTypes/orderTypes';
+import { AppOrderRequests, AppRecommendationRequests } from '@modules/ajax';
+import { CreateOrderPayload, I_OrderResponse, statusMap } from '@myTypes/orderTypes';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
 import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
 import { router } from '@modules/routing';
 import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
-
-const statusMap: Record<string, number> = {
-  creation: -1,
-  new: 0,
-  paid: 1,
-  in_delivery: 2,
-  delivered: 3,
-};
+import { formatDate } from '@modules/utils';
+import { ProductsCarousel } from '@components/productsCarousel/productsCarousel';
+import { Checkbox } from '@components/checkbox/checkbox';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -29,11 +24,12 @@ export default class OrderPage {
   private inputs: Record<string, FormInput> = {};
   private cartCards = new Map<string, CartCard>();
   private submitButton: Button;
+  private checkbox: Checkbox;
   private unsubscribeFromStore: (() => void) | null = null;
   private youMoneyForm: YouMoneyForm = null;
   private isRemoved = false;
-  private isChecked = false;
   private stepProgressBar: StepProgressBar = null;
+  private recommendedProductsCarousel: ProductsCarousel;
 
   constructor(parent: HTMLElement, orderId?: string) {
     if (!parent) {
@@ -54,6 +50,7 @@ export default class OrderPage {
       return {
         order,
         orderId: order.id.slice(-4),
+        created_at: order.created_at,
         totalPrice: order.final_price,
         status: order.status,
         leave_at_door: order.leave_at_door,
@@ -73,13 +70,25 @@ export default class OrderPage {
    */
   private renderProgressBar(step: number) {
     const orderProgressSteps = [
-      { id: 'order-progress_cart', image: { src: '/src/assets/cart.png' }, text: 'Оформлен' },
-      { id: 'order-progress_paid', image: { src: '/src/assets/credit_card.png' }, text: 'Оплачен' },
-      { id: 'order-progress_travel', image: { src: '/src/assets/delivery.png' }, text: 'В пути' },
+      {
+        id: 'order-progress_cart',
+        image: { src: '/src/assets/cart.png' },
+        text: statusMap.new.text,
+      },
+      {
+        id: 'order-progress_paid',
+        image: { src: '/src/assets/credit_card.png' },
+        text: statusMap.paid.text,
+      },
+      {
+        id: 'order-progress_travel',
+        image: { src: '/src/assets/delivery.png' },
+        text: statusMap.in_delivery.text,
+      },
       {
         id: 'order-progress_finish',
         image: { src: '/src/assets/complete_order.png' },
-        text: 'Вручен',
+        text: statusMap.delivered.text,
       },
     ];
     const stepProgressBarContainer = this.self.querySelector(
@@ -134,7 +143,7 @@ export default class OrderPage {
         text: 'Оформить заказ',
         style: 'button_active',
         onSubmit: async () => {
-          if (cartStore.getState().total_price > 100000) {
+          if (cartStore.getState().total_sum > 100000) {
             toasts.error('Сумма заказа не должна превышать 100 000 ₽. Разделите его на несколько');
             return;
           }
@@ -174,8 +183,8 @@ export default class OrderPage {
         order: undefined,
         orderId: undefined,
         status: 'creation',
-        totalPrice: cartStore.getState().total_price,
-        leave_at_door: undefined,
+        totalPrice: cartStore.getState().total_sum,
+        leave_at_door: false,
         restaurantName: cartStore.getState().restaurant_name,
         address: userStore.getActiveAddress(),
         products: cartStore.getState().products,
@@ -185,50 +194,71 @@ export default class OrderPage {
     const templateProps = {
       isPreformed: data.order !== undefined,
       orderId: data.orderId,
+      orderDate: formatDate(data?.created_at),
       totalPrice: data.totalPrice,
-      leave_at_door: data.leave_at_door,
       restaurantName: data.restaurantName,
       address: data.address,
     };
 
     this.parent.innerHTML = template(templateProps);
 
-    this.renderProgressBar(statusMap[data.status]);
+    this.renderProgressBar(statusMap[data.status].step_no);
     this.renderInputs(data.order);
     this.renderCourierComment(data.order);
+
+    if (!data.products.length) {
+      router.goToPage('home');
+      return;
+    }
+
     this.createProductCards(data.products, Boolean(data.order));
 
+    const deliveryContainer: HTMLDivElement = this.parent.querySelector('.order-page__delivery');
+    this.checkbox = new Checkbox(deliveryContainer, {
+      id: 'orderPageCheckbox',
+      label: 'Оставить у двери',
+      checked: data.leave_at_door,
+    });
+
+    this.checkbox.render();
+
     if (data.status !== 'creation') {
+      this.checkbox.disable();
+
       if (data.status === 'new') {
         this.createYouMoneyForm(data.order);
       }
       return;
     }
 
+    await this.createRecommendedProducts();
     const bin = this.self.querySelector('.order-page__products__header__clear');
     bin?.addEventListener('click', this.handleClear);
     this.renderSubmitButton();
     this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
-
-    const checkboxContainer = this.parent.querySelector('#orderPageCheckbox');
-    checkboxContainer.addEventListener('click', this.handleCheckBoxClick);
   }
 
-  private handleCheckBoxClick = (event: Event): void => {
-    this.isChecked = !this.isChecked;
-    const checkbox = event.target as HTMLInputElement;
-    checkbox.checked = this.isChecked;
-  };
+  private async createRecommendedProducts(): Promise<void> {
+    const recommendedProductsWrapper: HTMLDivElement = this.parent.querySelector(
+      '.order-page__recommended_products',
+    );
+    try {
+      const recommendedProducts = await AppRecommendationRequests.GetRecommendedProducts();
+      if (!recommendedProducts) {
+        recommendedProductsWrapper.style.display = 'none';
+        return;
+      }
+      this.recommendedProductsCarousel = new ProductsCarousel(
+        recommendedProductsWrapper,
+        recommendedProducts,
+      );
+      this.recommendedProductsCarousel.render();
+    } catch {
+      recommendedProductsWrapper.style.display = 'none';
+    }
+  }
 
   private createProductCards(products: CartProduct[], shouldDisable: boolean): void {
-    if (!products.length) {
-      setTimeout(() => {
-        import('@modules/routing').then(({ router }) => {
-          router.goToPage('home');
-        });
-      }, 0);
-    }
-
     const container = this.self.querySelector('.order-page__products') as HTMLDivElement;
     if (!container) return;
 
@@ -241,7 +271,7 @@ export default class OrderPage {
   }
 
   private updateTotalPrice() {
-    const totalPrice: number = cartStore.getState().total_price;
+    const totalPrice: number = cartStore.getState().total_sum;
 
     const cartTotal: HTMLDivElement = this.self.querySelector('.cart__total');
     cartTotal.textContent = totalPrice.toLocaleString('ru-RU');
@@ -275,7 +305,7 @@ export default class OrderPage {
       }
     }
 
-    const final_price = cartStore.getState().total_price;
+    const final_price = cartStore.getState().total_sum;
     const address = userStore.getActiveAddress();
 
     if (!address) {
@@ -297,7 +327,7 @@ export default class OrderPage {
       entrance: formValues.entrance,
       floor: formValues.floor,
       courier_comment: formValues.courier_comment,
-      leave_at_door: this.isChecked,
+      leave_at_door: this.checkbox.isChecked,
       final_price,
     };
 
@@ -313,10 +343,12 @@ export default class OrderPage {
 
   private handleCreation(newOrder: I_OrderResponse) {
     window.history.replaceState({}, '', `/order/${newOrder.id}`);
-
     const pageHeader: HTMLElement = this.parent.querySelector('.order-page__header');
-    pageHeader.textContent = `Заказ №${newOrder.id.slice(-4)}`;
+
+    pageHeader.textContent = `Заказ ${newOrder.id.slice(-4)} от ${formatDate(newOrder.created_at)}`;
     pageHeader.classList.add('formed');
+
+    this.checkbox.disable();
 
     for (const input of Object.values(this.inputs)) {
       input.disable();
@@ -376,6 +408,14 @@ export default class OrderPage {
       }
     }
 
+    for (const product of products) {
+      if (!this.cartCards.has(product.id)) {
+        const card = new CartCard(container, product);
+        card.render();
+        this.cartCards.set(product.id, card);
+      }
+    }
+
     if (!products.length) {
       router.goToPage('home');
     }
@@ -408,8 +448,7 @@ export default class OrderPage {
 
     this.stepProgressBar?.remove();
 
-    const checkboxContainer = this.parent.querySelector('#orderPageCheckbox');
-    checkboxContainer.removeEventListener('click', this.handleCheckBoxClick);
+    this.recommendedProductsCarousel?.remove();
 
     if (this.submitButton) {
       this.submitButton.remove();
@@ -419,6 +458,8 @@ export default class OrderPage {
       cartStore.clearLocalCart();
       this.youMoneyForm.remove();
     }
+
+    this.checkbox?.remove();
 
     Object.values(this.inputs).forEach((input) => input.remove());
     this.inputs = {};

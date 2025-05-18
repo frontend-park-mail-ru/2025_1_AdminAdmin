@@ -96,8 +96,16 @@ export default class Header {
     if (currentCategory === 'large-desktop') {
       this.logo = new Logo(logoElement, logoImg);
       this.cartButton.setOnSubmit(() => {
-        const restaurantId = cartStore.getState().restaurant_id;
-        if (restaurantId) router.goToPage('restaurantPage', restaurantId);
+        const cartRestaurantId = cartStore.getState().restaurant_id;
+        const urlRestaurantId = router.getCurrentPageId();
+
+        if (!cartRestaurantId) {
+          return;
+        } else if (cartRestaurantId !== urlRestaurantId) {
+          router.goToPage('restaurantPage', cartRestaurantId);
+        } else {
+          router.goToPage('orderPage');
+        }
       });
     } else {
       this.logo = new Logo(logoElement, smallLogo);
@@ -249,7 +257,7 @@ export default class Header {
       id: 'header__search__input',
       placeholder: 'Найти ресторан или блюдо',
       type: 'search',
-      noErrorInHeader: true,
+      hideErrors: true,
     });
     this.searchInput.render();
 
@@ -385,8 +393,8 @@ export default class Header {
 
     const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
 
-    if (cartStore.getState().total_price) {
-      this.cartButton.setText(cartStore.getState().total_price.toLocaleString('ru-RU') + ' ₽');
+    if (cartStore.getState().total_sum) {
+      this.cartButton.setText(cartStore.getState().total_sum.toLocaleString('ru-RU') + ' ₽');
       cartButtonContainer.style.display = 'block';
     } else {
       cartButtonContainer.style.display = 'none';

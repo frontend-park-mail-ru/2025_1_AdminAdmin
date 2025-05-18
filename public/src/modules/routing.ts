@@ -94,14 +94,17 @@ class Router {
     };
 
     window.addEventListener('popstate', this.handleRouteChange.bind(this));
-    this.handleRouteChange();
+  }
+
+  getCurrentPageId() {
+    return this.currentId;
   }
   /**
    * Обработчик изменения маршрута.
    * Определяет текущий путь и перенаправляет на соответствующую страницу.
    * @private
    */
-  private handleRouteChange(): void {
+  handleRouteChange(): void {
     const currentPath = window.location.pathname;
     const searchParams = new URLSearchParams(window.location.search);
     const query = searchParams.get('query');
@@ -289,6 +292,8 @@ export function initRouting(parent: HTMLElement): Router {
   if (!router) {
     router = new Router(parent);
   }
+  router.handleRouteChange();
+
   return router;
 }
 export { router };

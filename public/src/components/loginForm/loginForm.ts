@@ -1,6 +1,7 @@
 import { userStore } from '@store/userStore';
 import { FormInput } from '@components/formInput/formInput';
 import { Button } from '@components//button/button';
+import { OTPInput } from '@components/OTPInput/OTPInput';
 import template from './loginForm.hbs';
 import { toasts } from '@modules/toasts';
 import LoginFormConfig from './loginFormConfig';
@@ -10,7 +11,7 @@ import LoginFormConfig from './loginFormConfig';
  */
 export default class LoginForm {
   private parent: HTMLElement;
-
+  private OTPInput: OTPInput;
   private loginInput: FormInput;
   private passwordInput: FormInput;
   private submitBtn: Button;
@@ -84,6 +85,7 @@ export default class LoginForm {
     const loginContainer = document.getElementById('form__line_login');
     const passwordContainer = document.getElementById('form__line_password');
     const buttonContainer = document.getElementById('form__line_login_button_container');
+    const otpContainer: HTMLDivElement = this.parent.querySelector('.login-form__otp-code__body');
 
     if (loginContainer && passwordContainer && buttonContainer) {
       this.loginInput = new FormInput(loginContainer, LoginFormConfig.inputs.login);
@@ -92,10 +94,17 @@ export default class LoginForm {
       this.passwordInput = new FormInput(passwordContainer, LoginFormConfig.inputs.password);
       this.passwordInput.render();
 
+      this.OTPInput = new OTPInput(otpContainer, {
+        id: 'login-form-otp-input',
+        digits: 6,
+      });
+
+      this.OTPInput.render();
+
       this.submitBtn = new Button(buttonContainer, {
         ...LoginFormConfig.buttons.submitBtn,
-        onSubmit: () => {
-          this.validateData();
+        onSubmit: async () => {
+          await this.validateData();
         },
       });
       this.submitBtn.render();
@@ -111,5 +120,6 @@ export default class LoginForm {
     this.loginInput.remove();
     this.passwordInput.remove();
     this.submitBtn.remove();
+    this.OTPInput.remove();
   }
 }
