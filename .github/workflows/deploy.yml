@@ -59,3 +59,24 @@ jobs:
           target: "/home/ubuntu/deploy_user/tp_code/frontend"
           strip_components: 1
           overwrite: true
+
+      - name: Отправка в чат сообщения если пайплайн упал
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            Произошла ошибка во время деплоя! 
+
+      - name: Отправка в чат сообщения если пайплайн завершился успешно
+        if: success()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            Изменения успешно задеплоены 
+            
+            🔗 Ссылка на прод 🔗
+            https://doordashers.ru/
