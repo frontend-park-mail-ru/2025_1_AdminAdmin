@@ -13,6 +13,8 @@ import { modalController } from '@modules/modalController';
 import { I_UserOrderResponse } from '@myTypes/orderTypes';
 import { router } from '@modules/routing';
 import { Pagination } from '@components/pagination/pagination';
+import { Checkbox } from '@components/checkbox/checkbox';
+import { QRModal } from '@components/qrModal/qrModal';
 
 const ORDERS_PER_PAGE = 10;
 
@@ -33,6 +35,7 @@ export default class ProfilePage {
     addAddressButton?: Button;
     ordersTable?: ProfileTable;
     pagination?: Pagination;
+    twoFactorCheckbox: Checkbox;
   };
   private readonly avatarChangeHandler: (event: Event) => void; // Функция при изменении файла аватарки
   private unsubscribeFromUserStore: (() => void) | null = null;
@@ -59,6 +62,7 @@ export default class ProfilePage {
       profileForm: undefined,
       addAddressButton: undefined,
       ordersTable: undefined,
+      twoFactorCheckbox: undefined,
     };
     this.unsubscribeFromUserStore = userStore.subscribe(() => this.updateState());
     this.avatarChangeHandler = this.handleAvatarChange.bind(this);
@@ -107,6 +111,14 @@ export default class ProfilePage {
     const profileFormComponent = new UnifiedForm(profileFormElement, true);
     profileFormComponent.render();
     this.components.profileForm = profileFormComponent;
+
+    const checkboxWrapper: HTMLDivElement = this.parent.querySelector('.profile-data__checkbox');
+    this.components.twoFactorCheckbox = new Checkbox(checkboxWrapper, {
+      id: 'profile-data__twoFactorCheckbox',
+      label: 'Двухфакторная аутентификация',
+      onClick: this.handleTwoFactorUpdate,
+    });
+    this.components.twoFactorCheckbox.render();
 
     // Ренденрим блок изменения/удаления/добавления адресов
     await this.refreshAddresses();
@@ -196,6 +208,14 @@ export default class ProfilePage {
       avatarImageElement.src = `https://doordashers.ru/images_user/${this.props.data.path}`;
     }
   }
+
+  private handleTwoFactorUpdate = () => {
+    if (this.components.twoFactorCheckbox.isChecked) return;
+    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=test123&format=svg';
+
+    const qrModal = new QRModal(qrUrl);
+    modalController.openModal(qrModal);
+  };
 
   private async refreshAddresses() {
     const wrapper: HTMLElement = this.self.querySelector('.profile-address__addresses__wrapper');

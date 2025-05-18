@@ -221,7 +221,7 @@ export default class MapModal {
       this.submitBtn = new Button(formLineSearch, {
         id: 'form__line__search_button',
         text: 'ОК',
-        disabled: false,
+        disabled: true,
         style: 'dark big',
         onSubmit: async () => {
           const newAddress = this.input.value;
