@@ -16,7 +16,7 @@ import { Pagination } from '@components/pagination/pagination';
 import { Checkbox } from '@components/checkbox/checkbox';
 import { QRModal } from '@components/qrModal/qrModal';
 
-const ORDERS_PER_PAGE = 10;
+const ORDERS_PER_PAGE = 5;
 
 interface ProfilePageProps {
   data?: User;
@@ -190,7 +190,11 @@ export default class ProfilePage {
       '.profile-orders__table__wrapper',
     ) as HTMLElement;
 
-    this.components.ordersTable = new ProfileTable(profileTableWrapper, this.props.orders.orders);
+    this.components.ordersTable = new ProfileTable(
+      profileTableWrapper,
+      ORDERS_PER_PAGE,
+      this.props.orders.orders,
+    );
     this.components.ordersTable.render();
   };
 
