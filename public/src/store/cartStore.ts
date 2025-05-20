@@ -10,9 +10,35 @@ import {
 import { CartProduct, I_Cart } from '@myTypes/cartTypes';
 import { CartActions, CartState } from '@store/reducers/cartReducer';
 
+const cartChannel = new BroadcastChannel('cart_channel');
+const tabId = crypto.randomUUID();
+
+type CartActionType = keyof typeof CartActions;
+
+interface CartChannelEvent {
+  data: {
+    type: CartActionType;
+    payload: any;
+    sender: string;
+  };
+}
+
 export const cartStore = {
   getState(): CartState {
     return store.getState().cartState;
+  },
+
+  startSyncAcrossTabs(): void {
+    cartChannel.onmessage = (event: CartChannelEvent) => {
+      const { type, payload, sender } = event.data;
+
+      if (sender === tabId) return;
+
+      store.dispatch({
+        type: CartActions[type],
+        payload: payload,
+      });
+    };
   },
 
   getProductAmountById(productId: string): number {
@@ -69,6 +95,12 @@ export const cartStore = {
       type: CartActions.SET_CART,
       payload: cart,
     });
+
+    cartChannel.postMessage({
+      type: CartActions.SET_CART,
+      sender: tabId,
+      payload: cart,
+    });
   },
 
   updateCartState(products: CartProduct[], actionType: string): void {
@@ -77,6 +109,13 @@ export const cartStore = {
       type: actionType,
       payload: { products, total_sum },
     });
+
+    cartChannel.postMessage({
+      type: actionType,
+      sender: tabId,
+      payload: { products, total_sum },
+    });
+
     this.saveToLocalStorageIfGuest();
   },
 
@@ -88,7 +127,13 @@ export const cartStore = {
     );
 
     if (!cart || !Array.isArray(cart.products)) {
-      store.dispatch({ type: CartActions.CLEAR_CART });
+      this.clearLocalCart();
+
+      cartChannel.postMessage({
+        type: CartActions.CLEAR_CART,
+        sender: tabId,
+      });
+
       return;
     }
 
@@ -152,18 +197,29 @@ export const cartStore = {
       await AppCartRequests.ClearCart();
     }
 
-    store.dispatch({ type: CartActions.CLEAR_CART });
+    this.clearLocalCart();
     this.saveToLocalStorageIfGuest();
   },
 
   clearLocalCart(): void {
     store.dispatch({ type: CartActions.CLEAR_CART });
+
+    cartChannel.postMessage({
+      type: CartActions.CLEAR_CART,
+      sender: tabId,
+    });
   },
 
   setRestaurant(restaurant_id: string, restaurant_name: string): void {
     store.dispatch({
       type: CartActions.SET_RESTAURANT,
       payload: { restaurant_id, restaurant_name },
+    });
+
+    cartChannel.postMessage({
+      type: CartActions.SET_RESTAURANT,
+      payload: { restaurant_id, restaurant_name },
+      sender: tabId,
     });
 
     this.saveToLocalStorageIfGuest();
@@ -175,3 +231,5 @@ export const cartStore = {
     }
   },
 };
+
+cartStore.startSyncAcrossTabs();

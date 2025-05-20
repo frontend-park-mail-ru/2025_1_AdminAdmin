@@ -5,7 +5,35 @@ import { LoginPayload, RegisterPayload, UpdateUserPayload } from '@myTypes/userT
 import { cartStore } from '@store/cartStore';
 import { UserActions, UserState } from '@store/reducers/userReducer';
 
+const userChannel = new BroadcastChannel('user_channel');
+const tabId = crypto.randomUUID();
+
+type UserActionType = keyof typeof UserActions;
+
+interface UserChannelEvent {
+  data: {
+    type: UserActionType;
+    payload: any;
+    sender: string;
+  };
+}
+
 export const userStore = {
+  startSyncAcrossTabs(): void {
+    userChannel.onmessage = (event: UserChannelEvent) => {
+      const { type, payload, sender } = event.data;
+
+      if (sender === tabId) return;
+
+      if (type == UserActions.LOGOUT_SUCCESS) {
+        cartStore.clearLocalCart();
+      }
+      store.dispatch({
+        type: UserActions[type],
+        payload: payload,
+      });
+    };
+  },
   /**
    * Проверяет, авторизован ли пользователь.
    * @returns {boolean} - true, если пользователь авторизован, иначе false
@@ -42,6 +70,11 @@ export const userStore = {
       payload: res,
     });
 
+    userChannel.postMessage({
+      type: UserActions.LOGIN_SUCCESS,
+      payload: res,
+    });
+
     await cartStore.initCart();
   },
 
@@ -57,6 +90,12 @@ export const userStore = {
       payload: res,
     });
 
+    userChannel.postMessage({
+      type: UserActions.REGISTER_SUCCESS,
+      payload: res,
+      sender: tabId,
+    });
+
     await cartStore.initCart();
   },
 
@@ -67,6 +106,12 @@ export const userStore = {
   async logout(): Promise<void> {
     await AppUserRequests.Logout();
     store.dispatch({ type: UserActions.LOGOUT_SUCCESS });
+
+    userChannel.postMessage({
+      type: UserActions.LOGOUT_SUCCESS,
+      sender: tabId,
+    });
+
     cartStore.clearLocalCart();
   },
 
@@ -80,6 +125,12 @@ export const userStore = {
       store.dispatch({
         type: UserActions.CHECK_SUCCESS,
         payload: res,
+      });
+
+      userChannel.postMessage({
+        type: UserActions.CHECK_SUCCESS,
+        payload: res,
+        sender: tabId,
       });
     } catch (err) {
       console.error('Ошибка при проверке пользователя:', (err as Error).message);
@@ -100,6 +151,12 @@ export const userStore = {
         type: UserActions.UPDATE_USER_SUCCESS,
         payload: res,
       });
+
+      userChannel.postMessage({
+        type: UserActions.UPDATE_USER_SUCCESS,
+        payload: res,
+        sender: tabId,
+      });
     } catch (err) {
       console.error('Ошибка при обновлении пользователя:', (err as Error).message);
     }
@@ -112,6 +169,12 @@ export const userStore = {
     store.dispatch({
       type: UserActions.UPDATE_USER_SUCCESS,
       payload: res,
+    });
+
+    userChannel.postMessage({
+      type: UserActions.UPDATE_USER_SUCCESS,
+      payload: res,
+      sender: tabId,
     });
   },
 
@@ -134,6 +197,12 @@ export const userStore = {
       type: UserActions.SET_ADDRESS,
       payload: address,
     });
+
+    userChannel.postMessage({
+      type: UserActions.SET_ADDRESS,
+      sender: tabId,
+      payload: address,
+    });
   },
 
   /**
@@ -147,3 +216,4 @@ export const userStore = {
 };
 
 await userStore.checkUser();
+userStore.startSyncAcrossTabs();
