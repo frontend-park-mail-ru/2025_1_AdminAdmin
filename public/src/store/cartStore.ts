@@ -128,12 +128,6 @@ export const cartStore = {
 
     if (!cart || !Array.isArray(cart.products)) {
       this.clearLocalCart();
-
-      cartChannel.postMessage({
-        type: CartActions.CLEAR_CART,
-        sender: tabId,
-      });
-
       return;
     }
 
