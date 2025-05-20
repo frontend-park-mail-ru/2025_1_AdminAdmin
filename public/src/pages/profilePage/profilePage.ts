@@ -266,7 +266,10 @@ export default class ProfilePage {
               ...props,
               isHeaderAddress: false,
             },
-            () => this.refreshAddresses(),
+            () => {
+              this.refreshAddresses();
+              addressChannel.postMessage({ sender: tabId });
+            },
           );
           comp.render();
           this.previousAddressMap.set(props.id, comp);
