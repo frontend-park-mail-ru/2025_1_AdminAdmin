@@ -5,7 +5,6 @@ import { modalController } from '@modules/modalController';
 export class QRModal {
   private submitBtn: Button;
   private readonly qrSrc: string;
-  private readonly delaySeconds = 10;
 
   constructor(qrSrc: string) {
     this.qrSrc = qrSrc;
@@ -30,7 +29,7 @@ export class QRModal {
       id: 'qr_modal__submit',
       style: 'dark form__button',
       text: `Я сохранил QR код`,
-      onSubmit: async () => {
+      onSubmit: () => {
         modalController.closeModal();
       },
     });
