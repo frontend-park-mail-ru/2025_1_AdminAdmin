@@ -6,6 +6,7 @@ import { I_OrderResponse } from '@myTypes/orderTypes';
 export class ProfileTable {
   protected parent: HTMLElement;
   headers: string[];
+  ordersPerPage: number;
   orders: I_OrderResponse[];
   protected rowsList: ProfileTableRow[];
 
@@ -14,12 +15,13 @@ export class ProfileTable {
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться таблица
    * @param orders
    */
-  constructor(parent: HTMLElement, orders: I_OrderResponse[]) {
+  constructor(parent: HTMLElement, ordersPerPage: number, orders: I_OrderResponse[]) {
     if (!parent) {
       throw new Error('ProfileTable: no parent!');
     }
 
     this.parent = parent;
+    this.ordersPerPage = ordersPerPage;
     this.headers = ['Статус', 'Дата', 'Сумма', 'Ресторан'];
     this.orders = orders;
     this.rowsList = [];
@@ -55,6 +57,17 @@ export class ProfileTable {
       rowComponent.render();
       this.rowsList.push(rowComponent);
     });
+
+    if (window.innerWidth < 600) {
+      return;
+    }
+
+    const emptyRowCount = this.ordersPerPage - this.orders.length;
+    for (let i = 0; i < emptyRowCount; i++) {
+      const rowComponent = new ProfileTableRow(tbodyElement, { id: `empty-row-${i}` });
+      rowComponent.render();
+      this.rowsList.push(rowComponent);
+    }
   }
 
   /**

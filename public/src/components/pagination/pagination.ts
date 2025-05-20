@@ -40,8 +40,10 @@ export class Pagination {
 
   private renderNavigationButtons() {
     if (this.currentPage > 1) {
-      this.addButton('beg-button', '«', () => this.goTo(1));
-      this.addButton('prev-button', '< Назад', this.prev);
+      if (window.innerWidth > 700) {
+        this.addButton('beg-button', '«', () => this.goTo(1));
+        this.addButton('prev-button', '< Назад', this.prev);
+      }
 
       if (this.currentPage > 2) {
         this.addButton('first-button', '1', () => this.goTo(1));
@@ -85,7 +87,7 @@ export class Pagination {
       );
     }
 
-    if (this.currentPage < this.totalPages) {
+    if (this.currentPage < this.totalPages && window.innerWidth > 700) {
       this.addButton('next-button', 'Далее >', this.next);
       this.addButton('end-button', '»', () => this.goTo(this.totalPages));
     }

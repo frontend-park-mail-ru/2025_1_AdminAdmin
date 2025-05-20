@@ -18,7 +18,7 @@ export interface RestaurantProps {
 
 export class ProfileTableRow {
   protected parent: HTMLElement;
-  protected props: I_OrderResponse;
+  protected props: I_OrderResponse | { id: string };
   protected showOrderButton: Button;
 
   /**
@@ -26,7 +26,7 @@ export class ProfileTableRow {
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться строка таблицы
    * @param {TableRowProps} props - Словарь данных для определения свойств строки таблицы
    */
-  constructor(parent: HTMLElement, props: I_OrderResponse) {
+  constructor(parent: HTMLElement, props: I_OrderResponse | { id: string }) {
     if (!parent) {
       throw new Error('TableRow: no parent!');
     }
@@ -54,34 +54,40 @@ export class ProfileTableRow {
     if (!template) {
       throw new Error('ProfileTableRow: profile-table-row template not found');
     }
-    // Рендерим шаблончик с данными
-    this.props.created_at = formatDate(this.props.created_at);
 
-    let products_amount = 0;
+    if (`user` in this.props) {
+      // Рендерим шаблончик с данными
+      this.props.created_at = formatDate(this.props.created_at);
 
-    for (const product of this.props.order_products.products) products_amount += product.amount;
+      let products_amount = 0;
 
-    const status = statusMap[this.props.status].text;
-    const productWord = this.getProductWordForm(products_amount);
+      for (const product of this.props.order_products.products) products_amount += product.amount;
 
-    const html = template({
-      ...this.props,
-      products_amount,
-      productWord,
-      status,
-      completed: status === statusMap.delivered.text,
-    });
+      const status = statusMap[this.props.status].text;
+      const productWord = this.getProductWordForm(products_amount);
 
-    this.parent.insertAdjacentHTML('beforeend', html);
-    this.self.addEventListener('click', this.handleClick);
+      const html = template({
+        ...this.props,
+        products_amount,
+        productWord,
+        status,
+        completed: status === statusMap.delivered.text,
+      });
 
-    const buttonWrapper: HTMLDivElement = this.self.querySelector('.show-order-button-wrapper');
-    this.showOrderButton = new Button(buttonWrapper, {
-      id: 'show-order-button',
-      text: 'Посмотреть',
-    });
+      this.parent.insertAdjacentHTML('beforeend', html);
+      this.self.addEventListener('click', this.handleClick);
 
-    this.showOrderButton.render();
+      const buttonWrapper: HTMLDivElement = this.self.querySelector('.show-order-button-wrapper');
+      this.showOrderButton = new Button(buttonWrapper, {
+        id: 'show-order-button',
+        text: 'Посмотреть',
+      });
+
+      this.showOrderButton.render();
+    } else {
+      const html = template({ id: this.props.id, isEmpty: true });
+      this.parent.insertAdjacentHTML('beforeend', html);
+    }
   }
 
   getProductWordForm(count: number): string {
@@ -106,8 +112,8 @@ export class ProfileTableRow {
    */
   remove(): void {
     const element = this.self;
-    this.showOrderButton.remove();
-    element.removeEventListener('click', this.handleClick); // Удаляем обработчик
+    this.showOrderButton?.remove();
+    element.removeEventListener('click', this.handleClick);
     element.remove();
   }
 }
