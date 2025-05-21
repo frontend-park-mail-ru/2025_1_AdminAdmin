@@ -18,6 +18,9 @@ import { QRModal } from '@components/qrModal/qrModal';
 
 const ORDERS_PER_PAGE = 5;
 
+const addressChannel = new BroadcastChannel('cart_channel');
+const tabId = crypto.randomUUID();
+
 interface ProfilePageProps {
   data?: User;
   orders?: I_UserOrderResponse;
@@ -122,6 +125,7 @@ export default class ProfilePage {
 
     // Ренденрим блок изменения/удаления/добавления адресов
     await this.refreshAddresses();
+    this.startSyncAcrossTabs();
 
     const profileAddressBody: HTMLDivElement = this.self.querySelector('.profile-address__body');
     const addAddressButtonProps = {
@@ -137,6 +141,7 @@ export default class ProfilePage {
             await userStore.addAddress(newAddress);
             modalController.closeModal();
             await this.refreshAddresses();
+            addressChannel.postMessage({ sender: tabId });
           } catch (error) {
             toasts.error(error);
           }
@@ -177,6 +182,15 @@ export default class ProfilePage {
       this.hideProfileOrders();
     }
   }
+
+  startSyncAcrossTabs = () => {
+    addressChannel.onmessage = async (event) => {
+      const { sender } = event.data;
+
+      if (sender === tabId) return;
+      await this.refreshAddresses();
+    };
+  };
 
   handleOrdersPageChange = async (pageNumber: number) => {
     this.components.ordersTable.remove();
@@ -252,7 +266,10 @@ export default class ProfilePage {
               ...props,
               isHeaderAddress: false,
             },
-            () => this.refreshAddresses(),
+            () => {
+              this.refreshAddresses();
+              addressChannel.postMessage({ sender: tabId });
+            },
           );
           comp.render();
           this.previousAddressMap.set(props.id, comp);
