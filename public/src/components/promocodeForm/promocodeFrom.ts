@@ -6,9 +6,9 @@ import template from './promocodeForm.hbs';
 // Пропсы промокода (можно использовать и для карточки в профиле)
 export interface PromocodeProps {
   id: string; // Идентификатор промокода
-  promocodeText: string; // Текст промокода
-  discountSize: number; // Размер скидки
-  expiresAt?: string; // Время, когда истекает
+  promocode: string; // Текст промокода
+  discount: number; // Размер скидки
+  expires_at?: string; // Время, когда истекает
 }
 
 /** Класс формы промокода */
@@ -121,33 +121,33 @@ export class PromocodeForm {
     this.promocodeList = [
       {
         id: 'promocode-1',
-        promocodeText: 'promocode1',
-        discountSize: 1,
-        expiresAt: '31.12.25 23:59',
+        promocode: 'promocode1',
+        discount: 1,
+        expires_at: '31.12.25 23:59',
       },
       {
         id: 'promocode-2',
-        promocodeText: 'promocode2',
-        discountSize: 2,
-        expiresAt: '31.12.25 23:59',
+        promocode: 'promocode2',
+        discount: 2,
+        expires_at: '31.12.25 23:59',
       },
       {
         id: 'promocode-3',
-        promocodeText: 'promocode3',
-        discountSize: 3,
-        expiresAt: '31.12.25 23:59',
+        promocode: 'promocode3',
+        discount: 3,
+        expires_at: '31.12.25 23:59',
       },
       {
         id: 'promocode-4',
-        promocodeText: 'promocode4',
-        discountSize: 4,
-        expiresAt: '31.12.25 23:59',
+        promocode: 'promocode4',
+        discount: 4,
+        expires_at: '31.12.25 23:59',
       },
       {
         id: 'promocode-5',
-        promocodeText: 'promocode5',
-        discountSize: 5,
-        expiresAt: '31.12.25 23:59',
+        promocode: 'promocode5',
+        discount: 5,
+        expires_at: '31.12.25 23:59',
       },
     ]; // Пока моки
 
@@ -162,9 +162,7 @@ export class PromocodeForm {
     }
     // Промокод валиден — получаем его из списка
     const value = this.components.promocodeInput.value; // Значение в инпуте для промокода
-    const appliedPromocode = this.promocodeList.find(
-      (promocod) => promocod.promocodeText === value,
-    );
+    const appliedPromocode = this.promocodeList.find((promocod) => promocod.promocode === value);
 
     if (!appliedPromocode) {
       // Если промокод не найден, то выдаем ошибку на formInput
@@ -182,7 +180,7 @@ export class PromocodeForm {
    * Функция проверки промокода
    */
   validatePromocode(value: string): { result: boolean; message?: string } {
-    const promocode = this.promocodeList.some((promocode) => promocode.promocodeText === value);
+    const promocode = this.promocodeList.some((promocode) => promocode.promocode === value);
     if (!promocode) {
       // Если ввели неверный текст промокода
       return {

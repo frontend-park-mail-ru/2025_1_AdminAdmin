@@ -3,27 +3,14 @@ import { Button } from '../button/button';
 import copyImg from '@assets/copy.png';
 
 import template from './promocodeCard.hbs';
-
-/**
- * Пропсы для карточки промокода
- * @property {string}  id - идентификатор карточки промокода
- * @property {string}  promocodeText - текст промокода
- * @property {number}  discountSize - размер скидки в процентах (Пример: 1% -> 1)
- * @property {string}  expiresAt? - время когда истекает (справочная информация)
- */
-interface PromocodeCardProps {
-  id: string;
-  promocodeText: string;
-  discountSize: number;
-  expiresAt?: string;
-}
+import { I_Promocode } from '@myTypes/promocodeTypes';
 
 /**
  * Класс карточки промокода
  */
 export class PromocodeCard {
   private parent: HTMLElement;
-  private props: PromocodeCardProps;
+  private readonly props: I_Promocode;
   private components: {
     copyButton: Button;
   };
@@ -34,20 +21,15 @@ export class PromocodeCard {
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться карточка
    * @param {PromocodeCardProps} props - Словарь данных для определения свойств карточки
    */
-  constructor(parent: HTMLElement, props: PromocodeCardProps) {
+  constructor(parent: HTMLElement, props: I_Promocode) {
     if (!parent) {
       throw new Error('PromocodeCard: no parent!');
     }
     this.parent = parent;
-    if (props.discountSize <= 0) {
+    if (props.discount <= 0) {
       throw new Error('PromocodeCard: discount size must be > 0!');
     }
-    this.props = {
-      id: props.id,
-      promocodeText: props.promocodeText,
-      discountSize: props.discountSize,
-      expiresAt: props.expiresAt ?? '',
-    };
+    this.props = props;
     this.components = {
       copyButton: undefined,
     };
@@ -88,7 +70,7 @@ export class PromocodeCard {
       id: `${this.props.id}__copy-button`,
       iconSrc: copyImg,
       iconAlt: 'Скопировать',
-      onSubmit: () => this.copyPromocodeText(),
+      onSubmit: () => this.copypromocode(),
     });
     this.components.copyButton.render();
   }
@@ -96,14 +78,14 @@ export class PromocodeCard {
   /**
    * Копироует промокод в буфер обмена и выводит консоль лог об успешности компирования
    */
-  private copyPromocodeText(): void {
+  private copypromocode(): void {
     navigator.clipboard
-      .writeText(this.props.promocodeText)
+      .writeText(this.props.promocode)
       .then(() => {
-        //console.log(`Промокод ${this.props.promocodeText} успешно скопирован`);
+        //console.log(`Промокод ${this.props.promocode} успешно скопирован`);
       })
       .catch((error) => {
-        console.error(`Не удалось скопировать промокод ${this.props.promocodeText}:`, error);
+        console.error(`Не удалось скопировать промокод ${this.props.promocode}:`, error);
       });
   }
 

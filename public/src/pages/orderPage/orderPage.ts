@@ -369,6 +369,12 @@ export default class OrderPage {
     clearCart.style.display = 'none';
     this.submitButton.hide();
 
+    const recommendedProductsContainer: HTMLDivElement = this.parent.querySelector(
+      '.order-page__recommended_products',
+    );
+    recommendedProductsContainer.style.display = 'none';
+
+    this.recommendedProductsCarousel.remove();
     this.createYouMoneyForm(newOrder);
     this.stepProgressBar.next();
   }

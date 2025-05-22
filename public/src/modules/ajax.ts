@@ -10,6 +10,7 @@ import { I_Cart } from '@myTypes/cartTypes';
 import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
 import { CreateOrderPayload, I_OrderResponse, I_UserOrderResponse } from '@myTypes/orderTypes';
 import { capitalizeError, getRequestOptions, parseResponseBody } from '@modules/fetchUtils';
+import { I_Promocode } from '@myTypes/promocodeTypes';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -598,8 +599,54 @@ class RecommendationRequests {
   };
 }
 
+class PromocodeRequests {
+  private baseUrl = '/promocodes';
+
+  /**
+   * Получает список промокодов.
+   * @param count - Кол-во записей
+   * @param offset - Смещение
+   * @returns {Promise<I_Promocode[]>}
+   */
+  GetPromocodes = async (count = 10, offset = 0): Promise<I_Promocode[]> => {
+    const query = `?count=${count}&offset=${offset}`;
+    const { status, body } = await baseRequest<I_Promocode[] | ErrorResponse>(
+      methods.GET,
+      this.baseUrl + query,
+    );
+
+    if (status === 200) {
+      return body as I_Promocode[];
+    }
+
+    throw new Error(
+      capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось получить промокоды',
+    );
+  };
+
+  /**
+   * Проверяет промокод и возвращает скидку.
+   * @param promocode - Строка промокода
+   * @returns {Promise<number>} - скидка от 0 до 1
+   */
+  CheckPromocode = async (promocode: string): Promise<number> => {
+    const { status, body } = await baseRequest<{ discount: number } | ErrorResponse>(
+      methods.POST,
+      this.baseUrl + '/check',
+      { promocode },
+    );
+
+    if (status === 200 && 'discount' in body) {
+      return body.discount;
+    }
+
+    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Промокод недействителен');
+  };
+}
+
 export const AppRestaurantRequests = new RestaurantsRequests();
 export const AppUserRequests = new UserRequests();
 export const AppCartRequests = new CartRequests();
 export const AppOrderRequests = new OrderRequests();
 export const AppRecommendationRequests = new RecommendationRequests();
+export const AppPromocodeRequests = new PromocodeRequests();

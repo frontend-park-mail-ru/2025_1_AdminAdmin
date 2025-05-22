@@ -6,7 +6,7 @@ import template from './profilePage.hbs';
 import { User } from '@myTypes/userTypes';
 import { userStore } from '@store/userStore';
 import UnifiedForm from '@components/unifiedForm/unifiedForm';
-import { AppOrderRequests, AppUserRequests } from '@modules/ajax';
+import { AppOrderRequests, AppPromocodeRequests, AppUserRequests } from '@modules/ajax';
 import { toasts } from '@modules/toasts';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
@@ -44,7 +44,7 @@ export default class ProfilePage {
   private readonly avatarChangeHandler: (event: Event) => void; // Функция при изменении файла аватарки
   private unsubscribeFromUserStore: (() => void) | null = null;
   private previousAddressMap = new Map<string, Address>();
-  private previousPromocodeCardMap = new Map<string, PromocodeCard>(); // Словарь вида: id - карточка
+  private promocodeCards: PromocodeCard[] = [];
 
   // Поля необязательные чтобы можно было создать пустой объект
 
@@ -162,7 +162,7 @@ export default class ProfilePage {
     avatarInputElement.addEventListener('change', this.avatarChangeHandler);
 
     // Рендерим блок промокодов
-    await this.refreshPromocodes();
+    await this.renderPromocodes();
 
     // Рендерим таблицу заказов
     try {
@@ -310,63 +310,28 @@ export default class ProfilePage {
     }
   }
 
-  private async refreshPromocodes() {
+  private async renderPromocodes() {
+    const promocodesElement: HTMLDivElement = this.parent.querySelector('.profile-promocodes');
+    const promocodesBodyElement: HTMLDivElement = this.parent.querySelector(
+      '.profile-promocodes__body',
+    );
+
     try {
-      //const promocodes = await AppUserRequests.GetPromocodes();
-      const promocodesProps = [
-        {
-          id: 'promocode-1',
-          promocodeText: 'promocode1',
-          discountSize: 1,
-          expiresAt: '31.12.25 23:59',
-        },
-        {
-          id: 'promocode-2',
-          promocodeText: 'promocode2',
-          discountSize: 2,
-          expiresAt: '31.12.25 23:59',
-        },
-        {
-          id: 'promocode-3',
-          promocodeText: 'promocode3',
-          discountSize: 3,
-          expiresAt: '31.12.25 23:59',
-        },
-        {
-          id: 'promocode-4',
-          promocodeText: 'promocode4',
-          discountSize: 4,
-          expiresAt: '31.12.25 23:59',
-        },
-        {
-          id: 'promocode-5',
-          promocodeText: 'promocode5',
-          discountSize: 5,
-          expiresAt: '31.12.25 23:59',
-        },
-      ]; // Пока моки
-      const promocodesBodyElement = this.self.querySelector(
-        '.profile-promocodes__body',
-      ) as HTMLElement;
-      // Удаляем карточки промокодов которые уже неактивны
-      const currentPromocodeIds = new Set(promocodesProps.map((props) => props.id));
-      for (const [id, promocodeCardComponent] of this.previousPromocodeCardMap.entries()) {
-        if (!currentPromocodeIds.has(id)) {
-          // Если id промокода нет в обновленном списке, то удаляем
-          this.previousPromocodeCardMap.delete(id);
-          promocodeCardComponent.remove();
-        }
+      const promocodes = await AppPromocodeRequests.GetPromocodes();
+
+      if (!Array.isArray(promocodes) || promocodes.length === 0) {
+        promocodesElement.style.display = 'none';
+        return;
       }
       // Идем по пропсам и добавляем новые карточки
-      promocodesProps.forEach((props) => {
-        if (!this.previousAddressMap.has(props.id)) {
-          // Если новая карточка
-          const promocodeCardComponent = new PromocodeCard(promocodesBodyElement, props);
-          promocodeCardComponent.render();
-          this.previousPromocodeCardMap.set(props.id, promocodeCardComponent);
-        }
+      promocodes.forEach((promocode) => {
+        // Если новая карточка
+        const promocodeCardComponent = new PromocodeCard(promocodesBodyElement, promocode);
+        promocodeCardComponent.render();
+        this.promocodeCards.push(promocodeCardComponent);
       });
     } catch (error) {
+      promocodesElement.style.display = 'none';
       toasts.error(error.message);
     }
   }
@@ -386,10 +351,12 @@ export default class ProfilePage {
       address.remove();
     }
     this.previousAddressMap.clear();
-    for (const promocodeCardComponent of this.previousPromocodeCardMap.values()) {
-      promocodeCardComponent.remove();
-    }
-    this.previousPromocodeCardMap.clear();
+
+    this.promocodeCards.forEach((card) => {
+      card.remove();
+    });
+
+    this.promocodeCards = [];
     this.components.ordersTable?.remove();
     this.components.pagination?.remove();
     const element = this.self;
