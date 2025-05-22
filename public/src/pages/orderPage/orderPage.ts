@@ -17,6 +17,7 @@ import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
 import { formatDate } from '@modules/utils';
 import { ProductsCarousel } from '@components/productsCarousel/productsCarousel';
 //import { PromocodeProps } from '@//components/promocodeForm/promocodeFrom';
+import { Checkbox } from '@components/checkbox/checkbox';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -24,10 +25,10 @@ export default class OrderPage {
   private inputs: Record<string, FormInput> = {};
   private cartCards = new Map<string, CartCard>();
   private submitButton: Button;
+  private checkbox: Checkbox;
   private unsubscribeFromStore: (() => void) | null = null;
   private youMoneyForm: YouMoneyForm = null;
   private isRemoved = false;
-  private isChecked = false;
   private stepProgressBar: StepProgressBar = null;
   private recommendedProductsCarousel: ProductsCarousel;
 
@@ -184,7 +185,7 @@ export default class OrderPage {
         orderId: undefined,
         status: 'creation',
         totalPrice: cartStore.getState().total_sum,
-        leave_at_door: undefined,
+        leave_at_door: false,
         restaurantName: cartStore.getState().restaurant_name,
         address: userStore.getActiveAddress(),
         products: cartStore.getState().products,
@@ -196,7 +197,6 @@ export default class OrderPage {
       orderId: data.orderId,
       orderDate: formatDate(data?.created_at),
       totalPrice: data.totalPrice,
-      leave_at_door: data.leave_at_door,
       restaurantName: data.restaurantName,
       address: data.address,
     };
@@ -214,7 +214,18 @@ export default class OrderPage {
 
     this.createProductCards(data.products, Boolean(data.order));
 
+    const deliveryContainer: HTMLDivElement = this.parent.querySelector('.order-page__delivery');
+    this.checkbox = new Checkbox(deliveryContainer, {
+      id: 'orderPageCheckbox',
+      label: 'Оставить у двери',
+      checked: data.leave_at_door,
+    });
+
+    this.checkbox.render();
+
     if (data.status !== 'creation') {
+      this.checkbox.disable();
+
       if (data.status === 'new') {
         this.createYouMoneyForm(data.order);
       }
@@ -226,16 +237,7 @@ export default class OrderPage {
     bin?.addEventListener('click', this.handleClear);
     this.renderSubmitButton();
     this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
-
-    const checkboxContainer = this.parent.querySelector('#orderPageCheckbox');
-    checkboxContainer.addEventListener('click', this.handleCheckBoxClick);
   }
-
-  private handleCheckBoxClick = (event: Event): void => {
-    this.isChecked = !this.isChecked;
-    const checkbox = event.target as HTMLInputElement;
-    checkbox.checked = this.isChecked;
-  };
 
   private async createRecommendedProducts(): Promise<void> {
     const recommendedProductsWrapper: HTMLDivElement = this.parent.querySelector(
@@ -326,7 +328,7 @@ export default class OrderPage {
       entrance: formValues.entrance,
       floor: formValues.floor,
       courier_comment: formValues.courier_comment,
-      leave_at_door: this.isChecked,
+      leave_at_door: this.checkbox.isChecked,
       final_price,
     };
 
@@ -346,6 +348,8 @@ export default class OrderPage {
 
     pageHeader.textContent = `Заказ ${newOrder.id.slice(-4)} от ${formatDate(newOrder.created_at)}`;
     pageHeader.classList.add('formed');
+
+    this.checkbox.disable();
 
     for (const input of Object.values(this.inputs)) {
       input.disable();
@@ -455,9 +459,6 @@ export default class OrderPage {
 
     this.stepProgressBar?.remove();
 
-    const checkboxContainer = this.parent.querySelector('#orderPageCheckbox');
-    checkboxContainer.removeEventListener('click', this.handleCheckBoxClick);
-
     this.recommendedProductsCarousel?.remove();
 
     if (this.submitButton) {
@@ -468,6 +469,8 @@ export default class OrderPage {
       cartStore.clearLocalCart();
       this.youMoneyForm.remove();
     }
+
+    this.checkbox?.remove();
 
     Object.values(this.inputs).forEach((input) => input.remove());
     this.inputs = {};

@@ -16,7 +16,7 @@ export default {
       maxLength: 20,
       movePlaceholderOnInput: true,
       validator: ValidateFlat,
-      noErrorInHeader: true,
+      hideErrors: true,
     },
     intercom: {
       id: 'form__line__door_phone__input',
@@ -26,7 +26,7 @@ export default {
       maxLength: 20,
       movePlaceholderOnInput: true,
       validator: ValidateDoorPhone,
-      noErrorInHeader: true,
+      hideErrors: true,
     },
     entrance: {
       id: 'form__line__porch__input',
@@ -36,7 +36,7 @@ export default {
       maxLength: 20,
       movePlaceholderOnInput: true,
       validator: ValidatePorch,
-      noErrorInHeader: true,
+      hideErrors: true,
     },
     floor: {
       id: 'form__line__floor__input',
@@ -47,7 +47,7 @@ export default {
       max: 100,
       movePlaceholderOnInput: true,
       validator: ValidateFloor,
-      noErrorInHeader: true,
+      hideErrors: true,
     },
   },
   courier_comment: {
@@ -56,5 +56,7 @@ export default {
     required: false,
     type: 'text',
     validator: ValidateCourierComment,
+    maxLength: 300,
+    hideErrors: true,
   },
 };

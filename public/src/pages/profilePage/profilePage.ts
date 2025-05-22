@@ -6,63 +6,21 @@ import template from './profilePage.hbs';
 import { User } from '@myTypes/userTypes';
 import { userStore } from '@store/userStore';
 import UnifiedForm from '@components/unifiedForm/unifiedForm';
-import { AppUserRequests } from '@modules/ajax';
+import { AppOrderRequests, AppUserRequests } from '@modules/ajax';
 import { toasts } from '@modules/toasts';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
-import { I_OrderResponse, I_UserOrderResponse } from '@myTypes/orderTypes';
+import { I_UserOrderResponse } from '@myTypes/orderTypes';
 import { router } from '@modules/routing';
 import { Pagination } from '@components/pagination/pagination';
-import { CartProduct, I_Cart } from '@myTypes/cartTypes';
 import { PromocodeCard } from '@//components/promocodeCard/promocodeCard';
+import { Checkbox } from '@components/checkbox/checkbox';
+import { QRModal } from '@components/qrModal/qrModal';
 
-const ORDERS_PER_PAGE = 10;
+const ORDERS_PER_PAGE = 5;
 
-const generateMockOrder = (index: number): I_OrderResponse => {
-  const orderNumber = index + 1; // Чтобы начинать с 1
-
-  const product: CartProduct = {
-    id: `product-${orderNumber}`,
-    name: `Товар ${orderNumber}`,
-    price: 100 + (orderNumber % 5) * 20,
-    weight: 200,
-    image_url: '',
-    amount: 1 + (orderNumber % 3),
-  };
-
-  const cart: I_Cart = {
-    restaurant_id: `rest-${orderNumber % 5}`,
-    restaurant_name: `Ресторан ${orderNumber}`,
-    products: [product],
-    total_sum: product.price * product.amount,
-  };
-
-  return {
-    id: `order-${orderNumber}`,
-    user: 'mock-user-id',
-    status: 'new',
-    address: `Улица ${orderNumber}, дом ${orderNumber % 50}`,
-    apartment_or_office: `${orderNumber % 100}`,
-    intercom: '1234',
-    entrance: '1',
-    floor: `${1 + (orderNumber % 10)}`,
-    courier_comment: 'Позвонить заранее',
-    leave_at_door: orderNumber % 2 === 0,
-    created_at: new Date(Date.now() - orderNumber * 86400000).toISOString(),
-    final_price: cart.total_sum,
-    order_products: cart,
-  };
-};
-
-const allOrders: I_OrderResponse[] = Array.from({ length: 105 }, (_, i) => generateMockOrder(i));
-
-export const mockGetUserOrders = async (count = 15, offset = 0): Promise<I_UserOrderResponse> => {
-  const sliced = allOrders.slice(offset, offset + count);
-  return Promise.resolve({
-    orders: sliced,
-    total: allOrders.length,
-  });
-};
+const addressChannel = new BroadcastChannel('cart_channel');
+const tabId = crypto.randomUUID();
 
 interface ProfilePageProps {
   data?: User;
@@ -81,6 +39,7 @@ export default class ProfilePage {
     addAddressButton?: Button;
     ordersTable?: ProfileTable;
     pagination?: Pagination;
+    twoFactorCheckbox: Checkbox;
   };
   private readonly avatarChangeHandler: (event: Event) => void; // Функция при изменении файла аватарки
   private unsubscribeFromUserStore: (() => void) | null = null;
@@ -108,6 +67,7 @@ export default class ProfilePage {
       profileForm: undefined,
       addAddressButton: undefined,
       ordersTable: undefined,
+      twoFactorCheckbox: undefined,
     };
     this.unsubscribeFromUserStore = userStore.subscribe(() => this.updateState());
     this.avatarChangeHandler = this.handleAvatarChange.bind(this);
@@ -157,8 +117,17 @@ export default class ProfilePage {
     profileFormComponent.render();
     this.components.profileForm = profileFormComponent;
 
+    const checkboxWrapper: HTMLDivElement = this.parent.querySelector('.profile-data__checkbox');
+    this.components.twoFactorCheckbox = new Checkbox(checkboxWrapper, {
+      id: 'profile-data__twoFactorCheckbox',
+      label: 'Двухфакторная аутентификация',
+      onClick: this.handleTwoFactorUpdate,
+    });
+    this.components.twoFactorCheckbox.render();
+
     // Ренденрим блок изменения/удаления/добавления адресов
     await this.refreshAddresses();
+    this.startSyncAcrossTabs();
 
     const profileAddressBody: HTMLDivElement = this.self.querySelector('.profile-address__body');
     const addAddressButtonProps = {
@@ -174,6 +143,7 @@ export default class ProfilePage {
             await userStore.addAddress(newAddress);
             modalController.closeModal();
             await this.refreshAddresses();
+            addressChannel.postMessage({ sender: tabId });
           } catch (error) {
             toasts.error(error);
           }
@@ -202,22 +172,31 @@ export default class ProfilePage {
         this.hideProfileOrders();
         return;
       }
+
+      if (this.props.orders.total > ORDERS_PER_PAGE) {
+        const profileOrderWrapper: HTMLDivElement = this.parent.querySelector('.profile-orders');
+        this.components.pagination = new Pagination(
+          profileOrderWrapper,
+          Math.ceil(this.props.orders.total / ORDERS_PER_PAGE),
+          this.handleOrdersPageChange,
+        );
+
+        this.components.pagination.render();
+      }
     } catch (error) {
       console.error(error);
       this.hideProfileOrders();
     }
-
-    if (this.props.orders.total > ORDERS_PER_PAGE) {
-      const profileOrderWrapper: HTMLDivElement = this.parent.querySelector('.profile-orders');
-      this.components.pagination = new Pagination(
-        profileOrderWrapper,
-        Math.ceil(this.props.orders.total / ORDERS_PER_PAGE),
-        this.handleOrdersPageChange,
-      );
-
-      this.components.pagination.render();
-    }
   }
+
+  startSyncAcrossTabs = () => {
+    addressChannel.onmessage = async (event) => {
+      const { sender } = event.data;
+
+      if (sender === tabId) return;
+      await this.refreshAddresses();
+    };
+  };
 
   handleOrdersPageChange = async (pageNumber: number) => {
     this.components.ordersTable.remove();
@@ -225,13 +204,17 @@ export default class ProfilePage {
   };
 
   createProfileTable = async (offset: number) => {
-    this.props.orders = await mockGetUserOrders(ORDERS_PER_PAGE, offset);
+    this.props.orders = await AppOrderRequests.getUserOrders(ORDERS_PER_PAGE, offset);
     // Рендерим блок таблицы заказов
     const profileTableWrapper = this.self.querySelector(
       '.profile-orders__table__wrapper',
     ) as HTMLElement;
 
-    this.components.ordersTable = new ProfileTable(profileTableWrapper, this.props.orders.orders);
+    this.components.ordersTable = new ProfileTable(
+      profileTableWrapper,
+      ORDERS_PER_PAGE,
+      this.props.orders.orders,
+    );
     this.components.ordersTable.render();
   };
 
@@ -249,6 +232,14 @@ export default class ProfilePage {
       avatarImageElement.src = `https://doordashers.ru/images_user/${this.props.data.path}`;
     }
   }
+
+  private handleTwoFactorUpdate = () => {
+    if (this.components.twoFactorCheckbox.isChecked) return;
+    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=test123&format=svg';
+
+    const qrModal = new QRModal(qrUrl);
+    modalController.openModal(qrModal);
+  };
 
   private async refreshAddresses() {
     const wrapper: HTMLElement = this.self.querySelector('.profile-address__addresses__wrapper');
@@ -281,7 +272,10 @@ export default class ProfilePage {
               ...props,
               isHeaderAddress: false,
             },
-            () => this.refreshAddresses(),
+            () => {
+              this.refreshAddresses();
+              addressChannel.postMessage({ sender: tabId });
+            },
           );
           comp.render();
           this.previousAddressMap.set(props.id, comp);

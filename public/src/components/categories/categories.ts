@@ -135,17 +135,32 @@ export class Categories {
 
   private updateActiveCategory(newCategoryId: number): void {
     const prevButton = this.categoryElements[this.activeCategoryId]?.button;
-    const newButton = this.categoryElements[newCategoryId]?.button;
 
     if (prevButton) prevButton.self.classList.remove('button_active');
-    if (newButton) {
-      newButton.self.classList.add('button_active');
-    }
+    this.activateButton(newCategoryId);
 
     this.activeCategoryId = newCategoryId;
 
     const currentUrl = window.location.href.split('#')[0];
     history.replaceState(null, '', `${currentUrl}#category-${newCategoryId}`);
+  }
+
+  private activateButton(id: number): void {
+    const newButton = this.categoryElements[id]?.button;
+    if (newButton) {
+      newButton.self.classList.add('button_active');
+
+      const container = newButton.self.parentElement;
+      if (container) {
+        const offset =
+          newButton.self.offsetLeft - container.clientWidth / 2 + newButton.self.offsetWidth / 2;
+
+        container.scrollTo({
+          left: offset,
+          behavior: 'smooth',
+        });
+      }
+    }
   }
 
   /**

@@ -45,7 +45,7 @@ export const ValidatePassword = (value: string): ValidationResultType => {
   }
 
   if (!hasSpecialChar) {
-    return ValidationResult(false, 'Пароль должен содержать хотя бы один специальный символ');
+    return ValidationResult(false, 'Пароль должен содержать хотя бы один спец символ (!@#$&*)');
   }
 
   return ValidationResult(true);

@@ -3,8 +3,10 @@ tr {
     cursor: pointer;
     box-sizing: border-box;
     overflow: hidden;
+    height: 80px;
 
     @media (max-width: 600px) {
+        height: 200px;
         border-radius: 20px;
         padding: 20px;
         gap: 10px;
@@ -19,6 +21,15 @@ tr {
 
     &.completed {
         color: var(--dark-gray);
+    }
+
+    &.empty {
+        border: none;
+        cursor: auto;
+
+        &:hover {
+            background-color: var(--white);
+        }
     }
 
     &:hover {

@@ -14,22 +14,20 @@
   }
 
 
-  &__input:not([type="radio"]) {
+  input {
     width: 40%;
     height: 100%;
     border-radius: 0;
     text-align: center;
     border: none;
     padding: 0;
-
-    &::-webkit-outer-spin-button,
-    &::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
+    background-color: var(--light-grey);
+    transition: background-color 0.3s ease;
 
     &:focus {
+      outline: none;
       border: none;
+      background-color: var(--white);
     }
 
     -moz-appearance: textfield;

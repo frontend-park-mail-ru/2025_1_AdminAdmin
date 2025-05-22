@@ -1,18 +1,20 @@
-<tr id="{{id}}" {{#if completed}}class="completed"{{/if}}>
-    <td data-label="Статус">
-        {{status}}
-    </td>
-    <td data-label="Дата">
-        {{created_at}}
-    </td>
-    <td data-label="Сумма">
-        <span>{{final_price}} ₽</span>
-        <span>{{products_amount}} {{productWord}}</span>
-    </td>
-    <td data-label="Ресторан">
-        <!--<img src="/src/assets/default_restaurant.jpg" alt="restaurant_image"/>-->
-        <span>{{order_products.restaurant_name}}</span>
-    </td>
-    <td class="show-order-button-wrapper">
-    </td>
+<tr id="{{id}}" {{#if isEmpty}}class="empty" {{/if}} {{#if completed}}class="completed"{{/if}}>
+    {{#unless isEmpty}}
+        <td data-label="Статус">
+            {{status}}
+        </td>
+        <td data-label="Дата">
+            {{created_at}}
+        </td>
+        <td data-label="Сумма">
+            <span>{{final_price}} ₽</span>
+            <span>{{products_amount}} {{productWord}}</span>
+        </td>
+        <td data-label="Ресторан">
+            <!--<img src="/src/assets/default_restaurant.jpg" alt="restaurant_image"/>-->
+            <span>{{order_products.restaurant_name}}</span>
+        </td>
+        <td class="show-order-button-wrapper">
+        </td>
+    {{/unless}}
 </tr>
