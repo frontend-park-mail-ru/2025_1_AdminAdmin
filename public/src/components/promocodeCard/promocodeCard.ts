@@ -64,7 +64,7 @@ export class PromocodeCard {
     const html = template({
       ...this.props,
       expires_at: formatDate(this.props.expires_at),
-      discount: this.props.discount * 10,
+      discount: this.props.discount * 100,
     });
     this.parent.insertAdjacentHTML('beforeend', html);
 
