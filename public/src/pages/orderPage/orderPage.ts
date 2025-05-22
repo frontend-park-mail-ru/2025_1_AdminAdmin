@@ -14,7 +14,7 @@ import { modalController } from '@modules/modalController';
 import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
 import { router } from '@modules/routing';
 import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
-import { formatDate } from '@modules/utils';
+import { formatDate, formatNumber } from '@modules/utils';
 import { ProductsCarousel } from '@components/productsCarousel/productsCarousel';
 //import { PromocodeProps } from '@//components/promocodeForm/promocodeFrom';
 import { Checkbox } from '@components/checkbox/checkbox';
@@ -162,12 +162,11 @@ export default class OrderPage {
         const difference = newTotal - oldTotal;
         const discountInPercent = discount * 100;
 
-        discountBlock.innerText = `${difference} ₽ (${discountInPercent} %)`;
-
-        oldTotalBlock.innerText = `${oldTotal} ₽`;
-
         const cartTotal: HTMLDivElement = this.parent.querySelector('.cart__total');
-        cartTotal.textContent = newTotal.toLocaleString('ru-RU');
+
+        discountBlock.innerText = `${formatNumber(difference)} ₽ (${formatNumber(discountInPercent)}%)`;
+        oldTotalBlock.innerText = `${formatNumber(oldTotal)} ₽`;
+        cartTotal.textContent = formatNumber(newTotal).replace('.', ',');
 
         this.discountedPrice = newTotal;
       },
