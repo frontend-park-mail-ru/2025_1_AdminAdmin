@@ -1,22 +1,28 @@
 .promocode-form {
     &__link {
-        height: 32px;
         width: 100%;
-        text-align: center;
-        font-size: 16px;
+        padding: 10px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 40px;
+
+        img {
+            height: 27px;
+            object-fit: cover;
+            display: block;
+        }
 
         &.hide {
             display: none;
         }
-    }
 
-    &__body {
-        width: 100%;
-        align-items: end;
-        // Прибиваем к нижнему краю чтобы кнопка и форма ввода находились на одном уровне
+        &:hover {
+            color: var(--dark-gray);
 
-        &.hide {
-            display: none;
+            img {
+                opacity: 0.7;
+            }
         }
     }
 }

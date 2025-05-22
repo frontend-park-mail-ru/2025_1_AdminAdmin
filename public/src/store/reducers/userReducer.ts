@@ -1,9 +1,10 @@
-import { getActiveAddressFromLocalStorage } from '@modules/localStorage';
 import { User } from '@myTypes/userTypes';
+import { getActiveFromLocalStorage } from '@modules/localStorage';
 
 export interface UserState extends User {
   isAuth: boolean;
   activeAddress: string;
+  activePromoCode: string;
 }
 
 interface Action {
@@ -20,7 +21,8 @@ const initialUserState: UserState = {
   path: '',
   description: '',
   isAuth: false,
-  activeAddress: getActiveAddressFromLocalStorage(),
+  activeAddress: getActiveFromLocalStorage('Address'),
+  activePromoCode: getActiveFromLocalStorage('Promocode'),
 };
 
 export const userReducer = (state = initialUserState, action: Action): UserState => {
@@ -46,6 +48,12 @@ export const userReducer = (state = initialUserState, action: Action): UserState
         activeAddress: action.payload,
       };
 
+    case UserActions.SET_PROMOCODE:
+      return {
+        ...state,
+        activePromoCode: action.payload,
+      };
+
     case UserActions.UPDATE_USER_SUCCESS:
       return {
         ...state,
@@ -64,5 +72,6 @@ export const UserActions = {
   CHECK_SUCCESS: 'CHECK_SUCCESS',
   ADD_ADDRESS_SUCCESS: 'ADD_ADDRESS_SUCCESS',
   SET_ADDRESS: 'SET_ADDRESS',
+  SET_PROMOCODE: 'SET_PROMOCODE',
   UPDATE_USER_SUCCESS: 'UPDATE_USER_SUCCESS',
 };

@@ -78,11 +78,25 @@
     top: 50%;
     transform: translateY(-50%);
     width: 20px;
-    display: none;
+    display: block;
 
     img {
       max-width: 100%;
       height: auto;
+    }
+  }
+
+  &__clear_icon {
+    cursor: pointer;
+    position: absolute;
+    height: 15px;
+    right: 15px;
+    display: none;
+    object-fit: cover;
+
+
+    &:hover {
+      opacity: 0.6;
     }
   }
 

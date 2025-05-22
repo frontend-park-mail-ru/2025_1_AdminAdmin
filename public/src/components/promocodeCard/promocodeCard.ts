@@ -4,6 +4,8 @@ import copyImg from '@assets/copy.png';
 
 import template from './promocodeCard.hbs';
 import { I_Promocode } from '@myTypes/promocodeTypes';
+import { formatDate } from '@modules/utils';
+import { toasts } from '@modules/toasts';
 
 /**
  * Класс карточки промокода
@@ -59,7 +61,11 @@ export class PromocodeCard {
     }
 
     // Рендерим шаблончик с данными
-    const html = template(this.props);
+    const html = template({
+      ...this.props,
+      expires_at: formatDate(this.props.expires_at),
+      discount: this.props.discount * 10,
+    });
     this.parent.insertAdjacentHTML('beforeend', html);
 
     // Добавляем кнопку копирования
@@ -82,10 +88,10 @@ export class PromocodeCard {
     navigator.clipboard
       .writeText(this.props.promocode)
       .then(() => {
-        //console.log(`Промокод ${this.props.promocode} успешно скопирован`);
+        toasts.success(`Промокод ${this.props.promocode} успешно скопирован`);
       })
       .catch((error) => {
-        console.error(`Не удалось скопировать промокод ${this.props.promocode}:`, error);
+        toasts.error(`Не удалось скопировать промокод ${this.props.promocode}: ${error}`);
       });
   }
 

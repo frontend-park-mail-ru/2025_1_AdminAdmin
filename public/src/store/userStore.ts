@@ -1,6 +1,6 @@
 import { store } from './store';
 import { AppUserRequests } from '@modules/ajax';
-import { saveActiveAddressToLocalStorage } from '@modules/localStorage';
+import { saveActiveToLocalStorage } from '@modules/localStorage';
 import { LoginPayload, RegisterPayload, UpdateUserPayload } from '@myTypes/userTypes';
 import { cartStore } from '@store/cartStore';
 import { UserActions, UserState } from '@store/reducers/userReducer';
@@ -48,6 +48,10 @@ export const userStore = {
    */
   getActiveAddress(): string {
     return this.getState().activeAddress;
+  },
+
+  getActivePromocode(): string {
+    return this.getState().activePromoCode;
   },
 
   /**
@@ -192,7 +196,7 @@ export const userStore = {
    */
 
   setAddress(address: string): void {
-    saveActiveAddressToLocalStorage(address);
+    saveActiveToLocalStorage(address, 'Address');
     store.dispatch({
       type: UserActions.SET_ADDRESS,
       payload: address,
@@ -205,6 +209,19 @@ export const userStore = {
     });
   },
 
+  setPromocode(promocode: string): void {
+    saveActiveToLocalStorage(promocode, 'Promocode');
+    store.dispatch({
+      type: UserActions.SET_PROMOCODE,
+      payload: promocode,
+    });
+
+    userChannel.postMessage({
+      type: UserActions.SET_PROMOCODE,
+      sender: tabId,
+      payload: promocode,
+    });
+  },
   /**
    * Подписывает listener на изменение состояния пользователя.
    * @param {Function} listener - функция, которая будет вызвана при изменении состояния

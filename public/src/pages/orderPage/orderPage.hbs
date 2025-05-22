@@ -35,13 +35,27 @@
         {{/unless}}
     </div>
     <div class="order-page__summary">
-        <h1>Итого</h1>
         <h3>{{restaurantName}}</h3>
         <hr>
         <h3>Что в цене</h3>
+        <div class="order-page__summary__additional_content">
+            <div class="order-page__summary__content">
+                <span>Товары в заказе</span>
+                <span class="order-page__summary__price">
+                </span>
+            </div>
+
+            <div class="order-page__summary__content" >
+                <span>Скидка</span>
+                <span class="order-page__summary__discount">
+                </span>
+            </div>
+
+            <hr>
+        </div>
         <div class="order-page__summary__content">
-            <span>Товары в заказе</span>
-            <div class="order-page__summary__price">
+            <span>Итого</span>
+            <div class="order-page__summary__total">
                 <span class="cart__total">{{totalPrice}}</span>
                 <span>₽</span>
             </div>
