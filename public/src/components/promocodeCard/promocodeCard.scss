@@ -1,0 +1,110 @@
+.promocode-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    /* левая область + кнопка справа */
+    grid-template-areas:
+        "text button"
+        "discount button"
+        "expires expires";
+    gap: 5px 10px;
+    padding: 10px;
+    align-items: center;
+    justify-content: start;
+    background-color: var(--light-grey);
+    border-radius: var(--border-radius);
+    position: relative;
+
+    @media (max-width: 800px) {
+        // С grid не получается, контейнер кнопки остается справа и не растягивается на всю карточку
+        // Поменяю отображение на flex
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    span {
+        text-align: left;
+        width: 100%;
+    }
+
+    &__promocode-text {
+        grid-area: text;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    &__discount-size {
+        grid-area: discount;
+        font-size: 16px;
+    }
+
+    &__expires-at_desktop,
+    &__expires-at_mobile {
+        grid-area: expires;
+        font-size: 10px;
+    }
+
+    &__copy-button-container {
+        grid-area: button;
+        position: relative;
+
+        @media (max-width: 800px) {
+            // Стили для кликабельной карточки для мобилки
+            // Увеличиваем контейнер тк кнопка считается от него
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+    }
+}
+
+.promocode-card .promocode-card__copy-button-container .button {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+
+    @media (max-width: 800px) {
+        // Стили для кликабельной карточки для мобилки
+        // Должны получить карточку-кнопку, при нажатии должен копироваться промокод
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 1;
+        border-radius: var(--border-radius);
+    }
+
+    img {
+        width: 20px;
+        height: 20px;
+        object-fit: fill;
+    }
+}
+
+// Стили для десктопа
+@media (min-width: 801px) {
+    .promocode-card__expires-at_desktop {
+        display: inline;
+    }
+
+    .promocode-card__expires-at_mobile {
+        display: none;
+    }
+}
+
+// Стили для мобилки
+@media (max-width: 800px) {
+    .promocode-card__expires-at_desktop {
+        display: none;
+    }
+
+    .promocode-card__expires-at_mobile {
+        display: inline;
+    }
+}

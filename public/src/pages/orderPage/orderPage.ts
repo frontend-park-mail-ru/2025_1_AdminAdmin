@@ -16,6 +16,7 @@ import { router } from '@modules/routing';
 import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
 import { formatDate } from '@modules/utils';
 import { ProductsCarousel } from '@components/productsCarousel/productsCarousel';
+//import { PromocodeProps } from '@//components/promocodeForm/promocodeFrom';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -416,6 +417,16 @@ export default class OrderPage {
       router.goToPage('home');
     }
   }
+
+  /**
+   * Применяет промокод к заказу
+   * @param promocod - промокод который будет применяться
+   */
+  /*
+  private applyPromocode(promocode: PromocodeProps) {
+    //TODO: написать функцию калбек для изменения цены
+  }
+  */
 
   /**
    * Устанавливает статус от сервера (оплачено, в пути, завершен или другой, но с сервера)

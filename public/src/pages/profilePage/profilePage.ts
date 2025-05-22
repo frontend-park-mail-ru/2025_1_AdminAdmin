@@ -14,6 +14,7 @@ import { I_OrderResponse, I_UserOrderResponse } from '@myTypes/orderTypes';
 import { router } from '@modules/routing';
 import { Pagination } from '@components/pagination/pagination';
 import { CartProduct, I_Cart } from '@myTypes/cartTypes';
+import { PromocodeCard } from '@//components/promocodeCard/promocodeCard';
 
 const ORDERS_PER_PAGE = 10;
 
@@ -84,6 +85,7 @@ export default class ProfilePage {
   private readonly avatarChangeHandler: (event: Event) => void; // Функция при изменении файла аватарки
   private unsubscribeFromUserStore: (() => void) | null = null;
   private previousAddressMap = new Map<string, Address>();
+  private previousPromocodeCardMap = new Map<string, PromocodeCard>(); // Словарь вида: id - карточка
 
   // Поля необязательные чтобы можно было создать пустой объект
 
@@ -189,6 +191,10 @@ export default class ProfilePage {
     ) as HTMLInputElement;
     avatarInputElement.addEventListener('change', this.avatarChangeHandler);
 
+    // Рендерим блок промокодов
+    await this.refreshPromocodes();
+
+    // Рендерим таблицу заказов
     try {
       await this.createProfileTable(0);
 
@@ -310,6 +316,67 @@ export default class ProfilePage {
     }
   }
 
+  private async refreshPromocodes() {
+    try {
+      //const promocodes = await AppUserRequests.GetPromocodes();
+      const promocodesProps = [
+        {
+          id: 'promocode-1',
+          promocodeText: 'promocode1',
+          discountSize: 1,
+          expiresAt: '31.12.25 23:59',
+        },
+        {
+          id: 'promocode-2',
+          promocodeText: 'promocode2',
+          discountSize: 2,
+          expiresAt: '31.12.25 23:59',
+        },
+        {
+          id: 'promocode-3',
+          promocodeText: 'promocode3',
+          discountSize: 3,
+          expiresAt: '31.12.25 23:59',
+        },
+        {
+          id: 'promocode-4',
+          promocodeText: 'promocode4',
+          discountSize: 4,
+          expiresAt: '31.12.25 23:59',
+        },
+        {
+          id: 'promocode-5',
+          promocodeText: 'promocode5',
+          discountSize: 5,
+          expiresAt: '31.12.25 23:59',
+        },
+      ]; // Пока моки
+      const promocodesBodyElement = this.self.querySelector(
+        '.profile-promocodes__body',
+      ) as HTMLElement;
+      // Удаляем карточки промокодов которые уже неактивны
+      const currentPromocodeIds = new Set(promocodesProps.map((props) => props.id));
+      for (const [id, promocodeCardComponent] of this.previousPromocodeCardMap.entries()) {
+        if (!currentPromocodeIds.has(id)) {
+          // Если id промокода нет в обновленном списке, то удаляем
+          this.previousPromocodeCardMap.delete(id);
+          promocodeCardComponent.remove();
+        }
+      }
+      // Идем по пропсам и добавляем новые карточки
+      promocodesProps.forEach((props) => {
+        if (!this.previousAddressMap.has(props.id)) {
+          // Если новая карточка
+          const promocodeCardComponent = new PromocodeCard(promocodesBodyElement, props);
+          promocodeCardComponent.render();
+          this.previousPromocodeCardMap.set(props.id, promocodeCardComponent);
+        }
+      });
+    } catch (error) {
+      toasts.error(error.message);
+    }
+  }
+
   /**
    * Удаляет страницу профиля
    */
@@ -325,6 +392,10 @@ export default class ProfilePage {
       address.remove();
     }
     this.previousAddressMap.clear();
+    for (const promocodeCardComponent of this.previousPromocodeCardMap.values()) {
+      promocodeCardComponent.remove();
+    }
+    this.previousPromocodeCardMap.clear();
     this.components.ordersTable?.remove();
     this.components.pagination?.remove();
     const element = this.self;

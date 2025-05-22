@@ -126,6 +126,28 @@
     }
 }
 
+// Блок промокодов
+.profile-promocodes {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    @media (max-width: 800px) {
+        gap: 10px;
+    }
+
+    &__header {
+        font-size: 32px;
+        font-weight: bold;
+    }
+
+    &__body {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+}
+
 // Блок заказов
 .profile-orders {
     font-size: 16px;

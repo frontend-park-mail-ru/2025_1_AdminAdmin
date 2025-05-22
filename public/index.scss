@@ -36,6 +36,8 @@
 @use './src/components/stepProgressBar/stepProgressBar' as *;
 @use './src/components/productsCarousel/productsCarousel' as *;
 @use './src/components/pagination/pagination' as *;
+@use './src/components/promocodeCard/promocodeCard.scss' as *;
+@use './src/components/promocodeForm/promocodeForm.scss' as *;
 
 /* Импорт стилей страниц */
 @use './src/pages/restaurantList/restaurantList' as *;
