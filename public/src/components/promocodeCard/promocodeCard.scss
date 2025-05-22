@@ -36,12 +36,14 @@
     &__discount-size {
         grid-area: discount;
         font-size: 16px;
+        margin-bottom: 10px;
     }
 
     &__expires-at_desktop,
     &__expires-at_mobile {
+        color: var(--dark-gray);
         grid-area: expires;
-        font-size: 10px;
+        font-size: 14px;
     }
 
     &__copy-button-container {
