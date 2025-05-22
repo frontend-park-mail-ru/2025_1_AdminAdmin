@@ -19,9 +19,6 @@ import { QRModal } from '@components/qrModal/qrModal';
 
 const ORDERS_PER_PAGE = 5;
 
-const addressChannel = new BroadcastChannel('cart_channel');
-const tabId = crypto.randomUUID();
-
 interface ProfilePageProps {
   data?: User;
   orders?: I_UserOrderResponse;
@@ -33,6 +30,8 @@ interface ProfilePageProps {
 export default class ProfilePage {
   private parent: HTMLElement;
   private props: ProfilePageProps;
+  private addressChannel = new BroadcastChannel('cart_channel');
+  private tabId = crypto.randomUUID();
   private components: {
     loadAvatarButton: Button;
     profileForm?: UnifiedForm;
@@ -143,7 +142,7 @@ export default class ProfilePage {
             await userStore.addAddress(newAddress);
             modalController.closeModal();
             await this.refreshAddresses();
-            addressChannel.postMessage({ sender: tabId });
+            this.addressChannel.postMessage({ sender: this.tabId });
           } catch (error) {
             toasts.error(error);
           }
@@ -190,10 +189,10 @@ export default class ProfilePage {
   }
 
   startSyncAcrossTabs = () => {
-    addressChannel.onmessage = async (event) => {
+    this.addressChannel.onmessage = async (event) => {
       const { sender } = event.data;
 
-      if (sender === tabId) return;
+      if (sender === this.tabId) return;
       await this.refreshAddresses();
     };
   };
@@ -274,7 +273,7 @@ export default class ProfilePage {
             },
             () => {
               this.refreshAddresses();
-              addressChannel.postMessage({ sender: tabId });
+              this.addressChannel.postMessage({ sender: this.tabId });
             },
           );
           comp.render();
@@ -359,6 +358,9 @@ export default class ProfilePage {
     this.promocodeCards = [];
     this.components.ordersTable?.remove();
     this.components.pagination?.remove();
+
+    this.addressChannel.close();
+
     const element = this.self;
     if (element) element.remove();
   }

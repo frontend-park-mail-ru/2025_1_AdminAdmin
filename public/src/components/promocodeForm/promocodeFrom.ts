@@ -19,7 +19,7 @@ export class PromocodeForm {
     promocodeInput: FormInput;
     submitButton: Button;
   };
-  protected isHiden = true; // Спрятана ли форма (вместо неё ссылка для её открытия)
+  protected isHidden = true; // Спрятана ли форма (вместо неё ссылка для её открытия)
   protected isDisabledd = false; // Если применили промокод, то убираем кнопку и замораживаем инпут
   protected promocodeList: PromocodeProps[] = []; // Список валидных промокодов
 
@@ -55,7 +55,7 @@ export class PromocodeForm {
     if (!template) {
       throw new Error(`Error: can't find promocode-form template`);
     }
-    const html = template({ isHiden: this.isHiden });
+    const html = template({ isHidden: this.isHidden });
     this.parent.insertAdjacentHTML('beforeend', html);
 
     const promocodeFormLinkElement = this.self.querySelector(
