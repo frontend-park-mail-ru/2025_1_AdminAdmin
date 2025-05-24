@@ -145,6 +145,36 @@ export class Button {
   }
 
   /**
+   * Изменяет иконку на кнопке.
+   * @param iconSrc - Новый путь к изображению.
+   * @param iconAlt - Новый alt-текст (опционально).
+   */
+  setIcon(iconSrc: string, iconAlt?: string): void {
+    this.props.iconSrc = iconSrc;
+    if (iconAlt !== undefined) {
+      this.props.iconAlt = iconAlt;
+    }
+
+    const button = this.self;
+    if (!button) return;
+
+    let icon = button.querySelector('.button__icon') as HTMLImageElement | null;
+
+    if (icon) {
+      icon.src = iconSrc;
+      if (iconAlt !== undefined) {
+        icon.alt = iconAlt;
+      }
+    } else {
+      icon = document.createElement('img');
+      icon.className = 'button__icon';
+      icon.src = iconSrc;
+      icon.alt = iconAlt || '';
+      button.insertBefore(icon, button.firstChild);
+    }
+  }
+
+  /**
    * Показывает кнопку, устанавливая display в block.
    */
   show(): void {

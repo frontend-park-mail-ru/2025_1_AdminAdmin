@@ -30,7 +30,7 @@ export class PromocodeForm {
    * Создает экземпляр формы промокода
    * @constructor
    * @param parent - Родительский элемент, в который будет рендериться форма промокода
-   * @param callback
+   * @param onPromocodeApply
    * @param onPromocodeClear
    * @param disabled
    */
@@ -85,7 +85,7 @@ export class PromocodeForm {
     // Создаем и рендерим поле ввода промокода
     this.components.promocodeInput = new FormInput(promocodeFormBodyElement, {
       id: 'promocode-form__input',
-      placeholder: 'Введите промокод',
+      placeholder: 'Ваш промокод',
       type: 'text',
       value: activePromocode,
       required: true,
@@ -110,7 +110,7 @@ export class PromocodeForm {
     this.components.submitButton = new Button(promocodeFormBodyElement, {
       id: 'promocode-form__submit-button',
       text: 'Применить',
-      style: 'dark big',
+      style: 'dark fit',
       disabled: true,
       onSubmit: () => this.onButtonClick(),
     });

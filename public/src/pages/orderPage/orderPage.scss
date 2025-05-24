@@ -151,6 +151,7 @@
     position: sticky;
     top: calc(var(--real-header-height) + 20px);
     width: 100%;
+    min-width: 0;
     grid-column: 2 / span 1;
     padding: 20px;
     border-radius: var(--border-radius);
@@ -207,5 +208,6 @@
   &__recommended_products {
     width: 100%;
     min-width: 0;
+    display: none;
   }
 }

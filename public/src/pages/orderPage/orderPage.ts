@@ -165,7 +165,7 @@ export default class OrderPage {
 
         discountBlock.innerText = `${formatNumber(difference)} ₽ (${formatNumber(discountInPercent)}%)`;
         oldTotalBlock.innerText = `${formatNumber(oldTotal)} ₽`;
-        cartTotal.textContent = formatNumber(newTotal).replace('.', ',');
+        cartTotal.textContent = formatNumber(newTotal);
 
         this.discountedPrice = newTotal;
       },
@@ -299,10 +299,11 @@ export default class OrderPage {
       '.order-page__recommended_products',
     );
     const recommendedProducts = cartStore.getState().recommended_products;
-    if (!recommendedProducts) {
-      recommendedProductsWrapper.style.display = 'none';
+    if (!recommendedProducts || recommendedProducts.length === 0) {
       return;
     }
+
+    recommendedProductsWrapper.style.display = 'block';
     this.recommendedProductsCarousel = new ProductsCarousel(
       recommendedProductsWrapper,
       recommendedProducts,
@@ -357,9 +358,7 @@ export default class OrderPage {
       }
     }
 
-    const final_price = this.discountedPrice
-      ? this.discountedPrice
-      : cartStore.getState().total_sum;
+    const final_price = cartStore.getState().total_sum;
     const address = userStore.getActiveAddress();
 
     if (!address) {
@@ -383,6 +382,7 @@ export default class OrderPage {
       courier_comment: formValues.courier_comment,
       leave_at_door: this.checkbox.isChecked,
       final_price,
+      promocode: userStore.getActivePromocode(),
     };
 
     try {
@@ -406,6 +406,9 @@ export default class OrderPage {
       '.order-page__summary__additional_content',
     );
     additionalContentBlock.style.display = 'none';
+
+    this.promocodeForm?.remove();
+    this.promocodeForm = null;
 
     const cartTotal: HTMLDivElement = this.self.querySelector('.cart__total');
     cartTotal.textContent = newOrder.final_price.toLocaleString('ru-RU');
@@ -435,7 +438,7 @@ export default class OrderPage {
     );
     recommendedProductsContainer.style.display = 'none';
 
-    this.recommendedProductsCarousel.remove();
+    this.recommendedProductsCarousel?.remove();
     this.createYouMoneyForm(newOrder);
     this.stepProgressBar.next();
   }

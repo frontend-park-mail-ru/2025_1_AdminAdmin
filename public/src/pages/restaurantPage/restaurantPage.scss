@@ -70,6 +70,7 @@
 
 // Основной контент
 .restaurant-page__main {
+  width: 100%;
   padding-top: 20px;
   padding-bottom: 20px;
   grid-column: 2 / span 1;
@@ -77,18 +78,20 @@
 
 // Блок с карточками
 .product-cards__body {
+  box-sizing: border-box;
+  width: 100%;
   margin-top: 40px;
   margin-bottom: 70px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
 
   @media (max-width: 1800px) {
     margin-top: 20px;
     grid-template-columns: repeat(3, 1fr);
   }
 
-  @media (max-width: 950px) {
+  @media (max-width: 1050px) {
     grid-template-columns: repeat(2, 1fr);
   }
 
