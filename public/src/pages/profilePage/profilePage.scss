@@ -159,6 +159,10 @@
         @media (max-width: 600px) {
             grid-template-columns: repeat(2, 1fr);
         }
+
+        @media (max-width: 350px) {
+            grid-template-columns: 1fr;
+        }
     }
 }
 
@@ -169,6 +173,10 @@
     display: none;
     gap: 20px;
 
+    @media (max-width: 600px) {
+        grid-row: 2;
+    }
+
     &__header {
         font-size: 32px;
         font-weight: bold;
@@ -178,5 +186,11 @@
         display: flex;
         flex-direction: column;
         gap: 0;
+    }
+
+    .pagination-wrapper {
+        @media (max-width: 600px) {
+            grid-row: 1;
+        }
     }
 }
