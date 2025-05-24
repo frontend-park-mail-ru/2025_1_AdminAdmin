@@ -208,6 +208,10 @@
         &_options {
           width: 100%;
           container-type: inline-size;
+
+          &:first-child {
+            margin-top: 10px;
+          }
         }
       }
     }
@@ -255,10 +259,6 @@
         height: 30px;
         margin-right: 10px;
         width: auto;
-      }
-
-      &_options:first-child {
-        margin-top: 10px;
       }
 
       @media (max-width: 1000px) {
