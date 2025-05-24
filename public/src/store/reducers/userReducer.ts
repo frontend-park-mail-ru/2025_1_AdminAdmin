@@ -3,7 +3,6 @@ import { getActiveFromLocalStorage } from '@modules/localStorage';
 
 export interface UserState extends User {
   isAuth: boolean;
-  activeAddress: string;
   activePromoCode: string;
 }
 
@@ -21,7 +20,7 @@ const initialUserState: UserState = {
   path: '',
   description: '',
   isAuth: false,
-  activeAddress: getActiveFromLocalStorage('Address'),
+  active_address: getActiveFromLocalStorage('Address'),
   activePromoCode: getActiveFromLocalStorage('Promocode'),
 };
 
@@ -39,13 +38,13 @@ export const userReducer = (state = initialUserState, action: Action): UserState
     case UserActions.LOGOUT_SUCCESS:
       return {
         ...initialUserState,
-        activeAddress: '',
+        active_address: '',
       };
 
     case UserActions.SET_ADDRESS:
       return {
         ...state,
-        activeAddress: action.payload,
+        active_address: action.payload,
       };
 
     case UserActions.SET_PROMOCODE:
