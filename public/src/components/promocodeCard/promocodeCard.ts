@@ -1,6 +1,7 @@
 import { Button } from '../button/button';
 
-import copyImg from '@assets/copy.png';
+import copyImg from '@assets/copy.svg';
+import copiedImg from '@assets/copied.svg';
 
 import template from './promocodeCard.hbs';
 import { I_Promocode } from '@myTypes/promocodeTypes';
@@ -12,7 +13,8 @@ import { toasts } from '@modules/toasts';
  */
 export class PromocodeCard {
   private parent: HTMLElement;
-  private readonly props: I_Promocode;
+  readonly props: I_Promocode;
+  private readonly onCopy: (id: string) => void;
   private components: {
     copyButton: Button;
   };
@@ -23,7 +25,8 @@ export class PromocodeCard {
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться карточка
    * @param {PromocodeCardProps} props - Словарь данных для определения свойств карточки
    */
-  constructor(parent: HTMLElement, props: I_Promocode) {
+  constructor(parent: HTMLElement, props: I_Promocode, onCopy: (id: string) => void) {
+    this.onCopy = onCopy;
     if (!parent) {
       throw new Error('PromocodeCard: no parent!');
     }
@@ -37,6 +40,9 @@ export class PromocodeCard {
     };
   }
 
+  setIcon(img: string): void {
+    this.components.copyButton.setIcon(img);
+  }
   /**
    * Ссылка на объект
    * @returns {HTMLElement} - ссылка на объект
@@ -85,6 +91,9 @@ export class PromocodeCard {
    * Копироует промокод в буфер обмена и выводит консоль лог об успешности компирования
    */
   private copypromocode(): void {
+    this.onCopy(this.props.id);
+    this.components.copyButton.setIcon(copiedImg);
+
     navigator.clipboard
       .writeText(this.props.promocode)
       .then(() => {

@@ -16,6 +16,7 @@ import { Pagination } from '@components/pagination/pagination';
 import { PromocodeCard } from '@//components/promocodeCard/promocodeCard';
 import { Checkbox } from '@components/checkbox/checkbox';
 import { QRModal } from '@components/qrModal/qrModal';
+import copyImg from '@assets/copy.svg';
 
 const ORDERS_PER_PAGE = 5;
 
@@ -321,13 +322,14 @@ export default class ProfilePage {
     try {
       const promocodes = await AppPromocodeRequests.GetPromocodes();
 
-      if (!Array.isArray(promocodes) || promocodes.length === 0) {
-        return;
-      }
-      // Идем по пропсам и добавляем новые карточки
+      if (!Array.isArray(promocodes) || promocodes.length === 0) return;
+
       promocodes.forEach((promocode) => {
-        // Если новая карточка
-        const promocodeCardComponent = new PromocodeCard(promocodesBodyElement, promocode);
+        const promocodeCardComponent = new PromocodeCard(
+          promocodesBodyElement,
+          promocode,
+          this.handlePromocodeCopied,
+        );
         promocodeCardComponent.render();
         this.promocodeCards.push(promocodeCardComponent);
       });
@@ -337,6 +339,14 @@ export default class ProfilePage {
       toasts.error(error.message);
     }
   }
+
+  private handlePromocodeCopied = (copiedId: string) => {
+    for (const card of this.promocodeCards) {
+      if (card.props.id !== copiedId) {
+        card.setIcon(copyImg);
+      }
+    }
+  };
 
   /**
    * Удаляет страницу профиля
