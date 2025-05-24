@@ -3,6 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0 10px;
 
   &__number-group {
     display: flex;
@@ -16,6 +17,15 @@
     font-size: 25em;
     color: var(--white);
     -webkit-text-stroke: 10px var(--orange);
+
+    @media (max-width: 700px) {
+      font-size: 300px;
+    }
+
+    @media (max-width: 470px) {
+      font-size: 150px;
+      -webkit-text-stroke: 5px var(--orange);
+    }
 
     &--left {
       margin-right: 2%;
@@ -67,6 +77,16 @@
             80px 140px 0 -10px var(--light-brown),
             0px 210px 0 -55px var(--light-brown),
             20px 250px 0 -65px var(--light-brown);
+
+    @media (max-width: 700px) {
+      width: 113px;
+      height: 100px;
+    }
+
+    @media (max-width: 470px) {
+      width: 56.5px;
+      height: 50px;
+    }
 
     &::before {
       content: "";

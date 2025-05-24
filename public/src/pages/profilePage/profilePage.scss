@@ -175,9 +175,11 @@
 
     @media (max-width: 600px) {
         grid-row: 3;
+        grid-column: 1;
     }
 
     &__header {
+        grid-row: 1;
         font-size: 32px;
         font-weight: bold;
     }
@@ -191,6 +193,7 @@
     .pagination-wrapper {
         @media (max-width: 600px) {
             grid-row: 2;
+            grid-column: 1;
         }
     }
 }
