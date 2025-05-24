@@ -72,6 +72,10 @@
   &.big {
     width: 150px;
   }
+
+  &.fit {
+    width: fit-content;
+  }
 }
 
 .form__button {

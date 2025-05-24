@@ -77,19 +77,20 @@
 
 // Блок с карточками
 .product-cards__body {
+  width: 100%;
   margin-top: 40px;
   margin-bottom: 70px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
+  grid-template-columns: repeat(4, calc((100% - 3 * 20px) / 4));
 
   @media (max-width: 1800px) {
     margin-top: 20px;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, calc((100% - 3 * 20px) / 3));
   }
 
   @media (max-width: 950px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, calc((100% - 2 * 20px) / 3));
   }
 
   @media (max-width: 500px) {

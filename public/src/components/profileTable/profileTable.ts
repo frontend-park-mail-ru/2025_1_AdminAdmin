@@ -62,13 +62,6 @@ export class ProfileTable {
     if (window.innerWidth < 600) {
       return;
     }
-
-    const emptyRowCount = this.ordersPerPage - this.orders.length;
-    for (let i = 0; i < emptyRowCount; i++) {
-      const rowComponent = new ProfileTableRow(tbodyElement, { id: `empty-row-${i}` });
-      rowComponent.render();
-      this.rowsList.push(rowComponent);
-    }
   }
 
   /**

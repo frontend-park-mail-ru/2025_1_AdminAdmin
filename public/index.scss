@@ -76,17 +76,17 @@
   --light-yellow: #e4e6b2;
   --light-yellow-light: #eff0d1;
   --header-content-height: 45px;
-  --real-header-height: 67.5px;
+  --real-header-height: 63px;
 
   @media (max-width: 1000px) {
-    --header-height: 100px;
-    --real-header-height: 140px;
+    --real-header-height: 120px;
   }
 }
 
 body {
   font-family: Calibri, sans-serif;
   font-size: 14px;
+  color: var(--black);
   margin: 0;
   background-color: var(--white);
 }
