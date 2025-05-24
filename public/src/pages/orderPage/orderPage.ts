@@ -163,7 +163,7 @@ export default class OrderPage {
 
         const cartTotal: HTMLDivElement = this.parent.querySelector('.cart__total');
 
-        discountBlock.innerText = `${formatNumber(difference)} ₽ (${formatNumber(discountInPercent)}%)`;
+        discountBlock.innerText = `${formatNumber(difference).replace('.', ',')} ₽ (${formatNumber(discountInPercent)}%)`;
         oldTotalBlock.innerText = `${formatNumber(oldTotal)} ₽`;
         cartTotal.textContent = formatNumber(newTotal).replace('.', ',');
 
