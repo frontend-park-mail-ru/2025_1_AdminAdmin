@@ -16,10 +16,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    .button {
-      height: 40px;
-    }
   }
 
   @media (max-width: 800px) {
@@ -191,11 +187,20 @@
       }
     }
 
+    &__additional_content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
     &__content {
       color: var(--dark-gray);
       display: flex;
       justify-content: space-between;
-      margin-bottom: 20px;
+    }
+
+    &__additional_content {
+      display: none;
     }
   }
 

@@ -38,19 +38,19 @@ export function storeAuthTokensFromResponse(headers: Headers): void {
   }
 }
 
-export function saveActiveAddressToLocalStorage(address: string): void {
+export function saveActiveToLocalStorage(value: string, item: string): void {
   try {
-    window.localStorage.setItem('Address', address);
+    window.localStorage.setItem(item, value);
   } catch (err) {
     console.error('Ошибка сохранения адреса в localStorage:', err);
   }
 }
 
-export function getActiveAddressFromLocalStorage(): string {
+export function getActiveFromLocalStorage(item: string): string {
   try {
-    return window.localStorage.getItem('Address');
+    return window.localStorage.getItem(item);
   } catch (err) {
-    console.error('Ошибка получения адреса из localStorage:', err);
+    console.error('Ошибка получения из localStorage:', err);
   }
 }
 

@@ -14,9 +14,11 @@ import { modalController } from '@modules/modalController';
 import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
 import { router } from '@modules/routing';
 import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
-import { formatDate } from '@modules/utils';
+import { formatDate, formatNumber } from '@modules/utils';
 import { ProductsCarousel } from '@components/productsCarousel/productsCarousel';
+//import { PromocodeProps } from '@//components/promocodeForm/promocodeFrom';
 import { Checkbox } from '@components/checkbox/checkbox';
+import { PromocodeForm } from '@components/promocodeForm/promocodeFrom';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -29,7 +31,9 @@ export default class OrderPage {
   private youMoneyForm: YouMoneyForm = null;
   private isRemoved = false;
   private stepProgressBar: StepProgressBar = null;
+  private discountedPrice: number = null;
   private recommendedProductsCarousel: ProductsCarousel;
+  private promocodeForm: PromocodeForm;
 
   constructor(parent: HTMLElement, orderId?: string) {
     if (!parent) {
@@ -133,6 +137,58 @@ export default class OrderPage {
     }
   }
 
+  private renderPromocodeForm() {
+    if (!userStore.isAuth()) return;
+
+    const promocodeFormContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
+
+    this.promocodeForm = new PromocodeForm(
+      promocodeFormContainer,
+      (discount: number) => {
+        const additionalContentBlock: HTMLDivElement = this.parent.querySelector(
+          '.order-page__summary__additional_content',
+        );
+        additionalContentBlock.style.display = 'flex';
+
+        const discountBlock: HTMLDivElement = additionalContentBlock.querySelector(
+          '.order-page__summary__discount',
+        );
+        const oldTotalBlock: HTMLDivElement = additionalContentBlock.querySelector(
+          '.order-page__summary__price',
+        );
+
+        const oldTotal = cartStore.getState().total_sum;
+        const newTotal = oldTotal * (1 - discount);
+        const difference = newTotal - oldTotal;
+        const discountInPercent = discount * 100;
+
+        const cartTotal: HTMLDivElement = this.parent.querySelector('.cart__total');
+
+        discountBlock.innerText = `${formatNumber(difference)} ₽ (${formatNumber(discountInPercent)}%)`;
+        oldTotalBlock.innerText = `${formatNumber(oldTotal)} ₽`;
+        cartTotal.textContent = formatNumber(newTotal).replace('.', ',');
+
+        this.discountedPrice = newTotal;
+      },
+
+      () => {
+        const additionalContentBlock: HTMLDivElement = this.parent.querySelector(
+          '.order-page__summary__additional_content',
+        );
+        additionalContentBlock.style.display = 'none';
+
+        const oldTotal = cartStore.getState().total_sum;
+
+        const cartTotal: HTMLDivElement = this.parent.querySelector('.cart__total');
+        cartTotal.textContent = oldTotal.toLocaleString('ru-RU');
+
+        this.discountedPrice = null;
+      },
+    );
+
+    this.promocodeForm.render();
+  }
+
   private renderSubmitButton() {
     const submitButtonContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
     if (!submitButtonContainer) return;
@@ -234,6 +290,7 @@ export default class OrderPage {
     await this.createRecommendedProducts();
     const bin = this.self.querySelector('.order-page__products__header__clear');
     bin?.addEventListener('click', this.handleClear);
+    this.renderPromocodeForm();
     this.renderSubmitButton();
     this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
   }
@@ -305,7 +362,9 @@ export default class OrderPage {
       }
     }
 
-    const final_price = cartStore.getState().total_sum;
+    const final_price = this.discountedPrice
+      ? this.discountedPrice
+      : cartStore.getState().total_sum;
     const address = userStore.getActiveAddress();
 
     if (!address) {
@@ -348,6 +407,14 @@ export default class OrderPage {
     pageHeader.textContent = `Заказ ${newOrder.id.slice(-4)} от ${formatDate(newOrder.created_at)}`;
     pageHeader.classList.add('formed');
 
+    const additionalContentBlock: HTMLDivElement = this.parent.querySelector(
+      '.order-page__summary__additional_content',
+    );
+    additionalContentBlock.style.display = 'none';
+
+    const cartTotal: HTMLDivElement = this.self.querySelector('.cart__total');
+    cartTotal.textContent = newOrder.final_price.toLocaleString('ru-RU');
+
     this.checkbox.disable();
 
     for (const input of Object.values(this.inputs)) {
@@ -368,6 +435,12 @@ export default class OrderPage {
     clearCart.style.display = 'none';
     this.submitButton.hide();
 
+    const recommendedProductsContainer: HTMLDivElement = this.parent.querySelector(
+      '.order-page__recommended_products',
+    );
+    recommendedProductsContainer.style.display = 'none';
+
+    this.recommendedProductsCarousel.remove();
     this.createYouMoneyForm(newOrder);
     this.stepProgressBar.next();
   }
@@ -438,21 +511,32 @@ export default class OrderPage {
     if (!this.self) return;
     this.isRemoved = true;
 
+    this.removeCards();
+    this.removeListeners();
+    this.removeComponents();
+    this.clearInputs();
+
+    if (this.unsubscribeFromStore) this.unsubscribeFromStore();
+    this.parent.innerHTML = '';
+  }
+
+  private removeCards(): void {
     this.cartCards.forEach((card) => card.remove());
     this.cartCards.clear();
+  }
 
-    const bin = this.self.querySelector('.order-page__products__header__clear');
+  private removeListeners(): void {
+    const bin = this.self?.querySelector('.order-page__products__header__clear');
     if (bin) {
       bin.removeEventListener('click', this.handleClear);
     }
+  }
 
+  private removeComponents(): void {
     this.stepProgressBar?.remove();
-
     this.recommendedProductsCarousel?.remove();
-
-    if (this.submitButton) {
-      this.submitButton.remove();
-    }
+    this.submitButton?.remove();
+    this.promocodeForm?.remove();
 
     if (this.youMoneyForm) {
       cartStore.clearLocalCart();
@@ -460,11 +544,10 @@ export default class OrderPage {
     }
 
     this.checkbox?.remove();
+  }
 
+  private clearInputs(): void {
     Object.values(this.inputs).forEach((input) => input.remove());
     this.inputs = {};
-
-    if (this.unsubscribeFromStore) this.unsubscribeFromStore();
-    this.parent.innerHTML = '';
   }
 }

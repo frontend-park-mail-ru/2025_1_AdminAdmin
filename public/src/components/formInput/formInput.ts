@@ -20,6 +20,7 @@ export interface FormInputProps {
   movePlaceholderOnInput?: boolean;
   value?: string;
   onEnter?: () => void;
+  onClearClick?: () => void; // Обработчик клика по иконке "крестик"
 }
 
 export class FormInput {
@@ -126,8 +127,16 @@ export class FormInput {
     }
   }
 
+  enable(): void {
+    const input = this.input;
+    if (input) {
+      input.disabled = false;
+      input.classList.remove('disabled');
+    }
+  }
+
   render(): void {
-    const html = template(this.props);
+    const html = template({ ...this.props, isPasswordInput: this.props.type === 'password' });
     this.parent.insertAdjacentHTML('beforeend', html);
 
     if (!this.props.label && this.props.hideErrors) {
@@ -137,7 +146,24 @@ export class FormInput {
     this.setupPhoneMaskIfNeeded();
     this.setupPasswordToggleIfNeeded();
     this.attachInputListeners();
+
+    if (this.props.onClearClick) {
+      const clearIcon: HTMLImageElement = this.self?.querySelector('.form__input__clear_icon');
+      if (clearIcon) {
+        clearIcon.style.display = 'block';
+        clearIcon.addEventListener('click', this.handleClearClick);
+      }
+    }
   }
+
+  private readonly handleClearClick = (): void => {
+    const input = this.input;
+    if (input) {
+      input.value = '';
+      this.props.onClearClick?.();
+      this.clearError();
+    }
+  };
 
   private setupPhoneMaskIfNeeded(): void {
     if (this.props.type === 'tel' && this.props.value) {
@@ -155,7 +181,6 @@ export class FormInput {
     const input = this.input;
 
     if (eyeIcon && input) {
-      eyeIcon.style.display = 'block';
       eyeIcon.addEventListener('click', this.eyeClickHandler);
       input.style.paddingRight = '40px';
     }
@@ -298,10 +323,17 @@ export class FormInput {
   }
 
   setPlaceholder(value: string): void {
-    const input = this.input;
-    if (!input) return;
+    if (this.props.movePlaceholderOnInput) {
+      const inputContainer = this.parent.querySelector('.form__input__input-container');
+      const label = inputContainer?.querySelector('label') as HTMLLabelElement;
 
-    input.placeholder = value;
+      label.innerText = value;
+    } else {
+      const input = this.input;
+      if (!input) return;
+
+      input.placeholder = value;
+    }
   }
 
   remove(): void {
@@ -317,6 +349,11 @@ export class FormInput {
 
     if (this.props.onEnter) {
       input.removeEventListener('keydown', this.handleKeyDown);
+    }
+
+    const clearIcon = this.self?.querySelector('.form__input__clear_icon');
+    if (clearIcon) {
+      clearIcon.removeEventListener('click', this.handleClearClick);
     }
 
     const eyeIcon = this.self?.querySelector('.form__input__eye-icon') as HTMLElement;

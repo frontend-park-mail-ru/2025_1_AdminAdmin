@@ -6,20 +6,18 @@ import template from './profilePage.hbs';
 import { User } from '@myTypes/userTypes';
 import { userStore } from '@store/userStore';
 import UnifiedForm from '@components/unifiedForm/unifiedForm';
-import { AppOrderRequests, AppUserRequests } from '@modules/ajax';
+import { AppOrderRequests, AppPromocodeRequests, AppUserRequests } from '@modules/ajax';
 import { toasts } from '@modules/toasts';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
 import { I_UserOrderResponse } from '@myTypes/orderTypes';
 import { router } from '@modules/routing';
 import { Pagination } from '@components/pagination/pagination';
+import { PromocodeCard } from '@//components/promocodeCard/promocodeCard';
 import { Checkbox } from '@components/checkbox/checkbox';
 import { QRModal } from '@components/qrModal/qrModal';
 
 const ORDERS_PER_PAGE = 5;
-
-const addressChannel = new BroadcastChannel('cart_channel');
-const tabId = crypto.randomUUID();
 
 interface ProfilePageProps {
   data?: User;
@@ -32,6 +30,8 @@ interface ProfilePageProps {
 export default class ProfilePage {
   private parent: HTMLElement;
   private props: ProfilePageProps;
+  private addressChannel = new BroadcastChannel('cart_channel');
+  private tabId = crypto.randomUUID();
   private components: {
     loadAvatarButton: Button;
     profileForm?: UnifiedForm;
@@ -43,6 +43,7 @@ export default class ProfilePage {
   private readonly avatarChangeHandler: (event: Event) => void; // Функция при изменении файла аватарки
   private unsubscribeFromUserStore: (() => void) | null = null;
   private previousAddressMap = new Map<string, Address>();
+  private promocodeCards: PromocodeCard[] = [];
 
   // Поля необязательные чтобы можно было создать пустой объект
 
@@ -141,7 +142,7 @@ export default class ProfilePage {
             await userStore.addAddress(newAddress);
             modalController.closeModal();
             await this.refreshAddresses();
-            addressChannel.postMessage({ sender: tabId });
+            this.addressChannel.postMessage({ sender: this.tabId });
           } catch (error) {
             toasts.error(error);
           }
@@ -159,6 +160,10 @@ export default class ProfilePage {
     ) as HTMLInputElement;
     avatarInputElement.addEventListener('change', this.avatarChangeHandler);
 
+    // Рендерим блок промокодов
+    await this.renderPromocodes();
+
+    // Рендерим таблицу заказов
     try {
       await this.createProfileTable(0);
 
@@ -184,10 +189,10 @@ export default class ProfilePage {
   }
 
   startSyncAcrossTabs = () => {
-    addressChannel.onmessage = async (event) => {
+    this.addressChannel.onmessage = async (event) => {
       const { sender } = event.data;
 
-      if (sender === tabId) return;
+      if (sender === this.tabId) return;
       await this.refreshAddresses();
     };
   };
@@ -268,7 +273,7 @@ export default class ProfilePage {
             },
             () => {
               this.refreshAddresses();
-              addressChannel.postMessage({ sender: tabId });
+              this.addressChannel.postMessage({ sender: this.tabId });
             },
           );
           comp.render();
@@ -304,6 +309,32 @@ export default class ProfilePage {
     }
   }
 
+  private async renderPromocodes() {
+    const promocodesElement: HTMLDivElement = this.parent.querySelector('.profile-promocodes');
+    const promocodesBodyElement: HTMLDivElement = this.parent.querySelector(
+      '.profile-promocodes__body',
+    );
+
+    try {
+      const promocodes = await AppPromocodeRequests.GetPromocodes();
+
+      if (!Array.isArray(promocodes) || promocodes.length === 0) {
+        promocodesElement.style.display = 'none';
+        return;
+      }
+      // Идем по пропсам и добавляем новые карточки
+      promocodes.forEach((promocode) => {
+        // Если новая карточка
+        const promocodeCardComponent = new PromocodeCard(promocodesBodyElement, promocode);
+        promocodeCardComponent.render();
+        this.promocodeCards.push(promocodeCardComponent);
+      });
+    } catch (error) {
+      promocodesElement.style.display = 'none';
+      toasts.error(error.message);
+    }
+  }
+
   /**
    * Удаляет страницу профиля
    */
@@ -319,8 +350,17 @@ export default class ProfilePage {
       address.remove();
     }
     this.previousAddressMap.clear();
+
+    this.promocodeCards.forEach((card) => {
+      card.remove();
+    });
+
+    this.promocodeCards = [];
     this.components.ordersTable?.remove();
     this.components.pagination?.remove();
+
+    this.addressChannel.close();
+
     const element = this.self;
     if (element) element.remove();
   }
