@@ -85,7 +85,7 @@ export default class LoginForm {
     const loginContainer = document.getElementById('form__line_login');
     const passwordContainer = document.getElementById('form__line_password');
     const buttonContainer = document.getElementById('form__line_login_button_container');
-    const otpContainer: HTMLDivElement = this.parent.querySelector('.login-form__otp-code__body');
+    /*    const otpContainer: HTMLDivElement = this.parent.querySelector('.login-form__otp-code__body');*/
 
     if (loginContainer && passwordContainer && buttonContainer) {
       this.loginInput = new FormInput(loginContainer, LoginFormConfig.inputs.login);
@@ -94,12 +94,12 @@ export default class LoginForm {
       this.passwordInput = new FormInput(passwordContainer, LoginFormConfig.inputs.password);
       this.passwordInput.render();
 
-      this.OTPInput = new OTPInput(otpContainer, {
+      /*      this.OTPInput = new OTPInput(otpContainer, {
         id: 'login-form-otp-input',
         digits: 6,
       });
 
-      this.OTPInput.render();
+      this.OTPInput.render();*/
 
       this.submitBtn = new Button(buttonContainer, {
         ...LoginFormConfig.buttons.submitBtn,
@@ -120,6 +120,6 @@ export default class LoginForm {
     this.loginInput.remove();
     this.passwordInput.remove();
     this.submitBtn.remove();
-    this.OTPInput.remove();
+    /*    this.OTPInput.remove();*/
   }
 }
