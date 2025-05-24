@@ -365,6 +365,9 @@ export default class Header {
       const avatarImage = document.getElementById(
         'header__profile-dropdown__image__avatar',
       ) as HTMLImageElement;
+      avatarImage.onerror = () => {
+        avatarImage.src = './src/assets/profile.png';
+      };
       avatarImage.src = `https://doordashers.ru/images_user/${userStore.getState().path}`;
     } else {
       document.querySelector('.header__profile-dropdown').classList.remove('active');
