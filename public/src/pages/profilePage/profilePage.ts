@@ -323,8 +323,9 @@ export default class ProfilePage {
         const promocodeCardComponent = new PromocodeCard(promocodesBodyElement, promocode);
         promocodeCardComponent.render();
         this.promocodeCards.push(promocodeCardComponent);
-        promocodesElement.style.display = 'flex';
       });
+
+      promocodesElement.style.display = 'flex';
     } catch (error) {
       toasts.error(error.message);
     }
