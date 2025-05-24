@@ -377,7 +377,7 @@ export default class Header {
       document.querySelector('.header__profile-dropdown__second-name').textContent = 'Фамилия';
     }
 
-    const activeAddress = userStore.getActiveAddress();
+    const active_address = userStore.getActiveAddress();
     const locationButton: HTMLDivElement = this.parent.querySelector(
       '.header__location_select_button',
     );
@@ -385,9 +385,9 @@ export default class Header {
       '.header__location_select_button__text',
     );
 
-    if (activeAddress) {
+    if (active_address) {
       locationButton.classList.add('selected');
-      locationText.textContent = activeAddress;
+      locationText.textContent = active_address;
       modalController.closeModal();
     } else {
       locationButton.classList.remove('selected');

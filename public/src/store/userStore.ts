@@ -1,6 +1,6 @@
 import { store } from './store';
 import { AppUserRequests } from '@modules/ajax';
-import { saveActiveToLocalStorage } from '@modules/localStorage';
+import { getActiveFromLocalStorage, saveActiveToLocalStorage } from '@modules/localStorage';
 import { LoginPayload, RegisterPayload, UpdateUserPayload } from '@myTypes/userTypes';
 import { cartStore } from '@store/cartStore';
 import { UserActions, UserState } from '@store/reducers/userReducer';
@@ -47,7 +47,7 @@ export const userStore = {
    * @returns {string} - активный адрес пользователя
    */
   getActiveAddress(): string {
-    return this.getState().activeAddress;
+    return this.getState().active_address;
   },
 
   getActivePromocode(): string {
@@ -69,6 +69,9 @@ export const userStore = {
    */
   async login(payload: LoginPayload): Promise<void> {
     const res = await AppUserRequests.Login(payload);
+
+    if (!res.active_address) res.active_address = getActiveFromLocalStorage('Address');
+
     store.dispatch({
       type: UserActions.LOGIN_SUCCESS,
       payload: res,
@@ -89,6 +92,9 @@ export const userStore = {
    */
   async register(payload: RegisterPayload): Promise<void> {
     const res = await AppUserRequests.SignUp(payload);
+
+    res.active_address = getActiveFromLocalStorage('Address');
+
     store.dispatch({
       type: UserActions.REGISTER_SUCCESS,
       payload: res,
@@ -126,6 +132,9 @@ export const userStore = {
   async checkUser(): Promise<void> {
     try {
       const res = await AppUserRequests.CheckUser();
+
+      if (!res.active_address) res.active_address = getActiveFromLocalStorage('Address');
+
       store.dispatch({
         type: UserActions.CHECK_SUCCESS,
         payload: res,
