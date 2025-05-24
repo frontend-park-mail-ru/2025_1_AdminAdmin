@@ -209,7 +209,7 @@
           width: 100%;
           container-type: inline-size;
 
-          &:first-child {
+          > :first-child {
             margin-top: 10px;
           }
         }
