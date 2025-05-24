@@ -144,5 +144,8 @@ export class Pagination {
     });
 
     this.paginationButtons = [];
+
+    const pagination: HTMLDivElement = this.parent.querySelector('.pagination-wrapper');
+    pagination?.remove();
   }
 }
