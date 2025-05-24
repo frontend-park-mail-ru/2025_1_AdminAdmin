@@ -13,6 +13,7 @@ export class ProfileTable {
   /**
    * @constructor Создает экземпляр таблицы
    * @param {HTMLElement} parent - Родительский элемент, в который будет рендериться таблица
+   * @param ordersPerPage
    * @param orders
    */
   constructor(parent: HTMLElement, ordersPerPage: number, orders: I_OrderResponse[]) {
