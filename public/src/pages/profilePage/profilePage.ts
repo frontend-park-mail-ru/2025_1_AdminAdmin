@@ -174,6 +174,12 @@ export default class ProfilePage {
       const profileOrderWrapper: HTMLDivElement = this.parent.querySelector('.profile-orders');
 
       if (this.props.orders.total > ORDERS_PER_PAGE) {
+        const profileTableWrapper = this.self.querySelector(
+          '.profile-orders__table__wrapper',
+        ) as HTMLElement;
+
+        profileTableWrapper.style.minHeight = `${80 * (ORDERS_PER_PAGE + 1)}px`;
+
         this.components.pagination = new Pagination(
           profileOrderWrapper,
           Math.ceil(this.props.orders.total / ORDERS_PER_PAGE),
@@ -205,6 +211,7 @@ export default class ProfilePage {
 
   createProfileTable = async (offset: number) => {
     this.props.orders = await AppOrderRequests.getUserOrders(ORDERS_PER_PAGE, offset);
+
     // Рендерим блок таблицы заказов
     const profileTableWrapper = this.self.querySelector(
       '.profile-orders__table__wrapper',

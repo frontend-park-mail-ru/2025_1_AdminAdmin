@@ -383,6 +383,7 @@ export default class OrderPage {
       courier_comment: formValues.courier_comment,
       leave_at_door: this.checkbox.isChecked,
       final_price,
+      promocode: userStore.getActivePromocode(),
     };
 
     try {
@@ -406,6 +407,8 @@ export default class OrderPage {
       '.order-page__summary__additional_content',
     );
     additionalContentBlock.style.display = 'none';
+
+    this.promocodeForm.remove();
 
     const cartTotal: HTMLDivElement = this.self.querySelector('.cart__total');
     cartTotal.textContent = newOrder.final_price.toLocaleString('ru-RU');
@@ -435,7 +438,7 @@ export default class OrderPage {
     );
     recommendedProductsContainer.style.display = 'none';
 
-    this.recommendedProductsCarousel.remove();
+    this.recommendedProductsCarousel?.remove();
     this.createYouMoneyForm(newOrder);
     this.stepProgressBar.next();
   }
