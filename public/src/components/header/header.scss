@@ -247,6 +247,7 @@
 
       &_button {
         font-size: 16px;
+        border-radius: 16px;
         background-size: 20px 20px;
       }
 
@@ -254,6 +255,10 @@
         height: 30px;
         margin-right: 10px;
         width: auto;
+      }
+
+      &_options:first-child {
+        margin-top: 10px;
       }
 
       @media (max-width: 1000px) {
