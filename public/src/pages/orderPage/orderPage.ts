@@ -358,9 +358,7 @@ export default class OrderPage {
       }
     }
 
-    const final_price = this.discountedPrice
-      ? this.discountedPrice
-      : cartStore.getState().total_sum;
+    const final_price = cartStore.getState().total_sum;
     const address = userStore.getActiveAddress();
 
     if (!address) {
