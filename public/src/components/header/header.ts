@@ -468,8 +468,6 @@ export default class Header {
     this.searchInput?.remove();
     if (this.cartButton) this.cartButton.remove();
     this.parent.innerHTML = '';
-    this.addressComponents.forEach((comp) => comp.remove());
-    this.addressComponents = [];
     this.parent.classList.remove('main_header');
     this.parent.classList.remove('mobile_header');
     window.removeEventListener('resize', this.handleResizeBound);
