@@ -1,4 +1,4 @@
-import { Button } from '../button/button';
+import { Button } from '@components/button/button';
 
 import copyImg from '@assets/copy.svg';
 import copiedImg from '@assets/copied.svg';
