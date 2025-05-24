@@ -116,19 +116,19 @@ export default class ProfilePage {
     profileFormComponent.render();
     this.components.profileForm = profileFormComponent;
 
-    const checkboxWrapper: HTMLDivElement = this.parent.querySelector('.profile-data__checkbox');
+    /*    const checkboxWrapper: HTMLDivElement = this.parent.querySelector('.profile-data__checkbox');
     this.components.twoFactorCheckbox = new Checkbox(checkboxWrapper, {
       id: 'profile-data__twoFactorCheckbox',
       label: 'Двухфакторная аутентификация',
       onClick: this.handleTwoFactorUpdate,
     });
-    this.components.twoFactorCheckbox.render();
+    this.components.twoFactorCheckbox.render();*/
 
     // Ренденрим блок изменения/удаления/добавления адресов
     await this.refreshAddresses();
     this.startSyncAcrossTabs();
 
-    const profileAddressBody: HTMLDivElement = this.self.querySelector('.profile-address__body');
+    const profileAddressBody: HTMLDivElement = this.parent.querySelector('.profile-address__body');
     const addAddressButtonProps = {
       id: 'profile-page__address-add',
       text: 'Добавить',
@@ -168,12 +168,12 @@ export default class ProfilePage {
       await this.createProfileTable(0);
 
       if (!this.props.orders.total) {
-        this.hideProfileOrders();
         return;
       }
 
+      const profileOrderWrapper: HTMLDivElement = this.parent.querySelector('.profile-orders');
+
       if (this.props.orders.total > ORDERS_PER_PAGE) {
-        const profileOrderWrapper: HTMLDivElement = this.parent.querySelector('.profile-orders');
         this.components.pagination = new Pagination(
           profileOrderWrapper,
           Math.ceil(this.props.orders.total / ORDERS_PER_PAGE),
@@ -182,9 +182,10 @@ export default class ProfilePage {
 
         this.components.pagination.render();
       }
+
+      profileOrderWrapper.style.display = 'grid';
     } catch (error) {
       console.error(error);
-      this.hideProfileOrders();
     }
   }
 
@@ -216,11 +217,6 @@ export default class ProfilePage {
     );
     this.components.ordersTable.render();
   };
-
-  hideProfileOrders() {
-    const profileOrdersContainer: HTMLDivElement = this.self.querySelector('.profile-orders');
-    profileOrdersContainer.style.display = 'none';
-  }
 
   private updateState() {
     if (this.props.data.path !== userStore.getState().path) {
@@ -319,7 +315,6 @@ export default class ProfilePage {
       const promocodes = await AppPromocodeRequests.GetPromocodes();
 
       if (!Array.isArray(promocodes) || promocodes.length === 0) {
-        promocodesElement.style.display = 'none';
         return;
       }
       // Идем по пропсам и добавляем новые карточки
@@ -329,8 +324,9 @@ export default class ProfilePage {
         promocodeCardComponent.render();
         this.promocodeCards.push(promocodeCardComponent);
       });
+
+      promocodesElement.style.display = 'flex';
     } catch (error) {
-      promocodesElement.style.display = 'none';
       toasts.error(error.message);
     }
   }

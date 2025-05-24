@@ -208,6 +208,10 @@
         &_options {
           width: 100%;
           container-type: inline-size;
+
+          > :first-child {
+            margin-top: 10px;
+          }
         }
       }
     }
@@ -247,6 +251,7 @@
 
       &_button {
         font-size: 16px;
+        border-radius: 16px;
         background-size: 20px 20px;
       }
 

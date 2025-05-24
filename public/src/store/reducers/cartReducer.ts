@@ -14,6 +14,7 @@ const initialCartState: CartState = {
   restaurant_name: null,
   products: [],
   total_sum: 0,
+  recommended_products: [],
 };
 
 export const CartActions = {
@@ -52,6 +53,7 @@ export const cartReducer = (state = initialCartState, action: CartAction): CartS
         restaurant_name: action.payload.restaurant_name,
         products: action.payload.products,
         total_sum: action.payload.total_sum,
+        recommended_products: action.payload.recommended_products,
       };
 
     default:

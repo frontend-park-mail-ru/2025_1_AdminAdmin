@@ -1,11 +1,5 @@
 import { removeTokenFromLocalStorage, storeAuthTokensFromResponse } from './localStorage';
-import {
-  Category,
-  Product,
-  RestaurantResponse,
-  Review,
-  SearchRestaurant,
-} from '@myTypes/restaurantTypes';
+import { Category, RestaurantResponse, Review, SearchRestaurant } from '@myTypes/restaurantTypes';
 import { I_Cart } from '@myTypes/cartTypes';
 import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
 import { CreateOrderPayload, I_OrderResponse, I_UserOrderResponse } from '@myTypes/orderTypes';
@@ -514,91 +508,6 @@ export async function searchRestaurants(
   throw new Error('Не удалось выполнить поиск');
 }
 
-class RecommendationRequests {
-  /**
-   * Возвращает 10 моковых рекомендованных продуктов.
-   */
-  GetRecommendedProducts = async (): Promise<Product[]> => {
-    // Можно имитировать асинхронный запрос с задержкой
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([
-          {
-            id: 'prod-1',
-            name: 'Чизбургер',
-            price: 299,
-            image_url: 'https://placehold.co/100x100?text=Чизбургер',
-            weight: 220,
-          },
-          {
-            id: 'prod-2',
-            name: 'Пицца Маргарита',
-            price: 599,
-            image_url: 'https://placehold.co/100x100?text=Пицца',
-            weight: 450,
-          },
-          {
-            id: 'prod-3',
-            name: 'Ролл Филадельфия',
-            price: 499,
-            image_url: 'https://placehold.co/100x100?text=Ролл',
-            weight: 250,
-          },
-          {
-            id: 'prod-4',
-            name: 'Куриные наггетсы',
-            price: 199,
-            image_url: 'https://placehold.co/100x100?text=Наггетсы',
-            weight: 180,
-          },
-          {
-            id: 'prod-5',
-            name: 'Салат Цезарь',
-            price: 349,
-            image_url: 'https://placehold.co/100x100?text=Цезарь',
-            weight: 200,
-          },
-          {
-            id: 'prod-6',
-            name: 'Буррито с курицей',
-            price: 399,
-            image_url: 'https://placehold.co/100x100?text=Буррито',
-            weight: 320,
-          },
-          {
-            id: 'prod-7',
-            name: 'Карбонара',
-            price: 459,
-            image_url: 'https://placehold.co/100x100?text=Карбонара',
-            weight: 400,
-          },
-          {
-            id: 'prod-8',
-            name: 'Том Ям',
-            price: 549,
-            image_url: 'https://placehold.co/100x100?text=Том+Ям',
-            weight: 500,
-          },
-          {
-            id: 'prod-9',
-            name: 'Лапша Удон',
-            price: 379,
-            image_url: 'https://placehold.co/100x100?text=Удон',
-            weight: 350,
-          },
-          {
-            id: 'prod-10',
-            name: 'Пельмени',
-            price: 299,
-            image_url: 'https://placehold.co/100x100?text=Пельмени',
-            weight: 300,
-          },
-        ]);
-      }, 300); // эмуляция задержки
-    });
-  };
-}
-
 class PromocodeRequests {
   private baseUrl = '/promocodes';
 
@@ -648,5 +557,4 @@ export const AppRestaurantRequests = new RestaurantsRequests();
 export const AppUserRequests = new UserRequests();
 export const AppCartRequests = new CartRequests();
 export const AppOrderRequests = new OrderRequests();
-export const AppRecommendationRequests = new RecommendationRequests();
 export const AppPromocodeRequests = new PromocodeRequests();
