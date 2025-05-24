@@ -299,10 +299,11 @@ export default class OrderPage {
       '.order-page__recommended_products',
     );
     const recommendedProducts = cartStore.getState().recommended_products;
-    if (!recommendedProducts) {
-      recommendedProductsWrapper.style.display = 'none';
+    if (!recommendedProducts || recommendedProducts.length === 0) {
       return;
     }
+
+    recommendedProductsWrapper.style.display = 'block';
     this.recommendedProductsCarousel = new ProductsCarousel(
       recommendedProductsWrapper,
       recommendedProducts,
@@ -408,7 +409,8 @@ export default class OrderPage {
     );
     additionalContentBlock.style.display = 'none';
 
-    this.promocodeForm.remove();
+    this.promocodeForm?.remove();
+    this.promocodeForm = null;
 
     const cartTotal: HTMLDivElement = this.self.querySelector('.cart__total');
     cartTotal.textContent = newOrder.final_price.toLocaleString('ru-RU');
