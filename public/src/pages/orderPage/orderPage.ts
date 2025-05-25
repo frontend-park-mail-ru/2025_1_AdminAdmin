@@ -51,6 +51,7 @@ export default class OrderPage {
         const order = JSON.parse(event.data);
         if (order?.id === this.orderId && order.status) {
           this.stepProgressBar.next();
+          toasts.success('Проверьте новый промокод в ЛК');
         }
       } catch (err) {
         console.error('Ошибка при обработке данных сокета:', err);

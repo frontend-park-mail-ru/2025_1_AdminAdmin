@@ -15,6 +15,11 @@ export class WebSocketConnection {
     this.socket = new WebSocket(baseUrl + this.url);
 
     this.socket.onmessage = this.onMessageCallback;
+
+    this.socket.onclose = this.onClose;
+    this.socket.onerror = (event) => {
+      console.error(`Ошибка соединения:`, event);
+    };
   }
 
   close() {
@@ -31,6 +36,10 @@ export class WebSocketConnection {
     if (this.socket) {
       this.socket.onopen = callback;
     }
+  }
+
+  onClose() {
+    console.error('Соединение закрыто');
   }
 
   onMessage(callback: (event: MessageEvent) => void) {
