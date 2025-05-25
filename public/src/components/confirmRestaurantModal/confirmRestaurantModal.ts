@@ -1,5 +1,5 @@
 import template from './confirmRestaurantModal.hbs';
-import { Button } from '@components/button/button';
+import { Button } from 'doordashers-ui-kit';
 
 export class ConfirmRestaurantModal {
   private readonly restaurant: string;

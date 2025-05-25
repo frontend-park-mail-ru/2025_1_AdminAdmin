@@ -40,11 +40,8 @@ class Router {
     this.headerElement = document.createElement('div');
     this.headerElement.classList.add('header');
     this.pageElement = document.createElement('main');
-    this.toastBoxElement = document.createElement('div');
-    this.toastBoxElement.classList.add('toastBox');
     this.parent.appendChild(this.headerElement);
     this.parent.appendChild(this.pageElement);
-    this.parent.appendChild(this.toastBoxElement);
     this.routes = {
       home: {
         href: '/',

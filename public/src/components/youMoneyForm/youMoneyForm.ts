@@ -1,5 +1,5 @@
 import template from './youMoneyForm.hbs';
-import { Button } from '@components/button/button';
+import { Button } from 'doordashers-ui-kit';
 
 /**
  * Класс, представляющий форму для ЮMoney.

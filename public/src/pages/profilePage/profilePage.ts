@@ -1,5 +1,5 @@
 import { Address } from '@components/address/address';
-import { Button, ButtonProps } from '@components/button/button';
+import { Button, ButtonProps } from 'doordashers-ui-kit';
 import { ProfileTable } from '@components/profileTable/profileTable';
 
 import template from './profilePage.hbs';
@@ -7,7 +7,7 @@ import { User } from '@myTypes/userTypes';
 import { userStore } from '@store/userStore';
 import UnifiedForm from '@components/unifiedForm/unifiedForm';
 import { AppOrderRequests, AppPromocodeRequests, AppUserRequests } from '@modules/ajax';
-import { toasts } from '@modules/toasts';
+import { toasts } from 'doordashers-ui-kit';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
 import { I_UserOrderResponse } from '@myTypes/orderTypes';

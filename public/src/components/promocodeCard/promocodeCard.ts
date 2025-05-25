@@ -1,4 +1,4 @@
-import { Button } from '@components/button/button';
+import { Button } from 'doordashers-ui-kit';
 
 import copyImg from '@assets/copy.svg';
 import copiedImg from '@assets/copied.svg';
@@ -6,7 +6,7 @@ import copiedImg from '@assets/copied.svg';
 import template from './promocodeCard.hbs';
 import { I_Promocode } from '@myTypes/promocodeTypes';
 import { formatDate } from '@modules/utils';
-import { toasts } from '@modules/toasts';
+import { toasts } from 'doordashers-ui-kit';
 
 /**
  * Класс карточки промокода

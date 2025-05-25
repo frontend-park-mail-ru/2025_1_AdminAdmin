@@ -1,5 +1,5 @@
 import template from './qrModal.hbs';
-import { Button } from '@components/button/button';
+import { Button } from 'doordashers-ui-kit';
 import { modalController } from '@modules/modalController';
 
 export class QRModal {

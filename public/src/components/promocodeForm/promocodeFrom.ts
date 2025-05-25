@@ -1,5 +1,5 @@
-import { FormInput } from '../formInput/formInput';
-import { Button } from '../button/button';
+import { FormInput } from 'doordashers-ui-kit';
+import { Button } from 'doordashers-ui-kit';
 
 import template from './promocodeForm.hbs';
 import { userStore } from '@store/userStore';

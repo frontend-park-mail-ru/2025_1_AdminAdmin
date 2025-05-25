@@ -1,12 +1,12 @@
 import template from './orderPage.hbs';
-import { FormInput } from '@components/formInput/formInput';
+import { FormInput } from 'doordashers-ui-kit';
 import inputsConfig from './orderPageConfig';
 import { cartStore } from '@store/cartStore';
 import { CartCard } from '@components/productCard/cartCard/cartCard';
 import { userStore } from '@store/userStore';
 import { CartProduct } from '@myTypes/cartTypes';
-import { toasts } from '@modules/toasts';
-import { Button } from '@components/button/button';
+import { toasts } from 'doordashers-ui-kit';
+import { Button } from 'doordashers-ui-kit';
 import { AppOrderRequests } from '@modules/ajax';
 import { CreateOrderPayload, I_OrderResponse, statusMap } from '@myTypes/orderTypes';
 import MapModal from '@pages/mapModal/mapModal';

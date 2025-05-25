@@ -1,4 +1,4 @@
-import { Button } from '@components/button/button';
+import { Button } from 'doordashers-ui-kit';
 import template from './pagination.hbs';
 
 export class Pagination {

@@ -1,8 +1,8 @@
-import { FormInput } from '@components/formInput/formInput';
-import { Button } from '@components/button/button';
+import { FormInput } from 'doordashers-ui-kit';
+import { Button } from 'doordashers-ui-kit';
 import { Select } from '@components/select/select';
 import { userStore } from '@store/userStore';
-import { toasts } from '@modules/toasts';
+import { toasts } from 'doordashers-ui-kit';
 import template from './unifiedForm.hbs';
 import { getFormConfig, I_FormConfig } from './unifiedFormConfig';
 import { UpdateUserPayload } from '@myTypes/userTypes';

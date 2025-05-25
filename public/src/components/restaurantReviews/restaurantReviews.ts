@@ -1,7 +1,7 @@
 import { RestaurantReview } from './restaurantReview/restaurantReview';
 import { Review } from '@myTypes/restaurantTypes';
 import { RestaurantDetail, RestaurantDetailProps } from './restaurantDetail/restaurantDetail';
-import { Button, ButtonProps } from '@components/button/button';
+import { Button, ButtonProps } from 'doordashers-ui-kit';
 
 import template from './restaurantReviews.hbs';
 
@@ -12,7 +12,7 @@ import type { WorkingMode } from '@myTypes/restaurantTypes';
 import { modalController } from '@modules/modalController';
 import { ReviewsModal } from '@components/reviewsModal/reviewsModal';
 import { StarsWidget } from '@components/starsWidget/starsWidget';
-import { toasts } from '@modules/toasts';
+import { toasts } from 'doordashers-ui-kit';
 import { AppRestaurantRequests } from '@modules/ajax';
 import { userStore } from '@store/userStore';
 

@@ -6,7 +6,7 @@ import { ConfirmRestaurantModal } from '@components/confirmRestaurantModal/confi
 import { Product } from '@myTypes/restaurantTypes';
 import { userStore } from '@store/userStore';
 import MapModal from '@pages/mapModal/mapModal';
-import { toasts } from '@modules/toasts';
+import { toasts } from 'doordashers-ui-kit';
 
 /**
  * Класс карточки товара
