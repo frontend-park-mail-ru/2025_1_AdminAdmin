@@ -44,6 +44,8 @@ export default class OrderPage {
   }
 
   private initSocket() {
+    if (this.socket) return;
+
     this.socket = new WebSocketConnection('cart/ws', (event) => {
       try {
         const { order } = JSON.parse(event.data);
@@ -244,6 +246,9 @@ export default class OrderPage {
         return;
       }
 
+      if (data.status === 'delivered') {
+        return;
+      }
       this.initSocket();
     } else {
       data = {
