@@ -22,7 +22,7 @@ import { WebSocketConnection } from '@modules/websocket';
 
 export default class OrderPage {
   private parent: HTMLElement;
-  private readonly orderId: string;
+  private orderId: string;
   private inputs: Record<string, FormInput> = {};
   private cartCards = new Map<string, CartCard>();
   private submitButton: Button;
@@ -415,6 +415,8 @@ export default class OrderPage {
   private handleCreation(newOrder: I_OrderResponse) {
     window.history.replaceState({}, '', `/order/${newOrder.id}`);
     const pageHeader: HTMLElement = this.parent.querySelector('.order-page__header');
+
+    this.orderId = newOrder.id;
 
     pageHeader.textContent = `Заказ ${newOrder.id.slice(-4)} от ${formatDate(newOrder.created_at)}`;
     pageHeader.classList.add('formed');
