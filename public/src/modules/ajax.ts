@@ -136,7 +136,7 @@ class UserRequests {
   };
 
   AddAddress = async (address: string): Promise<void> => {
-    const { status, body } = await api.post<ErrorResponse>(this.baseUrl + '/address', {
+    const { status, body } = await api.post<null | ErrorResponse>(this.baseUrl + '/address', {
       address,
     });
 
