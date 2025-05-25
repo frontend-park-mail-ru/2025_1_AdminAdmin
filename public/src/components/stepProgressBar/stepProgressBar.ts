@@ -89,6 +89,20 @@ export class StepProgressBar {
     }
   }
 
+  public async playStepsSequentially(count: number) {
+    for (let i = 0; i < count; i++) {
+      await this.nextWithDelay();
+    }
+  }
+
+  private nextWithDelay(): Promise<void> {
+    return new Promise((resolve) => {
+      this.next();
+      // ждём пока линия "дойдет" (2s)
+      setTimeout(resolve, 2000);
+    });
+  }
+
   /**
    * Отменяет предыдущий завершенный шаг (если он есть) и откатывает к нему
    * 1-ый шаг всегда активный

@@ -49,7 +49,7 @@ export default class OrderPage {
     this.socket = new WebSocketConnection('cart/ws', (event) => {
       try {
         const order = JSON.parse(event.data);
-        if (order?.id === this.orderId && order.status) {
+        if (order?.id === this.orderId && order.status && statusMap[order.status].step_no) {
           this.stepProgressBar.goto(statusMap[order.status].step_no);
           toasts.success('Проверьте новый промокод в ЛК');
         }
