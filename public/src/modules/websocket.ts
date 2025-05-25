@@ -28,11 +28,11 @@ export class WebSocketConnection {
     this.socket = null;
   }
 
-  reconnect() {
+  reconnect = () => {
     console.error('Соединение закрыто');
     this.close();
     this.connect();
-  }
+  };
 
   onOpen(callback: (event: Event) => void) {
     if (this.socket) {
