@@ -228,6 +228,7 @@ export default class OrderPage {
       });
     } else {
       toasts.error('Для формирования заказа нужно авторизоваться');
+
       this.submitButton = new Button(submitButtonContainer, {
         id: 'order-page__submit__button',
         text: 'Авторизоваться',
