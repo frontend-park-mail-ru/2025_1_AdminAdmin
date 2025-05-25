@@ -48,7 +48,7 @@ export default class OrderPage {
 
     this.socket = new WebSocketConnection('cart/ws', (event) => {
       try {
-        const { order } = JSON.parse(event.data);
+        const order = JSON.parse(event.data);
         if (order?.id === this.orderId && order.status) {
           this.stepProgressBar.next();
         }
