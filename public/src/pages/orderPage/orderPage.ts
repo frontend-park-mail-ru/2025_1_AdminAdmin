@@ -50,7 +50,7 @@ export default class OrderPage {
       try {
         const order = JSON.parse(event.data);
         if (order?.id === this.orderId && order.status) {
-          this.stepProgressBar.next();
+          this.stepProgressBar.goto(statusMap[order.status].step_no);
           toasts.success('Проверьте новый промокод в ЛК');
         }
       } catch (err) {
