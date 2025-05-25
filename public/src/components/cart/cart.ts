@@ -4,7 +4,6 @@ import { CartCard } from '@components/productCard/cartCard/cartCard';
 import { router } from '@modules/routing';
 import { CartProduct } from '@myTypes/cartTypes';
 import { toasts } from 'doordashers-ui-kit';
-//import { toasts } from 'doordashers-ui-kit';
 /**
  * Класс cart представляет компонент корзины.
  */
