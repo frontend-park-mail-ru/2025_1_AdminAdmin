@@ -18,10 +18,11 @@ import { formatDate, formatNumber } from '@modules/utils';
 import { ProductsCarousel } from '@components/productsCarousel/productsCarousel';
 import { Checkbox } from '@components/checkbox/checkbox';
 import { PromocodeForm } from '@components/promocodeForm/promocodeFrom';
+import { WebSocketConnection } from '@modules/websocket';
 
 export default class OrderPage {
   private parent: HTMLElement;
-  private readonly orderId: string;
+  private orderId: string;
   private inputs: Record<string, FormInput> = {};
   private cartCards = new Map<string, CartCard>();
   private submitButton: Button;
@@ -30,7 +31,7 @@ export default class OrderPage {
   private youMoneyForm: YouMoneyForm = null;
   private isRemoved = false;
   private stepProgressBar: StepProgressBar = null;
-  private discountedPrice: number = null;
+  private socket: WebSocketConnection = null;
   private recommendedProductsCarousel: ProductsCarousel;
   private promocodeForm: PromocodeForm;
 
@@ -40,6 +41,22 @@ export default class OrderPage {
     }
     this.parent = parent;
     this.orderId = orderId;
+  }
+
+  private initSocket() {
+    if (this.socket) return;
+
+    this.socket = new WebSocketConnection('cart/ws', (event) => {
+      try {
+        const order = JSON.parse(event.data);
+        if (order?.id === this.orderId && order.status && statusMap[order.status].step_no) {
+          this.stepProgressBar.goto(statusMap[order.status].step_no);
+          toasts.success('Проверьте новый промокод в ЛК');
+        }
+      } catch (err) {
+        console.error('Ошибка при обработке данных сокета:', err);
+      }
+    });
   }
 
   get self(): HTMLElement | null {
@@ -166,8 +183,6 @@ export default class OrderPage {
         discountBlock.innerText = `${formatNumber(difference)} ₽ (${formatNumber(discountInPercent)}%)`;
         oldTotalBlock.innerText = `${formatNumber(oldTotal)} ₽`;
         cartTotal.textContent = formatNumber(newTotal);
-
-        this.discountedPrice = newTotal;
       },
 
       () => {
@@ -180,8 +195,6 @@ export default class OrderPage {
 
         const cartTotal: HTMLDivElement = this.parent.querySelector('.cart__total');
         cartTotal.textContent = oldTotal.toLocaleString('ru-RU');
-
-        this.discountedPrice = null;
       },
     );
 
@@ -215,6 +228,7 @@ export default class OrderPage {
       });
     } else {
       toasts.error('Для формирования заказа нужно авторизоваться');
+
       this.submitButton = new Button(submitButtonContainer, {
         id: 'order-page__submit__button',
         text: 'Авторизоваться',
@@ -232,6 +246,10 @@ export default class OrderPage {
       if (!data) {
         router.goToPage('home');
         return;
+      }
+
+      if (data.status !== 'delivered') {
+        this.initSocket();
       }
     } else {
       data = {
@@ -255,16 +273,16 @@ export default class OrderPage {
       address: data.address,
     };
 
+    if (!data.products.length) {
+      router.goToPage('home');
+      return;
+    }
+
     this.parent.innerHTML = template(templateProps);
 
     this.renderProgressBar(statusMap[data.status].step_no);
     this.renderInputs(data.order);
     this.renderCourierComment(data.order);
-
-    if (!data.products.length) {
-      router.goToPage('home');
-      return;
-    }
 
     this.createProductCards(data.products, Boolean(data.order));
 
@@ -399,6 +417,8 @@ export default class OrderPage {
     window.history.replaceState({}, '', `/order/${newOrder.id}`);
     const pageHeader: HTMLElement = this.parent.querySelector('.order-page__header');
 
+    this.orderId = newOrder.id;
+
     pageHeader.textContent = `Заказ ${newOrder.id.slice(-4)} от ${formatDate(newOrder.created_at)}`;
     pageHeader.classList.add('formed');
 
@@ -441,6 +461,8 @@ export default class OrderPage {
     this.recommendedProductsCarousel?.remove();
     this.createYouMoneyForm(newOrder);
     this.stepProgressBar.next();
+
+    this.initSocket();
   }
 
   private createYouMoneyForm(newOrder: I_OrderResponse): void {
@@ -509,6 +531,9 @@ export default class OrderPage {
   remove(): void {
     if (!this.self) return;
     this.isRemoved = true;
+
+    this.socket?.close();
+    this.socket = null;
 
     this.removeCards();
     this.removeListeners();

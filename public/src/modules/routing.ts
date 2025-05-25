@@ -50,7 +50,7 @@ class Router {
         searchAll: true,
       },
       restaurantPage: {
-        href: '/restaurants/',
+        href: '/restaurants',
         class: RestaurantPage,
         header: Header,
         searchAll: false,
@@ -163,7 +163,7 @@ class Router {
   ): void {
     if (!shouldPush) return;
 
-    const newPath = id ? `${pageData.href}${id}` : pageData.href;
+    const newPath = id ? `${pageData.href}/${id}` : pageData.href;
     const fullNewPath = query ? `${newPath}?query=${encodeURIComponent(query)}` : newPath;
 
     const currentFullPath = window.location.pathname + window.location.search;
