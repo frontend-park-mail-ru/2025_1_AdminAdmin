@@ -16,18 +16,20 @@ export class WebSocketConnection {
 
     this.socket.onmessage = this.onMessageCallback;
 
-    this.socket.onclose = this.onClose;
+    this.socket.onclose = this.reconnect;
     this.socket.onerror = (event) => {
       console.error(`Ошибка соединения:`, event);
     };
   }
 
   close() {
+    this.socket.onclose = null;
     this.socket?.close();
     this.socket = null;
   }
 
   reconnect() {
+    console.error('Соединение закрыто');
     this.close();
     this.connect();
   }
@@ -36,10 +38,6 @@ export class WebSocketConnection {
     if (this.socket) {
       this.socket.onopen = callback;
     }
-  }
-
-  onClose() {
-    console.error('Соединение закрыто');
   }
 
   onMessage(callback: (event: MessageEvent) => void) {
