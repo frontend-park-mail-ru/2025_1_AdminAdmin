@@ -30,7 +30,7 @@ export default class OrderPage {
   private youMoneyForm: YouMoneyForm = null;
   private isRemoved = false;
   private stepProgressBar: StepProgressBar = null;
-  private discountedPrice: number = null;
+  private socket: WebSocket | null = null;
   private recommendedProductsCarousel: ProductsCarousel;
   private promocodeForm: PromocodeForm;
 
@@ -40,6 +40,25 @@ export default class OrderPage {
     }
     this.parent = parent;
     this.orderId = orderId;
+  }
+
+  private initSocket() {
+    this.socket = new WebSocket('wss://doordashers.ru/api/cart/ws');
+
+    this.socket.onmessage = (event) => {
+      try {
+        const { order } = JSON.parse(event.data);
+        if (order?.id === this.orderId && order.status) {
+          this.stepProgressBar.next();
+        }
+      } catch (err) {
+        console.error('Ошибка при обработке данных сокета:', err);
+      }
+    };
+
+    this.socket.onerror = (error) => {
+      console.error('Ошибка WebSocket:', error);
+    };
   }
 
   get self(): HTMLElement | null {
@@ -166,8 +185,6 @@ export default class OrderPage {
         discountBlock.innerText = `${formatNumber(difference)} ₽ (${formatNumber(discountInPercent)}%)`;
         oldTotalBlock.innerText = `${formatNumber(oldTotal)} ₽`;
         cartTotal.textContent = formatNumber(newTotal);
-
-        this.discountedPrice = newTotal;
       },
 
       () => {
@@ -180,8 +197,6 @@ export default class OrderPage {
 
         const cartTotal: HTMLDivElement = this.parent.querySelector('.cart__total');
         cartTotal.textContent = oldTotal.toLocaleString('ru-RU');
-
-        this.discountedPrice = null;
       },
     );
 
@@ -233,6 +248,8 @@ export default class OrderPage {
         router.goToPage('home');
         return;
       }
+
+      this.initSocket();
     } else {
       data = {
         order: undefined,
@@ -441,6 +458,8 @@ export default class OrderPage {
     this.recommendedProductsCarousel?.remove();
     this.createYouMoneyForm(newOrder);
     this.stepProgressBar.next();
+
+    this.initSocket();
   }
 
   private createYouMoneyForm(newOrder: I_OrderResponse): void {
@@ -509,6 +528,9 @@ export default class OrderPage {
   remove(): void {
     if (!this.self) return;
     this.isRemoved = true;
+
+    this.socket?.close();
+    this.socket = null;
 
     this.removeCards();
     this.removeListeners();
