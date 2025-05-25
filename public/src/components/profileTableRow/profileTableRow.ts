@@ -1,7 +1,7 @@
 import template from './profileTableRow.hbs';
 import { I_OrderResponse, statusMap } from '@myTypes/orderTypes';
 import { router } from '@modules/routing';
-import { Button } from '@components/button/button';
+import { Button } from 'doordashers-ui-kit';
 import { formatDate } from '@modules/utils';
 
 //Интерфейс картинки ресторана

@@ -1,9 +1,9 @@
 import { router } from '@modules/routing';
 import { userStore } from '@store/userStore';
 import { Logo } from '@components/logo/logo';
-import { Button } from '@components/button/button';
+import { Button } from 'doordashers-ui-kit';
 import template from './header.hbs';
-import { toasts } from '@modules/toasts';
+import { toasts } from 'doordashers-ui-kit';
 import MapModal from '@pages/mapModal/mapModal';
 import logoImg from '@assets/logo.png';
 import cartImg from '@assets/cart.svg';
@@ -12,7 +12,7 @@ import { cartStore } from '@store/cartStore';
 import { modalController } from '@modules/modalController';
 import { AppUserRequests } from '@modules/ajax';
 import { Address } from '@components/address/address';
-import { FormInput } from '@components/formInput/formInput';
+import { FormInput } from 'doordashers-ui-kit';
 
 /**
  * Класс Header представляет основной заголовок страницы.

@@ -8,7 +8,7 @@ import { AppRestaurantRequests } from '@modules/ajax';
 import template from './restaurantPage.hbs';
 import type { RestaurantResponse } from '@myTypes/restaurantTypes';
 import { router } from '@modules/routing';
-import { toasts } from '@modules/toasts';
+import { toasts } from 'doordashers-ui-kit';
 
 /**
  * Класс, представляющий страницу конкретного ресторана.

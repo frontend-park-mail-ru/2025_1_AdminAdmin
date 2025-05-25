@@ -1,13 +1,11 @@
 @use './reset.scss' as *;
 
 /* Импорт стилей компонентов */
-@use './src/components/button/button' as *;
 @use './src/components/logo/logo' as *;
 @use './src/components/select/select' as *;
 @use './src/components/restaurantReviews/restaurantReview/restaurantReview.scss' as *;
 @use './src/components/restaurantReviews/restaurantDetail/restaurantDetail.scss' as *;
 @use './src/components/quantityButton/quantityButton.scss' as *;
-@use './src/components/toast/toast' as *;
 @use './src/components/suggest/suggest' as *;
 @use './src/components/profileTableRow/profileTableRow.scss' as *;
 @use './src/components/categories/categoryHeader/categoryHeader' as *;
@@ -18,7 +16,6 @@
 @use './src/components/header/header' as *;
 @use './src/components/auxHeader/auxHeader' as *;
 @use './src/components/restaurantCard/restaurantCard' as *;
-@use './src/components/formInput/formInput' as *;
 @use './src/components/restaurantHeader/restaurantHeader' as *;
 @use './src/components/restaurantReviews/restaurantReviews.scss' as *;
 @use './src/components/categories/categories.scss' as *;
@@ -123,25 +120,6 @@ img {
 
 main {
   padding-top: var(--real-header-height);
-}
-
-.toastBox {
-  position: fixed;
-  z-index: 1000;
-  bottom: 30px;
-  right: 30px;
-  gap: 20px;
-  display: flex;
-  align-items: flex-end;
-  flex-direction: column;
-  pointer-events: none;
-  padding: 20px;
-
-  @media (max-width: 450px) {
-    width: 100%;
-    box-sizing: border-box;
-    right: 0;
-  }
 }
 
 .form__line {

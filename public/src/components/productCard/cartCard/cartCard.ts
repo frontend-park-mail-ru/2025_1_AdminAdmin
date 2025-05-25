@@ -2,7 +2,7 @@ import template from './cartCard.hbs';
 import { cartStore } from '@store/cartStore';
 import { QuantityControls } from '@components/quantityControls/quantityControls';
 import { CartProduct } from '@myTypes/cartTypes';
-import { toasts } from '@modules/toasts';
+import { toasts } from 'doordashers-ui-kit';
 
 /**
  * Класс карточки товара

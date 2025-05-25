@@ -1,9 +1,9 @@
 import { userStore } from '@store/userStore';
-import { FormInput } from '@components/formInput/formInput';
-import { Button } from '@components//button/button';
+import { FormInput } from 'doordashers-ui-kit';
+import { Button } from 'doordashers-ui-kit';
 import { OTPInput } from '@components/OTPInput/OTPInput';
 import template from './loginForm.hbs';
-import { toasts } from '@modules/toasts';
+import { toasts } from 'doordashers-ui-kit';
 import LoginFormConfig from './loginFormConfig';
 
 /**

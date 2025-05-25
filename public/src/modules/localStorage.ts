@@ -1,14 +1,10 @@
 import { CartState } from '@store/reducers/cartReducer';
 
-export interface RequestOptions {
-  headers?: Record<string, string>;
-}
-
 /**
  * Добавляет токены из localStorage в заголовки запроса
  */
 
-export function getCSRFFromLocalStorage(): Record<string, string> {
+export const getCSRFFromLocalStorage = () => {
   const tokens: Record<string, string> = {};
 
   try {
@@ -21,13 +17,13 @@ export function getCSRFFromLocalStorage(): Record<string, string> {
   }
 
   return tokens;
-}
+};
 
 /**
  * Извлекает токены из заголовков ответа и сохраняет их в localStorage.
  * @param headers Заголовки ответа
  */
-export function storeAuthTokensFromResponse(headers: Headers): void {
+export const storeAuthTokensFromResponse = (headers: Headers) => {
   try {
     const newCSRF = headers.get('X-CSRF-Token');
     if (newCSRF) {
@@ -36,7 +32,7 @@ export function storeAuthTokensFromResponse(headers: Headers): void {
   } catch (err) {
     console.error('Ошибка сохранения токенов в localStorage:', err);
   }
-}
+};
 
 export function saveActiveToLocalStorage(value: string, item: string): void {
   try {

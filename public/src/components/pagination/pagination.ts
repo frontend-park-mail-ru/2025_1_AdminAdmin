@@ -1,4 +1,4 @@
-import { Button } from '@components/button/button';
+import { Button } from 'doordashers-ui-kit';
 import template from './pagination.hbs';
 
 export class Pagination {
@@ -23,10 +23,12 @@ export class Pagination {
   }
 
   render() {
-    this.clear();
-
-    const html = template();
-    this.parent.insertAdjacentHTML('beforeend', html);
+    if (this.self) {
+      this.clear();
+    } else {
+      const html = template();
+      this.parent.insertAdjacentHTML('beforeend', html);
+    }
 
     this.renderNavigationButtons();
     this.renderPageButtons();

@@ -1,9 +1,9 @@
 import template from './reviewsModal.hbs';
-import { Button } from '@components/button/button';
+import { Button } from 'doordashers-ui-kit';
 import { Review } from '@myTypes/restaurantTypes';
 import { AppRestaurantRequests } from '@modules/ajax';
 import { RestaurantReview } from '@components/restaurantReviews/restaurantReview/restaurantReview';
-import { FormInput } from '@components/formInput/formInput';
+import { FormInput } from 'doordashers-ui-kit';
 import { StarsWidget } from '@components/starsWidget/starsWidget';
 import { router } from '@modules/routing';
 import { modalController } from '@modules/modalController';

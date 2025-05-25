@@ -7,6 +7,7 @@ import ImageMinimizerPlugin from 'image-minimizer-webpack-plugin';
 import * as dotenv from "dotenv";
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import WebpackPwaManifest from 'webpack-pwa-manifest'
+import TerserPlugin from "terser-webpack-plugin";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -134,6 +135,16 @@ const config = {
     },
     optimization: {
         minimizer: [
+            new TerserPlugin({
+                terserOptions: {
+                    compress: true,
+                    mangle: true,
+                    format: {
+                        comments: false,
+                    },
+                },
+                extractComments: false,
+            }),
             new ImageMinimizerPlugin({
                 minimizer: {
                     implementation: ImageMinimizerPlugin.sharpMinify,
