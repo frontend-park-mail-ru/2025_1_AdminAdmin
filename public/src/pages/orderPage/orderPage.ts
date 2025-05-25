@@ -18,6 +18,7 @@ import { formatDate, formatNumber } from '@modules/utils';
 import { ProductsCarousel } from '@components/productsCarousel/productsCarousel';
 import { Checkbox } from '@components/checkbox/checkbox';
 import { PromocodeForm } from '@components/promocodeForm/promocodeFrom';
+import { WebSocketConnection } from '@modules/websocket';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -30,7 +31,7 @@ export default class OrderPage {
   private youMoneyForm: YouMoneyForm = null;
   private isRemoved = false;
   private stepProgressBar: StepProgressBar = null;
-  private socket: WebSocket | null = null;
+  private socket: WebSocketConnection = null;
   private recommendedProductsCarousel: ProductsCarousel;
   private promocodeForm: PromocodeForm;
 
@@ -43,9 +44,7 @@ export default class OrderPage {
   }
 
   private initSocket() {
-    this.socket = new WebSocket('wss://doordashers.ru/api/cart/ws');
-
-    this.socket.onmessage = (event) => {
+    this.socket = new WebSocketConnection('cart/ws', (event) => {
       try {
         const { order } = JSON.parse(event.data);
         if (order?.id === this.orderId && order.status) {
@@ -54,11 +53,7 @@ export default class OrderPage {
       } catch (err) {
         console.error('Ошибка при обработке данных сокета:', err);
       }
-    };
-
-    this.socket.onerror = (error) => {
-      console.error('Ошибка WebSocket:', error);
-    };
+    });
   }
 
   get self(): HTMLElement | null {
