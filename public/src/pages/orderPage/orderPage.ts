@@ -246,10 +246,9 @@ export default class OrderPage {
         return;
       }
 
-      if (data.status === 'delivered') {
-        return;
+      if (data.status !== 'delivered') {
+        this.initSocket();
       }
-      this.initSocket();
     } else {
       data = {
         order: undefined,
@@ -272,16 +271,16 @@ export default class OrderPage {
       address: data.address,
     };
 
+    if (!data.products.length) {
+      router.goToPage('home');
+      return;
+    }
+
     this.parent.innerHTML = template(templateProps);
 
     this.renderProgressBar(statusMap[data.status].step_no);
     this.renderInputs(data.order);
     this.renderCourierComment(data.order);
-
-    if (!data.products.length) {
-      router.goToPage('home');
-      return;
-    }
 
     this.createProductCards(data.products, Boolean(data.order));
 
