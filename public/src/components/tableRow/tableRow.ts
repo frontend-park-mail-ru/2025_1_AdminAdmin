@@ -21,7 +21,6 @@ export interface TableRowProps {
 export class TableRow {
   protected parent: HTMLElement;
   protected props: TableRowProps;
-  protected ComponentsList: Component[];
   protected clickHandler: (event: Event) => void;
 
   /**
