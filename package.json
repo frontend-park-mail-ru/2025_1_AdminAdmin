@@ -27,6 +27,7 @@
   "dependencies": {
     "@yandex/ymaps3-default-ui-theme": "^0.0.19",
     "copy-webpack-plugin": "^13.0.0",
+    "doordashers-http": "^1.0.1",
     "doordashers-store": "^1.0.5",
     "doordashers-ui-kit": "^1.1.4",
     "doordashers-validation": "^1.0.0",
