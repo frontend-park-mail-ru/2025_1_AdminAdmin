@@ -158,7 +158,9 @@ export default class OrderPage {
 
   private handlePayment() {
     this.youMoneyForm?.remove();
+    this.youMoneyForm = null;
     this.submitButton?.remove();
+    this.submitButton = null;
   }
 
   private renderPromocodeForm() {
