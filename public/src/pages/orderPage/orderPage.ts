@@ -51,7 +51,10 @@ export default class OrderPage {
         const order = JSON.parse(event.data);
         if (order?.id === this.orderId && order.status && statusMap[order.status].step_no) {
           this.stepProgressBar.goto(statusMap[order.status].step_no);
-          toasts.success('Проверьте новый промокод в ЛК');
+          if (statusMap[order.status].step_no === 1) {
+            toasts.success('Проверьте новый промокод в ЛК');
+            this.handlePayment();
+          }
         }
       } catch (err) {
         console.error('Ошибка при обработке данных сокета:', err);
@@ -151,6 +154,11 @@ export default class OrderPage {
       }
       this.inputs['orderPageComment'] = inputComponent;
     }
+  }
+
+  private handlePayment() {
+    this.youMoneyForm?.remove();
+    this.submitButton?.remove();
   }
 
   private renderPromocodeForm() {
@@ -418,6 +426,8 @@ export default class OrderPage {
     const pageHeader: HTMLElement = this.parent.querySelector('.order-page__header');
 
     this.orderId = newOrder.id;
+
+    userStore.setPromocode('');
 
     pageHeader.textContent = `Заказ ${newOrder.id.slice(-4)} от ${formatDateVerbose(newOrder.created_at)}`;
     pageHeader.classList.add('formed');
