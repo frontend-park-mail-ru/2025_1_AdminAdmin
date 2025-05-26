@@ -15,7 +15,7 @@ import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes
 import { CreateOrderPayload, I_OrderResponse, I_UserOrderResponse } from '@myTypes/orderTypes';
 import { capitalizeError } from '@modules/utils';
 import { I_Promocode } from '@myTypes/promocodeTypes';
-import { APIClient, RequestParams } from './apiClient';
+import { APIClient, RequestParams } from 'doordashers-http';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -54,7 +54,12 @@ class UserRequests {
       return true;
     }
 
-    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Что-то пошло не так...';
+
+    throw new Error(errorMessage);
   };
 
   /**
@@ -71,7 +76,12 @@ class UserRequests {
       return body as User;
     }
 
-    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Что-то пошло не так...';
+
+    throw new Error(errorMessage);
   };
 
   /**
@@ -84,9 +94,13 @@ class UserRequests {
     if (status === 200) {
       removeTokenFromLocalStorage();
       return { message: 'ok' };
-    } else {
-      throw new Error(capitalizeError(body.message) ?? 'Что-то пошло не так...');
     }
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Что-то пошло не так...';
+
+    throw new Error(errorMessage);
   };
 
   /**
@@ -118,9 +132,12 @@ class UserRequests {
       return body as User;
     }
 
-    throw new Error(
-      capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось обновить профиль',
-    );
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось обновить профиль';
+
+    throw new Error(errorMessage);
   };
 
   /**
@@ -136,9 +153,12 @@ class UserRequests {
       return body as { address: string; id: string; user_id: string }[];
     }
 
-    throw new Error(
-      capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось получить адреса пользователя',
-    );
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось получить адреса пользователя';
+
+    throw new Error(errorMessage);
   };
 
   AddAddress = async (address: string): Promise<void> => {
@@ -149,9 +169,12 @@ class UserRequests {
     if (status === 200) {
       return;
     } else {
-      throw new Error(
-        capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось добавить адрес',
-      );
+      const errorMessage =
+        body && (body as ErrorResponse)?.error
+          ? capitalizeError((body as ErrorResponse).error)
+          : 'Не удалось добавить адрес';
+
+      throw new Error(errorMessage);
     }
   };
 
@@ -167,7 +190,12 @@ class UserRequests {
       return;
     }
 
-    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось удалить адрес');
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось удалить адрес';
+
+    throw new Error(errorMessage);
   };
 
   SetAvatar = async (picture: FormData) => {
@@ -181,7 +209,12 @@ class UserRequests {
       return body;
     }
 
-    throw new Error(capitalizeError(body?.error) ?? 'Не удалось загрузить аватар');
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось загрузить аватар';
+
+    throw new Error(errorMessage);
   };
 
   /**
@@ -200,9 +233,12 @@ class UserRequests {
       return body as Blob;
     }
 
-    throw new Error(
-      capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось получить QR-код',
-    );
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось получить QR-код';
+
+    throw new Error(errorMessage);
   };
 
   /**
@@ -218,7 +254,12 @@ class UserRequests {
       return body as { message: string };
     }
 
-    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось отключить 2FA');
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось отключить 2FA';
+
+    throw new Error(errorMessage);
   };
 
   /**
@@ -236,9 +277,12 @@ class UserRequests {
       return body as User;
     }
 
-    throw new Error(
-      capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось подтвердить 2FA',
-    );
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось подтвердить 2FA';
+
+    throw new Error(errorMessage);
   };
 }
 
@@ -258,7 +302,12 @@ class RestaurantsRequests {
       return body as BaseRestaurant[];
     }
 
-    throw new Error(capitalizeError((body as ErrorResponse)?.error || `Ошибка: ${status}`));
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось загрузить список ресторанов';
+
+    throw new Error(errorMessage);
   };
 
   /**
@@ -277,9 +326,14 @@ class RestaurantsRequests {
 
     if (status === 200) {
       return body as RestaurantResponse;
-    } else {
-      throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
     }
+
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось получить ресторан';
+
+    throw new Error(errorMessage);
   };
 
   Search = async (id: string, query: string): Promise<Category[]> => {
@@ -290,9 +344,14 @@ class RestaurantsRequests {
 
     if (status === 200) {
       return body as Category[];
-    } else {
-      throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
     }
+
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Что-то пошло не так...';
+
+    throw new Error(errorMessage);
   };
 
   /**
@@ -312,11 +371,13 @@ class RestaurantsRequests {
 
     if (status === 200) {
       return body as Review[];
-    } else {
-      throw new Error(
-        capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось загрузить отзывы',
-      );
     }
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось загрузить отзывы';
+
+    throw new Error(errorMessage);
   };
 
   /**
@@ -334,11 +395,13 @@ class RestaurantsRequests {
 
     if (status === 200 || status === 201) {
       return body as Review;
-    } else {
-      throw new Error(
-        capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось отправить отзыв',
-      );
     }
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось отправить отзыв';
+
+    throw new Error(errorMessage);
   };
 
   /**
@@ -385,12 +448,13 @@ class CartRequests {
 
     if (status === 200) {
       return body as I_Cart;
-    } else {
-      throw new Error(
-        capitalizeError((body as ErrorResponse)?.error) ??
-          'Не удалось обновить количество продуктов',
-      );
     }
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось обновить количество продуктов';
+
+    throw new Error(errorMessage);
   };
 
   /**
@@ -404,11 +468,14 @@ class CartRequests {
       return body as I_Cart;
     } else if (status === 404) {
       return;
-    } else {
-      throw new Error(
-        capitalizeError((body as ErrorResponse).error) ?? 'Не удалось получить корзину',
-      );
     }
+
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось получить корзину';
+
+    throw new Error(errorMessage);
   };
 
   ClearCart = async (): Promise<void> => {
@@ -418,8 +485,12 @@ class CartRequests {
       return;
     }
 
-    const error = capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось очистить корзину';
-    throw new Error(error);
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось очистить корзину';
+
+    throw new Error(errorMessage);
   };
 }
 
@@ -441,7 +512,12 @@ class OrderRequests {
       return body as I_OrderResponse;
     }
 
-    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось создать заказ');
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось создать заказ';
+
+    throw new Error(errorMessage);
   };
 
   /**
@@ -460,9 +536,12 @@ class OrderRequests {
       return body as I_UserOrderResponse;
     }
 
-    throw new Error(
-      capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось получить заказы пользователя',
-    );
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось получить список заказов';
+
+    throw new Error(errorMessage);
   };
 
   /**
@@ -479,7 +558,12 @@ class OrderRequests {
       return body as I_OrderResponse;
     }
 
-    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось получить заказ');
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось получить заказ';
+
+    throw new Error(errorMessage);
   };
 }
 
@@ -541,7 +625,12 @@ class PromocodeRequests {
       return body.discount;
     }
 
-    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Промокод недействителен');
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось проверить промокод';
+
+    throw new Error(errorMessage);
   };
 }
 
