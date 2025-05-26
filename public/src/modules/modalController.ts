@@ -1,3 +1,5 @@
+import { QRModal } from '@components/qrModal/qrModal';
+
 interface Modal {
   self: HTMLElement | null;
   render(): void;
@@ -21,7 +23,10 @@ class ModalController {
   }
 
   private handleClickOutside(event: MouseEvent): void {
-    if (event.target === this.currentModal?.closeElem || event.target === this.currentModal.self) {
+    if (
+      event.target === this.currentModal?.closeElem ||
+      (event.target === this.currentModal.self && !(this.currentModal instanceof QRModal))
+    ) {
       this.closeModal();
     }
   }

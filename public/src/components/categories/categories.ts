@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from '@components/button/button';
+import { Button, ButtonProps } from 'doordashers-ui-kit';
 import { CategoryHeader } from '@components/categories/categoryHeader/categoryHeader';
 import template from './categories.hbs';
 

@@ -1,4 +1,4 @@
-import { ValidateLogin, ValidatePassword } from '@modules/validation';
+import { ValidateLogin, ValidatePassword } from 'doordashers-validation';
 
 export default {
   inputs: {

@@ -1,9 +1,9 @@
 import { router } from '@modules/routing';
 import { userStore } from '@store/userStore';
 import { Logo } from '@components/logo/logo';
-import { Button } from '@components/button/button';
+import { Button } from 'doordashers-ui-kit';
 import template from './header.hbs';
-import { toasts } from '@modules/toasts';
+import { toasts } from 'doordashers-ui-kit';
 import MapModal from '@pages/mapModal/mapModal';
 import logoImg from '@assets/logo.png';
 import cartImg from '@assets/cart.svg';
@@ -12,7 +12,7 @@ import { cartStore } from '@store/cartStore';
 import { modalController } from '@modules/modalController';
 import { AppUserRequests } from '@modules/ajax';
 import { Address } from '@components/address/address';
-import { FormInput } from '@components/formInput/formInput';
+import { FormInput } from 'doordashers-ui-kit';
 
 /**
  * Класс Header представляет основной заголовок страницы.
@@ -365,6 +365,9 @@ export default class Header {
       const avatarImage = document.getElementById(
         'header__profile-dropdown__image__avatar',
       ) as HTMLImageElement;
+      avatarImage.onerror = () => {
+        avatarImage.src = './src/assets/profile.png';
+      };
       avatarImage.src = `https://doordashers.ru/images_user/${userStore.getState().path}`;
     } else {
       document.querySelector('.header__profile-dropdown').classList.remove('active');
@@ -374,7 +377,7 @@ export default class Header {
       document.querySelector('.header__profile-dropdown__second-name').textContent = 'Фамилия';
     }
 
-    const activeAddress = userStore.getActiveAddress();
+    const active_address = userStore.getActiveAddress();
     const locationButton: HTMLDivElement = this.parent.querySelector(
       '.header__location_select_button',
     );
@@ -382,9 +385,9 @@ export default class Header {
       '.header__location_select_button__text',
     );
 
-    if (activeAddress) {
+    if (active_address) {
       locationButton.classList.add('selected');
-      locationText.textContent = activeAddress;
+      locationText.textContent = active_address;
       modalController.closeModal();
     } else {
       locationButton.classList.remove('selected');
@@ -410,6 +413,8 @@ export default class Header {
     try {
       await userStore.logout();
       toasts.success('Вы успешно вышли из системы');
+      this.addressComponents.forEach((comp) => comp.remove());
+      this.addressComponents = [];
     } catch (error) {
       toasts.error(error.message);
     } finally {
@@ -463,8 +468,6 @@ export default class Header {
     this.searchInput?.remove();
     if (this.cartButton) this.cartButton.remove();
     this.parent.innerHTML = '';
-    this.addressComponents.forEach((comp) => comp.remove());
-    this.addressComponents = [];
     this.parent.classList.remove('main_header');
     this.parent.classList.remove('mobile_header');
     window.removeEventListener('resize', this.handleResizeBound);

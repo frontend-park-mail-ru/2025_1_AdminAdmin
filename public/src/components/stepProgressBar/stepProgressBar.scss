@@ -17,16 +17,24 @@
     &::before {
         content: '';
         position: absolute;
-        left: 0;
         top: 20px;
+        left: 0;
         width: 100%;
         height: var(--line-width);
-        background: linear-gradient(
-                        to right,
-                        var(--orange) var(--progress),
-                        var(--dark-gray) 0%
-        );
+        background-color: var(--dark-gray);
         z-index: 0;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 0;
+        width: var(--progress);
+        height: var(--line-width);
+        background-color: var(--orange);
+        z-index: 1;
+        transition: width 2s ease;
     }
 
     &__step-container {
@@ -44,7 +52,11 @@
         border-radius: 50%;
         border: var(--line-width) solid var(--dark-gray);
         background-color: var(--background-color);
-        z-index: 1;
+        z-index: 2;
+
+        .step:not(:first-child) {
+            transition-delay: 2s;
+        }
 
         &__icon {
             position: absolute;

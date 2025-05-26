@@ -1,26 +1,28 @@
 import template from './orderPage.hbs';
-import { FormInput } from '@components/formInput/formInput';
+import { FormInput } from 'doordashers-ui-kit';
 import inputsConfig from './orderPageConfig';
 import { cartStore } from '@store/cartStore';
 import { CartCard } from '@components/productCard/cartCard/cartCard';
 import { userStore } from '@store/userStore';
 import { CartProduct } from '@myTypes/cartTypes';
-import { toasts } from '@modules/toasts';
-import { Button } from '@components/button/button';
-import { AppOrderRequests, AppRecommendationRequests } from '@modules/ajax';
+import { toasts } from 'doordashers-ui-kit';
+import { Button } from 'doordashers-ui-kit';
+import { AppOrderRequests } from '@modules/ajax';
 import { CreateOrderPayload, I_OrderResponse, statusMap } from '@myTypes/orderTypes';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
 import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
 import { router } from '@modules/routing';
 import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
-import { formatDate } from '@modules/utils';
+import { formatDate, formatNumber } from '@modules/utils';
 import { ProductsCarousel } from '@components/productsCarousel/productsCarousel';
 import { Checkbox } from '@components/checkbox/checkbox';
+import { PromocodeForm } from '@components/promocodeForm/promocodeFrom';
+import { WebSocketConnection } from '@modules/websocket';
 
 export default class OrderPage {
   private parent: HTMLElement;
-  private readonly orderId: string;
+  private orderId: string;
   private inputs: Record<string, FormInput> = {};
   private cartCards = new Map<string, CartCard>();
   private submitButton: Button;
@@ -29,7 +31,9 @@ export default class OrderPage {
   private youMoneyForm: YouMoneyForm = null;
   private isRemoved = false;
   private stepProgressBar: StepProgressBar = null;
+  private socket: WebSocketConnection = null;
   private recommendedProductsCarousel: ProductsCarousel;
+  private promocodeForm: PromocodeForm;
 
   constructor(parent: HTMLElement, orderId?: string) {
     if (!parent) {
@@ -37,6 +41,22 @@ export default class OrderPage {
     }
     this.parent = parent;
     this.orderId = orderId;
+  }
+
+  private initSocket() {
+    if (this.socket) return;
+
+    this.socket = new WebSocketConnection('cart/ws', (event) => {
+      try {
+        const order = JSON.parse(event.data);
+        if (order?.id === this.orderId && order.status && statusMap[order.status].step_no) {
+          this.stepProgressBar.goto(statusMap[order.status].step_no);
+          toasts.success('Проверьте новый промокод в ЛК');
+        }
+      } catch (err) {
+        console.error('Ошибка при обработке данных сокета:', err);
+      }
+    });
   }
 
   get self(): HTMLElement | null {
@@ -133,6 +153,54 @@ export default class OrderPage {
     }
   }
 
+  private renderPromocodeForm() {
+    if (!userStore.isAuth()) return;
+
+    const promocodeFormContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
+
+    this.promocodeForm = new PromocodeForm(
+      promocodeFormContainer,
+      (discount: number) => {
+        const additionalContentBlock: HTMLDivElement = this.parent.querySelector(
+          '.order-page__summary__additional_content',
+        );
+        additionalContentBlock.style.display = 'flex';
+
+        const discountBlock: HTMLDivElement = additionalContentBlock.querySelector(
+          '.order-page__summary__discount',
+        );
+        const oldTotalBlock: HTMLDivElement = additionalContentBlock.querySelector(
+          '.order-page__summary__price',
+        );
+
+        const oldTotal = cartStore.getState().total_sum;
+        const newTotal = oldTotal * (1 - discount);
+        const difference = newTotal - oldTotal;
+        const discountInPercent = discount * 100;
+
+        const cartTotal: HTMLDivElement = this.parent.querySelector('.cart__total');
+
+        discountBlock.innerText = `${formatNumber(difference)} ₽ (${formatNumber(discountInPercent)}%)`;
+        oldTotalBlock.innerText = `${formatNumber(oldTotal)} ₽`;
+        cartTotal.textContent = formatNumber(newTotal);
+      },
+
+      () => {
+        const additionalContentBlock: HTMLDivElement = this.parent.querySelector(
+          '.order-page__summary__additional_content',
+        );
+        additionalContentBlock.style.display = 'none';
+
+        const oldTotal = cartStore.getState().total_sum;
+
+        const cartTotal: HTMLDivElement = this.parent.querySelector('.cart__total');
+        cartTotal.textContent = oldTotal.toLocaleString('ru-RU');
+      },
+    );
+
+    this.promocodeForm.render();
+  }
+
   private renderSubmitButton() {
     const submitButtonContainer: HTMLDivElement = this.self.querySelector('.order-page__summary');
     if (!submitButtonContainer) return;
@@ -160,6 +228,7 @@ export default class OrderPage {
       });
     } else {
       toasts.error('Для формирования заказа нужно авторизоваться');
+
       this.submitButton = new Button(submitButtonContainer, {
         id: 'order-page__submit__button',
         text: 'Авторизоваться',
@@ -177,6 +246,10 @@ export default class OrderPage {
       if (!data) {
         router.goToPage('home');
         return;
+      }
+
+      if (data.status !== 'delivered') {
+        this.initSocket();
       }
     } else {
       data = {
@@ -200,16 +273,16 @@ export default class OrderPage {
       address: data.address,
     };
 
+    if (!data.products.length) {
+      router.goToPage('home');
+      return;
+    }
+
     this.parent.innerHTML = template(templateProps);
 
     this.renderProgressBar(statusMap[data.status].step_no);
     this.renderInputs(data.order);
     this.renderCourierComment(data.order);
-
-    if (!data.products.length) {
-      router.goToPage('home');
-      return;
-    }
 
     this.createProductCards(data.products, Boolean(data.order));
 
@@ -231,31 +304,29 @@ export default class OrderPage {
       return;
     }
 
-    await this.createRecommendedProducts();
+    this.createRecommendedProducts();
     const bin = this.self.querySelector('.order-page__products__header__clear');
     bin?.addEventListener('click', this.handleClear);
+    this.renderPromocodeForm();
     this.renderSubmitButton();
     this.unsubscribeFromStore = cartStore.subscribe(() => this.updateCards());
   }
 
-  private async createRecommendedProducts(): Promise<void> {
+  private createRecommendedProducts() {
     const recommendedProductsWrapper: HTMLDivElement = this.parent.querySelector(
       '.order-page__recommended_products',
     );
-    try {
-      const recommendedProducts = await AppRecommendationRequests.GetRecommendedProducts();
-      if (!recommendedProducts) {
-        recommendedProductsWrapper.style.display = 'none';
-        return;
-      }
-      this.recommendedProductsCarousel = new ProductsCarousel(
-        recommendedProductsWrapper,
-        recommendedProducts,
-      );
-      this.recommendedProductsCarousel.render();
-    } catch {
-      recommendedProductsWrapper.style.display = 'none';
+    const recommendedProducts = cartStore.getState().recommended_products;
+    if (!recommendedProducts || recommendedProducts.length === 0) {
+      return;
     }
+
+    recommendedProductsWrapper.style.display = 'block';
+    this.recommendedProductsCarousel = new ProductsCarousel(
+      recommendedProductsWrapper,
+      recommendedProducts,
+    );
+    this.recommendedProductsCarousel.render();
   }
 
   private createProductCards(products: CartProduct[], shouldDisable: boolean): void {
@@ -329,6 +400,7 @@ export default class OrderPage {
       courier_comment: formValues.courier_comment,
       leave_at_door: this.checkbox.isChecked,
       final_price,
+      promocode: userStore.getActivePromocode(),
     };
 
     try {
@@ -345,8 +417,21 @@ export default class OrderPage {
     window.history.replaceState({}, '', `/order/${newOrder.id}`);
     const pageHeader: HTMLElement = this.parent.querySelector('.order-page__header');
 
+    this.orderId = newOrder.id;
+
     pageHeader.textContent = `Заказ ${newOrder.id.slice(-4)} от ${formatDate(newOrder.created_at)}`;
     pageHeader.classList.add('formed');
+
+    const additionalContentBlock: HTMLDivElement = this.parent.querySelector(
+      '.order-page__summary__additional_content',
+    );
+    additionalContentBlock.style.display = 'none';
+
+    this.promocodeForm?.remove();
+    this.promocodeForm = null;
+
+    const cartTotal: HTMLDivElement = this.self.querySelector('.cart__total');
+    cartTotal.textContent = newOrder.final_price.toLocaleString('ru-RU');
 
     this.checkbox.disable();
 
@@ -368,8 +453,16 @@ export default class OrderPage {
     clearCart.style.display = 'none';
     this.submitButton.hide();
 
+    const recommendedProductsContainer: HTMLDivElement = this.parent.querySelector(
+      '.order-page__recommended_products',
+    );
+    recommendedProductsContainer.style.display = 'none';
+
+    this.recommendedProductsCarousel?.remove();
     this.createYouMoneyForm(newOrder);
     this.stepProgressBar.next();
+
+    this.initSocket();
   }
 
   private createYouMoneyForm(newOrder: I_OrderResponse): void {
@@ -377,6 +470,7 @@ export default class OrderPage {
     this.youMoneyForm = new YouMoneyForm(container, newOrder.final_price, newOrder.id);
     this.youMoneyForm.render();
   }
+
   private handleClear = async (): Promise<void> => {
     const bin: HTMLElement = this.self.querySelector('.order-page__products__header__clear');
     bin.style.pointerEvents = 'none';
@@ -438,21 +532,35 @@ export default class OrderPage {
     if (!this.self) return;
     this.isRemoved = true;
 
+    this.socket?.close();
+    this.socket = null;
+
+    this.removeCards();
+    this.removeListeners();
+    this.removeComponents();
+    this.clearInputs();
+
+    if (this.unsubscribeFromStore) this.unsubscribeFromStore();
+    this.parent.innerHTML = '';
+  }
+
+  private removeCards(): void {
     this.cartCards.forEach((card) => card.remove());
     this.cartCards.clear();
+  }
 
-    const bin = this.self.querySelector('.order-page__products__header__clear');
+  private removeListeners(): void {
+    const bin = this.self?.querySelector('.order-page__products__header__clear');
     if (bin) {
       bin.removeEventListener('click', this.handleClear);
     }
+  }
 
+  private removeComponents(): void {
     this.stepProgressBar?.remove();
-
     this.recommendedProductsCarousel?.remove();
-
-    if (this.submitButton) {
-      this.submitButton.remove();
-    }
+    this.submitButton?.remove();
+    this.promocodeForm?.remove();
 
     if (this.youMoneyForm) {
       cartStore.clearLocalCart();
@@ -460,11 +568,10 @@ export default class OrderPage {
     }
 
     this.checkbox?.remove();
+  }
 
+  private clearInputs(): void {
     Object.values(this.inputs).forEach((input) => input.remove());
     this.inputs = {};
-
-    if (this.unsubscribeFromStore) this.unsubscribeFromStore();
-    this.parent.innerHTML = '';
   }
 }

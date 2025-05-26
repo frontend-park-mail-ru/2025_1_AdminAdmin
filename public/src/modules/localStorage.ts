@@ -1,14 +1,10 @@
 import { CartState } from '@store/reducers/cartReducer';
 
-export interface RequestOptions {
-  headers?: Record<string, string>;
-}
-
 /**
  * Добавляет токены из localStorage в заголовки запроса
  */
 
-export function getCSRFFromLocalStorage(): Record<string, string> {
+export const getCSRFFromLocalStorage = () => {
   const tokens: Record<string, string> = {};
 
   try {
@@ -21,13 +17,13 @@ export function getCSRFFromLocalStorage(): Record<string, string> {
   }
 
   return tokens;
-}
+};
 
 /**
  * Извлекает токены из заголовков ответа и сохраняет их в localStorage.
  * @param headers Заголовки ответа
  */
-export function storeAuthTokensFromResponse(headers: Headers): void {
+export const storeAuthTokensFromResponse = (headers: Headers) => {
   try {
     const newCSRF = headers.get('X-CSRF-Token');
     if (newCSRF) {
@@ -36,21 +32,21 @@ export function storeAuthTokensFromResponse(headers: Headers): void {
   } catch (err) {
     console.error('Ошибка сохранения токенов в localStorage:', err);
   }
-}
+};
 
-export function saveActiveAddressToLocalStorage(address: string): void {
+export function saveActiveToLocalStorage(value: string, item: string): void {
   try {
-    window.localStorage.setItem('Address', address);
+    window.localStorage.setItem(item, value);
   } catch (err) {
     console.error('Ошибка сохранения адреса в localStorage:', err);
   }
 }
 
-export function getActiveAddressFromLocalStorage(): string {
+export function getActiveFromLocalStorage(item: string): string {
   try {
-    return window.localStorage.getItem('Address');
+    return window.localStorage.getItem(item);
   } catch (err) {
-    console.error('Ошибка получения адреса из localStorage:', err);
+    console.error('Ошибка получения из localStorage:', err);
   }
 }
 

@@ -1,8 +1,8 @@
-import { Button, ButtonProps } from '../button/button';
+import { Button, ButtonProps } from 'doordashers-ui-kit';
 import template from './address.hbs';
 import { userStore } from '@store/userStore';
 import { AppUserRequests } from '@modules/ajax';
-import { toasts } from '@modules/toasts';
+import { toasts } from 'doordashers-ui-kit';
 
 /**
  * @interface Интерфейс для компонента адреса

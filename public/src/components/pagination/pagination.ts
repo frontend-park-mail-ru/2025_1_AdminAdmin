@@ -1,4 +1,4 @@
-import { Button } from '@components/button/button';
+import { Button } from 'doordashers-ui-kit';
 import template from './pagination.hbs';
 
 export class Pagination {
@@ -23,10 +23,12 @@ export class Pagination {
   }
 
   render() {
-    this.clear();
-
-    const html = template();
-    this.parent.insertAdjacentHTML('beforeend', html);
+    if (this.self) {
+      this.clear();
+    } else {
+      const html = template();
+      this.parent.insertAdjacentHTML('beforeend', html);
+    }
 
     this.renderNavigationButtons();
     this.renderPageButtons();
@@ -40,12 +42,14 @@ export class Pagination {
 
   private renderNavigationButtons() {
     if (this.currentPage > 1) {
-      this.addButton('beg-button', '«', () => this.goTo(1));
-      this.addButton('prev-button', '< Назад', this.prev);
+      if (window.innerWidth > 700) {
+        this.addButton('beg-button', '«', () => this.goTo(1));
+        this.addButton('prev-button', '< Назад', this.prev);
+      }
 
-      if (this.currentPage > 2) {
+      if (this.currentPage > 2 && this.totalPages > 4) {
         this.addButton('first-button', '1', () => this.goTo(1));
-        if (this.currentPage > 3) {
+        if (this.currentPage > 3 && this.totalPages > 5) {
           this.addButton('more-beg-button', '...');
         }
       }
@@ -75,8 +79,8 @@ export class Pagination {
   }
 
   private renderEndButtons() {
-    if (this.currentPage < this.totalPages - 1) {
-      if (this.currentPage < this.totalPages - 2) {
+    if (this.currentPage < this.totalPages - 1 && this.totalPages > 4) {
+      if (this.currentPage < this.totalPages - 2 && this.totalPages > 5) {
         this.addButton('more-next-button', '...');
       }
 
@@ -85,7 +89,7 @@ export class Pagination {
       );
     }
 
-    if (this.currentPage < this.totalPages) {
+    if (this.currentPage < this.totalPages && window.innerWidth > 700) {
       this.addButton('next-button', 'Далее >', this.next);
       this.addButton('end-button', '»', () => this.goTo(this.totalPages));
     }
@@ -142,5 +146,8 @@ export class Pagination {
     });
 
     this.paginationButtons = [];
+
+    const pagination: HTMLDivElement = this.parent.querySelector('.pagination-wrapper');
+    pagination?.remove();
   }
 }

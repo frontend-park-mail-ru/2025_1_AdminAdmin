@@ -16,10 +16,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    .button {
-      height: 40px;
-    }
   }
 
   @media (max-width: 800px) {
@@ -155,6 +151,7 @@
     position: sticky;
     top: calc(var(--real-header-height) + 20px);
     width: 100%;
+    min-width: 0;
     grid-column: 2 / span 1;
     padding: 20px;
     border-radius: var(--border-radius);
@@ -191,16 +188,26 @@
       }
     }
 
+    &__additional_content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
     &__content {
       color: var(--dark-gray);
       display: flex;
       justify-content: space-between;
-      margin-bottom: 20px;
+    }
+
+    &__additional_content {
+      display: none;
     }
   }
 
   &__recommended_products {
     width: 100%;
     min-width: 0;
+    display: none;
   }
 }

@@ -4,7 +4,7 @@ import {
   ValidatePorch,
   ValidateFloor,
   ValidateCourierComment,
-} from '@modules/validation';
+} from 'doordashers-validation';
 
 export default {
   addressInputs: {

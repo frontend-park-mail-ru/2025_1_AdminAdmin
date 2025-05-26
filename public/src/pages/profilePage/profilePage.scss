@@ -132,14 +132,54 @@
     }
 }
 
+// Блок промокодов
+.profile-promocodes {
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+
+    @media (max-width: 800px) {
+        gap: 10px;
+    }
+
+    &__header {
+        font-size: 32px;
+        font-weight: bold;
+    }
+
+    &__body {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+
+        @media (max-width: 900px) {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        @media (max-width: 600px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (max-width: 350px) {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
 // Блок заказов
 .profile-orders {
     font-size: 16px;
     text-align: left;
-    display: grid;
+    display: none;
     gap: 20px;
 
+    @media (max-width: 600px) {
+        grid-row: 3;
+        grid-column: 1;
+    }
+
     &__header {
+        grid-row: 1;
         font-size: 32px;
         font-weight: bold;
     }
@@ -148,5 +188,12 @@
         display: flex;
         flex-direction: column;
         gap: 0;
+    }
+
+    .pagination-wrapper {
+        @media (max-width: 600px) {
+            grid-row: 2;
+            grid-column: 1;
+        }
     }
 }

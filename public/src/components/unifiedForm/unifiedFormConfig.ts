@@ -1,7 +1,12 @@
-import { ValidateLogin, ValidateName, ValidatePassword, ValidatePhone } from '@modules/validation';
-import { FormInputProps } from '@components/formInput/formInput';
-import { ButtonProps } from '@components/button/button';
+import {
+  ValidateLogin,
+  ValidateName,
+  ValidatePassword,
+  ValidatePhone,
+} from 'doordashers-validation';
 import { userStore } from '@store/userStore';
+import { FormInputProps } from 'doordashers-ui-kit/types/components/formInput/formInput';
+import { ButtonProps } from 'doordashers-ui-kit/types/components/button/button';
 
 export interface I_FormConfig {
   inputs: Record<string, FormInputProps>;

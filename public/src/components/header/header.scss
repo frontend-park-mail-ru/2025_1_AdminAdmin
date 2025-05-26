@@ -24,6 +24,7 @@
       gap: 0;
       height: 100%;
       width: 100%;
+      box-sizing: border-box;
 
       input {
         border-top-right-radius: 0;
@@ -137,8 +138,16 @@
         max-width: 250px;
       }
 
-      @media (max-width: 400px) {
+      @media (max-width: 430px) {
+        max-width: 200px;
+      }
+
+      @media (max-width: 385px) {
         max-width: 150px;
+      }
+
+      @media (max-width: 320px) {
+        max-width: 100px;
       }
 
       &_select_button {
@@ -208,6 +217,10 @@
         &_options {
           width: 100%;
           container-type: inline-size;
+
+          > :first-child {
+            margin-top: 10px;
+          }
         }
       }
     }
@@ -245,8 +258,12 @@
       background-color: var(--white);
       border-radius: 20px;
 
+      @media (max-width: 1000px) {
+        top: 60%;
+      }
       &_button {
         font-size: 16px;
+        border-radius: 16px;
         background-size: 20px 20px;
       }
 
@@ -254,30 +271,6 @@
         height: 30px;
         margin-right: 10px;
         width: auto;
-      }
-
-      @media (max-width: 1000px) {
-        position: fixed;
-        bottom: 0;
-        border-top-left-radius: 30px;
-        border-top-right-radius: 30px;
-        width: 100%;
-        left: 0;
-        box-sizing: border-box;
-        border: 14px solid var(--white);
-        z-index: 13;
-
-        &_button {
-          border-radius: 30px;
-          font-size: 20px;
-          background-size: 25px 25px;
-        }
-
-        &_icon {
-          height: 50px;
-          margin: 0 10px;
-          width: auto;
-        }
       }
     }
   }

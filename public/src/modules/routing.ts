@@ -40,11 +40,8 @@ class Router {
     this.headerElement = document.createElement('div');
     this.headerElement.classList.add('header');
     this.pageElement = document.createElement('main');
-    this.toastBoxElement = document.createElement('div');
-    this.toastBoxElement.classList.add('toastBox');
     this.parent.appendChild(this.headerElement);
     this.parent.appendChild(this.pageElement);
-    this.parent.appendChild(this.toastBoxElement);
     this.routes = {
       home: {
         href: '/',
@@ -53,7 +50,7 @@ class Router {
         searchAll: true,
       },
       restaurantPage: {
-        href: '/restaurants/',
+        href: '/restaurants',
         class: RestaurantPage,
         header: Header,
         searchAll: false,
@@ -166,7 +163,7 @@ class Router {
   ): void {
     if (!shouldPush) return;
 
-    const newPath = id ? `${pageData.href}${id}` : pageData.href;
+    const newPath = id ? `${pageData.href}/${id}` : pageData.href;
     const fullNewPath = query ? `${newPath}?query=${encodeURIComponent(query)}` : newPath;
 
     const currentFullPath = window.location.pathname + window.location.search;

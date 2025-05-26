@@ -11,6 +11,8 @@
 
 [Михалёв Ярослав](https://github.com/YarikMix) - _Frontend_
 
+[Салтыков Александр](https://github.com/johnSamilin) - _Frontend_
+
 [Кочкарова Лейла](https://github.com/k-t-l-h) - _Backend_
 
 Ерилина Наталья - _UX_
@@ -28,3 +30,12 @@
 [Деплой](https://doordashers.ru/)
 
 [Figma](https://www.figma.com/design/FgRgsFGr4YEHs2Kycali5U/Untitled?node-id=0-1&t=mFyZBb8Zqn9zpvvc-1)
+
+### npm модули
+[http](https://www.npmjs.com/package/doordashers-http)
+
+[ui kit](https://www.npmjs.com/package/doordashers-ui-kit)
+
+[validation](https://www.npmjs.com/package/doordashers-validation)
+
+[store](https://www.npmjs.com/package/doordashers-store)

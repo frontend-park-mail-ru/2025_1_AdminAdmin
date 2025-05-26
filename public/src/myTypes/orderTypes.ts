@@ -10,6 +10,7 @@ export interface CreateOrderPayload {
   courier_comment?: string;
   leave_at_door?: boolean;
   final_price: number;
+  promocode: string;
 }
 
 export interface I_OrderResponse {

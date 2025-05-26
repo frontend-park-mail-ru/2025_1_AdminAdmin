@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from '@components/button/button';
+import { Button, ButtonProps } from 'doordashers-ui-kit';
 
 import template from './slider.hbs';
 

@@ -1,11 +1,39 @@
 import { store } from './store';
 import { AppUserRequests } from '@modules/ajax';
-import { saveActiveAddressToLocalStorage } from '@modules/localStorage';
+import { getActiveFromLocalStorage, saveActiveToLocalStorage } from '@modules/localStorage';
 import { LoginPayload, RegisterPayload, UpdateUserPayload } from '@myTypes/userTypes';
 import { cartStore } from '@store/cartStore';
 import { UserActions, UserState } from '@store/reducers/userReducer';
 
+const userChannel = new BroadcastChannel('user_channel');
+const tabId = crypto.randomUUID();
+
+type UserActionType = keyof typeof UserActions;
+
+interface UserChannelEvent {
+  data: {
+    type: UserActionType;
+    payload: any;
+    sender: string;
+  };
+}
+
 export const userStore = {
+  startSyncAcrossTabs(): void {
+    userChannel.onmessage = (event: UserChannelEvent) => {
+      const { type, payload, sender } = event.data;
+
+      if (sender === tabId) return;
+
+      if (type == UserActions.LOGOUT_SUCCESS) {
+        cartStore.clearLocalCart();
+      }
+      store.dispatch({
+        type: UserActions[type],
+        payload: payload,
+      });
+    };
+  },
   /**
    * Проверяет, авторизован ли пользователь.
    * @returns {boolean} - true, если пользователь авторизован, иначе false
@@ -19,7 +47,11 @@ export const userStore = {
    * @returns {string} - активный адрес пользователя
    */
   getActiveAddress(): string {
-    return this.getState().activeAddress;
+    return this.getState().active_address;
+  },
+
+  getActivePromocode(): string {
+    return this.getState().activePromoCode;
   },
 
   /**
@@ -37,7 +69,15 @@ export const userStore = {
    */
   async login(payload: LoginPayload): Promise<void> {
     const res = await AppUserRequests.Login(payload);
+
+    if (!res.active_address) res.active_address = getActiveFromLocalStorage('Address');
+
     store.dispatch({
+      type: UserActions.LOGIN_SUCCESS,
+      payload: res,
+    });
+
+    userChannel.postMessage({
       type: UserActions.LOGIN_SUCCESS,
       payload: res,
     });
@@ -52,9 +92,18 @@ export const userStore = {
    */
   async register(payload: RegisterPayload): Promise<void> {
     const res = await AppUserRequests.SignUp(payload);
+
+    res.active_address = getActiveFromLocalStorage('Address');
+
     store.dispatch({
       type: UserActions.REGISTER_SUCCESS,
       payload: res,
+    });
+
+    userChannel.postMessage({
+      type: UserActions.REGISTER_SUCCESS,
+      payload: res,
+      sender: tabId,
     });
 
     await cartStore.initCart();
@@ -67,6 +116,12 @@ export const userStore = {
   async logout(): Promise<void> {
     await AppUserRequests.Logout();
     store.dispatch({ type: UserActions.LOGOUT_SUCCESS });
+
+    userChannel.postMessage({
+      type: UserActions.LOGOUT_SUCCESS,
+      sender: tabId,
+    });
+
     cartStore.clearLocalCart();
   },
 
@@ -77,9 +132,18 @@ export const userStore = {
   async checkUser(): Promise<void> {
     try {
       const res = await AppUserRequests.CheckUser();
+
+      if (!res.active_address) res.active_address = getActiveFromLocalStorage('Address');
+
       store.dispatch({
         type: UserActions.CHECK_SUCCESS,
         payload: res,
+      });
+
+      userChannel.postMessage({
+        type: UserActions.CHECK_SUCCESS,
+        payload: res,
+        sender: tabId,
       });
     } catch (err) {
       console.error('Ошибка при проверке пользователя:', (err as Error).message);
@@ -100,6 +164,12 @@ export const userStore = {
         type: UserActions.UPDATE_USER_SUCCESS,
         payload: res,
       });
+
+      userChannel.postMessage({
+        type: UserActions.UPDATE_USER_SUCCESS,
+        payload: res,
+        sender: tabId,
+      });
     } catch (err) {
       console.error('Ошибка при обновлении пользователя:', (err as Error).message);
     }
@@ -112,6 +182,12 @@ export const userStore = {
     store.dispatch({
       type: UserActions.UPDATE_USER_SUCCESS,
       payload: res,
+    });
+
+    userChannel.postMessage({
+      type: UserActions.UPDATE_USER_SUCCESS,
+      payload: res,
+      sender: tabId,
     });
   },
 
@@ -129,13 +205,32 @@ export const userStore = {
    */
 
   setAddress(address: string): void {
-    saveActiveAddressToLocalStorage(address);
+    saveActiveToLocalStorage(address, 'Address');
     store.dispatch({
       type: UserActions.SET_ADDRESS,
       payload: address,
     });
+
+    userChannel.postMessage({
+      type: UserActions.SET_ADDRESS,
+      sender: tabId,
+      payload: address,
+    });
   },
 
+  setPromocode(promocode: string): void {
+    saveActiveToLocalStorage(promocode, 'Promocode');
+    store.dispatch({
+      type: UserActions.SET_PROMOCODE,
+      payload: promocode,
+    });
+
+    userChannel.postMessage({
+      type: UserActions.SET_PROMOCODE,
+      sender: tabId,
+      payload: promocode,
+    });
+  },
   /**
    * Подписывает listener на изменение состояния пользователя.
    * @param {Function} listener - функция, которая будет вызвана при изменении состояния
@@ -147,3 +242,4 @@ export const userStore = {
 };
 
 await userStore.checkUser();
+userStore.startSyncAcrossTabs();

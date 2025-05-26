@@ -6,6 +6,7 @@ export interface User {
   login: string;
   path: string;
   phone_number: string;
+  active_address: string;
 }
 
 export interface LoginPayload {

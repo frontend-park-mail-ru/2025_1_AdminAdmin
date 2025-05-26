@@ -1,5 +1,5 @@
 import { SuggestsContainer } from '@components/suggestsContainer/suggestsContainer';
-import { Button } from '@components/button/button';
+import { Button } from 'doordashers-ui-kit';
 import template from './mapModal.hbs';
 import {
   YMap,
@@ -18,7 +18,7 @@ import {
   geoSuggestRequest,
 } from '@modules/ymapsRequests';
 import debounce from '@modules/debounce';
-import { toasts } from '@modules/toasts';
+import { toasts } from 'doordashers-ui-kit';
 import mapLocationImg from '@assets/map_location.png';
 
 /**

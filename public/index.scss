@@ -1,13 +1,11 @@
 @use './reset.scss' as *;
 
 /* Импорт стилей компонентов */
-@use './src/components/button/button' as *;
 @use './src/components/logo/logo' as *;
 @use './src/components/select/select' as *;
 @use './src/components/restaurantReviews/restaurantReview/restaurantReview.scss' as *;
 @use './src/components/restaurantReviews/restaurantDetail/restaurantDetail.scss' as *;
 @use './src/components/quantityButton/quantityButton.scss' as *;
-@use './src/components/toast/toast' as *;
 @use './src/components/suggest/suggest' as *;
 @use './src/components/profileTableRow/profileTableRow.scss' as *;
 @use './src/components/categories/categoryHeader/categoryHeader' as *;
@@ -18,7 +16,6 @@
 @use './src/components/header/header' as *;
 @use './src/components/auxHeader/auxHeader' as *;
 @use './src/components/restaurantCard/restaurantCard' as *;
-@use './src/components/formInput/formInput' as *;
 @use './src/components/restaurantHeader/restaurantHeader' as *;
 @use './src/components/restaurantReviews/restaurantReviews.scss' as *;
 @use './src/components/categories/categories.scss' as *;
@@ -38,6 +35,8 @@
 @use './src/components/stepProgressBar/stepProgressBar' as *;
 @use './src/components/productsCarousel/productsCarousel' as *;
 @use './src/components/pagination/pagination' as *;
+@use './src/components/promocodeCard/promocodeCard.scss' as *;
+@use './src/components/promocodeForm/promocodeForm.scss' as *;
 @use './src/components/loginForm/loginForm' as *;
 @use './src/components/OTPInput/OTPInput' as *;
 @use './src/components/qrModal/qrModal' as *;
@@ -74,17 +73,17 @@
   --light-yellow: #e4e6b2;
   --light-yellow-light: #eff0d1;
   --header-content-height: 45px;
-  --real-header-height: 67.5px;
+  --real-header-height: 63px;
 
   @media (max-width: 1000px) {
-    --header-height: 100px;
-    --real-header-height: 140px;
+    --real-header-height: 120px;
   }
 }
 
 body {
   font-family: Calibri, sans-serif;
   font-size: 14px;
+  color: var(--black);
   margin: 0;
   background-color: var(--white);
 }
@@ -123,25 +122,6 @@ main {
   padding-top: var(--real-header-height);
 }
 
-.toastBox {
-  position: fixed;
-  z-index: 1000;
-  bottom: 30px;
-  right: 30px;
-  gap: 20px;
-  display: flex;
-  align-items: flex-end;
-  flex-direction: column;
-  pointer-events: none;
-  padding: 20px;
-
-  @media (max-width: 450px) {
-    width: 100%;
-    box-sizing: border-box;
-    right: 0;
-  }
-}
-
 .form__line {
   display: flex;
   flex-direction: row;
@@ -150,6 +130,10 @@ main {
   width: 100%;
   gap: 5px;
   padding: 0;
+
+  button {
+    height: 45px;
+  }
 
   &_submit_button {
     margin-top: 15px;

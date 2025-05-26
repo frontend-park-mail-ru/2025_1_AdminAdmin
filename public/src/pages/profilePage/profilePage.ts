@@ -1,22 +1,24 @@
 import { Address } from '@components/address/address';
-import { Button, ButtonProps } from '@components/button/button';
+import { Button, ButtonProps } from 'doordashers-ui-kit';
 import { ProfileTable } from '@components/profileTable/profileTable';
 
 import template from './profilePage.hbs';
 import { User } from '@myTypes/userTypes';
 import { userStore } from '@store/userStore';
 import UnifiedForm from '@components/unifiedForm/unifiedForm';
-import { AppOrderRequests, AppUserRequests } from '@modules/ajax';
-import { toasts } from '@modules/toasts';
+import { AppOrderRequests, AppPromocodeRequests, AppUserRequests } from '@modules/ajax';
+import { toasts } from 'doordashers-ui-kit';
 import MapModal from '@pages/mapModal/mapModal';
 import { modalController } from '@modules/modalController';
 import { I_UserOrderResponse } from '@myTypes/orderTypes';
 import { router } from '@modules/routing';
 import { Pagination } from '@components/pagination/pagination';
+import { PromocodeCard } from '@//components/promocodeCard/promocodeCard';
 import { Checkbox } from '@components/checkbox/checkbox';
 import { QRModal } from '@components/qrModal/qrModal';
+import copyImg from '@assets/copy.svg';
 
-const ORDERS_PER_PAGE = 10;
+const ORDERS_PER_PAGE = 5;
 
 interface ProfilePageProps {
   data?: User;
@@ -29,6 +31,8 @@ interface ProfilePageProps {
 export default class ProfilePage {
   private parent: HTMLElement;
   private props: ProfilePageProps;
+  private addressChannel = new BroadcastChannel('cart_channel');
+  private tabId = crypto.randomUUID();
   private components: {
     loadAvatarButton: Button;
     profileForm?: UnifiedForm;
@@ -40,6 +44,7 @@ export default class ProfilePage {
   private readonly avatarChangeHandler: (event: Event) => void; // Функция при изменении файла аватарки
   private unsubscribeFromUserStore: (() => void) | null = null;
   private previousAddressMap = new Map<string, Address>();
+  private promocodeCards: PromocodeCard[] = [];
 
   // Поля необязательные чтобы можно было создать пустой объект
 
@@ -112,18 +117,19 @@ export default class ProfilePage {
     profileFormComponent.render();
     this.components.profileForm = profileFormComponent;
 
-    const checkboxWrapper: HTMLDivElement = this.parent.querySelector('.profile-data__checkbox');
+    /*    const checkboxWrapper: HTMLDivElement = this.parent.querySelector('.profile-data__checkbox');
     this.components.twoFactorCheckbox = new Checkbox(checkboxWrapper, {
       id: 'profile-data__twoFactorCheckbox',
       label: 'Двухфакторная аутентификация',
       onClick: this.handleTwoFactorUpdate,
     });
-    this.components.twoFactorCheckbox.render();
+    this.components.twoFactorCheckbox.render();*/
 
     // Ренденрим блок изменения/удаления/добавления адресов
     await this.refreshAddresses();
+    this.startSyncAcrossTabs();
 
-    const profileAddressBody: HTMLDivElement = this.self.querySelector('.profile-address__body');
+    const profileAddressBody: HTMLDivElement = this.parent.querySelector('.profile-address__body');
     const addAddressButtonProps = {
       id: 'profile-page__address-add',
       text: 'Добавить',
@@ -137,6 +143,7 @@ export default class ProfilePage {
             await userStore.addAddress(newAddress);
             modalController.closeModal();
             await this.refreshAddresses();
+            this.addressChannel.postMessage({ sender: this.tabId });
           } catch (error) {
             toasts.error(error);
           }
@@ -154,16 +161,26 @@ export default class ProfilePage {
     ) as HTMLInputElement;
     avatarInputElement.addEventListener('change', this.avatarChangeHandler);
 
+    // Рендерим блок промокодов
+    await this.renderPromocodes();
+
+    // Рендерим таблицу заказов
     try {
       await this.createProfileTable(0);
 
       if (!this.props.orders.total) {
-        this.hideProfileOrders();
         return;
       }
 
+      const profileOrderWrapper: HTMLDivElement = this.parent.querySelector('.profile-orders');
+
       if (this.props.orders.total > ORDERS_PER_PAGE) {
-        const profileOrderWrapper: HTMLDivElement = this.parent.querySelector('.profile-orders');
+        const profileTableWrapper = this.self.querySelector(
+          '.profile-orders__table__wrapper',
+        ) as HTMLElement;
+
+        profileTableWrapper.style.minHeight = `${80 * (ORDERS_PER_PAGE + 1)}px`;
+
         this.components.pagination = new Pagination(
           profileOrderWrapper,
           Math.ceil(this.props.orders.total / ORDERS_PER_PAGE),
@@ -172,11 +189,21 @@ export default class ProfilePage {
 
         this.components.pagination.render();
       }
+
+      profileOrderWrapper.style.display = 'grid';
     } catch (error) {
       console.error(error);
-      this.hideProfileOrders();
     }
   }
+
+  startSyncAcrossTabs = () => {
+    this.addressChannel.onmessage = async (event) => {
+      const { sender } = event.data;
+
+      if (sender === this.tabId) return;
+      await this.refreshAddresses();
+    };
+  };
 
   handleOrdersPageChange = async (pageNumber: number) => {
     this.components.ordersTable.remove();
@@ -185,19 +212,19 @@ export default class ProfilePage {
 
   createProfileTable = async (offset: number) => {
     this.props.orders = await AppOrderRequests.getUserOrders(ORDERS_PER_PAGE, offset);
+
     // Рендерим блок таблицы заказов
     const profileTableWrapper = this.self.querySelector(
       '.profile-orders__table__wrapper',
     ) as HTMLElement;
 
-    this.components.ordersTable = new ProfileTable(profileTableWrapper, this.props.orders.orders);
+    this.components.ordersTable = new ProfileTable(
+      profileTableWrapper,
+      ORDERS_PER_PAGE,
+      this.props.orders.orders,
+    );
     this.components.ordersTable.render();
   };
-
-  hideProfileOrders() {
-    const profileOrdersContainer: HTMLDivElement = this.self.querySelector('.profile-orders');
-    profileOrdersContainer.style.display = 'none';
-  }
 
   private updateState() {
     if (this.props.data.path !== userStore.getState().path) {
@@ -248,7 +275,10 @@ export default class ProfilePage {
               ...props,
               isHeaderAddress: false,
             },
-            () => this.refreshAddresses(),
+            () => {
+              this.refreshAddresses();
+              this.addressChannel.postMessage({ sender: this.tabId });
+            },
           );
           comp.render();
           this.previousAddressMap.set(props.id, comp);
@@ -283,6 +313,41 @@ export default class ProfilePage {
     }
   }
 
+  private async renderPromocodes() {
+    const promocodesElement: HTMLDivElement = this.parent.querySelector('.profile-promocodes');
+    const promocodesBodyElement: HTMLDivElement = this.parent.querySelector(
+      '.profile-promocodes__body',
+    );
+
+    try {
+      const promocodes = await AppPromocodeRequests.GetPromocodes();
+
+      if (!Array.isArray(promocodes) || promocodes.length === 0) return;
+
+      promocodes.forEach((promocode) => {
+        const promocodeCardComponent = new PromocodeCard(
+          promocodesBodyElement,
+          promocode,
+          this.handlePromocodeCopied,
+        );
+        promocodeCardComponent.render();
+        this.promocodeCards.push(promocodeCardComponent);
+      });
+
+      promocodesElement.style.display = 'flex';
+    } catch (error) {
+      toasts.error(error.message);
+    }
+  }
+
+  private handlePromocodeCopied = (copiedId: string) => {
+    for (const card of this.promocodeCards) {
+      if (card.props.id !== copiedId) {
+        card.setIcon(copyImg);
+      }
+    }
+  };
+
   /**
    * Удаляет страницу профиля
    */
@@ -298,8 +363,17 @@ export default class ProfilePage {
       address.remove();
     }
     this.previousAddressMap.clear();
+
+    this.promocodeCards.forEach((card) => {
+      card.remove();
+    });
+
+    this.promocodeCards = [];
     this.components.ordersTable?.remove();
     this.components.pagination?.remove();
+
+    this.addressChannel.close();
+
     const element = this.self;
     if (element) element.remove();
   }
