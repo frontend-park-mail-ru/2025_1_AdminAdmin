@@ -33,6 +33,9 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
+      word-break: break-word; /* <-- добавлено */
+      line-height: 1.2em;      /* <-- можно задать для более контролируемой высоты */
+      max-height: calc(1.2em * 2); /* <-- чтобы жёстко ограничить по высоте */
 
       &:hover::after {
         content: attr(data-full-name);
