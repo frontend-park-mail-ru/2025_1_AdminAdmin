@@ -237,10 +237,12 @@ export default class ProfilePage {
   }
 
   private handleTwoFactorUpdate = async () => {
-    if (this.components.twoFactorCheckbox.isChecked) {
+    if (!this.components.twoFactorCheckbox.isChecked) {
       try {
         await AppUserRequests.Disable2FA();
+        toasts.success('2FA успешно отключена');
       } catch (error) {
+        this.components.twoFactorCheckbox.setChecked(true);
         toasts.error(error.message);
       }
       return;
@@ -253,6 +255,7 @@ export default class ProfilePage {
       const qrModal = new QRModal(qrUrl);
       modalController.openModal(qrModal);
     } catch (error) {
+      this.components.twoFactorCheckbox.setChecked(false);
       toasts.error(error.message);
     }
   };
