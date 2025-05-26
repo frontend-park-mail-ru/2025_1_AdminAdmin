@@ -7,8 +7,8 @@ import { BaseRestaurant } from '@myTypes/restaurantTypes';
 // Константы
 const LOAD_COUNT = 16;
 const SCROLL_MARGIN = 100;
-const REMOVE_THRESHOLD = 4;
 const SCROLL_THRESHOLD = 2;
+const REMOVE_THRESHOLD = 4;
 
 /**
  * Класс, представляющий список ресторанов.
@@ -18,10 +18,8 @@ export default class RestaurantList {
   private restaurantList: BaseRestaurant[];
   private renderedIds: Set<string>;
   private observer: IntersectionObserver;
-  private firstCardId: number;
   private lastCardId: number;
   private _deletionScheduled: boolean;
-  private readonly loadMoreBegThrottle: () => void;
   private readonly loadMoreEndThrottle: () => void;
   private readonly deleteFromDomThrottle: () => void;
 
@@ -33,26 +31,16 @@ export default class RestaurantList {
     this.parent = parent;
     this.restaurantList = [];
     this.renderedIds = new Set();
-    this.firstCardId = -1;
     this.lastCardId = -1;
     this._deletionScheduled = false;
 
     this.observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            if (entry.target.classList.contains('upper-sentinel')) {
-              this.loadMoreBegThrottle();
-            } else if (entry.target.classList.contains('lower-sentinel')) {
-              this.loadMoreEndThrottle();
-            }
-          }
-        });
+      () => {
+        this.loadMoreEndThrottle();
       },
       { rootMargin: `${SCROLL_MARGIN}px` },
     );
 
-    this.loadMoreBegThrottle = throttle(this.loadMoreBeg.bind(this), 500);
     this.loadMoreEndThrottle = throttle(this.loadMoreEnd.bind(this), 500);
     this.deleteFromDomThrottle = throttle(this.deleteFromDom.bind(this), 10);
   }
@@ -81,26 +69,10 @@ export default class RestaurantList {
       const lowerSentinel = document.querySelector('.lower-sentinel');
       if (lowerSentinel) this.observer.observe(lowerSentinel);
 
-      const upperSentinel = document.querySelector('.upper-sentinel');
-      if (upperSentinel) this.observer.observe(upperSentinel);
-
       document.addEventListener('scroll', this.deleteFromDomThrottle);
     } catch (error) {
       console.error('Error rendering restaurant list:', error);
     }
-  }
-
-  /**
-   * Добавляет карточки при прокрутке вверх
-   */
-  private loadMoreBeg(): void {
-    const begCount = Math.max(this.firstCardId - LOAD_COUNT, 0);
-    for (let i = this.firstCardId - 1; i >= begCount; i--) {
-      const card = new RestaurantCard(this.self, this.restaurantList[i]);
-      card.render('afterbegin');
-    }
-
-    this.firstCardId = begCount;
   }
 
   /**
@@ -151,12 +123,6 @@ export default class RestaurantList {
         return;
       }
 
-      const firstFour = Array.from(cards).slice(0, REMOVE_THRESHOLD);
-      if (firstFour[0].getBoundingClientRect().bottom < -window.innerHeight * SCROLL_THRESHOLD) {
-        firstFour.forEach((card) => card.remove());
-        this.firstCardId += firstFour.length;
-      }
-
       const lastFour = Array.from(cards).slice(-REMOVE_THRESHOLD);
       if (lastFour[0].getBoundingClientRect().top > window.innerHeight * SCROLL_THRESHOLD) {
         lastFour.forEach((card) => card.remove());
@@ -182,7 +148,6 @@ export default class RestaurantList {
     // Сброс всех состояний
     this.restaurantList = [];
     this.renderedIds.clear();
-    this.firstCardId = -1;
     this.lastCardId = -1;
     this._deletionScheduled = false;
   }

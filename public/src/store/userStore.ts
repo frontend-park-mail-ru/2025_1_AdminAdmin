@@ -1,7 +1,7 @@
 import { store } from './store';
 import { AppUserRequests } from '@modules/ajax';
 import { getActiveFromLocalStorage, saveActiveToLocalStorage } from '@modules/localStorage';
-import { LoginPayload, RegisterPayload, UpdateUserPayload } from '@myTypes/userTypes';
+import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
 import { cartStore } from '@store/cartStore';
 import { UserActions, UserState } from '@store/reducers/userReducer';
 
@@ -67,9 +67,17 @@ export const userStore = {
    * @param {LoginPayload} payload - данные пользователя для авторизации
    * @returns {Promise<void>} - обещание, которое разрешается после успешного входа
    */
-  async login(payload: LoginPayload): Promise<void> {
+  async login(payload: LoginPayload): Promise<boolean | undefined> {
     const res = await AppUserRequests.Login(payload);
 
+    if (typeof res === 'boolean') {
+      return true;
+    }
+
+    await this.onLogin(res);
+  },
+
+  async onLogin(res: User) {
     if (!res.active_address) res.active_address = getActiveFromLocalStorage('Address');
 
     store.dispatch({
@@ -83,6 +91,11 @@ export const userStore = {
     });
 
     await cartStore.initCart();
+  },
+
+  async OTPLogin(payload: { login: string; password: string; code: string }): Promise<void> {
+    const res = await AppUserRequests.Check2FA(payload);
+    await this.onLogin(res);
   },
 
   /**
@@ -152,27 +165,54 @@ export const userStore = {
     }
   },
 
+  async setSecret(): Promise<Blob> {
+    const qrBlob = await AppUserRequests.GetQrCode();
+
+    store.dispatch({
+      type: UserActions.SET_SECRET,
+      payload: true,
+    });
+
+    userChannel.postMessage({
+      type: UserActions.SET_SECRET,
+      payload: true,
+      sender: tabId,
+    });
+
+    return qrBlob;
+  },
+
+  async revokeSecret(): Promise<void> {
+    await AppUserRequests.Disable2FA();
+
+    store.dispatch({
+      type: UserActions.SET_SECRET,
+      payload: false,
+    });
+
+    userChannel.postMessage({
+      type: UserActions.SET_SECRET,
+      payload: false,
+      sender: tabId,
+    });
+  },
   /**
    * Обновляет информацию о пользователе.
    * @param {Partial<UpdateUserPayload>} payload - данные для обновления пользователя
    * @returns {Promise<void>} - обещание, которое разрешается после успешного обновления
    */
   async updateUser(payload: Partial<UpdateUserPayload>): Promise<void> {
-    try {
-      const res = await AppUserRequests.UpdateUser(payload);
-      store.dispatch({
-        type: UserActions.UPDATE_USER_SUCCESS,
-        payload: res,
-      });
+    const res = await AppUserRequests.UpdateUser(payload);
+    store.dispatch({
+      type: UserActions.UPDATE_USER_SUCCESS,
+      payload: res,
+    });
 
-      userChannel.postMessage({
-        type: UserActions.UPDATE_USER_SUCCESS,
-        payload: res,
-        sender: tabId,
-      });
-    } catch (err) {
-      console.error('Ошибка при обновлении пользователя:', (err as Error).message);
-    }
+    userChannel.postMessage({
+      type: UserActions.UPDATE_USER_SUCCESS,
+      payload: res,
+      sender: tabId,
+    });
   },
 
   async SetAvatar(file: File): Promise<void> {

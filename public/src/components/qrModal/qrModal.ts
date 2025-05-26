@@ -38,6 +38,7 @@ export class QRModal {
   }
 
   remove() {
+    URL.revokeObjectURL(this.qrSrc);
     this.submitBtn.remove();
     this.self?.remove();
     document.body.style.overflow = '';
