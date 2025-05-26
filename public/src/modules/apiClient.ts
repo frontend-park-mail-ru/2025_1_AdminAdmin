@@ -56,6 +56,8 @@ export class APIClient {
         return await response.json();
       } else if (contentType.includes('text/plain') || contentType.includes('text/html')) {
         return await response.text();
+      } else if (contentType.includes(' image/png')) {
+        return response;
       }
     } catch {
       return null;
@@ -67,27 +69,6 @@ export class APIClient {
   private getContentType(response: Response) {
     return response.headers.get('Content-Type') || '';
   }
-
-  raw = async (
-    method: HTTPMethod,
-    url: string,
-    data?: any,
-    params?: RequestParams,
-    contentType = 'application/json',
-  ): Promise<Response> => {
-    const fullUrl = this.buildUrl(url, params);
-    const options = this.getRequestOptions(method, data, contentType);
-
-    const response = await fetch(fullUrl, options);
-
-    try {
-      this.saveResponseHeaders(response.headers);
-    } catch (err) {
-      console.error(err);
-    }
-
-    return response;
-  };
 
   handleRequest = async <T = any>(
     method: HTTPMethod,

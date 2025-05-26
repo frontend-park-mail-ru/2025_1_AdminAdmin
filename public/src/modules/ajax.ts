@@ -184,10 +184,10 @@ class UserRequests {
    * @returns {Promise<Blob>} QR-код в формате PNG
    */
   GetQrCode = async (): Promise<Blob> => {
-    const response = await api.raw('POST', this.baseUrl + '/qr');
+    const { status, body } = await api.post<Blob>(this.baseUrl + '/qr', null, 'application/json');
 
-    if (response.ok && response.headers.get('Content-Type') === 'image/png') {
-      return await response.blob();
+    if (status === 200) {
+      return body;
     }
 
     throw new Error('Не удалось получить QR-код');
