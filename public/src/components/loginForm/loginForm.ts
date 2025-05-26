@@ -126,7 +126,6 @@ export default class LoginForm {
 
     if (errorElement) {
       errorElement.textContent = '';
-      errorElement.style.display = 'none';
     }
   }
 
