@@ -247,7 +247,11 @@ export default class ProfilePage {
         continue;
       }
 
-      const stringValue = storeValue.toString().slice(1);
+      let stringValue = storeValue.toString();
+
+      if (key === 'phone_number') {
+        stringValue = stringValue.slice(1);
+      }
 
       const inputValue = input.value;
 
