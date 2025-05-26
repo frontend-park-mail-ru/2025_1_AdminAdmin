@@ -121,6 +121,7 @@ export default class ProfilePage {
     this.components.twoFactorCheckbox = new Checkbox(checkboxWrapper, {
       id: 'profile-data__twoFactorCheckbox',
       label: 'Двухфакторная аутентификация',
+      checked: userStore.getState().has_secret,
       onClick: this.handleTwoFactorUpdate,
     });
     this.components.twoFactorCheckbox.render();
@@ -239,7 +240,7 @@ export default class ProfilePage {
   private handleTwoFactorUpdate = async () => {
     if (!this.components.twoFactorCheckbox.isChecked) {
       try {
-        await AppUserRequests.Disable2FA();
+        await userStore.revokeSecret();
         toasts.success('2FA успешно отключена');
       } catch (error) {
         this.components.twoFactorCheckbox.setChecked(true);
@@ -249,7 +250,7 @@ export default class ProfilePage {
     }
 
     try {
-      const qrBlob = await AppUserRequests.GetQrCode();
+      const qrBlob = await userStore.setSecret();
       const qrUrl = URL.createObjectURL(qrBlob);
 
       const qrModal = new QRModal(qrUrl);

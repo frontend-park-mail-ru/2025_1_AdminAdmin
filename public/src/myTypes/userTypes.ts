@@ -7,6 +7,7 @@ export interface User {
   path: string;
   phone_number: string;
   active_address: string;
+  has_secret: boolean;
 }
 
 export interface LoginPayload {

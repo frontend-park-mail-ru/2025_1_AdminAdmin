@@ -152,6 +152,37 @@ export const userStore = {
     }
   },
 
+  async setSecret(): Promise<Blob> {
+    const qrBlob = await AppUserRequests.GetQrCode();
+
+    store.dispatch({
+      type: UserActions.SET_SECRET,
+      payload: true,
+    });
+
+    userChannel.postMessage({
+      type: UserActions.SET_SECRET,
+      payload: true,
+      sender: tabId,
+    });
+
+    return qrBlob;
+  },
+
+  async revokeSecret(): Promise<void> {
+    await AppUserRequests.Disable2FA();
+
+    store.dispatch({
+      type: UserActions.SET_SECRET,
+      payload: false,
+    });
+
+    userChannel.postMessage({
+      type: UserActions.SET_SECRET,
+      payload: false,
+      sender: tabId,
+    });
+  },
   /**
    * Обновляет информацию о пользователе.
    * @param {Partial<UpdateUserPayload>} payload - данные для обновления пользователя
