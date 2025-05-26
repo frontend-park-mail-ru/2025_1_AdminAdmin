@@ -40,7 +40,7 @@ class UserRequests {
    * @returns {Promise<{id: string; login: string}>}
    * @param payload
    */
-  Login = async (payload: LoginPayload): Promise<User> => {
+  Login = async (payload: LoginPayload): Promise<User | boolean> => {
     const { status, body } = await api.post<User | ErrorResponse>(
       this.baseUrl + '/signin',
       payload,
@@ -48,6 +48,10 @@ class UserRequests {
 
     if (status === 200) {
       return body as User;
+    }
+
+    if (status === 412) {
+      return true;
     }
 
     throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
@@ -213,6 +217,26 @@ class UserRequests {
     }
 
     throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось отключить 2FA');
+  };
+
+  /**
+   * Проверяет 2FA пользователя (по коду).
+   * @param payload - объект с login, password и code
+   * @returns {Promise<User>}
+   */
+  Check2FA = async (payload: { login: string; password: string; code: string }): Promise<User> => {
+    const { status, body } = await api.post<User | ErrorResponse>(
+      this.baseUrl + '/check2fa',
+      payload,
+    );
+
+    if (status === 200) {
+      return body as User;
+    }
+
+    throw new Error(
+      capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось подтвердить 2FA',
+    );
   };
 }
 

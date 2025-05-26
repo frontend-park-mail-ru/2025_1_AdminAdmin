@@ -41,7 +41,14 @@ export default class LoginForm {
     this.submitBtn.disable();
 
     try {
-      await userStore.login({ login, password });
+      const result = await userStore.login({ login, password });
+
+      if (typeof result === 'boolean') {
+        this.handle2FA();
+        this.submitBtn.enable();
+        return;
+      }
+
       toasts.success('Вы успешно вошли в систему!');
     } catch (err) {
       const errorMessage = err.message || 'Неверный логин или пароль';
@@ -51,6 +58,53 @@ export default class LoginForm {
     }
   }
 
+  sendOTPCode = async () => {
+    this.clearError();
+
+    if (!this.OTPInput) {
+      return;
+    }
+
+    const code = this.OTPInput.getValue();
+    const OTPInputIsValid = code.length === 6;
+    if (!OTPInputIsValid) {
+      this.setError('Неверный OTP код');
+      return;
+    }
+
+    const login = this.loginInput.value.trim();
+    const password = this.passwordInput.value;
+    this.submitBtn.disable();
+
+    try {
+      await userStore.OTPLogin({ login, password, code });
+      toasts.success('Вы успешно вошли в систему!');
+    } catch (err) {
+      const errorMessage = err.message || 'Неверный OTP код';
+      this.setError(errorMessage);
+      toasts.error(errorMessage);
+      this.submitBtn.enable();
+    }
+  };
+
+  handle2FA() {
+    const otpElement: HTMLDivElement = this.parent.querySelector('.login-form__otp-code');
+    otpElement.style.display = 'flex';
+
+    const otpContainer: HTMLDivElement = this.parent.querySelector('.login-form__otp-code__body');
+    this.OTPInput = new OTPInput(otpContainer, {
+      id: 'login-form-otp-input',
+      digits: 6,
+    });
+
+    this.OTPInput.render();
+
+    this.loginInput.disable();
+    this.passwordInput.disable();
+
+    this.submitBtn.setText('Подтверить');
+    this.submitBtn.setOnSubmit(this.sendOTPCode);
+  }
   /**
    * Отображает ошибку
    * @param {String} errorMessage - сообщение ошибки
@@ -85,7 +139,6 @@ export default class LoginForm {
     const loginContainer = document.getElementById('form__line_login');
     const passwordContainer = document.getElementById('form__line_password');
     const buttonContainer = document.getElementById('form__line_login_button_container');
-    /*    const otpContainer: HTMLDivElement = this.parent.querySelector('.login-form__otp-code__body');*/
 
     if (loginContainer && passwordContainer && buttonContainer) {
       this.loginInput = new FormInput(loginContainer, LoginFormConfig.inputs.login);
@@ -93,13 +146,6 @@ export default class LoginForm {
 
       this.passwordInput = new FormInput(passwordContainer, LoginFormConfig.inputs.password);
       this.passwordInput.render();
-
-      /*      this.OTPInput = new OTPInput(otpContainer, {
-        id: 'login-form-otp-input',
-        digits: 6,
-      });
-
-      this.OTPInput.render();*/
 
       this.submitBtn = new Button(buttonContainer, {
         ...LoginFormConfig.buttons.submitBtn,
@@ -120,6 +166,6 @@ export default class LoginForm {
     this.loginInput.remove();
     this.passwordInput.remove();
     this.submitBtn.remove();
-    /*    this.OTPInput.remove();*/
+    this.OTPInput?.remove();
   }
 }

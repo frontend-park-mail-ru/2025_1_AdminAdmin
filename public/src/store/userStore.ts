@@ -1,7 +1,7 @@
 import { store } from './store';
 import { AppUserRequests } from '@modules/ajax';
 import { getActiveFromLocalStorage, saveActiveToLocalStorage } from '@modules/localStorage';
-import { LoginPayload, RegisterPayload, UpdateUserPayload } from '@myTypes/userTypes';
+import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes/userTypes';
 import { cartStore } from '@store/cartStore';
 import { UserActions, UserState } from '@store/reducers/userReducer';
 
@@ -67,9 +67,17 @@ export const userStore = {
    * @param {LoginPayload} payload - данные пользователя для авторизации
    * @returns {Promise<void>} - обещание, которое разрешается после успешного входа
    */
-  async login(payload: LoginPayload): Promise<void> {
+  async login(payload: LoginPayload): Promise<boolean | undefined> {
     const res = await AppUserRequests.Login(payload);
 
+    if (typeof res === 'boolean') {
+      return true;
+    }
+
+    await this.onLogin(res);
+  },
+
+  async onLogin(res: User) {
     if (!res.active_address) res.active_address = getActiveFromLocalStorage('Address');
 
     store.dispatch({
@@ -83,6 +91,11 @@ export const userStore = {
     });
 
     await cartStore.initCart();
+  },
+
+  async OTPLogin(payload: { login: string; password: string; code: string }): Promise<void> {
+    const res = await AppUserRequests.Check2FA(payload);
+    await this.onLogin(res);
   },
 
   /**

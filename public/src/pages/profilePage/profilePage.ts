@@ -17,6 +17,7 @@ import { PromocodeCard } from '@//components/promocodeCard/promocodeCard';
 import { Checkbox } from '@components/checkbox/checkbox';
 import { QRModal } from '@components/qrModal/qrModal';
 import copyImg from '@assets/copy.svg';
+import { UserState } from '@store/reducers/userReducer';
 
 const ORDERS_PER_PAGE = 5;
 
@@ -240,7 +241,7 @@ export default class ProfilePage {
     const inputs = this.components.profileForm.inputs;
 
     for (const [key, input] of Object.entries(inputs)) {
-      const storeValue = state[key as keyof typeof state];
+      const storeValue = state[key as keyof UserState];
 
       if (!storeValue) {
         continue;
