@@ -117,13 +117,13 @@ export default class ProfilePage {
     profileFormComponent.render();
     this.components.profileForm = profileFormComponent;
 
-    /*    const checkboxWrapper: HTMLDivElement = this.parent.querySelector('.profile-data__checkbox');
+    const checkboxWrapper: HTMLDivElement = this.parent.querySelector('.profile-data__checkbox');
     this.components.twoFactorCheckbox = new Checkbox(checkboxWrapper, {
       id: 'profile-data__twoFactorCheckbox',
       label: 'Двухфакторная аутентификация',
       onClick: this.handleTwoFactorUpdate,
     });
-    this.components.twoFactorCheckbox.render();*/
+    this.components.twoFactorCheckbox.render();
 
     // Ренденрим блок изменения/удаления/добавления адресов
     await this.refreshAddresses();
@@ -236,12 +236,18 @@ export default class ProfilePage {
     }
   }
 
-  private handleTwoFactorUpdate = () => {
+  private handleTwoFactorUpdate = async () => {
     if (this.components.twoFactorCheckbox.isChecked) return;
-    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=test123&format=svg';
 
-    const qrModal = new QRModal(qrUrl);
-    modalController.openModal(qrModal);
+    try {
+      const qrBlob = await AppUserRequests.GetQrCode();
+      const qrUrl = URL.createObjectURL(qrBlob);
+
+      const qrModal = new QRModal(qrUrl);
+      modalController.openModal(qrModal);
+    } catch {
+      toasts.error('Не удалось подключить 2FA');
+    }
   };
 
   private async refreshAddresses() {

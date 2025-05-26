@@ -15,7 +15,7 @@ import { LoginPayload, RegisterPayload, UpdateUserPayload, User } from '@myTypes
 import { CreateOrderPayload, I_OrderResponse, I_UserOrderResponse } from '@myTypes/orderTypes';
 import { capitalizeError } from '@modules/utils';
 import { I_Promocode } from '@myTypes/promocodeTypes';
-import { APIClient, RequestParams } from 'doordashers-http';
+import { APIClient, RequestParams } from './apiClient';
 
 export interface ResponseData<T = any> {
   status: number;
@@ -176,6 +176,21 @@ class UserRequests {
     }
 
     throw new Error(capitalizeError(body?.error) ?? 'Не удалось загрузить аватар');
+  };
+
+  /**
+   * Получает QR-код для авторизации.
+   * Возвращает blob изображения (PNG).
+   * @returns {Promise<Blob>} QR-код в формате PNG
+   */
+  GetQrCode = async (): Promise<Blob> => {
+    const response = await api.raw('POST', this.baseUrl + '/qr');
+
+    if (response.ok && response.headers.get('Content-Type') === 'image/png') {
+      return await response.blob();
+    }
+
+    throw new Error('Не удалось получить QR-код');
   };
 }
 
