@@ -62,7 +62,6 @@ export default class UnifiedForm {
   private async handleRequest(userData: any) {
     if (this.isEditMode) {
       await this.updateUser(userData);
-      toasts.success('Ваш профиль успешно обновлен!');
     } else {
       await userStore.register(userData);
       toasts.success('Вы успешно зарегистрировались!');
@@ -104,7 +103,12 @@ export default class UnifiedForm {
         (payload as any)[key] = value;
       }
     }
-    await userStore.updateUser(payload);
+    try {
+      await userStore.updateUser(payload);
+      toasts.success('Ваш профиль успешно обновлен!');
+    } catch (error) {
+      toasts.error(error.message);
+    }
   }
 
   setError(errorMessage: string) {

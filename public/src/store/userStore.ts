@@ -202,21 +202,17 @@ export const userStore = {
    * @returns {Promise<void>} - обещание, которое разрешается после успешного обновления
    */
   async updateUser(payload: Partial<UpdateUserPayload>): Promise<void> {
-    try {
-      const res = await AppUserRequests.UpdateUser(payload);
-      store.dispatch({
-        type: UserActions.UPDATE_USER_SUCCESS,
-        payload: res,
-      });
+    const res = await AppUserRequests.UpdateUser(payload);
+    store.dispatch({
+      type: UserActions.UPDATE_USER_SUCCESS,
+      payload: res,
+    });
 
-      userChannel.postMessage({
-        type: UserActions.UPDATE_USER_SUCCESS,
-        payload: res,
-        sender: tabId,
-      });
-    } catch (err) {
-      console.error('Ошибка при обновлении пользователя:', (err as Error).message);
-    }
+    userChannel.postMessage({
+      type: UserActions.UPDATE_USER_SUCCESS,
+      payload: res,
+      sender: tabId,
+    });
   },
 
   async SetAvatar(file: File): Promise<void> {

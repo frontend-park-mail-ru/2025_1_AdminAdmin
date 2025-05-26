@@ -118,7 +118,9 @@ class UserRequests {
       return body as User;
     }
 
-    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Что-то пошло не так...');
+    throw new Error(
+      capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось обновить профиль',
+    );
   };
 
   /**
@@ -516,9 +518,12 @@ class PromocodeRequests {
       return body as I_Promocode[];
     }
 
-    throw new Error(
-      capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось получить промокоды',
-    );
+    const errorMessage =
+      body && (body as ErrorResponse)?.error
+        ? capitalizeError((body as ErrorResponse).error)
+        : 'Не удалось получить промокоды';
+
+    throw new Error(errorMessage);
   };
 
   /**
