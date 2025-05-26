@@ -240,11 +240,18 @@ export default class ProfilePage {
     const inputs = this.components.profileForm.inputs;
 
     for (const [key, input] of Object.entries(inputs)) {
-      const storeValue = state[key as keyof typeof state].toString();
+      const storeValue = state[key as keyof typeof state];
+
+      if (!storeValue) {
+        continue;
+      }
+
+      const stringValue = storeValue.toString();
+
       const inputValue = input.value;
 
-      if (inputValue !== storeValue) {
-        input.setValue(storeValue);
+      if (inputValue !== stringValue) {
+        input.setValue(stringValue);
       }
     }
 

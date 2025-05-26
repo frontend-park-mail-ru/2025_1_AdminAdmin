@@ -37,7 +37,7 @@ const mobileOptions = [
 
 export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
   const baseInputs = {
-    firstName: {
+    first_name: {
       id: 'form__input__first-name',
       label: 'Имя',
       name: 'first-name',
@@ -47,7 +47,7 @@ export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
       required: !isEditMode,
       autocomplete: 'given-name',
     },
-    secondName: {
+    last_name: {
       id: 'form__input__second-name',
       label: 'Фамилия',
       name: 'last-name',
@@ -57,7 +57,7 @@ export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
       required: !isEditMode,
       autocomplete: 'family-name',
     },
-    phoneNumber: {
+    phone_number: {
       id: 'form__input__phone',
       label: 'Телефон',
       name: 'phone',
@@ -146,18 +146,18 @@ export const getFormConfig = (isEditMode: boolean): I_FormConfig => {
     return {
       inputs: {
         ...baseInputs,
-        firstName: {
-          ...baseInputs.firstName,
+        first_name: {
+          ...baseInputs.first_name,
           value: userData.first_name,
           placeholder: 'Введите новое имя',
         },
-        secondName: {
-          ...baseInputs.secondName,
+        last_name: {
+          ...baseInputs.last_name,
           value: userData.last_name,
           placeholder: 'Введите новую фамилию',
         },
-        phoneNumber: {
-          ...baseInputs.phoneNumber,
+        phone_number: {
+          ...baseInputs.phone_number,
           value: userData.phone_number.slice(1),
           placeholder: 'Введите новый телефон',
         },

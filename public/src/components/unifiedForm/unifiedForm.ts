@@ -5,7 +5,7 @@ import { userStore } from '@store/userStore';
 import { toasts } from 'doordashers-ui-kit';
 import template from './unifiedForm.hbs';
 import { getFormConfig, I_FormConfig } from './unifiedFormConfig';
-import { UpdateUserPayload } from '@myTypes/userTypes';
+import { UpdateUserPayload, User } from '@myTypes/userTypes';
 
 // Класс компонента универсальной формы
 export default class UnifiedForm {
@@ -73,13 +73,15 @@ export default class UnifiedForm {
     return Object.values(this.components.inputs).every((input) => input.checkValue());
   }
 
-  private collectUserData(): any {
+  collectUserData(): Omit<User, 'active_address' | 'has_secret' | 'path' | 'id' | 'description'> & {
+    password: string;
+  } {
     return {
-      first_name: this.components.inputs.firstName.value.trim(),
-      last_name: this.components.inputs.secondName.value.trim(),
+      first_name: this.components.inputs.first_name.value.trim(),
+      last_name: this.components.inputs.last_name.value.trim(),
       phone_number:
         this.components.codeSelect.value +
-        this.components.inputs.phoneNumber.value.trim().replace(/[\s()-]/g, ''),
+        this.components.inputs.phone_number.value.trim().replace(/[\s()-]/g, ''),
       login: this.components.inputs.login?.value.trim() || null,
       password: this.components.inputs.password.value,
     };
@@ -130,13 +132,13 @@ export default class UnifiedForm {
     nameContainer.id = 'name_container';
     this.parent.appendChild(nameContainer);
 
-    const firstNameInput = new FormInput(nameContainer, formConfig.inputs.firstName);
+    const firstNameInput = new FormInput(nameContainer, formConfig.inputs.first_name);
     firstNameInput.render();
-    this.components.inputs.firstName = firstNameInput;
+    this.components.inputs.first_name = firstNameInput;
 
-    const secondNameInput = new FormInput(nameContainer, formConfig.inputs.secondName);
+    const secondNameInput = new FormInput(nameContainer, formConfig.inputs.last_name);
     secondNameInput.render();
-    this.components.inputs.secondName = secondNameInput;
+    this.components.inputs.last_name = secondNameInput;
 
     const phoneContainer = document.createElement('div');
     phoneContainer.className = 'form__line';
@@ -145,12 +147,12 @@ export default class UnifiedForm {
     this.components.codeSelect = new Select(phoneContainer, formConfig.selects.code);
     this.components.codeSelect.render();
 
-    const phoneInput = new FormInput(phoneContainer, formConfig.inputs.phoneNumber);
+    const phoneInput = new FormInput(phoneContainer, formConfig.inputs.phone_number);
     phoneInput.render();
-    this.components.inputs.phoneNumber = phoneInput;
+    this.components.inputs.phone_number = phoneInput;
 
     for (const [key, config] of Object.entries(formConfig.inputs)) {
-      if (key === 'firstName' || key === 'secondName' || key === 'phoneNumber') {
+      if (key === 'first_name' || key === 'last_name' || key === 'phone_number') {
         continue;
       }
 
