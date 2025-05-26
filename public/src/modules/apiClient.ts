@@ -56,8 +56,8 @@ export class APIClient {
         return await response.json();
       } else if (contentType.includes('text/plain') || contentType.includes('text/html')) {
         return await response.text();
-      } else if (contentType.includes(' image/png')) {
-        return response;
+      } else if (contentType.includes('image/png')) {
+        return await response.blob();
       }
     } catch {
       return null;
