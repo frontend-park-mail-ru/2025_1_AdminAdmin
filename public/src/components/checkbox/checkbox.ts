@@ -27,12 +27,12 @@ export class Checkbox {
   }
 
   handleCheck = () => {
+    this.props.checked = !this.props.checked;
+    this.self.checked = this.props.checked;
+
     if (this.props.onClick) {
       this.props.onClick();
     }
-
-    this.props.checked = !this.props.checked;
-    this.self.checked = this.props.checked;
   };
 
   get self(): HTMLInputElement {

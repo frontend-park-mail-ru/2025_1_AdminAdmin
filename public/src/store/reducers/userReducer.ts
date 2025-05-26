@@ -19,10 +19,13 @@ const initialUserState: UserState = {
   phone_number: '',
   path: '',
   description: '',
+  has_secret: false,
   isAuth: false,
   active_address: getActiveFromLocalStorage('Address'),
   activePromoCode: getActiveFromLocalStorage('Promocode'),
 };
+
+/* eslint-disable complexity */
 
 export const userReducer = (state = initialUserState, action: Action): UserState => {
   switch (action.type) {
@@ -59,6 +62,12 @@ export const userReducer = (state = initialUserState, action: Action): UserState
         ...action.payload,
       };
 
+    case UserActions.SET_SECRET:
+      return {
+        ...state,
+        has_secret: action.payload,
+      };
+
     default:
       return state;
   }
@@ -73,4 +82,5 @@ export const UserActions = {
   SET_ADDRESS: 'SET_ADDRESS',
   SET_PROMOCODE: 'SET_PROMOCODE',
   UPDATE_USER_SUCCESS: 'UPDATE_USER_SUCCESS',
+  SET_SECRET: 'SET_SECRET',
 };

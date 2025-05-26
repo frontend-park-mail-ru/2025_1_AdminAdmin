@@ -14,7 +14,7 @@ import { modalController } from '@modules/modalController';
 import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
 import { router } from '@modules/routing';
 import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
-import { formatDate, formatNumber } from '@modules/utils';
+import { formatDateVerbose, formatNumber } from '@modules/utils';
 import { ProductsCarousel } from '@components/productsCarousel/productsCarousel';
 import { Checkbox } from '@components/checkbox/checkbox';
 import { PromocodeForm } from '@components/promocodeForm/promocodeFrom';
@@ -267,7 +267,7 @@ export default class OrderPage {
     const templateProps = {
       isPreformed: data.order !== undefined,
       orderId: data.orderId,
-      orderDate: formatDate(data?.created_at),
+      orderDate: formatDateVerbose(data?.created_at),
       totalPrice: data.totalPrice,
       restaurantName: data.restaurantName,
       address: data.address,
@@ -419,7 +419,7 @@ export default class OrderPage {
 
     this.orderId = newOrder.id;
 
-    pageHeader.textContent = `Заказ ${newOrder.id.slice(-4)} от ${formatDate(newOrder.created_at)}`;
+    pageHeader.textContent = `Заказ ${newOrder.id.slice(-4)} от ${formatDateVerbose(newOrder.created_at)}`;
     pageHeader.classList.add('formed');
 
     const additionalContentBlock: HTMLDivElement = this.parent.querySelector(

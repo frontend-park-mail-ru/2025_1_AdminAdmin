@@ -2,7 +2,7 @@ import template from './profileTableRow.hbs';
 import { I_OrderResponse, statusMap } from '@myTypes/orderTypes';
 import { router } from '@modules/routing';
 import { Button } from 'doordashers-ui-kit';
-import { formatDate } from '@modules/utils';
+import { formatDateVerbose } from '@modules/utils';
 
 //Интерфейс картинки ресторана
 export interface ImageProps {
@@ -57,7 +57,7 @@ export class ProfileTableRow {
 
     if (`user` in this.props) {
       // Рендерим шаблончик с данными
-      this.props.created_at = formatDate(this.props.created_at);
+      this.props.created_at = formatDateVerbose(this.props.created_at);
 
       let products_amount = 0;
 

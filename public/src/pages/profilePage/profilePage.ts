@@ -17,6 +17,7 @@ import { PromocodeCard } from '@//components/promocodeCard/promocodeCard';
 import { Checkbox } from '@components/checkbox/checkbox';
 import { QRModal } from '@components/qrModal/qrModal';
 import copyImg from '@assets/copy.svg';
+import { UserState } from '@store/reducers/userReducer';
 
 const ORDERS_PER_PAGE = 5;
 
@@ -117,13 +118,14 @@ export default class ProfilePage {
     profileFormComponent.render();
     this.components.profileForm = profileFormComponent;
 
-    /*    const checkboxWrapper: HTMLDivElement = this.parent.querySelector('.profile-data__checkbox');
+    const checkboxWrapper: HTMLDivElement = this.parent.querySelector('.profile-data__checkbox');
     this.components.twoFactorCheckbox = new Checkbox(checkboxWrapper, {
       id: 'profile-data__twoFactorCheckbox',
       label: 'Двухфакторная аутентификация',
+      checked: userStore.getState().has_secret,
       onClick: this.handleTwoFactorUpdate,
     });
-    this.components.twoFactorCheckbox.render();*/
+    this.components.twoFactorCheckbox.render();
 
     // Ренденрим блок изменения/удаления/добавления адресов
     await this.refreshAddresses();
@@ -234,14 +236,51 @@ export default class ProfilePage {
       ) as HTMLImageElement;
       avatarImageElement.src = `https://doordashers.ru/images_user/${this.props.data.path}`;
     }
+
+    const state = userStore.getState();
+    const inputs = this.components.profileForm.inputs;
+
+    for (const [key, input] of Object.entries(inputs)) {
+      const storeValue = state[key as keyof UserState];
+
+      if (!storeValue) {
+        continue;
+      }
+
+      const stringValue = storeValue.toString().slice(1);
+
+      const inputValue = input.value;
+
+      if (inputValue !== stringValue) {
+        input.setValue(stringValue);
+      }
+    }
+
+    this.components.twoFactorCheckbox.setChecked(state.has_secret);
   }
 
-  private handleTwoFactorUpdate = () => {
-    if (this.components.twoFactorCheckbox.isChecked) return;
-    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=test123&format=svg';
+  private handleTwoFactorUpdate = async () => {
+    if (!this.components.twoFactorCheckbox.isChecked) {
+      try {
+        await userStore.revokeSecret();
+        toasts.success('2FA успешно отключена');
+      } catch (error) {
+        this.components.twoFactorCheckbox.setChecked(true);
+        toasts.error(error.message);
+      }
+      return;
+    }
 
-    const qrModal = new QRModal(qrUrl);
-    modalController.openModal(qrModal);
+    try {
+      const qrBlob = await userStore.setSecret();
+      const qrUrl = URL.createObjectURL(qrBlob);
+
+      const qrModal = new QRModal(qrUrl);
+      modalController.openModal(qrModal);
+    } catch (error) {
+      this.components.twoFactorCheckbox.setChecked(false);
+      toasts.error(error.message);
+    }
   };
 
   private async refreshAddresses() {
