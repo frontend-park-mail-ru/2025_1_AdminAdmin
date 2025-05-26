@@ -184,13 +184,35 @@ class UserRequests {
    * @returns {Promise<Blob>} QR-код в формате PNG
    */
   GetQrCode = async (): Promise<Blob> => {
-    const { status, body } = await api.post<Blob>(this.baseUrl + '/qr', null, 'application/json');
+    const { status, body } = await api.post<Blob | ErrorResponse>(
+      this.baseUrl + '/qr',
+      null,
+      'application/json',
+    );
 
     if (status === 200) {
-      return body;
+      return body as Blob;
     }
 
-    throw new Error('Не удалось получить QR-код');
+    throw new Error(
+      capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось получить QR-код',
+    );
+  };
+
+  /**
+   * Отключает двухфакторную аутентификацию.
+   * @returns {Promise<{ message: string }>}
+   */
+  Disable2FA = async (): Promise<{ message: string }> => {
+    const { status, body } = await api.delete<{ message: string } | ErrorResponse>(
+      this.baseUrl + '/disable2fa',
+    );
+
+    if (status === 200) {
+      return body as { message: string };
+    }
+
+    throw new Error(capitalizeError((body as ErrorResponse)?.error) ?? 'Не удалось отключить 2FA');
   };
 }
 

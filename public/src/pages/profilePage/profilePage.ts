@@ -237,7 +237,14 @@ export default class ProfilePage {
   }
 
   private handleTwoFactorUpdate = async () => {
-    if (this.components.twoFactorCheckbox.isChecked) return;
+    if (this.components.twoFactorCheckbox.isChecked) {
+      try {
+        await AppUserRequests.Disable2FA();
+      } catch (error) {
+        toasts.error(error.message);
+      }
+      return;
+    }
 
     try {
       const qrBlob = await AppUserRequests.GetQrCode();
@@ -245,8 +252,8 @@ export default class ProfilePage {
 
       const qrModal = new QRModal(qrUrl);
       modalController.openModal(qrModal);
-    } catch {
-      toasts.error('Не удалось подключить 2FA');
+    } catch (error) {
+      toasts.error(error.message);
     }
   };
 
