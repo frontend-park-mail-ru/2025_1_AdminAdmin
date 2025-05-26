@@ -55,6 +55,10 @@ export default class UnifiedForm {
     }
   }
 
+  get inputs(): Record<string, FormInput> {
+    return this.components.inputs;
+  }
+
   private async handleRequest(userData: any) {
     if (this.isEditMode) {
       await this.updateUser(userData);

@@ -235,6 +235,20 @@ export default class ProfilePage {
       ) as HTMLImageElement;
       avatarImageElement.src = `https://doordashers.ru/images_user/${this.props.data.path}`;
     }
+
+    const state = userStore.getState();
+    const inputs = this.components.profileForm.inputs;
+
+    for (const [key, input] of Object.entries(inputs)) {
+      const storeValue = state[key as keyof typeof state].toString();
+      const inputValue = input.value;
+
+      if (inputValue !== storeValue) {
+        input.setValue(storeValue);
+      }
+    }
+
+    this.components.twoFactorCheckbox.setChecked(state.has_secret);
   }
 
   private handleTwoFactorUpdate = async () => {
