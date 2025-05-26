@@ -247,7 +247,7 @@ export default class ProfilePage {
         continue;
       }
 
-      const stringValue = storeValue.toString();
+      const stringValue = storeValue.toString().slice(1);
 
       const inputValue = input.value;
 
