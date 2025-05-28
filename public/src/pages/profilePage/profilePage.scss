@@ -6,6 +6,7 @@
     display: flex;
     flex-direction: column;
     padding: 60px 15vw;
+    overflow: hidden;
 
     @media (max-width: 1200px) {
         padding: 40px 10vw;
