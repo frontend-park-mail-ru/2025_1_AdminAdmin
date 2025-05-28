@@ -7,6 +7,11 @@ import { toasts } from 'doordashers-ui-kit';
 import MapModal from '@pages/mapModal/mapModal';
 import logoImg from '@assets/logo.png';
 import cartImg from '@assets/cart.svg';
+import settingsImg from '@assets/settings.svg';
+import myLocationImg from '@assets/mylocation.svg';
+import ordersImg from '@assets/orders.svg';
+import promocodeImg from '@assets/promocode.svg';
+import logoutImg from '@assets/logout.svg';
 import smallLogo from '@assets/small_logo.png';
 import { cartStore } from '@store/cartStore';
 import { modalController } from '@modules/modalController';
@@ -24,8 +29,7 @@ export default class Header {
   private cartButton: Button;
   private loginButton!: Button;
   private profileButton: HTMLDivElement;
-  private profileSettingsButton: Button;
-  private logoutButton!: Button;
+  private profilesButtons: Button[] = [];
   private readonly handleScrollBound: () => void;
   private readonly clickHandler: (event: Event) => void;
   private addressComponents: Address[] = [];
@@ -36,6 +40,7 @@ export default class Header {
   private searchInput: FormInput;
   private searchButton: Button;
   private searchAll: boolean;
+  private logoutButton: Button;
 
   /**
    * Создает экземпляр заголовка.
@@ -228,10 +233,12 @@ export default class Header {
     }
   }
 
-  private toggleProfileDropdown = () => {
+  private toggleProfileDropdown = (event?: MouseEvent) => {
+    event?.stopPropagation();
     const profileDropdownOptions = document.querySelector(
       '.header__profile-dropdown__options',
     ) as HTMLElement;
+
     profileDropdownOptions.classList.toggle('active');
   };
 
@@ -285,15 +292,74 @@ export default class Header {
     const profileDropdownButtonsContainer = document.querySelector(
       '.header__profile-dropdown__buttons-container',
     ) as HTMLElement;
-    this.profileSettingsButton = new Button(profileDropdownButtonsContainer, {
+
+    const profileSettingsButton = new Button(profileDropdownButtonsContainer, {
       id: 'profile_settings_button',
+      iconSrc: settingsImg,
+      iconAlt: 'Настройки',
       text: 'Настройки',
       onSubmit: () => {
         document.querySelector('.header__profile-dropdown__options').classList.remove('active');
         router.goToPage('profilePage');
       },
     });
-    this.profileSettingsButton.render();
+    profileSettingsButton.render();
+
+    this.profilesButtons.push(profileSettingsButton);
+
+    const locationsButton = new Button(profileDropdownButtonsContainer, {
+      id: 'profile_locations_button',
+      iconSrc: myLocationImg,
+      iconAlt: 'Адреса',
+      text: 'Мои адреса',
+      onSubmit: () => {
+        document.querySelector('.header__profile-dropdown__options').classList.remove('active');
+        router.goToPage('profilePage', null, 'addresses');
+      },
+    });
+
+    locationsButton.render();
+    this.profilesButtons.push(locationsButton);
+
+    const promocodesButton = new Button(profileDropdownButtonsContainer, {
+      id: 'profile_promocodes_button',
+      iconSrc: promocodeImg,
+      iconAlt: 'Промокоды',
+      text: 'Мои промокоды',
+      onSubmit: () => {
+        document.querySelector('.header__profile-dropdown__options').classList.remove('active');
+        router.goToPage('profilePage', null, 'promocodes');
+      },
+    });
+
+    promocodesButton.render();
+    this.profilesButtons.push(promocodesButton);
+
+    const ordersButton = new Button(profileDropdownButtonsContainer, {
+      id: 'profile_orders_button',
+      iconSrc: ordersImg,
+      iconAlt: 'Заказы',
+      text: 'Мои заказы',
+      onSubmit: () => {
+        document.querySelector('.header__profile-dropdown__options').classList.remove('active');
+        router.goToPage('profilePage', null, 'orders');
+      },
+    });
+
+    ordersButton.render();
+    this.profilesButtons.push(ordersButton);
+
+    this.logoutButton = new Button(profileDropdownButtonsContainer, {
+      id: 'logout_button',
+      iconSrc: logoutImg,
+      iconAlt: 'Выйти',
+      text: 'Выйти',
+      onSubmit: async () => {
+        document.querySelector('.header__profile-dropdown__options').classList.remove('active');
+        await this.handleLogout();
+      },
+    });
+    this.logoutButton.render();
 
     const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
     if (!cartButtonContainer) return;
@@ -305,16 +371,6 @@ export default class Header {
       text: '0',
     });
     this.cartButton.render();
-
-    this.logoutButton = new Button(profileDropdownButtonsContainer, {
-      id: 'logout_button',
-      text: 'Выйти',
-      onSubmit: async () => {
-        document.querySelector('.header__profile-dropdown__options').classList.remove('active');
-        await this.handleLogout();
-      },
-    });
-    this.logoutButton.render();
 
     this.handleResize();
 
@@ -350,10 +406,10 @@ export default class Header {
     if (userStore.isAuth()) {
       this.loginButton.hide();
       document.querySelector('.header__profile-dropdown').classList.add('active');
-      document.querySelector('.header__profile-dropdown__first-name').textContent =
-        userStore.getState().first_name;
-      document.querySelector('.header__profile-dropdown__second-name').textContent =
-        userStore.getState().last_name;
+      document.querySelector('.header__profile-dropdown__options__login').textContent =
+        userStore.getState().login;
+      document.querySelector('.header__profile-dropdown__options__name').textContent =
+        userStore.getState().first_name + ' ' + userStore.getState().last_name;
 
       this.profileButton.style.display = 'flex';
 
@@ -368,8 +424,6 @@ export default class Header {
       document.querySelector('.header__profile-dropdown').classList.remove('active');
       this.loginButton.show();
       this.profileButton.style.display = 'none';
-      document.querySelector('.header__profile-dropdown__first-name').textContent = 'Имя';
-      document.querySelector('.header__profile-dropdown__second-name').textContent = 'Фамилия';
     }
 
     const active_address = userStore.getActiveAddress();
@@ -455,7 +509,7 @@ export default class Header {
    */
   remove(): void {
     if (this.logo) this.logo.remove();
-    this.profileSettingsButton.remove();
+    this.profilesButtons.forEach((button) => button.remove());
     this.logoutButton?.remove();
     this.profileButton.remove();
     this.loginButton?.remove();

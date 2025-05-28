@@ -3,6 +3,7 @@ import { router } from '@modules/routing';
 import template from './restaurantCard.hbs';
 
 import { BaseRestaurant } from '@myTypes/restaurantTypes';
+import { StarsWidget } from '@components/starsWidget/starsWidget';
 
 /**
  * Класс карточки ресторана
@@ -11,6 +12,7 @@ export class RestaurantCard {
   private parent: HTMLElement; // Родитель (где вызывается)
   private readonly props: BaseRestaurant;
   private readonly isSearchCard: boolean;
+  private stars: StarsWidget;
   /**
    * Создает экземпляр карточки ресторана.
    * @constructor
@@ -49,6 +51,12 @@ export class RestaurantCard {
     this.parent.insertAdjacentHTML(pushDirection, html);
     if (this.isSearchCard) this.self.classList.add('restaurant__search-card');
     this.self.addEventListener('click', this.handleClick);
+
+    const starsContainer: HTMLDivElement = this.self.querySelector(
+      '.restaurant__card__content__title',
+    );
+    this.stars = new StarsWidget(starsContainer, this.props.rating, null, false, true);
+    this.stars.render();
   }
 
   /**
@@ -56,5 +64,6 @@ export class RestaurantCard {
    */
   remove() {
     this.self.removeEventListener('click', this.handleClick);
+    this.stars.remove();
   }
 }

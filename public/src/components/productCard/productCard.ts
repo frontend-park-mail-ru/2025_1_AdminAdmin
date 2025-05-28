@@ -92,9 +92,11 @@ export class ProductCard {
 
     this.plusButton.render();
     this.updateState();
+
+    this.self.addEventListener('click', this.incrementAmount);
   }
 
-  private async incrementAmount() {
+  private incrementAmount = async () => {
     if (!userStore.getActiveAddress()) {
       const mapModal = new MapModal((newAddress: string) => {
         userStore.setAddress(newAddress);
@@ -122,15 +124,17 @@ export class ProductCard {
       modalController.openModal(confirmRestaurantModal);
     } else {
       this.plusButton.disable();
+      this.self.style.pointerEvents = 'none';
       try {
         await cartStore.incrementProductAmount(this.props);
       } catch (error) {
         toasts.error(error.message);
       } finally {
         this.plusButton.enable();
+        this.self.style.pointerEvents = 'auto';
       }
     }
-  }
+  };
 
   private async decrementAmount() {
     this.minusButton.disable();
@@ -209,6 +213,8 @@ export class ProductCard {
     const element = this.self;
     this.minusButton.remove();
     this.plusButton.remove();
+
+    this.self.removeEventListener('click', this.incrementAmount);
     if (this.unsubscribeFromStore) {
       this.unsubscribeFromStore();
       this.unsubscribeFromStore = null;

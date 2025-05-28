@@ -200,8 +200,6 @@ export class ReviewsModal {
 
     await this.renderReviews();
 
-    this.previousReview?.self.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
     if (!canReview) return;
 
     if (!userStore.isAuth()) {

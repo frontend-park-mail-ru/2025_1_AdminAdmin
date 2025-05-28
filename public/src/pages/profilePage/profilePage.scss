@@ -28,6 +28,17 @@
             width: 100%;
         }
     }
+
+    .no_result {
+        display: none;
+        font-size: 18px;
+        margin: 10px 0;
+    }
+
+    @import url("https://fonts.googleapis.com/css?family=Lato:300");
+    body {
+        background: #000;
+    }
 }
 
 
@@ -134,7 +145,7 @@
 
 // Блок промокодов
 .profile-promocodes {
-    display: none;
+    display: flex;
     flex-direction: column;
     gap: 20px;
 
@@ -170,7 +181,7 @@
 .profile-orders {
     font-size: 16px;
     text-align: left;
-    display: none;
+    display: grid;
     gap: 20px;
 
     @media (max-width: 600px) {
