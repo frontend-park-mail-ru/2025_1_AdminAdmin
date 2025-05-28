@@ -23,7 +23,7 @@ export default class Header {
   private logo!: Logo;
   private cartButton: Button;
   private loginButton!: Button;
-  private profileButton: Button;
+  private profileButton: HTMLDivElement;
   private profileSettingsButton: Button;
   private logoutButton!: Button;
   private readonly handleScrollBound: () => void;
@@ -278,15 +278,9 @@ export default class Header {
     });
     this.loginButton.render();
 
-    const profileButtonWrapper = document.querySelector(
-      '.header__profile-dropdown__button__wrapper',
-    ) as HTMLElement;
-    this.profileButton = new Button(profileButtonWrapper, {
-      id: 'profile_button',
-      text: 'Профиль',
-      onSubmit: this.toggleProfileDropdown,
-    });
-    this.profileButton.render();
+    this.profileButton = document.querySelector('.header__profile-dropdown__button');
+
+    this.profileButton.addEventListener('click', this.toggleProfileDropdown);
 
     const profileDropdownButtonsContainer = document.querySelector(
       '.header__profile-dropdown__buttons-container',
@@ -360,7 +354,8 @@ export default class Header {
         userStore.getState().first_name;
       document.querySelector('.header__profile-dropdown__second-name').textContent =
         userStore.getState().last_name;
-      this.profileButton.show();
+
+      this.profileButton.style.display = 'flex';
 
       const avatarImage = document.getElementById(
         'header__profile-dropdown__image__avatar',
@@ -372,7 +367,7 @@ export default class Header {
     } else {
       document.querySelector('.header__profile-dropdown').classList.remove('active');
       this.loginButton.show();
-      this.profileButton.hide();
+      this.profileButton.style.display = 'none';
       document.querySelector('.header__profile-dropdown__first-name').textContent = 'Имя';
       document.querySelector('.header__profile-dropdown__second-name').textContent = 'Фамилия';
     }
@@ -470,6 +465,7 @@ export default class Header {
     this.parent.innerHTML = '';
     this.parent.classList.remove('main_header');
     this.parent.classList.remove('mobile_header');
+    this.profileButton.removeEventListener('click', this.toggleProfileDropdown);
     window.removeEventListener('resize', this.handleResizeBound);
     window.removeEventListener('scroll', this.handleScrollBound);
     document.removeEventListener('click', this.clickHandler);
