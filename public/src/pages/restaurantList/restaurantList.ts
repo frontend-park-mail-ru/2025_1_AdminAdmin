@@ -91,12 +91,8 @@ export default class RestaurantList {
    * Ссылка на объект
    * @returns {HTMLElement} - ссылка на объект
    */
-  get self(): HTMLButtonElement | null {
-    const element = document.querySelector('.restaurant__container');
-    if (!element) {
-      throw new Error(`Error: can't find restaurantList`);
-    }
-    return element as HTMLButtonElement;
+  get self(): HTMLDivElement | null {
+    return document.querySelector('.restaurant__container');
   }
 
   /**
@@ -179,6 +175,9 @@ export default class RestaurantList {
    * Добавляет карточки при прокрутке вниз
    */
   private loadMoreEnd = async () => {
+    if (!this.self) {
+      return;
+    }
     const startCount = this.lastCardId + 1;
     let endCount = startCount + LOAD_COUNT;
 
@@ -215,7 +214,6 @@ export default class RestaurantList {
    * Удаляет лишние карточки из DOM-а
    */
   private deleteFromDom = (): void => {
-    if (!this.self) return;
     if (this._deletionScheduled) return;
     this._deletionScheduled = true;
 
