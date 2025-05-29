@@ -1,112 +1,146 @@
 .promocode-card {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    /* левая область + кнопка справа */
-    grid-template-areas:
-        "text button"
-        "discount button"
-        "expires expires";
-    gap: 5px 10px;
-    padding: 10px;
-    align-items: center;
-    justify-content: start;
-    background-color: var(--light-grey);
-    border-radius: var(--border-radius);
+    --main-color: var(--orange);
+    --text-color: var(--white);
+
+    &.dark {
+        --main-color: var(--light-grey);
+        --text-color: var(--black);
+    }
+
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: auto;
+    color: var(--text-color);
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+    display: flex;
+    align-items: stretch;
     position: relative;
+    text-transform: uppercase;
+    container-type: inline-size;
 
-    @media (max-width: 800px) {
-        // С grid не получается, контейнер кнопки остается справа и не растягивается на всю карточку
-        // Поменяю отображение на flex
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    span {
-        text-align: left;
-        width: 100%;
-    }
-
-    &__promocode-text {
-        grid-area: text;
-        font-size: 20px;
-        font-weight: bold;
-    }
-
-    &__discount-size {
-        grid-area: discount;
-        font-size: 16px;
-        margin-bottom: 10px;
-    }
-
-    &__expires-at_desktop,
-    &__expires-at_mobile {
-        color: var(--dark-gray);
-        grid-area: expires;
-        font-size: 14px;
-    }
-
-    &__copy-button-container {
-        grid-area: button;
-        position: relative;
-
-        @media (max-width: 800px) {
-            // Стили для кликабельной карточки для мобилки
-            // Увеличиваем контейнер тк кнопка считается от него
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-    }
-}
-
-.promocode-card .promocode-card__copy-button-container .button {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-
-    @media (max-width: 800px) {
-        // Стили для кликабельной карточки для мобилки
-        // Должны получить карточку-кнопку, при нажатии должен копироваться промокод
+    &::before,
+    &::after {
+        content: "";
         position: absolute;
         top: 0;
-        left: 0;
-        width: 100%;
+        width: 50%;
         height: 100%;
-        opacity: 0;
-        cursor: pointer;
-        z-index: 1;
-        border-radius: var(--border-radius);
+        z-index: -1;
     }
 
-    img {
-        width: 20px;
-        height: 20px;
-        object-fit: fill;
-    }
-}
-
-// Стили для десктопа
-@media (min-width: 801px) {
-    .promocode-card__expires-at_desktop {
-        display: inline;
+    &::before {
+        left: 0;
+        background-image: radial-gradient(circle at 0 50%, transparent 25px, var(--main-color) 26px);
+        filter: opacity(70%);
     }
 
-    .promocode-card__expires-at_mobile {
-        display: none;
-    }
-}
-
-// Стили для мобилки
-@media (max-width: 800px) {
-    .promocode-card__expires-at_desktop {
-        display: none;
+    &::after {
+        right: 0;
+        background-image: radial-gradient(circle at 100% 50%, transparent 25px, var(--main-color) 26px);
+        filter: opacity(70%);
     }
 
-    .promocode-card__expires-at_mobile {
-        display: inline;
+    > div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .left {
+        width: 20%;
+        box-sizing: border-box;
+        border-right: 2px dashed rgba(0, 0, 0, 0.13);
+        padding-left: 10px;
+
+        div {
+            transform: rotate(-90deg);
+            white-space: nowrap;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    }
+
+    .center {
+        flex-grow: 1;
+        text-align: center;
+
+        h2 {
+            background: var(--text-color);
+            color: var(--main-color);
+            padding: 0 10px;
+            font-size: 32px;
+            white-space: nowrap;
+        }
+
+        h3 {
+            margin: 5px 0;
+            font-size: 24px;
+        }
+
+        small {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+    }
+
+    .right {
+        width: 25%;
+        position: relative;
+        background-image: radial-gradient(circle at 100% 50%, transparent 25px, var(--white) 26px);
+
+        .promocode-card__copy-button-container {
+            position: absolute;
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+
+            button {
+                background: transparent;
+                width: fit-content;
+                height: fit-content;
+            }
+        }
+    }
+
+    @container (max-width: 400px) {
+        .left div {
+            font-size: 16px;
+        }
+
+        .center {
+            h2 {
+                font-size: 26px;
+            }
+
+            h3 {
+                margin: 5px 0;
+                font-size: 20px;
+            }
+
+            small {
+                font-size: 9px;
+            }
+        }
+
+        &::before {
+            background-image: radial-gradient(circle at 0 50%, transparent 10px, var(--main-color) 11px);
+        }
+
+        &::after {
+            background-image: radial-gradient(circle at 100% 50%, transparent 10px, var(--main-color) 11px);
+        }
+
+        .right {
+            background-image: radial-gradient(circle at 100% 50%, transparent 10px, var(--white) 11px);
+        }
+    }
+
+    @container (max-width: 300px) {
+        .left div {
+            font-size: 12px;
+        }
     }
 }
