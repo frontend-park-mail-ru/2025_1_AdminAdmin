@@ -83,8 +83,8 @@ export default class RestaurantList {
       { rootMargin: `${SCROLL_MARGIN}px` },
     );
 
-    this.loadMoreEndThrottle = throttle(this.loadMoreEnd.bind(this), 500);
-    this.deleteFromDomThrottle = throttle(this.deleteFromDom.bind(this), 10);
+    this.loadMoreEndThrottle = throttle(this.loadMoreEnd, 500);
+    this.deleteFromDomThrottle = throttle(this.deleteFromDom, 10);
   }
 
   /**
@@ -178,7 +178,7 @@ export default class RestaurantList {
   /**
    * Добавляет карточки при прокрутке вниз
    */
-  private async loadMoreEnd(): Promise<void> {
+  private loadMoreEnd = async () => {
     const startCount = this.lastCardId + 1;
     let endCount = startCount + LOAD_COUNT;
 
@@ -209,7 +209,7 @@ export default class RestaurantList {
     }
 
     this.lastCardId = endCount - 1;
-  }
+  };
 
   /**
    * Удаляет лишние карточки из DOM-а

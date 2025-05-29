@@ -81,6 +81,7 @@ export class CartCard {
       quantityControlsWrapper,
       this.props.id,
       this.props.amount,
+      this.props.price,
       this.incrementAmount.bind(this),
       this.decrementAmount.bind(this),
       this.setAmount.bind(this),

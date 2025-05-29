@@ -420,7 +420,6 @@ export default class Header {
   private updateHeaderState(): void {
     if (userStore.isAuth()) {
       this.loginButton.hide();
-      document.querySelector('.header__profile-dropdown').classList.add('enter');
       document.querySelector('.header__profile-dropdown__options__login').textContent =
         userStore.getState().login;
       document.querySelector('.header__profile-dropdown__options__name').textContent =
@@ -436,7 +435,23 @@ export default class Header {
       };
       avatarImage.src = `https://doordashers.ru/images_user/${userStore.getState().path}`;
     } else {
-      document.querySelector('.header__profile-dropdown').classList.remove('enter');
+      document.querySelector('.header__profile-dropdown__options').classList.remove('enter');
+
+      const el = document.querySelector('.header__profile-dropdown') as HTMLElement;
+      if (el) {
+        el.style.pointerEvents = 'none';
+      }
+
+      document.querySelector('.header__profile-dropdown__options__login').textContent = '';
+      document.querySelector('.header__profile-dropdown__options__name').textContent = '';
+
+      const avatarImage = document.getElementById(
+        'header__profile-dropdown__image__avatar',
+      ) as HTMLImageElement;
+      avatarImage.onerror = () => {
+        avatarImage.src = './src/assets/profile.png';
+      };
+      avatarImage.src = '';
       this.loginButton.show();
       this.profileButton.style.display = 'none';
     }

@@ -127,7 +127,7 @@ main {
 
 .enter {
   opacity: 1 !important;
-  pointer-events: auto;
+  pointer-events: auto !important;
 }
 
 .leave {

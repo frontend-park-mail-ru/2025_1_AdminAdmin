@@ -1,5 +1,7 @@
 import { QuantityButton } from '@components/quantityButton/quantityButton';
 import template from './quantityControls.hbs';
+import { cartStore } from '@store/cartStore';
+import { toasts } from 'doordashers-ui-kit';
 
 export class QuantityControls {
   private readonly parent: HTMLElement;
@@ -8,6 +10,7 @@ export class QuantityControls {
   private input: HTMLInputElement;
   private minusButton: QuantityButton;
   private readonly amount: number;
+  private readonly price: number;
   private onIncrement: () => void;
   private onDecrement: () => void;
   private readonly setProductAmount: (amount: number) => void;
@@ -16,6 +19,7 @@ export class QuantityControls {
     parent: HTMLElement,
     id: string,
     amount: number,
+    price: number,
     onIncrement: () => void,
     onDecrement: () => void,
     setProductAmount: (amount: number) => void,
@@ -23,6 +27,7 @@ export class QuantityControls {
     this.parent = parent;
     this.id = id;
     this.amount = amount;
+    this.price = price;
     this.onIncrement = onIncrement;
     this.onDecrement = onDecrement;
     this.setProductAmount = setProductAmount;
@@ -56,6 +61,15 @@ export class QuantityControls {
 
   private handleInputBlur = (): void => {
     const newAmount = Number(this.input.value);
+
+    if (this.price * newAmount + cartStore.getState().total_sum > 100000) {
+      toasts.info('Сумма заказа не должна превышать 100 000 ₽');
+      this.input.value = Math.floor(
+        (100000 - cartStore.getState().total_sum) / this.price,
+      ).toString();
+      return;
+    }
+
     if (newAmount !== this.amount) {
       this.setProductAmount(newAmount);
     }

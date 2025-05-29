@@ -276,12 +276,12 @@
   grid-template-areas:
     "header__logo header__search header__location header__cart_button header__auth_button";
   column-gap: 20px;
-  grid-template-columns: fit-content(100px) minmax(0, 1fr) minmax(0, 1fr) 135px fit-content(100px);
+  grid-template-columns: fit-content(100px) minmax(0, 1fr) minmax(0, 1fr) 135px minmax(50px, 80px);
   padding-left: 7vw;
   padding-right: 7vw;
 
   @media (max-width: 1600px) {
-    grid-template-columns: fit-content(100px) minmax(0, 2.2fr) minmax(0, 1fr) 135px fit-content(100px);
+    grid-template-columns: fit-content(100px) minmax(0, 2.2fr) minmax(0, 1fr) 135px minmax(50px, 80px);
   }
 
   @media (max-width: 900px) {
@@ -290,7 +290,7 @@
     "header__search header__search header__search header__search";
     row-gap: 10px;
 
-    grid-template-columns: fit-content(100px) minmax(0, 1fr) minmax(140px, 180px) fit-content(100px);
+    grid-template-columns: fit-content(100px) minmax(0, 1fr) minmax(140px, 180px) minmax(50px, 80px);
   }
 
   .header {
@@ -334,7 +334,7 @@
   grid-template-areas:
     "header__logo header__location header__auth_button"
     "header__search header__search header__search";
-  grid-template-columns: fit-content(100px) minmax(0, 1fr) fit-content(100px);
+  grid-template-columns: fit-content(100px) minmax(0, 1fr) minmax(50px, 80px);
   padding-left: 2vw;
   padding-right: 2vw;
   gap: 20px;
