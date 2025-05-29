@@ -252,6 +252,9 @@ export default class ProfilePage {
   createProfileTable = async (offset: number) => {
     this.props.orders = await AppOrderRequests.getUserOrders(ORDERS_PER_PAGE, offset);
 
+    if (!this.props.orders || !this.props.orders.orders.length) {
+      return;
+    }
     // Рендерим блок таблицы заказов
     const profileTableWrapper = this.self.querySelector(
       '.profile-orders__table__wrapper',

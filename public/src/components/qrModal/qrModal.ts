@@ -1,5 +1,5 @@
 import template from './qrModal.hbs';
-import { Button } from 'doordashers-ui-kit';
+import { Button, toasts } from 'doordashers-ui-kit';
 import { modalController } from '@modules/modalController';
 
 export class QRModal {
@@ -31,6 +31,7 @@ export class QRModal {
       text: `Я сохранил QR код`,
       onSubmit: () => {
         modalController.closeModal();
+        toasts.success('2FA Успешно подключена');
       },
     });
 
