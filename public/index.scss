@@ -12,6 +12,7 @@
 @use './src/components/categories/categoryHeader/categoryHeader' as *;
 @use './src/components/youMoneyForm/youMoneyForm' as *;
 @use './src/components/productCard/morePlaceholder/morePlaceholder' as *;
+@use './src/components/promotionCard/promotionCard' as *;
 
 /* Импорт сложных компонентов */
 @use './src/components/header/header' as *;

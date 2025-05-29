@@ -4,12 +4,51 @@ import throttle from '@modules/throttle';
 import template from './restaurantList.hbs';
 import { BaseRestaurant } from '@myTypes/restaurantTypes';
 import { Carousel } from '@components/productsCarousel/productsCarousel';
+import { PromotionCard } from '@components/promotionCard/promotionCard';
 
 // Константы
 const LOAD_COUNT = 16;
 const SCROLL_MARGIN = 100;
 const SCROLL_THRESHOLD = 2;
 const REMOVE_THRESHOLD = 4;
+
+const promotions = [
+  {
+    text: 'Мы открылись!',
+    colorStart: '#FF4D00',
+    colorEnd: '#FF9366',
+  },
+  {
+    text: 'Получайте промокоды',
+    colorStart: '#4D9EFF',
+    colorEnd: '#90C5FF',
+    subText: 'с каждым заказом',
+  },
+  {
+    text: 'Бесплатная доставка',
+    colorStart: '#FF4C4C',
+    colorEnd: '#FF9E9E',
+    subText: 'из всех ресторанов',
+  },
+  {
+    text: 'Экспресс-доставка',
+    colorStart: '#ffa43b',
+    colorEnd: '#fdea35',
+    subText: 'для всех',
+  },
+  {
+    text: 'Еще больше нового',
+    colorStart: '#7070f3',
+    colorEnd: '#a7a7e4',
+    subText: 'в следующих обновлениях',
+  },
+  {
+    text: 'Подключите 2FA',
+    colorStart: '#00a368',
+    colorEnd: '#48ffc2',
+    subText: 'в настройках',
+  },
+];
 
 /**
  * Класс, представляющий список ресторанов.
@@ -64,9 +103,21 @@ export default class RestaurantList {
    * Рендерит список ресторанов в родительский элемент.
    */
   async render(): Promise<void> {
-    try {
-      this.parent.innerHTML = template();
+    this.parent.innerHTML = template();
 
+    const container: HTMLDivElement = this.parent.querySelector('.restaurant__promotions__wrapper');
+
+    promotions.forEach((promo) => {
+      new PromotionCard(
+        container,
+        promo.text,
+        promo.colorStart,
+        promo.colorEnd,
+        promo?.subText,
+      ).render();
+    });
+
+    try {
       await this.renderRestaurantsCarousel();
       await this.loadMoreEnd();
 

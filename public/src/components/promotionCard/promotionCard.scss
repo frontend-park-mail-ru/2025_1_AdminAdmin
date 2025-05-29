@@ -1,0 +1,32 @@
+.promotion-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  aspect-ratio: 9/5;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--color-start), var(--color-end));
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  transition: box-shadow 0.5s ease;
+
+  &:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .main-text {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .sub-text {
+    font-size: 14px;
+    opacity: 0.9;
+  }
+}
