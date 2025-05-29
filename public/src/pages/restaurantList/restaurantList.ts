@@ -37,16 +37,16 @@ const promotions = [
     subText: 'для всех',
   },
   {
-    text: 'Еще больше нового',
-    colorStart: '#7070f3',
-    colorEnd: '#a7a7e4',
-    subText: 'в следующих обновлениях',
-  },
-  {
     text: 'Подключите 2FA',
     colorStart: '#00a368',
     colorEnd: '#48ffc2',
     subText: 'в настройках профиля',
+  },
+  {
+    text: 'Еще больше нового',
+    colorStart: '#7070f3',
+    colorEnd: '#a7a7e4',
+    subText: 'в следующих обновлениях',
   },
 ];
 
@@ -161,6 +161,7 @@ export default class RestaurantList {
 
         if (!i) {
           const payAttentionHeader = document.createElement('h1');
+          payAttentionHeader.style.marginTop = '20px';
           payAttentionHeader.innerText = 'Обратите внимание';
           carouselWrapper.appendChild(payAttentionHeader);
         }
