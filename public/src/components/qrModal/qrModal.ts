@@ -35,7 +35,7 @@ export class QRModal {
       text: `Я сохранил QR код`,
       onSubmit: () => {
         modalController.closeModal();
-        toasts.success('2FA Успешно подключена');
+        toasts.success('2FA успешно подключена');
       },
     });
 
