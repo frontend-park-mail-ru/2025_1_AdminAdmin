@@ -69,6 +69,10 @@ export default class MapModal {
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 
+    requestAnimationFrame(() => {
+      this.self?.classList.add('enter');
+    });
+
     const searchContainer = document.querySelector<HTMLElement>('.map_modal__search_container');
 
     this.suggestsContainer = new SuggestsContainer(
@@ -313,6 +317,10 @@ export default class MapModal {
     }
   }
 
+  get content(): HTMLDivElement {
+    return document.querySelector('.map_modal__content');
+  }
+
   private onBlur() {
     setTimeout(() => {
       this.suggestsContainer.clear();
@@ -349,8 +357,14 @@ export default class MapModal {
     }
 
     if (this.self) {
+      this.self.classList.remove('enter');
+      this.self.classList.add('leave');
+
       this.self.removeEventListener('click', this.closeEventHandler);
-      this.self.remove();
+
+      setTimeout(() => {
+        this.self?.remove();
+      }, 300);
     }
   }
 }

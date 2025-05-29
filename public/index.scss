@@ -125,6 +125,16 @@ main {
   padding-top: var(--real-header-height);
 }
 
+.enter {
+  opacity: 1 !important;
+  pointer-events: auto;
+}
+
+.leave {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .form__line {
   display: flex;
   flex-direction: row;

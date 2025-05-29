@@ -407,22 +407,6 @@ export default class ProfilePage {
 
     const noPromos: HTMLDivElement = this.parent.querySelector('#profile-promocodes__no-result');
 
-    const promocode = {
-      id: '2edb204c-15a1-45f3-9c65-7985295a43f1',
-      promocode: 'WELCOME15',
-      discount: 0.15,
-      user_id: '6875db36-434b-499b-a097-6e7bc127a352',
-      created_at: '2025-05-26T15:05:10.156442Z',
-      expires_at: '2025-05-27T15:05:10.156442Z',
-    };
-
-    const promocodeCardComponent = new PromocodeCard(
-      promocodesBodyElement,
-      promocode,
-      this.handlePromocodeCopied,
-    );
-    promocodeCardComponent.render();
-
     try {
       const promocodes = await AppPromocodeRequests.GetPromocodes();
 

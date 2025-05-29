@@ -155,8 +155,8 @@ export default class Header {
     ) as HTMLElement;
 
     return (
-      (dropdown && dropdown.style.display === 'block') ||
-      (profileDropdownOptions && profileDropdownOptions.classList.contains('active'))
+      (dropdown && dropdown.classList.contains('enter')) ||
+      (profileDropdownOptions && profileDropdownOptions.classList.contains('enter'))
     );
   }
 
@@ -169,7 +169,7 @@ export default class Header {
     const profileDropdownOptions = document.querySelector(
       '.header__profile-dropdown__options',
     ) as HTMLElement;
-    if (profileDropdownOptions.classList.contains('active')) this.toggleProfileDropdown();
+    if (profileDropdownOptions.classList.contains('enter')) this.toggleProfileDropdown();
 
     if (this.parent.classList.contains('mobile_header')) {
       dropdown.style.animation = 'moveDown 0.2s linear forwards';
@@ -183,7 +183,12 @@ export default class Header {
         }, 300);
       }, 200);
     } else {
-      dropdown.style.display = 'none';
+      dropdown.classList.add('leave');
+      dropdown.classList.remove('enter');
+
+      setTimeout(() => {
+        dropdown.classList.remove('leave');
+      }, 300);
     }
   }
 
@@ -194,8 +199,6 @@ export default class Header {
   private async handleSelectButtonClick(): Promise<void> {
     const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
 
-    dropdown.style.display = 'block';
-
     if (this.parent.classList.contains('mobile_header')) {
       const overlay = document.querySelector('.header__overlay') as HTMLElement;
       overlay.style.display = 'block';
@@ -205,6 +208,8 @@ export default class Header {
       dropdown.style.animation = 'moveUp 0.2s linear forwards';
       const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
       cartButtonContainer.style.setProperty('box-shadow', 'none');
+    } else {
+      dropdown.classList.add('enter');
     }
 
     if (!userStore.isAuth()) return;
@@ -239,7 +244,17 @@ export default class Header {
       '.header__profile-dropdown__options',
     ) as HTMLElement;
 
-    profileDropdownOptions.classList.toggle('active');
+    if (!profileDropdownOptions.classList.contains('enter')) {
+      profileDropdownOptions.classList.add('enter');
+      profileDropdownOptions.classList.remove('leave');
+    } else {
+      profileDropdownOptions.classList.add('leave');
+      profileDropdownOptions.classList.remove('enter');
+
+      setTimeout(() => {
+        profileDropdownOptions.classList.remove('leave');
+      }, 300);
+    }
   };
 
   /**
@@ -299,7 +314,7 @@ export default class Header {
       iconAlt: 'Настройки',
       text: 'Настройки',
       onSubmit: () => {
-        document.querySelector('.header__profile-dropdown__options').classList.remove('active');
+        document.querySelector('.header__profile-dropdown__options').classList.remove('enter');
         router.goToPage('profilePage');
       },
     });
@@ -313,7 +328,7 @@ export default class Header {
       iconAlt: 'Адреса',
       text: 'Мои адреса',
       onSubmit: () => {
-        document.querySelector('.header__profile-dropdown__options').classList.remove('active');
+        document.querySelector('.header__profile-dropdown__options').classList.remove('enter');
         router.goToPage('profilePage', null, 'addresses');
       },
     });
@@ -405,7 +420,7 @@ export default class Header {
   private updateHeaderState(): void {
     if (userStore.isAuth()) {
       this.loginButton.hide();
-      document.querySelector('.header__profile-dropdown').classList.add('active');
+      document.querySelector('.header__profile-dropdown').classList.add('enter');
       document.querySelector('.header__profile-dropdown__options__login').textContent =
         userStore.getState().login;
       document.querySelector('.header__profile-dropdown__options__name').textContent =
@@ -421,7 +436,7 @@ export default class Header {
       };
       avatarImage.src = `https://doordashers.ru/images_user/${userStore.getState().path}`;
     } else {
-      document.querySelector('.header__profile-dropdown').classList.remove('active');
+      document.querySelector('.header__profile-dropdown').classList.remove('enter');
       this.loginButton.show();
       this.profileButton.style.display = 'none';
     }
