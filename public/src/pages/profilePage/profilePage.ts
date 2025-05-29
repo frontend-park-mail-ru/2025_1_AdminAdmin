@@ -222,7 +222,7 @@ export default class ProfilePage {
 
     if (blockElement) {
       setTimeout(() => {
-        blockElement.scrollIntoView({ behavior: 'smooth' });
+        blockElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         if (headerElement) {
           headerElement.classList.add('shimmer');
