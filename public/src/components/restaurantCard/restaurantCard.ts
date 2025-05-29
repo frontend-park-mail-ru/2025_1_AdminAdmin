@@ -47,7 +47,7 @@ export class RestaurantCard {
    * @param pushDirection {"beforebegin" | "afterbegin" | "beforeend" | "afterend"} - Определяет, куда вставлять карточку относительно родителя.
    */
   render(pushDirection: InsertPosition = 'beforeend') {
-    const html = template(this.props);
+    const html = template({ ...this.props, isSearchCard: this.isSearchCard });
     this.parent.insertAdjacentHTML(pushDirection, html);
     if (this.isSearchCard) this.self.classList.add('restaurant__search-card');
     this.self.addEventListener('click', this.handleClick);
