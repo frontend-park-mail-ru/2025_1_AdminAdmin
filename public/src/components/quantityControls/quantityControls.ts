@@ -46,8 +46,8 @@ export class QuantityControls {
       return;
     }
 
-    if (parsed > 999) {
-      this.input.value = parsed.toString().slice(0, 3);
+    if (parsed > 99) {
+      this.input.value = parsed.toString().slice(0, 2);
       return;
     }
 

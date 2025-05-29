@@ -102,7 +102,12 @@ export class CartCard {
   }
 
   private async incrementAmount() {
-    if (this.props.amount === 999) {
+    if (cartStore.getState().total_sum + this.props.price > 100000) {
+      toasts.info('Сумма заказа не должна превышать 100 000 ₽');
+      return;
+    }
+
+    if (this.props.amount === 99) {
       return;
     }
     try {

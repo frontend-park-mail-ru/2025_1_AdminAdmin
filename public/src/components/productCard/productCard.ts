@@ -78,7 +78,7 @@ export class ProductCard {
       style: 'card-quantity-button',
       insert: 'afterbegin',
       isPlus: false,
-      onSubmit: this.decrementAmount.bind(this),
+      onSubmit: this.decrementAmount,
     });
 
     this.minusButton.render();
@@ -87,7 +87,7 @@ export class ProductCard {
       id: `${this.props.id}__plus-button`,
       style: 'card-quantity-button',
       isPlus: true,
-      onSubmit: this.incrementAmount.bind(this),
+      onSubmit: this.incrementAmount,
     });
 
     this.plusButton.render();
@@ -106,7 +106,12 @@ export class ProductCard {
       return;
     }
 
-    if (this.amount === 999) {
+    if (this.amount === 99) {
+      return;
+    }
+
+    if (cartStore.getState().total_sum + this.props.price > 100000) {
+      toasts.info('Сумма заказа не должна превышать 100 000 ₽');
       return;
     }
 
@@ -136,7 +141,7 @@ export class ProductCard {
     }
   };
 
-  private async decrementAmount() {
+  private decrementAmount = async () => {
     this.minusButton.disable();
     try {
       await cartStore.decrementProductAmount(this.props);
@@ -146,7 +151,7 @@ export class ProductCard {
     } finally {
       this.minusButton.enable();
     }
-  }
+  };
 
   private modalOnSubmit = async () => {
     try {
