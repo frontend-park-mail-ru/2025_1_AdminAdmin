@@ -12,6 +12,12 @@
   box-sizing: border-box;
   padding: 10px 10px 15px 10px;
 
+  &.vertical {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
   &__image {
     width: 100%;
     aspect-ratio: 2 / 1;
