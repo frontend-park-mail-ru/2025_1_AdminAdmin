@@ -215,6 +215,7 @@ export default class RestaurantList {
    * Удаляет лишние карточки из DOM-а
    */
   private deleteFromDom = (): void => {
+    if (!this.self) return;
     if (this._deletionScheduled) return;
     this._deletionScheduled = true;
 
@@ -242,6 +243,7 @@ export default class RestaurantList {
    * Удаляет список ресторанов и очищает содержимое родительского элемента.
    */
   remove(): void {
+    this.observer.disconnect();
     this.cards.forEach((card) => {
       card.remove();
     });
@@ -249,7 +251,6 @@ export default class RestaurantList {
 
     // Отписка от событий и наблюдателей
     document.removeEventListener('scroll', this.deleteFromDomThrottle);
-    this.observer.disconnect();
 
     this.restauransCarousels?.forEach((carousel) => carousel.remove());
     this.restauransCarousels = [];
