@@ -5,7 +5,7 @@ import { Button } from 'doordashers-ui-kit';
 import template from './header.hbs';
 import { toasts } from 'doordashers-ui-kit';
 import MapModal from '@pages/mapModal/mapModal';
-import logoImg from '@assets/logo.png';
+import logoImg from '@assets/logo.svg';
 import cartImg from '@assets/cart.svg';
 import settingsImg from '@assets/settings.svg';
 import myLocationImg from '@assets/mylocation.svg';

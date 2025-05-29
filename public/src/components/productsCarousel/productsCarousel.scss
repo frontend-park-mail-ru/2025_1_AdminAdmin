@@ -1,9 +1,11 @@
 .carousel {
-  margin-top: 20px;
   width: 100%;
   max-width: 100%;
   min-width: 0;
   position: relative;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
 
   &__cards {
     display: flex;
@@ -36,9 +38,9 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 100%;
+    width: 98%;
 
-   &__button-prev, &__button-next {
+    button {
      pointer-events: auto;
       border-radius: 50px;
       border: 0;

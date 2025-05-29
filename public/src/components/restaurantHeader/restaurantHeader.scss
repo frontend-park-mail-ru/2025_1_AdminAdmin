@@ -1,3 +1,5 @@
+@use "sass:color";
+
 .restaurant-header {
   display: flex;
   flex-direction: column;
@@ -40,27 +42,30 @@
       }
     }
 
-    &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 60%;
-      height: 100%;
+    &::before {
       background: linear-gradient(
-                      120deg,
-                      rgba(255, 255, 255, 0) 0%,
-                      rgba(255, 255, 255, 0.15) 35%,
-                      rgba(255, 255, 255, 0.3) 50%,
-                      rgba(255, 255, 255, 0.15) 65%,
-                      rgba(255, 255, 255, 0) 100%
+                      to right,
+                      color.adjust(#fff, $alpha: -1) 0%,
+                      color.adjust(#fff, $alpha: -0.7) 100%
       );
-      animation: shimmer-white 3s infinite;
+      content: "";
+      display: block;
+      height: 100%;
+      left: -75%;
+      position: absolute;
       pointer-events: none;
+      top: 0;
+      transform: skewX(-25deg);
+      width: 50%;
       z-index: 1;
-      filter: blur(10px);
+      animation: shine 4s infinite;
     }
 
+    @keyframes shine {
+      100% {
+        left: 125%;
+      }
+    }
   }
 
   &__info {
@@ -90,14 +95,4 @@
   width: 14px;
   height: 14px;
   fill: currentColor;
-}
-
-
-@keyframes shimmer-white {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
 }

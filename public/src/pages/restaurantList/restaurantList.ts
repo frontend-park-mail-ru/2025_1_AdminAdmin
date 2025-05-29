@@ -3,6 +3,7 @@ import { RestaurantCard } from '@components/restaurantCard/restaurantCard';
 import throttle from '@modules/throttle';
 import template from './restaurantList.hbs';
 import { BaseRestaurant } from '@myTypes/restaurantTypes';
+import { Carousel } from '@components/productsCarousel/productsCarousel';
 
 // Константы
 const LOAD_COUNT = 16;
@@ -22,6 +23,8 @@ export default class RestaurantList {
   private _deletionScheduled: boolean;
   private readonly loadMoreEndThrottle: () => void;
   private readonly deleteFromDomThrottle: () => void;
+  private restauransCarousels: Carousel<BaseRestaurant>[] = [];
+  private cards: RestaurantCard[] = [];
 
   /**
    * Создает экземпляр списка ресторанов.
@@ -64,6 +67,7 @@ export default class RestaurantList {
     try {
       this.parent.innerHTML = template();
 
+      await this.renderRestaurantsCarousel();
       await this.loadMoreEnd();
 
       const lowerSentinel = document.querySelector('.lower-sentinel');
@@ -72,6 +76,50 @@ export default class RestaurantList {
       document.addEventListener('scroll', this.deleteFromDomThrottle);
     } catch (error) {
       console.error('Error rendering restaurant list:', error);
+    }
+  }
+
+  private async renderRestaurantsCarousel(): Promise<void> {
+    let startCount = 0;
+    let endCount = 6;
+
+    for (let i = 0; i < 2; i++) {
+      try {
+        const newRestaurants: BaseRestaurant[] = await AppRestaurantRequests.GetAll({
+          count: `${6}`,
+          offset: startCount.toString(),
+        });
+
+        if (!newRestaurants) return;
+
+        const uniqueRestaurants = newRestaurants.filter((r) => !this.renderedIds.has(r.id));
+        this.restaurantList.push(...uniqueRestaurants);
+
+        const carouselWrapper: HTMLDivElement = this.parent.querySelector(
+          '.restaurant__carousel__wrapper',
+        );
+        const restauransCarousel = new Carousel(
+          i.toString(),
+          carouselWrapper,
+          uniqueRestaurants,
+          (container, restaurant) => new RestaurantCard(container, restaurant),
+        );
+
+        restauransCarousel.render();
+        this.restauransCarousels.push(restauransCarousel);
+
+        if (!i) {
+          const payAttentionHeader = document.createElement('h1');
+          payAttentionHeader.innerText = 'Обратите внимание';
+          carouselWrapper.appendChild(payAttentionHeader);
+        }
+
+        this.lastCardId = endCount - 1;
+        startCount = endCount;
+        endCount += 6;
+      } catch (err) {
+        console.error(err);
+      }
     }
   }
 
@@ -104,6 +152,8 @@ export default class RestaurantList {
     for (let i = startCount; i < endCount; i++) {
       const card = new RestaurantCard(this.self, this.restaurantList[i]);
       card.render('beforeend');
+
+      this.cards.push(card);
     }
 
     this.lastCardId = endCount - 1;
@@ -125,7 +175,10 @@ export default class RestaurantList {
 
       const lastFour = Array.from(cards).slice(-REMOVE_THRESHOLD);
       if (lastFour[0].getBoundingClientRect().top > window.innerHeight * SCROLL_THRESHOLD) {
-        lastFour.forEach((card) => card.remove());
+        lastFour.forEach((card) => {
+          card.remove();
+          this.cards.pop();
+        });
         this.lastCardId -= lastFour.length;
       }
 
@@ -137,18 +190,24 @@ export default class RestaurantList {
    * Удаляет список ресторанов и очищает содержимое родительского элемента.
    */
   remove(): void {
-    // Удаление карточек и очистка DOM
-    document.querySelectorAll('.restaurant__card').forEach((card) => card.remove());
-    this.parent.innerHTML = '';
+    this.cards.forEach((card) => {
+      card.remove();
+    });
+    this.cards = [];
 
     // Отписка от событий и наблюдателей
     document.removeEventListener('scroll', this.deleteFromDomThrottle);
     this.observer.disconnect();
 
+    this.restauransCarousels?.forEach((carousel) => carousel.remove());
+    this.restauransCarousels = [];
     // Сброс всех состояний
     this.restaurantList = [];
     this.renderedIds.clear();
     this.lastCardId = -1;
     this._deletionScheduled = false;
+
+    // Удаление карточек и очистка DOM
+    this.parent.innerHTML = '';
   }
 }

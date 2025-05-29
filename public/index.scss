@@ -1,4 +1,5 @@
 @use './reset.scss' as *;
+@use "sass:color";
 
 /* Импорт стилей компонентов */
 @use './src/components/logo/logo' as *;

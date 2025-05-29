@@ -334,6 +334,7 @@ export default class OrderPage {
 
     recommendedProductsWrapper.style.display = 'block';
     this.recommendedProductsCarousel = new Carousel(
+      '1',
       recommendedProductsWrapper,
       recommendedProducts,
       (container, product) =>

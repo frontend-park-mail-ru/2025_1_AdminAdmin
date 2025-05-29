@@ -9,23 +9,32 @@ export class Carousel<T> {
   private parent: HTMLElement;
   private cardInstances: ICard[] = [];
   private items: T[];
+  private cardsContainer: HTMLElement;
+  private nextButton: HTMLElement;
+  private prevButton: HTMLElement;
   private readonly cardFactory: (container: HTMLElement, item: T) => ICard;
+  private readonly id: string;
 
   constructor(
+    id: string,
     parent: HTMLElement,
     items: T[],
     cardFactory: (container: HTMLElement, item: T) => ICard,
   ) {
+    this.id = id;
     this.parent = parent;
     this.items = items;
     this.cardFactory = cardFactory;
   }
 
   render() {
-    const html = template();
+    const html = template({ id: this.id });
     this.parent.insertAdjacentHTML('beforeend', html);
 
-    const cardsContainer: HTMLDivElement = this.parent.querySelector('.carousel__cards');
+    const carouselElement = this.parent.querySelector(`#carousel-${this.id}`);
+    const cardsContainer = carouselElement.querySelector('.carousel__cards') as HTMLElement;
+    const nextButton = carouselElement.querySelector('.carousel__button--next') as HTMLElement;
+    const prevButton = carouselElement.querySelector('.carousel__button--prev') as HTMLElement;
 
     this.items.forEach((item) => {
       const card = this.cardFactory(cardsContainer, item);
@@ -33,23 +42,21 @@ export class Carousel<T> {
       this.cardInstances.push(card);
     });
 
-    document.getElementById('carousel-button--next')?.addEventListener('click', this.animateNext);
-    document.getElementById('carousel-button--prev')?.addEventListener('click', this.animatePrev);
+    nextButton?.addEventListener('click', this.animateNext);
+    prevButton?.addEventListener('click', this.animatePrev);
     cardsContainer.addEventListener('scroll', this.updateButtonsVisibility);
+
+    this.cardsContainer = cardsContainer;
+    this.nextButton = nextButton;
+    this.prevButton = prevButton;
 
     this.updateButtonsVisibility();
   }
 
   remove() {
-    document
-      .getElementById('carousel-button--next')
-      ?.removeEventListener('click', this.animateNext);
-    document
-      .getElementById('carousel-button--prev')
-      ?.removeEventListener('click', this.animatePrev);
-
-    const cardsContainer = this.parent.querySelector('.carousel__cards');
-    cardsContainer?.removeEventListener('scroll', this.updateButtonsVisibility);
+    this.nextButton?.removeEventListener('click', this.animateNext);
+    this.prevButton?.removeEventListener('click', this.animatePrev);
+    this.cardsContainer?.removeEventListener('scroll', this.updateButtonsVisibility);
 
     this.cardInstances.forEach((card) => card.remove());
     this.cardInstances = [];
@@ -57,7 +64,7 @@ export class Carousel<T> {
   }
 
   private animateNext = () => {
-    const container = this.parent.querySelector('.carousel__cards') as HTMLElement;
+    const container = this.cardsContainer;
     const card = container?.querySelector(':scope > *') as HTMLElement;
     if (!card) return;
 
@@ -65,7 +72,7 @@ export class Carousel<T> {
   };
 
   private animatePrev = () => {
-    const container = this.parent.querySelector('.carousel__cards') as HTMLElement;
+    const container = this.cardsContainer;
     const card = container?.querySelector(':scope > *') as HTMLElement;
     if (!card) return;
 
@@ -73,18 +80,16 @@ export class Carousel<T> {
   };
 
   private updateButtonsVisibility = () => {
-    const container = this.parent.querySelector('.carousel__cards') as HTMLElement;
-    const prevButton = document.getElementById('carousel-button--prev') as HTMLElement;
-    const nextButton = document.getElementById('carousel-button--next') as HTMLElement;
+    const container = this.cardsContainer;
 
     const scrollLeft = Math.ceil(container.scrollLeft);
     const scrollRight = scrollLeft + container.clientWidth;
     const scrollMax = Math.floor(container.scrollWidth);
 
-    prevButton.style.opacity = scrollLeft <= 50 ? '0' : '1';
-    prevButton.style.pointerEvents = scrollLeft <= 50 ? 'none' : 'auto';
+    this.prevButton.style.opacity = scrollLeft <= 50 ? '0' : '1';
+    this.prevButton.style.pointerEvents = scrollLeft <= 50 ? 'none' : 'auto';
 
-    nextButton.style.opacity = scrollRight >= scrollMax - 50 ? '0' : '1';
-    nextButton.style.pointerEvents = scrollRight >= scrollMax - 50 ? 'none' : 'auto';
+    this.nextButton.style.opacity = scrollRight >= scrollMax - 50 ? '0' : '1';
+    this.nextButton.style.pointerEvents = scrollRight >= scrollMax - 50 ? 'none' : 'auto';
   };
 }

@@ -1,11 +1,70 @@
+@use "sass:color";
+
 .restaurantList__body {
   min-height: 100vh;
   box-sizing: border-box;
   margin-top: 20px;
   width: 100%;
   padding: 0 7vw;
+  overflow: hidden;
+
+  .restaurant__carousel__wrapper {
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+
+    h1, span {
+      position: relative;
+      z-index: 2;
+    }
+
+    &::before {
+      background: linear-gradient(
+                      to right,
+                      color.adjust(#fff, $alpha: -1) 0%,
+                      color.adjust(#fff, $alpha: -0.7) 100%
+      );
+      content: "";
+      display: block;
+      height: 100%;
+      left: -75%;
+      position: absolute;
+      top: 0;
+      pointer-events: none;
+      transform: skewX(-25deg);
+      width: 50%;
+      z-index: 1;
+      animation: shine 4s infinite;
+    }
+
+    @keyframes shine {
+      100% {
+        left: 125%;
+      }
+    }
+  }
+
+  h1 {
+    font-weight: bold;
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  hr {
+    margin: 40px 0;
+    height: 3px;
+    border: none;
+    background: linear-gradient(to right,
+            rgba(244, 244, 244, 0.3),  /* левый край светлее */
+            var(--grey),               /* центр — основной цвет */
+            rgba(244, 244, 244, 0.3) /* правый край светлее */
+    );
+  }
+
+
 
   .restaurant__container {
+    margin-top: 10px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     column-gap: 5px;
