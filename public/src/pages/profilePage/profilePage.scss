@@ -148,7 +148,8 @@
 .profile-promocodes {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    column-gap: 20px;
+    row-gap: 30px;
 
     @media (max-width: 800px) {
         gap: 10px;
