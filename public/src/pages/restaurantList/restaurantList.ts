@@ -46,7 +46,7 @@ const promotions = [
     text: 'Подключите 2FA',
     colorStart: '#00a368',
     colorEnd: '#48ffc2',
-    subText: 'в настройках',
+    subText: 'в настройках профиля',
   },
 ];
 
