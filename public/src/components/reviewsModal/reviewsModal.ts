@@ -221,6 +221,9 @@ export class ReviewsModal {
   }
 
   remove() {
+    this.self.classList.remove('enter');
+    this.self.classList.add('leave');
+
     for (const reviewComponent of this.reviewsComponents) {
       reviewComponent.remove();
     }
@@ -233,7 +236,10 @@ export class ReviewsModal {
     this.reviewInput?.remove();
     this.starsWidget?.remove();
     this.submitBtn?.remove();
-    this.self?.remove();
+
+    setTimeout(() => {
+      this.self?.remove();
+    }, 300);
     document.body.style.overflow = '';
   }
 }
