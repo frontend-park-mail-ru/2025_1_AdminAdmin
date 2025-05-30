@@ -13,10 +13,12 @@
   padding: 10px 10px 15px 10px;
 
   &__image {
+    position: relative;
     width: 100%;
     aspect-ratio: 2 / 1;
     object-fit: cover;
     border-radius: 7px;
+    overflow: hidden;
   }
 
   &__content {
@@ -50,11 +52,15 @@
   }
 
   &__description {
+    position: absolute;
+    z-index: 2;
+    top: 10px;
+    left: 10px;
     font-size: 14px;
     padding: 5px;
     max-width: 200px !important;
     color: white;
-    border-radius: 10px;
+    border-radius: 7px;
 
     &.description--red {
       background-color: #e63946;

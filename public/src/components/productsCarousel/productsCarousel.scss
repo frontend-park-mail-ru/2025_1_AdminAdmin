@@ -6,6 +6,9 @@
   display: flex;
   justify-content: center;
 
+  .restaurant__card__description {
+    display: none;
+  }
   &__cards {
     display: flex;
     flex-direction: row;
