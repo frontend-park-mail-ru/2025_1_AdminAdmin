@@ -9,6 +9,8 @@
         <div class="restaurant__card__content__title {{#if isSearchCard}}vertical{{/if}}">
             <span class="restaurant__card__name">{{name}}</span>
         </div>
-        <span class="restaurant__card__description"> {{description}}</span>
+        {{#if description}}
+            <span class="restaurant__card__description"> {{description}}</span>
+        {{/if}}
     </div>
 </div>

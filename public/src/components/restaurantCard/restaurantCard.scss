@@ -50,8 +50,35 @@
   }
 
   &__description {
-    color: var(--dark-gray);
-    font-size: 12px;
+    font-size: 14px;
+    padding: 5px;
+    max-width: 200px !important;
+    color: white;
+    border-radius: 10px;
+
+    &.description--red {
+      background-color: #e63946;
+    }
+
+    &.description--blue {
+      background-color: #0073e6;
+    }
+
+    &.description--darkgreen {
+      background-color: #2e7d32;
+    }
+
+    &.description--orange {
+      background-color: #ff9800;
+    }
+
+    &.description--purple {
+      background-color: #8e44ad;
+    }
+
+    &.description--green {
+      background-color: #43a047;
+    }
   }
 
   &:hover {

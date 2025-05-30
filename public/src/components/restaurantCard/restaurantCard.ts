@@ -5,6 +5,22 @@ import template from './restaurantCard.hbs';
 import { BaseRestaurant } from '@myTypes/restaurantTypes';
 import { StarsWidget } from '@components/starsWidget/starsWidget';
 
+const descriptionColors: Record<string, string> = {
+  'Шеф рекомендует': 'description--red',
+  'Горячее предложение': 'description--orange',
+  'Сезонное меню': 'description--darkgreen',
+  'Успей заказать': 'description--blue',
+  'Тренд недели': 'description--purple',
+  Новинка: 'description--red',
+  'Хит дня': 'description--orange',
+  'Любимое меню': 'description--darkgreen',
+  Эксклюзив: 'description--purple',
+  'В тренде': 'description--blue',
+  Суперцена: 'description--red',
+  'Идеальный обед': 'description--orange',
+  'Огонь!': 'description--red',
+};
+
 /**
  * Класс карточки ресторана
  */
@@ -49,6 +65,17 @@ export class RestaurantCard {
   render(pushDirection: InsertPosition = 'beforeend') {
     const html = template({ ...this.props, isSearchCard: this.isSearchCard });
     this.parent.insertAdjacentHTML(pushDirection, html);
+
+    const descriptionElem = this.self.querySelector(
+      '.restaurant__card__description',
+    ) as HTMLElement;
+
+    if (descriptionElem) {
+      const desc = descriptionElem.textContent?.trim() || '';
+      const className = descriptionColors[desc] || 'description--green';
+      descriptionElem.classList.add(className);
+    }
+
     if (this.isSearchCard) this.self.classList.add('restaurant__search-card');
     this.self.addEventListener('click', this.handleClick);
 
