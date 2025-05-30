@@ -132,6 +132,9 @@ export default class Header {
 
     if (this.isLocationDropdownOpen()) {
       this.closeDropdown();
+      if (this.isSelectButtonClick(target)) {
+        return;
+      }
     }
 
     if (this.isProfileDropdownOpen()) {

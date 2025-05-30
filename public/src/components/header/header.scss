@@ -311,7 +311,7 @@
       transition: opacity 0.3s ease;
       flex-direction: column;
 
-      @media (max-width: 1000px) {
+      @media (max-width: 900px) {
         top: 60%;
       }
       &_button {
