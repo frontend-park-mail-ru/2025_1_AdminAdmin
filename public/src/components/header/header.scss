@@ -8,7 +8,6 @@
   z-index: 12;
   opacity: 0;
   transition: opacity 0.3s ease;
-  display: none;
 }
 
 .main_header, .mobile_header {
@@ -290,7 +289,7 @@
     "header__search header__search header__search header__search";
     row-gap: 10px;
 
-    grid-template-columns: fit-content(100px) minmax(0, 1fr) minmax(140px, 180px) minmax(50px, 80px);
+    grid-template-columns: fit-content(100px) minmax(0, 1fr) 135px minmax(50px, 80px);
   }
 
   .header {

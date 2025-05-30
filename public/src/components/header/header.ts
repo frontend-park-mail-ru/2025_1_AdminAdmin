@@ -35,12 +35,14 @@ export default class Header {
   private addressComponents: Address[] = [];
   private unsubscribeFromUserStore: (() => void) | null = null;
   private unsubscribeFromCartStore: (() => void) | null = null;
+  private addresses: { address: string; id: string; user_id: string }[] = [];
   private readonly handleResizeBound: () => void;
   private lastScreenSizeCategory: 'mobile' | 'desktop' | 'large-desktop' | null = null;
   private searchInput: FormInput;
   private searchButton: Button;
   private searchAll: boolean;
   private logoutButton: Button;
+  private isAuth = false;
 
   /**
    * Создает экземпляр заголовка.
@@ -128,9 +130,15 @@ export default class Header {
       return;
     }
 
-    if (this.isDropdownOpen()) {
+    if (this.isLocationDropdownOpen()) {
       this.closeDropdown();
-      return;
+    }
+
+    if (this.isProfileDropdownOpen()) {
+      this.toggleProfileDropdown();
+      if (!this.isSelectButtonClick(target) || window.innerWidth <= 600) {
+        return;
+      }
     }
 
     if (this.isSelectButtonClick(target)) {
@@ -148,28 +156,38 @@ export default class Header {
     modalController.openModal(mapModal);
   }
 
-  private isDropdownOpen(): boolean {
+  private isLocationDropdownOpen(): boolean {
     const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
-    const profileDropdownOptions = document.querySelector(
-      '.header__profile-dropdown__options',
-    ) as HTMLElement;
 
-    return (
-      (dropdown && dropdown.classList.contains('enter')) ||
-      (profileDropdownOptions && profileDropdownOptions.classList.contains('enter'))
-    );
+    if (window.innerWidth <= 600) {
+      return dropdown && dropdown.style.display === 'block';
+    }
+
+    return dropdown && dropdown.classList.contains('enter');
   }
 
-  private closeDropdown(): void {
-    const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
-    const overlay = document.querySelector('.header__overlay') as HTMLElement;
-    this.addressComponents.forEach((comp) => comp.remove());
-    this.addressComponents = [];
-
+  private isProfileDropdownOpen(): boolean {
     const profileDropdownOptions = document.querySelector(
       '.header__profile-dropdown__options',
     ) as HTMLElement;
-    if (profileDropdownOptions.classList.contains('enter')) this.toggleProfileDropdown();
+
+    if (window.innerWidth <= 600) {
+      return profileDropdownOptions && profileDropdownOptions.classList.contains('enter');
+    }
+
+    return profileDropdownOptions && profileDropdownOptions.classList.contains('enter');
+  }
+
+  private closeDropdown = (skipProfile = false) => {
+    const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
+    const overlay = document.querySelector('.header__overlay') as HTMLElement;
+
+    if (!skipProfile) {
+      const profileDropdownOptions = document.querySelector(
+        '.header__profile-dropdown__options',
+      ) as HTMLElement;
+      if (profileDropdownOptions.classList.contains('enter')) this.toggleProfileDropdown();
+    }
 
     if (this.parent.classList.contains('mobile_header')) {
       dropdown.style.animation = 'moveDown 0.2s linear forwards';
@@ -190,7 +208,7 @@ export default class Header {
         dropdown.classList.remove('leave');
       }, 300);
     }
-  }
+  };
 
   private isSelectButtonClick(target: HTMLElement): boolean {
     return !!target.closest('.header__location_select_button');
@@ -200,6 +218,7 @@ export default class Header {
     const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
 
     if (this.parent.classList.contains('mobile_header')) {
+      dropdown.style.display = 'block';
       const overlay = document.querySelector('.header__overlay') as HTMLElement;
       overlay.style.display = 'block';
       setTimeout(() => {
@@ -214,8 +233,10 @@ export default class Header {
 
     if (!userStore.isAuth()) return;
 
+    if (this.addresses.length) return;
+
     try {
-      const addresses = await AppUserRequests.GetAddresses();
+      this.addresses = await AppUserRequests.GetAddresses();
       const addressesContainer = this.self.querySelector(
         '.header__location_dropdown_options',
       ) as HTMLElement;
@@ -223,8 +244,8 @@ export default class Header {
       this.addressComponents.forEach((comp) => comp.remove());
       this.addressComponents = [];
 
-      if (Array.isArray(addresses)) {
-        addresses.forEach((address) => {
+      if (Array.isArray(this.addresses)) {
+        this.addresses.forEach((address) => {
           const addressComponent = new Address(addressesContainer, {
             ...address,
             isHeaderAddress: true,
@@ -239,6 +260,8 @@ export default class Header {
   }
 
   private toggleProfileDropdown = (event?: MouseEvent) => {
+    this.closeDropdown(true);
+
     event?.stopPropagation();
     const profileDropdownOptions = document.querySelector(
       '.header__profile-dropdown__options',
@@ -420,6 +443,36 @@ export default class Header {
    * Показывает или скрывает кнопки входа/выхода в зависимости от состояния пользователя.
    */
   private updateHeaderState(): void {
+    const active_address = userStore.getActiveAddress();
+    const locationButton: HTMLDivElement = this.parent.querySelector(
+      '.header__location_select_button',
+    );
+    const locationText: HTMLSpanElement = locationButton.querySelector(
+      '.header__location_select_button__text',
+    );
+
+    if (active_address) {
+      locationButton.classList.add('selected');
+      locationText.textContent = active_address;
+      modalController.closeModal();
+    } else {
+      locationButton.classList.remove('selected');
+      locationText.textContent = 'Укажите адрес доставки';
+    }
+
+    const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
+
+    if (cartStore.getState().total_sum) {
+      this.cartButton.setText(cartStore.getState().total_sum.toLocaleString('ru-RU') + ' ₽');
+      cartButtonContainer.style.display = 'block';
+    } else {
+      cartButtonContainer.style.display = 'none';
+    }
+
+    if (this.isAuth === userStore.isAuth()) {
+      return;
+    }
+
     if (userStore.isAuth()) {
       this.loginButton.hide();
       document.querySelector('.header__profile-dropdown__options__login').textContent =
@@ -463,31 +516,7 @@ export default class Header {
       this.profileButton.style.display = 'none';
     }
 
-    const active_address = userStore.getActiveAddress();
-    const locationButton: HTMLDivElement = this.parent.querySelector(
-      '.header__location_select_button',
-    );
-    const locationText: HTMLSpanElement = locationButton.querySelector(
-      '.header__location_select_button__text',
-    );
-
-    if (active_address) {
-      locationButton.classList.add('selected');
-      locationText.textContent = active_address;
-      modalController.closeModal();
-    } else {
-      locationButton.classList.remove('selected');
-      locationText.textContent = 'Укажите адрес доставки';
-    }
-
-    const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
-
-    if (cartStore.getState().total_sum) {
-      this.cartButton.setText(cartStore.getState().total_sum.toLocaleString('ru-RU') + ' ₽');
-      cartButtonContainer.style.display = 'block';
-    } else {
-      cartButtonContainer.style.display = 'none';
-    }
+    this.isAuth = userStore.isAuth();
   }
 
   /**
@@ -501,6 +530,7 @@ export default class Header {
       toasts.success('Вы успешно вышли из системы');
       this.addressComponents.forEach((comp) => comp.remove());
       this.addressComponents = [];
+      this.addresses = [];
     } catch (error) {
       toasts.error(error.message);
     } finally {
@@ -545,6 +575,9 @@ export default class Header {
    * Удаляет заголовок со страницы и снимает обработчики событий.
    */
   remove(): void {
+    this.addressComponents.forEach((comp) => comp.remove());
+    this.addressComponents = [];
+
     if (this.logo) this.logo.remove();
     this.profilesButtons.forEach((button) => button.remove());
     this.logoutButton?.remove();

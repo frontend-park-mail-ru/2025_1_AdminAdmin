@@ -150,7 +150,7 @@ export class CartCard {
       '.cart-card__content__total_price',
     ) as HTMLDivElement;
     const total = this.props.price * this.props.amount;
-    totalPriceValue.textContent = total.toLocaleString('ru-RU');
+    totalPriceValue.textContent = `${total.toLocaleString('ru-RU')} ₽`;
   };
 
   /**

@@ -60,14 +60,13 @@ export class QuantityControls {
   };
 
   private handleInputBlur = (): void => {
-    const newAmount = Number(this.input.value);
+    let newAmount = Number(this.input.value);
 
     if (this.price * newAmount + cartStore.getState().total_sum > 100000) {
       toasts.info('Сумма заказа не должна превышать 100 000 ₽');
-      this.input.value = Math.floor(
-        (100000 - cartStore.getState().total_sum) / this.price,
-      ).toString();
-      return;
+      newAmount = Math.floor((100000 - cartStore.getState().total_sum) / this.price);
+
+      this.input.value = newAmount.toString();
     }
 
     if (newAmount !== this.amount) {
