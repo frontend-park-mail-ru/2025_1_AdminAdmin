@@ -63,6 +63,10 @@
 
 
   .restaurant__promotions {
+    @media (max-width: 490px) {
+      display: none;
+    }
+
     &__wrapper {
       width: 100%;
       margin-top: 20px;
@@ -76,10 +80,6 @@
 
       @media (max-width: 800px) {
         grid-template-columns: repeat(2, 1fr);
-      }
-
-      @media (max-width: 490px) {
-        display: none;
       }
     }
   }
