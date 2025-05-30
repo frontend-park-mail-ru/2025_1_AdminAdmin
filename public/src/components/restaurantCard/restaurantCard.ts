@@ -63,7 +63,44 @@ export class RestaurantCard {
    * @param pushDirection {"beforebegin" | "afterbegin" | "beforeend" | "afterend"} - Определяет, куда вставлять карточку относительно родителя.
    */
   render(pushDirection: InsertPosition = 'beforeend') {
-    const html = template({ ...this.props, isSearchCard: this.isSearchCard });
+    const name = this.props.name;
+    const nameLength = name.length;
+
+    let cardText = '';
+
+    if (nameLength <= 10) {
+      const shortVariants = [
+        `Ресторан ${name} — уютная атмосфера`,
+        `Добро пожаловать в ${name}`,
+        `${name}: быстро, вкусно, рядом`,
+        `${name} — еда, которая радует`,
+        `Попробуй ${name} сегодня`,
+        `${name} — вкусный выбор`,
+      ];
+      cardText = shortVariants[Math.floor(Math.random() * shortVariants.length)];
+    } else if (nameLength <= 20) {
+      const mediumVariants = [
+        `Попробуйте ${name} — вкус и качество`,
+        `${name} приглашает на ужин`,
+        `Откройте для себя ${name}`,
+        `${name} — для настоящих гурманов`,
+        `${name} — идеален для обеда`,
+        `Лучшее меню в ${name}`,
+      ];
+      cardText = mediumVariants[Math.floor(Math.random() * mediumVariants.length)];
+    } else {
+      const longVariants = [
+        `${name}: лучшие блюда рядом с вами`,
+        `${name} — гастрономическое приключение`,
+        `В ${name} каждый найдет свое любимое`,
+        `Откройте новые вкусы в ${name}`,
+        `${name}: кулинария с характером`,
+        `${name} — уют, сервис, вкус`,
+      ];
+      cardText = longVariants[Math.floor(Math.random() * longVariants.length)];
+    }
+
+    const html = template({ ...this.props, isSearchCard: this.isSearchCard, cardText });
     this.parent.insertAdjacentHTML(pushDirection, html);
 
     const descriptionElem = this.self.querySelector(
