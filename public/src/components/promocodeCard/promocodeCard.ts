@@ -71,7 +71,7 @@ export class PromocodeCard {
       ...this.props,
       expires_at: formatDate(this.props.expires_at),
       dark: this.props.discount < 0.2,
-      discount: this.props.discount * 100,
+      discount: Math.round(this.props.discount * 100),
     });
     this.parent.insertAdjacentHTML('beforeend', html);
 
