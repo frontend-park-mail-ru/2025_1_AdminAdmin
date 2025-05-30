@@ -51,6 +51,11 @@
     margin: 10px 0 5px;
   }
 
+  &__text {
+    color: var(--dark-gray);
+    font-size: 12px;
+  }
+
   &__description {
     position: absolute;
     z-index: 2;
@@ -123,6 +128,10 @@
     }
 
     &__description {
+      display: none;
+    }
+
+    &__text {
       display: none;
     }
   }
