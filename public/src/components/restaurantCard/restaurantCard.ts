@@ -127,6 +127,9 @@ export class RestaurantCard {
    * Удаляет карточку ресторана со страницы и снимает обработчики событий.
    */
   remove() {
+    if (!this.self) {
+      return;
+    }
     try {
       this.self.removeEventListener('click', this.handleClick);
       this.stars.remove();
