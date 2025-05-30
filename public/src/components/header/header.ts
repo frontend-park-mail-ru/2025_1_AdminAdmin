@@ -236,7 +236,7 @@ export default class Header {
 
     if (!userStore.isAuth()) return;
 
-    if (this.addresses.length) return;
+    if (this.addresses && this.addresses.length) return;
 
     try {
       this.addresses = await AppUserRequests.GetAddresses();
@@ -485,6 +485,10 @@ export default class Header {
 
       this.profileButton.style.display = 'flex';
 
+      const profileDropdown: HTMLDivElement = this.parent.querySelector(
+        '.header__profile-dropdown',
+      );
+      profileDropdown.style.display = 'flex';
       const avatarImage = document.getElementById(
         'header__profile-dropdown__image__avatar',
       ) as HTMLImageElement;
@@ -496,6 +500,11 @@ export default class Header {
       const profileDropdownOptions = document.querySelector(
         '.header__profile-dropdown__options',
       ) as HTMLElement;
+
+      const profileDropdown: HTMLDivElement = this.parent.querySelector(
+        '.header__profile-dropdown',
+      );
+      profileDropdown.style.display = 'none';
 
       profileDropdownOptions.classList.remove('enter');
       profileDropdownOptions.style.display = 'none';
