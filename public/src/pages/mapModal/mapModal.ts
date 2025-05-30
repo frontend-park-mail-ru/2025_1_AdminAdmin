@@ -331,34 +331,33 @@ export default class MapModal {
     document.body.style.overflow = '';
     window.removeEventListener('resize', this.handleResize);
 
-    if (this.input) {
-      this.input.removeEventListener('input', (event) =>
-        this.debouncedOnInput((event.target as HTMLInputElement).value),
-      );
-      this.input.removeEventListener('blur', this.onBlur.bind(this));
-      this.input.removeEventListener('focus', this.immitateInput.bind(this));
-    }
-
-    if (this.submitBtn) {
-      this.submitBtn.remove();
-    }
-
-    if (this.suggestsContainer) {
-      this.suggestsContainer.clear();
-    }
-
-    if (this.map) {
-      try {
-        this.map.destroy();
-      } catch (error) {
-        console.error('Ошибка при уничтожении карты:', error);
-      }
-      this.map = null;
-    }
-
     if (this.self) {
       this.self.classList.remove('enter');
       this.self.classList.add('leave');
+      if (this.input) {
+        this.input.removeEventListener('input', (event) =>
+          this.debouncedOnInput((event.target as HTMLInputElement).value),
+        );
+        this.input.removeEventListener('blur', this.onBlur.bind(this));
+        this.input.removeEventListener('focus', this.immitateInput.bind(this));
+      }
+
+      if (this.submitBtn) {
+        this.submitBtn.remove();
+      }
+
+      if (this.suggestsContainer) {
+        this.suggestsContainer.clear();
+      }
+
+      if (this.map) {
+        try {
+          this.map.destroy();
+        } catch (error) {
+          console.error('Ошибка при уничтожении карты:', error);
+        }
+        this.map = null;
+      }
 
       this.self.removeEventListener('click', this.closeEventHandler);
 

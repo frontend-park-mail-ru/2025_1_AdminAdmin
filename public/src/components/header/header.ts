@@ -247,12 +247,14 @@ export default class Header {
     if (!profileDropdownOptions.classList.contains('enter')) {
       profileDropdownOptions.classList.add('enter');
       profileDropdownOptions.classList.remove('leave');
+      profileDropdownOptions.style.display = 'flex';
     } else {
       profileDropdownOptions.classList.add('leave');
       profileDropdownOptions.classList.remove('enter');
 
       setTimeout(() => {
         profileDropdownOptions.classList.remove('leave');
+        profileDropdownOptions.style.display = 'none';
       }, 300);
     }
   };
@@ -435,7 +437,12 @@ export default class Header {
       };
       avatarImage.src = `https://doordashers.ru/images_user/${userStore.getState().path}`;
     } else {
-      document.querySelector('.header__profile-dropdown__options').classList.remove('enter');
+      const profileDropdownOptions = document.querySelector(
+        '.header__profile-dropdown__options',
+      ) as HTMLElement;
+
+      profileDropdownOptions.classList.remove('enter');
+      profileDropdownOptions.style.display = 'none';
 
       const el = document.querySelector('.header__profile-dropdown') as HTMLElement;
       if (el) {
