@@ -113,7 +113,7 @@ export class QuantityControls {
       id: `${this.id}__quantity_controls__plus-button`,
       style: 'cart-card-quantity-button',
       isPlus: true,
-      onSubmit: this.onIncrement.bind(this),
+      onSubmit: this.onIncrement,
     });
     this.plusButton.render();
   }

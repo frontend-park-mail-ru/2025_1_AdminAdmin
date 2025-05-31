@@ -107,6 +107,7 @@ export class ProductCard {
     }
 
     if (this.amount === 99) {
+      toasts.info('Нельзя добавлять более 99 товаров одного вида');
       return;
     }
 
