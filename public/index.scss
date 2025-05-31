@@ -157,6 +157,12 @@ main {
   }
 }
 
+.form__input-head {
+  @media (max-width: 700px) {
+    justify-content: center;
+    gap: 20px;
+  }
+}
 .form__error {
   margin-top: 10px;
   font-size: 16px;
