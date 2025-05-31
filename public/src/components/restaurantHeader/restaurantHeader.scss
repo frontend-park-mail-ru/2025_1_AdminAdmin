@@ -1,8 +1,11 @@
+@use "sass:color";
+
 .restaurant-header {
   display: flex;
   flex-direction: column;
   gap: 20px;
   justify-items: left;
+  overflow: hidden;
 
   &__image {
     position: relative;
@@ -20,6 +23,7 @@
       height: 100%;
       object-fit: cover;
       border-radius: 10px;
+      z-index: 1;
     }
 
     &__icon {
@@ -31,9 +35,35 @@
       border-radius: 50%;
       border: 5px solid #fff;
       object-fit: cover;
+      z-index: 2;
 
       @media (max-width: 600px) {
         display: none;
+      }
+    }
+
+    &::before {
+      background: linear-gradient(
+                      to right,
+                      color.adjust(#fff, $alpha: -1) 0%,
+                      color.adjust(#fff, $alpha: -0.7) 100%
+      );
+      content: "";
+      display: block;
+      height: 100%;
+      left: -75%;
+      position: absolute;
+      pointer-events: none;
+      top: 0;
+      transform: skewX(-25deg);
+      width: 50%;
+      z-index: 1;
+      animation: shine 4s;
+    }
+
+    @keyframes shine {
+      100% {
+        left: 125%;
       }
     }
   }
@@ -47,6 +77,7 @@
   &__name {
     font-size: 32px;
     font-weight: bold;
+    margin-bottom: 5px;
   }
 
   &__description {
@@ -56,6 +87,7 @@
     font-size: 14px;
     color: #686868;
     align-items: center;
+    margin-bottom: 10px;
   }
 }
 

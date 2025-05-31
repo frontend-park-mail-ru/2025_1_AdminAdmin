@@ -7,6 +7,8 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 
   @keyframes moveDown {
     0% {

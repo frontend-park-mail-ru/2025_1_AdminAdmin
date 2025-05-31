@@ -1,5 +1,7 @@
 import { QuantityButton } from '@components/quantityButton/quantityButton';
 import template from './quantityControls.hbs';
+import { cartStore } from '@store/cartStore';
+import { toasts } from 'doordashers-ui-kit';
 
 export class QuantityControls {
   private readonly parent: HTMLElement;
@@ -7,7 +9,8 @@ export class QuantityControls {
   private plusButton: QuantityButton;
   private input: HTMLInputElement;
   private minusButton: QuantityButton;
-  private readonly amount: number;
+  private amount: number;
+  private readonly price: number;
   private onIncrement: () => void;
   private onDecrement: () => void;
   private readonly setProductAmount: (amount: number) => void;
@@ -16,6 +19,7 @@ export class QuantityControls {
     parent: HTMLElement,
     id: string,
     amount: number,
+    price: number,
     onIncrement: () => void,
     onDecrement: () => void,
     setProductAmount: (amount: number) => void,
@@ -23,6 +27,7 @@ export class QuantityControls {
     this.parent = parent;
     this.id = id;
     this.amount = amount;
+    this.price = price;
     this.onIncrement = onIncrement;
     this.onDecrement = onDecrement;
     this.setProductAmount = setProductAmount;
@@ -46,8 +51,8 @@ export class QuantityControls {
       return;
     }
 
-    if (parsed > 999) {
-      this.input.value = parsed.toString().slice(0, 3);
+    if (parsed > 99) {
+      this.input.value = parsed.toString().slice(0, 2);
       return;
     }
 
@@ -55,8 +60,20 @@ export class QuantityControls {
   };
 
   private handleInputBlur = (): void => {
-    const newAmount = Number(this.input.value);
+    let newAmount = Number(this.input.value);
+
+    const oldTotal = cartStore.getState().total_sum;
+    const oldThisAmount = this.amount * this.price;
+    const newPossibleSumWithout = oldTotal - oldThisAmount;
+    if (this.price * newAmount + newPossibleSumWithout > 100000) {
+      toasts.info('Сумма заказа не должна превышать 100 000 ₽');
+      newAmount = Math.floor((100000 - newPossibleSumWithout) / this.price);
+
+      this.input.value = newAmount.toString();
+    }
+
     if (newAmount !== this.amount) {
+      this.amount = newAmount;
       this.setProductAmount(newAmount);
     }
   };
@@ -96,7 +113,7 @@ export class QuantityControls {
       id: `${this.id}__quantity_controls__plus-button`,
       style: 'cart-card-quantity-button',
       isPlus: true,
-      onSubmit: this.onIncrement.bind(this),
+      onSubmit: this.onIncrement,
     });
     this.plusButton.render();
   }

@@ -217,7 +217,7 @@ class Router {
   }
 
   async updateQuery(query: string): Promise<void> {
-    if (this.currentQuery === query) {
+    if (this.currentQuery === query || (!this.currentQuery && !query)) {
       return;
     }
     this.currentQuery = query;

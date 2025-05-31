@@ -81,6 +81,7 @@ export class CartCard {
       quantityControlsWrapper,
       this.props.id,
       this.props.amount,
+      this.props.price,
       this.incrementAmount.bind(this),
       this.decrementAmount.bind(this),
       this.setAmount.bind(this),
@@ -102,7 +103,13 @@ export class CartCard {
   }
 
   private async incrementAmount() {
-    if (this.props.amount === 999) {
+    if (cartStore.getState().total_sum + this.props.price > 100000) {
+      toasts.info('Сумма заказа не должна превышать 100 000 ₽');
+      return;
+    }
+
+    if (this.props.amount === 99) {
+      toasts.info('Нельзя добавлять более 99 товаров одного вида');
       return;
     }
     try {
@@ -144,7 +151,7 @@ export class CartCard {
       '.cart-card__content__total_price',
     ) as HTMLDivElement;
     const total = this.props.price * this.props.amount;
-    totalPriceValue.textContent = total.toLocaleString('ru-RU');
+    totalPriceValue.textContent = `${total.toLocaleString('ru-RU')} ₽`;
   };
 
   /**

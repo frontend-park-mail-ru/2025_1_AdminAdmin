@@ -1,7 +1,7 @@
 .logo {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-start;
   height: var(--header-content-height);
   cursor: pointer;
 

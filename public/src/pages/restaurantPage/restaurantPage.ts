@@ -174,9 +174,9 @@ export default class RestaurantPage {
     const categoriesWrapper = this.self.querySelector(
       '.product-categories__wrapper',
     ) as HTMLElement;
-    categoriesWrapper.style.display = 'none';
-    const cartWrapper = this.self.querySelector('.cart__wrapper') as HTMLElement;
-    cartWrapper.style.display = 'none';
+    if (categoriesWrapper) {
+      categoriesWrapper.style.display = 'none';
+    }
     const noResultsWrapper: HTMLElement = this.self.querySelector('.restaurant-page__no-results');
     noResultsWrapper.style.display = 'flex';
   }

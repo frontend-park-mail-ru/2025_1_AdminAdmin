@@ -4,6 +4,7 @@ import { CartCard } from '@components/productCard/cartCard/cartCard';
 import { router } from '@modules/routing';
 import { CartProduct } from '@myTypes/cartTypes';
 import { toasts } from 'doordashers-ui-kit';
+
 /**
  * Класс cart представляет компонент корзины.
  */
@@ -68,8 +69,12 @@ export default class Cart {
     }
   };
 
-  private async handleClear(): Promise<void> {
+  private handleClear = async () => {
     const bin = this.self.querySelector('.cart__header-right') as HTMLElement;
+    if (!cartStore.getState().products || !cartStore.getState().products.length) {
+      return;
+    }
+
     bin.style.pointerEvents = 'none';
     try {
       await cartStore.clearCart();
@@ -78,7 +83,7 @@ export default class Cart {
     } finally {
       bin.style.pointerEvents = '';
     }
-  }
+  };
 
   render(): void {
     this.parent.innerHTML = template();
@@ -91,28 +96,28 @@ export default class Cart {
 
     const cartFooter = document.querySelector('.cart-footer');
     if (cartFooter) {
-      cartFooter.addEventListener('click', this.handleClick.bind(this));
+      cartFooter.addEventListener('click', this.handleClick);
     }
 
     const bin = this.self.querySelector('.cart__header-right') as HTMLElement;
     if (bin) {
-      bin.addEventListener('click', this.handleClear.bind(this));
+      bin.addEventListener('click', this.handleClear);
     }
 
     this.updateCards();
   }
 
-  handleClick(): void {
+  handleClick = () => {
     const cartFooter = document.querySelector('.cart-footer');
     if (!cartFooter || cartFooter.classList.contains('inactive')) return;
 
     router.goToPage('orderPage');
-  }
+  };
 
   remove(): void {
     const bin = this.self.querySelector('.cart__header-right') as HTMLElement;
     if (bin) {
-      bin.removeEventListener('click', this.handleClear.bind(this));
+      bin.removeEventListener('click', this.handleClear);
     }
 
     this.cartCards.forEach((card) => card.remove());
@@ -120,7 +125,7 @@ export default class Cart {
 
     const cartFooter = document.querySelector('.cart-footer');
     if (cartFooter) {
-      cartFooter.removeEventListener('click', this.handleClick.bind(this));
+      cartFooter.removeEventListener('click', this.handleClick);
     }
 
     this.container?.remove();

@@ -1,9 +1,16 @@
-<div class="promocode-card" id="{{id}}">
-    <span class="promocode-card__promocode-text">{{promocode}}</span>
-    <span class="promocode-card__discount-size">Скидка {{discount}}%</span>
-    <div class="promocode-card__copy-button-container"></div>
-    {{#if expires_at}}
-    <span class="promocode-card__expires-at_desktop">Действителен до: {{expires_at}}</span>
-    <span class="promocode-card__expires-at_mobile">До: {{expires_at}}</span>
-    {{/if}}
+<div class="promocode-card {{#if dark}}dark{{/if}}" id="{{id}}">
+    <div class="left">
+        <div>DoorDashers</div>
+    </div>
+    <div class="center">
+        <div>
+            <h2>{{discount}}% OFF</h2>
+            <h3 class="promocode-card__promocode-text">{{promocode}}</h3>
+            <small class="promocode-card__expires-at_desktop">Действителен до: {{expires_at}}</small>
+        </div>
+    </div>
+
+    <div class="right">
+        <div class="promocode-card__copy-button-container"></div>
+    </div>
 </div>

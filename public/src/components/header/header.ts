@@ -5,8 +5,13 @@ import { Button } from 'doordashers-ui-kit';
 import template from './header.hbs';
 import { toasts } from 'doordashers-ui-kit';
 import MapModal from '@pages/mapModal/mapModal';
-import logoImg from '@assets/logo.png';
+import logoImg from '@assets/logo.svg';
 import cartImg from '@assets/cart.svg';
+import settingsImg from '@assets/settings.svg';
+import myLocationImg from '@assets/mylocation.svg';
+import ordersImg from '@assets/orders.svg';
+import promocodeImg from '@assets/promocode.svg';
+import logoutImg from '@assets/logout.svg';
 import smallLogo from '@assets/small_logo.png';
 import { cartStore } from '@store/cartStore';
 import { modalController } from '@modules/modalController';
@@ -23,19 +28,21 @@ export default class Header {
   private logo!: Logo;
   private cartButton: Button;
   private loginButton!: Button;
-  private profileButton: Button;
-  private profileSettingsButton: Button;
-  private logoutButton!: Button;
+  private profileButton: HTMLDivElement;
+  private profilesButtons: Button[] = [];
   private readonly handleScrollBound: () => void;
   private readonly clickHandler: (event: Event) => void;
   private addressComponents: Address[] = [];
   private unsubscribeFromUserStore: (() => void) | null = null;
   private unsubscribeFromCartStore: (() => void) | null = null;
+  private addresses: { address: string; id: string; user_id: string }[] = [];
   private readonly handleResizeBound: () => void;
   private lastScreenSizeCategory: 'mobile' | 'desktop' | 'large-desktop' | null = null;
   private searchInput: FormInput;
   private searchButton: Button;
   private searchAll: boolean;
+  private logoutButton: Button;
+  private isAuth = false;
 
   /**
    * Создает экземпляр заголовка.
@@ -123,9 +130,18 @@ export default class Header {
       return;
     }
 
-    if (this.isDropdownOpen()) {
+    if (this.isLocationDropdownOpen()) {
       this.closeDropdown();
-      return;
+      if (this.isSelectButtonClick(target)) {
+        return;
+      }
+    }
+
+    if (this.isProfileDropdownOpen()) {
+      this.toggleProfileDropdown();
+      if (!this.isSelectButtonClick(target) || window.innerWidth <= 600) {
+        return;
+      }
     }
 
     if (this.isSelectButtonClick(target)) {
@@ -143,28 +159,38 @@ export default class Header {
     modalController.openModal(mapModal);
   }
 
-  private isDropdownOpen(): boolean {
+  private isLocationDropdownOpen(): boolean {
     const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
-    const profileDropdownOptions = document.querySelector(
-      '.header__profile-dropdown__options',
-    ) as HTMLElement;
 
-    return (
-      (dropdown && dropdown.style.display === 'block') ||
-      (profileDropdownOptions && profileDropdownOptions.classList.contains('active'))
-    );
+    if (window.innerWidth <= 600) {
+      return dropdown && dropdown.style.display === 'block';
+    }
+
+    return dropdown && dropdown.classList.contains('enter');
   }
 
-  private closeDropdown(): void {
-    const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
-    const overlay = document.querySelector('.header__overlay') as HTMLElement;
-    this.addressComponents.forEach((comp) => comp.remove());
-    this.addressComponents = [];
-
+  private isProfileDropdownOpen(): boolean {
     const profileDropdownOptions = document.querySelector(
       '.header__profile-dropdown__options',
     ) as HTMLElement;
-    if (profileDropdownOptions.classList.contains('active')) this.toggleProfileDropdown();
+
+    if (window.innerWidth <= 600) {
+      return profileDropdownOptions && profileDropdownOptions.classList.contains('enter');
+    }
+
+    return profileDropdownOptions && profileDropdownOptions.classList.contains('enter');
+  }
+
+  private closeDropdown = (skipProfile = false) => {
+    const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
+    const overlay = document.querySelector('.header__overlay') as HTMLElement;
+
+    if (!skipProfile) {
+      const profileDropdownOptions = document.querySelector(
+        '.header__profile-dropdown__options',
+      ) as HTMLElement;
+      if (profileDropdownOptions.classList.contains('enter')) this.toggleProfileDropdown();
+    }
 
     if (this.parent.classList.contains('mobile_header')) {
       dropdown.style.animation = 'moveDown 0.2s linear forwards';
@@ -178,9 +204,14 @@ export default class Header {
         }, 300);
       }, 200);
     } else {
-      dropdown.style.display = 'none';
+      dropdown.classList.add('leave');
+      dropdown.classList.remove('enter');
+
+      setTimeout(() => {
+        dropdown.classList.remove('leave');
+      }, 300);
     }
-  }
+  };
 
   private isSelectButtonClick(target: HTMLElement): boolean {
     return !!target.closest('.header__location_select_button');
@@ -189,9 +220,8 @@ export default class Header {
   private async handleSelectButtonClick(): Promise<void> {
     const dropdown = document.querySelector('.header__location_dropdown') as HTMLElement;
 
-    dropdown.style.display = 'block';
-
     if (this.parent.classList.contains('mobile_header')) {
+      dropdown.style.display = 'block';
       const overlay = document.querySelector('.header__overlay') as HTMLElement;
       overlay.style.display = 'block';
       setTimeout(() => {
@@ -200,12 +230,16 @@ export default class Header {
       dropdown.style.animation = 'moveUp 0.2s linear forwards';
       const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
       cartButtonContainer.style.setProperty('box-shadow', 'none');
+    } else {
+      dropdown.classList.add('enter');
     }
 
     if (!userStore.isAuth()) return;
 
+    if (this.addresses && this.addresses.length) return;
+
     try {
-      const addresses = await AppUserRequests.GetAddresses();
+      this.addresses = await AppUserRequests.GetAddresses();
       const addressesContainer = this.self.querySelector(
         '.header__location_dropdown_options',
       ) as HTMLElement;
@@ -213,8 +247,8 @@ export default class Header {
       this.addressComponents.forEach((comp) => comp.remove());
       this.addressComponents = [];
 
-      if (Array.isArray(addresses)) {
-        addresses.forEach((address) => {
+      if (Array.isArray(this.addresses)) {
+        this.addresses.forEach((address) => {
           const addressComponent = new Address(addressesContainer, {
             ...address,
             isHeaderAddress: true,
@@ -228,11 +262,27 @@ export default class Header {
     }
   }
 
-  private toggleProfileDropdown = () => {
+  private toggleProfileDropdown = (event?: MouseEvent) => {
+    this.closeDropdown(true);
+
+    event?.stopPropagation();
     const profileDropdownOptions = document.querySelector(
       '.header__profile-dropdown__options',
     ) as HTMLElement;
-    profileDropdownOptions.classList.toggle('active');
+
+    if (!profileDropdownOptions.classList.contains('enter')) {
+      profileDropdownOptions.classList.add('enter');
+      profileDropdownOptions.classList.remove('leave');
+      profileDropdownOptions.style.display = 'flex';
+    } else {
+      profileDropdownOptions.classList.add('leave');
+      profileDropdownOptions.classList.remove('enter');
+
+      setTimeout(() => {
+        profileDropdownOptions.classList.remove('leave');
+        profileDropdownOptions.style.display = 'none';
+      }, 300);
+    }
   };
 
   /**
@@ -278,28 +328,81 @@ export default class Header {
     });
     this.loginButton.render();
 
-    const profileButtonWrapper = document.querySelector(
-      '.header__profile-dropdown__button__wrapper',
-    ) as HTMLElement;
-    this.profileButton = new Button(profileButtonWrapper, {
-      id: 'profile_button',
-      text: 'Профиль',
-      onSubmit: this.toggleProfileDropdown,
-    });
-    this.profileButton.render();
+    this.profileButton = document.querySelector('.header__profile-dropdown__button');
+
+    this.profileButton.addEventListener('click', this.toggleProfileDropdown);
 
     const profileDropdownButtonsContainer = document.querySelector(
       '.header__profile-dropdown__buttons-container',
     ) as HTMLElement;
-    this.profileSettingsButton = new Button(profileDropdownButtonsContainer, {
+
+    const profileSettingsButton = new Button(profileDropdownButtonsContainer, {
       id: 'profile_settings_button',
+      iconSrc: settingsImg,
+      iconAlt: 'Настройки',
       text: 'Настройки',
       onSubmit: () => {
-        document.querySelector('.header__profile-dropdown__options').classList.remove('active');
+        document.querySelector('.header__profile-dropdown__options').classList.remove('enter');
         router.goToPage('profilePage');
       },
     });
-    this.profileSettingsButton.render();
+    profileSettingsButton.render();
+
+    this.profilesButtons.push(profileSettingsButton);
+
+    const locationsButton = new Button(profileDropdownButtonsContainer, {
+      id: 'profile_locations_button',
+      iconSrc: myLocationImg,
+      iconAlt: 'Адреса',
+      text: 'Мои адреса',
+      onSubmit: () => {
+        document.querySelector('.header__profile-dropdown__options').classList.remove('enter');
+        router.goToPage('profilePage', null, 'addresses');
+      },
+    });
+
+    locationsButton.render();
+    this.profilesButtons.push(locationsButton);
+
+    const promocodesButton = new Button(profileDropdownButtonsContainer, {
+      id: 'profile_promocodes_button',
+      iconSrc: promocodeImg,
+      iconAlt: 'Промокоды',
+      text: 'Мои промокоды',
+      onSubmit: () => {
+        document.querySelector('.header__profile-dropdown__options').classList.remove('active');
+        router.goToPage('profilePage', null, 'promocodes');
+      },
+    });
+
+    promocodesButton.render();
+    this.profilesButtons.push(promocodesButton);
+
+    const ordersButton = new Button(profileDropdownButtonsContainer, {
+      id: 'profile_orders_button',
+      iconSrc: ordersImg,
+      iconAlt: 'Заказы',
+      text: 'Мои заказы',
+      onSubmit: () => {
+        document.querySelector('.header__profile-dropdown__options').classList.remove('active');
+        router.goToPage('profilePage', null, 'orders');
+      },
+    });
+
+    ordersButton.render();
+    this.profilesButtons.push(ordersButton);
+
+    this.logoutButton = new Button(profileDropdownButtonsContainer, {
+      id: 'logout_button',
+      iconSrc: logoutImg,
+      iconAlt: 'Выйти',
+      text: 'Выйти',
+      onSubmit: async () => {
+        document.querySelector('.header__profile-dropdown__options').classList.remove('active');
+        await this.handleLogout();
+      },
+    });
+    this.logoutButton.render();
 
     const cartButtonContainer: HTMLElement = document.querySelector('.header__cart_button');
     if (!cartButtonContainer) return;
@@ -311,16 +414,6 @@ export default class Header {
       text: '0',
     });
     this.cartButton.render();
-
-    this.logoutButton = new Button(profileDropdownButtonsContainer, {
-      id: 'logout_button',
-      text: 'Выйти',
-      onSubmit: async () => {
-        document.querySelector('.header__profile-dropdown__options').classList.remove('active');
-        await this.handleLogout();
-      },
-    });
-    this.logoutButton.render();
 
     this.handleResize();
 
@@ -353,30 +446,6 @@ export default class Header {
    * Показывает или скрывает кнопки входа/выхода в зависимости от состояния пользователя.
    */
   private updateHeaderState(): void {
-    if (userStore.isAuth()) {
-      this.loginButton.hide();
-      document.querySelector('.header__profile-dropdown').classList.add('active');
-      document.querySelector('.header__profile-dropdown__first-name').textContent =
-        userStore.getState().first_name;
-      document.querySelector('.header__profile-dropdown__second-name').textContent =
-        userStore.getState().last_name;
-      this.profileButton.show();
-
-      const avatarImage = document.getElementById(
-        'header__profile-dropdown__image__avatar',
-      ) as HTMLImageElement;
-      avatarImage.onerror = () => {
-        avatarImage.src = './src/assets/profile.png';
-      };
-      avatarImage.src = `https://doordashers.ru/images_user/${userStore.getState().path}`;
-    } else {
-      document.querySelector('.header__profile-dropdown').classList.remove('active');
-      this.loginButton.show();
-      this.profileButton.hide();
-      document.querySelector('.header__profile-dropdown__first-name').textContent = 'Имя';
-      document.querySelector('.header__profile-dropdown__second-name').textContent = 'Фамилия';
-    }
-
     const active_address = userStore.getActiveAddress();
     const locationButton: HTMLDivElement = this.parent.querySelector(
       '.header__location_select_button',
@@ -402,6 +471,64 @@ export default class Header {
     } else {
       cartButtonContainer.style.display = 'none';
     }
+
+    if (this.isAuth === userStore.isAuth()) {
+      return;
+    }
+
+    if (userStore.isAuth()) {
+      this.loginButton.hide();
+      document.querySelector('.header__profile-dropdown__options__login').textContent =
+        userStore.getState().login;
+      document.querySelector('.header__profile-dropdown__options__name').textContent =
+        userStore.getState().first_name + ' ' + userStore.getState().last_name;
+
+      this.profileButton.style.display = 'flex';
+
+      const profileDropdown: HTMLDivElement = this.parent.querySelector(
+        '.header__profile-dropdown',
+      );
+      profileDropdown.style.display = 'flex';
+      const avatarImage = document.getElementById(
+        'header__profile-dropdown__image__avatar',
+      ) as HTMLImageElement;
+      avatarImage.onerror = () => {
+        avatarImage.src = './src/assets/profile.png';
+      };
+      avatarImage.src = `https://doordashers.ru/images_user/${userStore.getState().path}`;
+    } else {
+      const profileDropdownOptions = document.querySelector(
+        '.header__profile-dropdown__options',
+      ) as HTMLElement;
+
+      const profileDropdown: HTMLDivElement = this.parent.querySelector(
+        '.header__profile-dropdown',
+      );
+      profileDropdown.style.display = 'none';
+
+      profileDropdownOptions.classList.remove('enter');
+      profileDropdownOptions.style.display = 'none';
+
+      const el = document.querySelector('.header__profile-dropdown') as HTMLElement;
+      if (el) {
+        el.style.pointerEvents = 'none';
+      }
+
+      document.querySelector('.header__profile-dropdown__options__login').textContent = '';
+      document.querySelector('.header__profile-dropdown__options__name').textContent = '';
+
+      const avatarImage = document.getElementById(
+        'header__profile-dropdown__image__avatar',
+      ) as HTMLImageElement;
+      avatarImage.onerror = () => {
+        avatarImage.src = './src/assets/profile.png';
+      };
+      avatarImage.src = '';
+      this.loginButton.show();
+      this.profileButton.style.display = 'none';
+    }
+
+    this.isAuth = userStore.isAuth();
   }
 
   /**
@@ -415,6 +542,7 @@ export default class Header {
       toasts.success('Вы успешно вышли из системы');
       this.addressComponents.forEach((comp) => comp.remove());
       this.addressComponents = [];
+      this.addresses = [];
     } catch (error) {
       toasts.error(error.message);
     } finally {
@@ -459,8 +587,11 @@ export default class Header {
    * Удаляет заголовок со страницы и снимает обработчики событий.
    */
   remove(): void {
+    this.addressComponents.forEach((comp) => comp.remove());
+    this.addressComponents = [];
+
     if (this.logo) this.logo.remove();
-    this.profileSettingsButton.remove();
+    this.profilesButtons.forEach((button) => button.remove());
     this.logoutButton?.remove();
     this.profileButton.remove();
     this.loginButton?.remove();
@@ -470,6 +601,7 @@ export default class Header {
     this.parent.innerHTML = '';
     this.parent.classList.remove('main_header');
     this.parent.classList.remove('mobile_header');
+    this.profileButton.removeEventListener('click', this.toggleProfileDropdown);
     window.removeEventListener('resize', this.handleResizeBound);
     window.removeEventListener('scroll', this.handleScrollBound);
     document.removeEventListener('click', this.clickHandler);

@@ -34,15 +34,53 @@
         transform: scale3d(1, 1, 1);
         filter: drop-shadow(0 0 2px gold);
       }
-
       50% {
         transform: scale3d(1.1, 1.1, 1);
         filter: drop-shadow(0 0 4px gold) drop-shadow(0 0 6px gold);
       }
-
       100% {
         transform: scale3d(1, 1, 1);
         filter: drop-shadow(0 0 2px gold);
+      }
+    }
+  }
+
+  // Dark mode override
+  &.dark {
+    font-size: 20px;
+    .rating_star {
+      color: var(--grey);
+      &.selected,
+      &.hover,
+      &.glowing {
+        color: black;
+      }
+
+      &.partial {
+        background: linear-gradient(to right, black var(--percent), var(--grey) var(--percent));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        -webkit-text-fill-color: transparent;
+      }
+
+      &.glowing {
+        animation: glowing-dark 1.5s ease-in-out forwards;
+      }
+
+      @keyframes glowing-dark {
+        0% {
+          transform: scale3d(1, 1, 1);
+          filter: drop-shadow(0 0 2px black);
+        }
+        50% {
+          transform: scale3d(1.1, 1.1, 1);
+          filter: drop-shadow(0 0 4px black) drop-shadow(0 0 6px black);
+        }
+        100% {
+          transform: scale3d(1, 1, 1);
+          filter: drop-shadow(0 0 2px black);
+        }
       }
     }
   }

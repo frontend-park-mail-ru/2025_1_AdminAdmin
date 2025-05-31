@@ -1,5 +1,5 @@
 import { Logo } from '@components/logo/logo';
-import logoImg from '@assets/logo.png';
+import logoImg from '@assets/logo.svg';
 import leftArrowImg from '@assets/left-arrow.png';
 import { Button } from 'doordashers-ui-kit';
 import { router } from '@modules/routing';

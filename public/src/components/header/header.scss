@@ -8,7 +8,6 @@
   z-index: 12;
   opacity: 0;
   transition: opacity 0.3s ease;
-  display: none;
 }
 
 .main_header, .mobile_header {
@@ -34,6 +33,12 @@
         border: 2px solid var(--black);
         box-sizing: border-box;
       }
+
+      @media (max-width: 900px) {
+         max-width: unset;
+        height: 45px;
+      }
+
     }
 
     &__auth_button {
@@ -50,78 +55,131 @@
       height: 100%;
       display: none;
       grid-area: header__auth_button;
+      align-items: flex-end;
+      justify-content: flex-end;
 
-      &.active {
-        // Если добавляем доп класс "active"
-        display: flex;
+      &__button {
+        display: none;
+        width: var(--header-content-height);
+        height: var(--header-content-height);
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, 0.05);
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+
+          img {
+            width: auto;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+            filter: brightness(0.95);
+          }
       }
 
       // Сам дропдаун, те менюшка при клике на кнопку
       &__options {
         position: absolute;
         z-index: 11;
-        top: 100%;
+        top: 110%;
         right: 0;
         margin-top: 10px; // Сколько вниз от хедера
-        padding: 10px; // Внутренние отступы чтобы не слипались с границами
+        padding: 30px 10px 10px; // Внутренние отступы чтобы не слипались с границами
         width: 200px;
-        border: 1px solid black;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         background-color: #fff;
         color: black;
         border-radius: 10px;
-        display: none; // Скрываем по умолчанию
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.3s ease;
+        opacity: 0;
+        pointer-events: none;
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: -5px;
+          right: 15px;
+          width: 20px;
+          height: 20px;
+          background: var(--white);
+          transform: rotate(45deg);
+        }
 
         span {
           max-width: 100%;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
-          font-size: 16px;
           display: inline-block;
         }
 
-        &.active {
-          // Если добавляем доп класс "active"
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 10px;
-          grid-template-areas:
-            "avatar first-name first-name first-name"
-            "avatar second-name second-name second-name"
-            "buttons buttons buttons buttons";
+        &__login {
+          font-size: 20px;
+          font-weight: bold;
         }
-      }
 
-      &__image__wrapper {
-        grid-area: avatar;
-        width: 100%;
-        aspect-ratio: 1 / 1;
-        overflow: hidden;
-        border-radius: 50%;
-
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          border-radius: 50%;
-          display: block;
+        &__name {
+          color: var(--dark-gray);
+          margin-bottom: 15px;
         }
-      }
-
-      &__first-name {
-        grid-area: first-name;
-      }
-
-      &__second-name {
-        grid-area: second-name;
       }
 
       &__buttons-container {
         grid-area: buttons;
         display: flex;
         flex-direction: column;
-        gap: 10px;
         width: 100%;
+
+        button {
+          background-color: var(--white);
+          width: 100%;
+          border-radius: unset;
+          justify-content: flex-start;
+          position: relative;
+          padding: 10px 5px ;
+          gap: 10px;
+          filter: opacity(0.8);
+          transition: color 0.3s ease, filter 0.3s ease;
+
+          &:hover {
+            filter: unset;
+            color: var(--orange);
+          }
+
+          &:first-child {
+            &::before {
+              content: "";
+              display: block;
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 1px;
+              background-color: var(--grey);
+            }
+          }
+
+          &::after {
+            content: "";
+            display: block;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: var(--grey);
+          }
+        }
+
+
       }
     }
 
@@ -130,29 +188,9 @@
       height: 100%;
       width: 100%;
 
-      @media (max-width: 800px) {
-        max-width: 300px;
-      }
-
-      @media (max-width: 500px) {
-        max-width: 250px;
-      }
-
-      @media (max-width: 430px) {
-        max-width: 200px;
-      }
-
-      @media (max-width: 385px) {
-        max-width: 150px;
-      }
-
-      @media (max-width: 320px) {
-        max-width: 100px;
-      }
-
       &_select_button {
-        width: 100%;
         max-width: 300px;
+        width: 100%;
         text-align: left;
         background-color: var(--black);
         color: var(--white);
@@ -170,14 +208,19 @@
         position: relative;
         display: flex;
         align-items: center;
+        min-width: 0;
+        overflow: hidden;
+
+        @media (max-width: 900px) {
+          max-width: unset;
+        }
 
         &__text {
+          min-width: 0;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
           flex-grow: 1;
-          min-width: 0;
-          display: block;
         }
 
         &.selected {
@@ -189,11 +232,12 @@
             background-color: var(--grey);
           }
         }
+
       }
 
       &_dropdown {
         display: none;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         color: black;
         background-color: var(--white);
         border: 7px solid var(--white);
@@ -229,19 +273,23 @@
 
 .main_header {
   grid-template-areas:
-    "header__logo header__search header__location . header__cart_button header__auth_button";
+    "header__logo header__search header__location header__cart_button header__auth_button";
   column-gap: 20px;
-  grid-template-columns: 2fr 4fr 2fr 2fr 1fr 1fr;
+  grid-template-columns: fit-content(100px) minmax(0, 1fr) minmax(0, 1fr) 135px minmax(50px, 80px);
   padding-left: 7vw;
   padding-right: 7vw;
 
-  @media (max-width: 1000px) {
+  @media (max-width: 1600px) {
+    grid-template-columns: fit-content(100px) minmax(0, 2.2fr) minmax(0, 1fr) 135px minmax(50px, 80px);
+  }
+
+  @media (max-width: 900px) {
     grid-template-areas:
     "header__logo header__location header__cart_button header__auth_button"
     "header__search header__search header__search header__search";
-    gap: 20px;
+    row-gap: 10px;
 
-    grid-template-columns: 2fr 6fr 2fr 2fr;
+    grid-template-columns: fit-content(100px) minmax(0, 1fr) 135px minmax(50px, 80px);
   }
 
   .header {
@@ -257,8 +305,13 @@
       position: absolute;
       background-color: var(--white);
       border-radius: 20px;
+      opacity: 0;
+      pointer-events: none;
+      display: flex;
+      transition: opacity 0.3s ease;
+      flex-direction: column;
 
-      @media (max-width: 1000px) {
+      @media (max-width: 900px) {
         top: 60%;
       }
       &_button {
@@ -280,10 +333,10 @@
   grid-template-areas:
     "header__logo header__location header__auth_button"
     "header__search header__search header__search";
-  grid-template-columns: 4fr auto 4fr;
+  grid-template-columns: fit-content(100px) minmax(0, 1fr) minmax(50px, 80px);
   padding-left: 2vw;
   padding-right: 2vw;
-  gap: 10px;
+  gap: 20px;
 
   .header {
     &__cart_button {

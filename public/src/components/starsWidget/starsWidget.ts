@@ -8,18 +8,21 @@ export class StarsWidget {
   private isGlowing = false;
   private readonly onSend: (value: number) => void;
   private readonly editable: boolean;
+  private dark: boolean;
 
   constructor(
     parent: HTMLElement,
     rating: number,
     onSend: (value: number) => void,
     editable = true,
+    dark = false,
   ) {
     this.parent = parent;
     this.currentRating = rating;
     this.areReviewsModalStars = rating === 0;
     this.onSend = onSend;
     this.editable = editable;
+    this.dark = dark;
   }
 
   get self(): HTMLDivElement {
@@ -27,14 +30,16 @@ export class StarsWidget {
   }
 
   render() {
-    const html = template({ stars: [1, 2, 3, 4, 5], editable: this.editable });
+    const html = template({ stars: [1, 2, 3, 4, 5], editable: this.editable, dark: this.dark });
     this.parent.insertAdjacentHTML('beforeend', html);
     this.stars = this.parent.querySelectorAll('.rating_star');
 
     this.highlightStars(this.currentRating);
 
-    if (!this.editable) {
+    if (!this.editable && !this.dark) {
       this.self.style.cursor = 'not-allowed';
+      return;
+    } else if (this.dark) {
       return;
     }
 

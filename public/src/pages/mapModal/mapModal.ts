@@ -69,6 +69,10 @@ export default class MapModal {
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 
+    requestAnimationFrame(() => {
+      this.self?.classList.add('enter');
+    });
+
     const searchContainer = document.querySelector<HTMLElement>('.map_modal__search_container');
 
     this.suggestsContainer = new SuggestsContainer(
@@ -313,6 +317,10 @@ export default class MapModal {
     }
   }
 
+  get content(): HTMLDivElement {
+    return document.querySelector('.map_modal__content');
+  }
+
   private onBlur() {
     setTimeout(() => {
       this.suggestsContainer.clear();
@@ -323,34 +331,39 @@ export default class MapModal {
     document.body.style.overflow = '';
     window.removeEventListener('resize', this.handleResize);
 
-    if (this.input) {
-      this.input.removeEventListener('input', (event) =>
-        this.debouncedOnInput((event.target as HTMLInputElement).value),
-      );
-      this.input.removeEventListener('blur', this.onBlur.bind(this));
-      this.input.removeEventListener('focus', this.immitateInput.bind(this));
-    }
-
-    if (this.submitBtn) {
-      this.submitBtn.remove();
-    }
-
-    if (this.suggestsContainer) {
-      this.suggestsContainer.clear();
-    }
-
-    if (this.map) {
-      try {
-        this.map.destroy();
-      } catch (error) {
-        console.error('Ошибка при уничтожении карты:', error);
-      }
-      this.map = null;
-    }
-
     if (this.self) {
+      this.self.classList.remove('enter');
+      this.self.classList.add('leave');
+      if (this.input) {
+        this.input.removeEventListener('input', (event) =>
+          this.debouncedOnInput((event.target as HTMLInputElement).value),
+        );
+        this.input.removeEventListener('blur', this.onBlur.bind(this));
+        this.input.removeEventListener('focus', this.immitateInput.bind(this));
+      }
+
+      if (this.submitBtn) {
+        this.submitBtn.remove();
+      }
+
+      if (this.suggestsContainer) {
+        this.suggestsContainer.clear();
+      }
+
+      if (this.map) {
+        try {
+          this.map.destroy();
+        } catch (error) {
+          console.error('Ошибка при уничтожении карты:', error);
+        }
+        this.map = null;
+      }
+
       this.self.removeEventListener('click', this.closeEventHandler);
-      this.self.remove();
+
+      setTimeout(() => {
+        this.self?.remove();
+      }, 300);
     }
   }
 }

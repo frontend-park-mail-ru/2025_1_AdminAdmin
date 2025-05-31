@@ -158,8 +158,8 @@ export const userStore = {
         payload: res,
         sender: tabId,
       });
-    } catch (err) {
-      console.error('Ошибка при проверке пользователя:', (err as Error).message);
+    } catch {
+      /* intentionally empty */
     } finally {
       await cartStore.initCart();
     }

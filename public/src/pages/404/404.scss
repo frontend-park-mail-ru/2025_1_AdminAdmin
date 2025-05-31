@@ -11,20 +11,40 @@
     justify-content: space-between;
     margin: 0 auto;
     max-width: 700px;
+
+    @media (max-width: 520px) {
+      display: none;
+    }
   }
 
   &__number {
     font-size: 25em;
     color: var(--white);
-    -webkit-text-stroke: 10px var(--orange);
+    text-shadow:
+            -5px -5px 0 var(--orange),
+            0px -5px 0 var(--orange),
+            5px -5px 0 var(--orange),
+            -5px  0px 0 var(--orange),
+            5px  0px 0 var(--orange),
+            -5px  5px 0 var(--orange),
+            0px  5px 0 var(--orange),
+            5px  5px 0 var(--orange),
+            -3px -3px 0 var(--orange),
+            3px -3px 0 var(--orange),
+            -3px  3px 0 var(--orange),
+            3px  3px 0 var(--orange);
 
     @media (max-width: 700px) {
       font-size: 300px;
     }
 
-    @media (max-width: 470px) {
+    @media (max-width: 520px) {
       font-size: 150px;
-      -webkit-text-stroke: 5px var(--orange);
+      text-shadow:
+              -2px -2px 0 var(--orange),
+              2px -2px 0 var(--orange),
+              -2px  2px 0 var(--orange),
+              2px  2px 0 var(--orange);
     }
 
     &--left {
@@ -40,6 +60,24 @@
 
   &__number-sm {
     display: none;
+
+    @media (max-width: 520px) {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 200px;
+      text-shadow:
+              -2px -2px 0 var(--orange),
+              2px -2px 0 var(--orange),
+              -2px  2px 0 var(--orange),
+              2px  2px 0 var(--orange);
+    }
+
+    @media (max-width: 400px) {
+      font-size: 150px;
+    }
   }
 
   &__message {
@@ -83,7 +121,7 @@
       height: 100px;
     }
 
-    @media (max-width: 470px) {
+    @media (max-width: 520px) {
       width: 56.5px;
       height: 50px;
     }
