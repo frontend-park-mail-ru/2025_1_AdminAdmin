@@ -52,6 +52,7 @@ export default class ProfilePage {
   /**
    * Создает экземпляр страницы профиля
    * @param parent - Родительский элемент, в который будет рендериться страница профиля
+   * @param query
    */
   constructor(
     parent: HTMLElement,
