@@ -197,17 +197,16 @@ export default class ProfilePage {
 
         this.components.pagination.render();
       }
-    } catch (error) {
+    } catch {
       noOrders.style.display = 'flex';
-      console.error(error);
     }
 
     if (this.query) {
-      this.scrollToSection(this.query);
+      setTimeout(() => this.scrollToSection(this.query), 300);
     }
   }
 
-  scrollToSection(section: string) {
+  scrollToSection = (section: string) => {
     const sectionMap: Record<string, { block: string; header: string }> = {
       addresses: { block: '#address', header: '.profile-address__header' },
       promocodes: { block: '#promocodes', header: '.profile-promocodes__header' },
@@ -233,7 +232,7 @@ export default class ProfilePage {
     setTimeout(() => {
       headerElement.classList.remove('shimmer');
     }, 8000);
-  }
+  };
 
   startSyncAcrossTabs = () => {
     this.addressChannel.onmessage = async (event) => {
