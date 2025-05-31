@@ -198,9 +198,11 @@ export class ReviewsModal {
     document.body.insertAdjacentHTML('beforeend', html);
     document.body.style.overflow = 'hidden';
 
-    await this.renderReviews();
+    requestAnimationFrame(() => {
+      this.self?.classList.add('enter');
+    });
 
-    this.previousReview?.self.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    await this.renderReviews();
 
     if (!canReview) return;
 
@@ -223,19 +225,25 @@ export class ReviewsModal {
   }
 
   remove() {
-    for (const reviewComponent of this.reviewsComponents) {
-      reviewComponent.remove();
-    }
+    this.self.classList.remove('enter');
+    this.self.classList.add('leave');
 
-    this.reviewsComponents = [];
+    setTimeout(() => {
+      for (const reviewComponent of this.reviewsComponents) {
+        reviewComponent.remove();
+      }
 
-    if (this.input) {
-      this.input.removeEventListener('beforeinput', this.beforeInputHandler);
-    }
-    this.reviewInput?.remove();
-    this.starsWidget?.remove();
-    this.submitBtn?.remove();
-    this.self?.remove();
+      this.reviewsComponents = [];
+
+      if (this.input) {
+        this.input.removeEventListener('beforeinput', this.beforeInputHandler);
+      }
+      this.reviewInput?.remove();
+      this.starsWidget?.remove();
+      this.submitBtn?.remove();
+
+      this.self?.remove();
+    }, 300);
     document.body.style.overflow = '';
   }
 }

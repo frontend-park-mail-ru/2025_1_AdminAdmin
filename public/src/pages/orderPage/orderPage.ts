@@ -15,10 +15,11 @@ import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
 import { router } from '@modules/routing';
 import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
 import { formatDateVerbose, formatNumber } from '@modules/utils';
-import { ProductsCarousel } from '@components/productsCarousel/productsCarousel';
+import { Carousel } from '@components/productsCarousel/productsCarousel';
 import { Checkbox } from '@components/checkbox/checkbox';
 import { PromocodeForm } from '@components/promocodeForm/promocodeFrom';
 import { WebSocketConnection } from '@modules/websocket';
+import { ProductCard } from '@components/productCard/productCard';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -32,7 +33,7 @@ export default class OrderPage {
   private isRemoved = false;
   private stepProgressBar: StepProgressBar = null;
   private socket: WebSocketConnection = null;
-  private recommendedProductsCarousel: ProductsCarousel;
+  private recommendedProductsCarousel: Carousel<CartProduct>;
   private promocodeForm: PromocodeForm;
 
   constructor(parent: HTMLElement, orderId?: string) {
@@ -158,7 +159,9 @@ export default class OrderPage {
 
   private handlePayment() {
     this.youMoneyForm?.remove();
+    this.youMoneyForm = null;
     this.submitButton?.remove();
+    this.submitButton = null;
   }
 
   private renderPromocodeForm() {
@@ -330,9 +333,17 @@ export default class OrderPage {
     }
 
     recommendedProductsWrapper.style.display = 'block';
-    this.recommendedProductsCarousel = new ProductsCarousel(
+    this.recommendedProductsCarousel = new Carousel(
+      '1',
       recommendedProductsWrapper,
       recommendedProducts,
+      (container, product) =>
+        new ProductCard(
+          container,
+          cartStore.getState().restaurant_id,
+          cartStore.getState().restaurant_name,
+          product,
+        ),
     );
     this.recommendedProductsCarousel.render();
   }

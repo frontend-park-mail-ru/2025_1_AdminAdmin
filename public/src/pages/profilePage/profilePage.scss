@@ -6,6 +6,7 @@
     display: flex;
     flex-direction: column;
     padding: 60px 15vw;
+    overflow: hidden;
 
     @media (max-width: 1200px) {
         padding: 40px 10vw;
@@ -27,6 +28,17 @@
         @media (max-width: 800px) {
             width: 100%;
         }
+    }
+
+    .no_result {
+        display: none;
+        font-size: 18px;
+        margin: 10px 0;
+    }
+
+    @import url("https://fonts.googleapis.com/css?family=Lato:300");
+    body {
+        background: #000;
     }
 }
 
@@ -134,9 +146,10 @@
 
 // Блок промокодов
 .profile-promocodes {
-    display: none;
+    display: flex;
     flex-direction: column;
-    gap: 20px;
+    column-gap: 20px;
+    row-gap: 30px;
 
     @media (max-width: 800px) {
         gap: 10px;
@@ -149,18 +162,26 @@
 
     &__body {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         gap: 10px;
 
-        @media (max-width: 900px) {
+        @media (max-width: 1900px) {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        @media (max-width: 1600px) {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        @media (max-width: 1300px) {
             grid-template-columns: repeat(3, 1fr);
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 900px) {
             grid-template-columns: repeat(2, 1fr);
         }
 
-        @media (max-width: 350px) {
+        @media (max-width: 500px) {
             grid-template-columns: 1fr;
         }
     }
@@ -170,7 +191,7 @@
 .profile-orders {
     font-size: 16px;
     text-align: left;
-    display: none;
+    display: grid;
     gap: 20px;
 
     @media (max-width: 600px) {
