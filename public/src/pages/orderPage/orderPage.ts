@@ -15,10 +15,11 @@ import YouMoneyForm from '@components/youMoneyForm/youMoneyForm';
 import { router } from '@modules/routing';
 import { StepProgressBar } from '@//components/stepProgressBar/stepProgressBar';
 import { formatDateVerbose, formatNumber } from '@modules/utils';
-import { ProductsCarousel } from '@components/productsCarousel/productsCarousel';
+import { Carousel } from '@components/productsCarousel/productsCarousel';
 import { Checkbox } from '@components/checkbox/checkbox';
 import { PromocodeForm } from '@components/promocodeForm/promocodeFrom';
 import { WebSocketConnection } from '@modules/websocket';
+import { ProductCard } from '@components/productCard/productCard';
 
 export default class OrderPage {
   private parent: HTMLElement;
@@ -32,7 +33,7 @@ export default class OrderPage {
   private isRemoved = false;
   private stepProgressBar: StepProgressBar = null;
   private socket: WebSocketConnection = null;
-  private recommendedProductsCarousel: ProductsCarousel;
+  private recommendedProductsCarousel: Carousel<CartProduct>;
   private promocodeForm: PromocodeForm;
 
   constructor(parent: HTMLElement, orderId?: string) {
@@ -51,7 +52,10 @@ export default class OrderPage {
         const order = JSON.parse(event.data);
         if (order?.id === this.orderId && order.status && statusMap[order.status].step_no) {
           this.stepProgressBar.goto(statusMap[order.status].step_no);
-          toasts.success('Проверьте новый промокод в ЛК');
+          if (statusMap[order.status].step_no === 1) {
+            toasts.success('Проверьте новый промокод в ЛК');
+            this.handlePayment();
+          }
         }
       } catch (err) {
         console.error('Ошибка при обработке данных сокета:', err);
@@ -151,6 +155,13 @@ export default class OrderPage {
       }
       this.inputs['orderPageComment'] = inputComponent;
     }
+  }
+
+  private handlePayment() {
+    this.youMoneyForm?.remove();
+    this.youMoneyForm = null;
+    this.submitButton?.remove();
+    this.submitButton = null;
   }
 
   private renderPromocodeForm() {
@@ -322,9 +333,17 @@ export default class OrderPage {
     }
 
     recommendedProductsWrapper.style.display = 'block';
-    this.recommendedProductsCarousel = new ProductsCarousel(
+    this.recommendedProductsCarousel = new Carousel(
+      '1',
       recommendedProductsWrapper,
       recommendedProducts,
+      (container, product) =>
+        new ProductCard(
+          container,
+          cartStore.getState().restaurant_id,
+          cartStore.getState().restaurant_name,
+          product,
+        ),
     );
     this.recommendedProductsCarousel.render();
   }
@@ -418,6 +437,8 @@ export default class OrderPage {
     const pageHeader: HTMLElement = this.parent.querySelector('.order-page__header');
 
     this.orderId = newOrder.id;
+
+    userStore.setPromocode('');
 
     pageHeader.textContent = `Заказ ${newOrder.id.slice(-4)} от ${formatDateVerbose(newOrder.created_at)}`;
     pageHeader.classList.add('formed');

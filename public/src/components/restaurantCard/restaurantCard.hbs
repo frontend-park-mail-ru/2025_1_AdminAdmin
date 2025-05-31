@@ -1,13 +1,18 @@
 <div class="restaurant__card" id="{{id}}">
     <div class="restaurant__card__image">
+        {{#if description}}
+            <span class="restaurant__card__description">{{description}}</span>
+        {{/if}}
+
         <object class="restaurant__card__image" data="https://doordashers.ru/images_restaurant/{{image_url}}" type="image/jpg">
             <img class="restaurant__card__image" src="/src/assets/default_restaurant.jpg" alt="restaurant_image"/>
         </object>
     </div>
 
     <div class="restaurant__card__content">
-        <span class="restaurant__card__name">{{name}}</span>
-        <span class="restaurant__card__rating"> ★ {{rating}}</span>
-        <span class="restaurant__card__description"> {{description}}</span>
+        <div class="restaurant__card__content__title {{#if isSearchCard}}vertical{{/if}}">
+            <span class="restaurant__card__name">{{name}}</span>
+        </div>
+        <span class="restaurant__card__text">{{cardText}}</span>
     </div>
 </div>

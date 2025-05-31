@@ -1,103 +1,95 @@
-import { ProductCard } from '@components/productCard/productCard';
-import { Product } from '@myTypes/restaurantTypes';
 import template from './productsCarousel.hbs';
-import { cartStore } from '@store/cartStore';
 
-export class ProductsCarousel {
-  parent: HTMLElement;
-  productCards: ProductCard[];
-  products: Product[];
+export interface ICard {
+  render(): void;
+  remove(): void;
+}
 
-  constructor(parent: HTMLElement, products: Product[]) {
+export class Carousel<T> {
+  private parent: HTMLElement;
+  private cardInstances: ICard[] = [];
+  private items: T[];
+  private cardsContainer: HTMLElement;
+  private nextButton: HTMLElement;
+  private prevButton: HTMLElement;
+  private readonly cardFactory: (container: HTMLElement, item: T) => ICard;
+  private readonly id: string;
+
+  constructor(
+    id: string,
+    parent: HTMLElement,
+    items: T[],
+    cardFactory: (container: HTMLElement, item: T) => ICard,
+  ) {
+    this.id = id;
     this.parent = parent;
-    this.products = products;
-    this.productCards = [];
+    this.items = items;
+    this.cardFactory = cardFactory;
   }
 
   render() {
-    const html = template();
+    const html = template({ id: this.id });
     this.parent.insertAdjacentHTML('beforeend', html);
 
-    const cardsContainer: HTMLDivElement = this.parent.querySelector('.carousel__cards');
-    this.products.forEach((product) => {
-      const productCard = new ProductCard(
-        cardsContainer,
-        cartStore.getState().restaurant_id,
-        cartStore.getState().restaurant_name,
-        product,
-      );
-      productCard.render();
-      this.productCards.push(productCard);
+    const carouselElement = this.parent.querySelector(`#carousel-${this.id}`);
+    const cardsContainer = carouselElement.querySelector('.carousel__cards') as HTMLElement;
+    const nextButton = carouselElement.querySelector('.carousel__button--next') as HTMLElement;
+    const prevButton = carouselElement.querySelector('.carousel__button--prev') as HTMLElement;
+
+    this.items.forEach((item) => {
+      const card = this.cardFactory(cardsContainer, item);
+      card.render();
+      this.cardInstances.push(card);
     });
 
-    document.getElementById('carousel-button--next').addEventListener('click', this.animateNext);
+    nextButton?.addEventListener('click', this.animateNext);
+    prevButton?.addEventListener('click', this.animatePrev);
+    cardsContainer.addEventListener('scroll', this.updateButtonsVisibility);
 
-    document.getElementById('carousel-button--prev').addEventListener('click', this.animatePrev);
+    this.cardsContainer = cardsContainer;
+    this.nextButton = nextButton;
+    this.prevButton = prevButton;
 
     this.updateButtonsVisibility();
-
-    cardsContainer.addEventListener('scroll', this.updateButtonsVisibility);
   }
 
-  animateNext = () => {
-    const container = this.parent.querySelector('.carousel__cards') as HTMLElement;
-    const card = container.querySelector(':scope > *') as HTMLElement;
+  remove() {
+    this.nextButton?.removeEventListener('click', this.animateNext);
+    this.prevButton?.removeEventListener('click', this.animatePrev);
+    this.cardsContainer?.removeEventListener('scroll', this.updateButtonsVisibility);
 
+    this.cardInstances.forEach((card) => card.remove());
+    this.cardInstances = [];
+    this.items = [];
+  }
+
+  private animateNext = () => {
+    const container = this.cardsContainer;
+    const card = container?.querySelector(':scope > *') as HTMLElement;
     if (!card) return;
 
-    const scrollAmount = card.offsetWidth + 5;
-
-    container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    container.scrollBy({ left: card.offsetWidth + 5, behavior: 'smooth' });
   };
 
-  animatePrev = () => {
-    const container = this.parent.querySelector('.carousel__cards') as HTMLElement;
-    const card = container.querySelector('.product-card') as HTMLElement;
-
+  private animatePrev = () => {
+    const container = this.cardsContainer;
+    const card = container?.querySelector(':scope > *') as HTMLElement;
     if (!card) return;
 
-    const scrollAmount = card.offsetWidth + 5;
-
-    container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    container.scrollBy({ left: -(card.offsetWidth + 5), behavior: 'smooth' });
   };
 
   private updateButtonsVisibility = () => {
-    const container = this.parent.querySelector('.carousel__cards') as HTMLElement;
-    const prevButton = document.getElementById('carousel-button--prev') as HTMLElement;
-    const nextButton = document.getElementById('carousel-button--next') as HTMLElement;
+    const container = this.cardsContainer;
 
     const scrollLeft = Math.ceil(container.scrollLeft);
     const scrollRight = scrollLeft + container.clientWidth;
     const scrollMax = Math.floor(container.scrollWidth);
 
-    if (scrollLeft <= 50) {
-      prevButton.style.opacity = '0';
-      prevButton.style.pointerEvents = 'none';
-    } else {
-      prevButton.style.opacity = '1';
-      prevButton.style.pointerEvents = 'auto';
-    }
+    this.prevButton.style.opacity = scrollLeft <= 50 ? '0' : '1';
+    this.prevButton.style.pointerEvents = scrollLeft <= 50 ? 'none' : 'auto';
 
-    if (scrollRight >= scrollMax - 50) {
-      nextButton.style.opacity = '0';
-      nextButton.style.pointerEvents = 'none';
-    } else {
-      nextButton.style.opacity = '1';
-      nextButton.style.pointerEvents = 'auto';
-    }
+    this.nextButton.style.opacity = scrollRight >= scrollMax - 50 ? '0' : '1';
+    this.nextButton.style.pointerEvents = scrollRight >= scrollMax - 50 ? 'none' : 'auto';
   };
-
-  remove() {
-    document.getElementById('carousel-button--next').removeEventListener('click', this.animateNext);
-    document.getElementById('carousel-button--prev').removeEventListener('click', this.animatePrev);
-    const cardsContainer = this.parent.querySelector('.carousel__cards') as HTMLDivElement;
-    cardsContainer.removeEventListener('scroll', this.updateButtonsVisibility);
-
-    this.productCards.forEach((productCard) => {
-      productCard.remove();
-    });
-
-    this.productCards = [];
-    this.products = [];
-  }
 }

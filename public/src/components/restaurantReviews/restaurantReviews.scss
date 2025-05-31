@@ -29,7 +29,7 @@
     border: 2px solid #f2f2f2;
     border-radius: 15px;
 
-    @media (max-width: 1800px) {
+    @media (max-width: 1400px) {
       row-gap: 40px;
       grid-template-columns: 2fr 10fr;
       grid-template-areas:
@@ -38,6 +38,8 @@
     }
 
     @media (max-width: 800px) {
+      row-gap: 40px;
+      grid-template-columns: 2fr 10fr;
       column-gap: 10px;
       grid-template-areas:
           'rating details'
@@ -92,6 +94,14 @@
     @media (max-width: 1800px) {
       margin-left: 0;
     }
+
+    @media (max-width: 1600px) {
+      gap: 2px;
+    }
+
+    @media (max-width: 1400px) {
+      gap: 10px;
+    }
   }
 
   &__no_reviews {
@@ -107,7 +117,7 @@
     flex-direction: column;
     gap: 25px;
 
-    @media (max-width: 1200px) {
+    @media (max-width: 1400px) {
       flex-direction: row;
     }
 

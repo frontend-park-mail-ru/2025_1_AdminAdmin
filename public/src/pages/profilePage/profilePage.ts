@@ -52,12 +52,18 @@ export default class ProfilePage {
   /**
    * Создает экземпляр страницы профиля
    * @param parent - Родительский элемент, в который будет рендериться страница профиля
+   * @param query
    */
-  constructor(parent: HTMLElement) {
+  constructor(
+    parent: HTMLElement,
+    private query?: string,
+  ) {
     if (!parent) {
       throw new Error('ProfilePage: no parent!');
     }
     this.parent = parent;
+
+    this.query = query;
 
     this.props = {
       data: userStore.getState(),
@@ -165,38 +171,68 @@ export default class ProfilePage {
 
     // Рендерим блок промокодов
     await this.renderPromocodes();
-
+    const noOrders: HTMLDivElement = this.parent.querySelector('#profile-orders__no-result');
     // Рендерим таблицу заказов
     try {
       await this.createProfileTable(0);
 
       if (!this.props.orders.total) {
-        return;
+        noOrders.style.display = 'flex';
+      } else {
+        const profileOrderWrapper: HTMLDivElement = this.parent.querySelector('.profile-orders');
+
+        if (this.props.orders.total > ORDERS_PER_PAGE) {
+          const profileTableWrapper = this.self.querySelector(
+            '.profile-orders__table__wrapper',
+          ) as HTMLElement;
+
+          profileTableWrapper.style.minHeight = `${80 * (ORDERS_PER_PAGE + 1)}px`;
+
+          this.components.pagination = new Pagination(
+            profileOrderWrapper,
+            Math.ceil(this.props.orders.total / ORDERS_PER_PAGE),
+            this.handleOrdersPageChange,
+          );
+
+          this.components.pagination.render();
+        }
       }
+    } catch {
+      noOrders.style.display = 'flex';
+    }
 
-      const profileOrderWrapper: HTMLDivElement = this.parent.querySelector('.profile-orders');
-
-      if (this.props.orders.total > ORDERS_PER_PAGE) {
-        const profileTableWrapper = this.self.querySelector(
-          '.profile-orders__table__wrapper',
-        ) as HTMLElement;
-
-        profileTableWrapper.style.minHeight = `${80 * (ORDERS_PER_PAGE + 1)}px`;
-
-        this.components.pagination = new Pagination(
-          profileOrderWrapper,
-          Math.ceil(this.props.orders.total / ORDERS_PER_PAGE),
-          this.handleOrdersPageChange,
-        );
-
-        this.components.pagination.render();
-      }
-
-      profileOrderWrapper.style.display = 'grid';
-    } catch (error) {
-      console.error(error);
+    if (this.query) {
+      this.scrollToSection(this.query);
     }
   }
+
+  scrollToSection = (section: string) => {
+    const sectionMap: Record<string, { block: string; header: string }> = {
+      addresses: { block: '#address', header: '.profile-address__header' },
+      promocodes: { block: '#promocodes', header: '.profile-promocodes__header' },
+      orders: { block: '#my-orders', header: '.profile-orders__header' },
+    };
+
+    const target = sectionMap[section];
+    if (!target) return;
+
+    const blockElement = document.querySelector(target.block);
+    const headerElement: HTMLDivElement = document.querySelector(target.header);
+
+    if (blockElement) {
+      setTimeout(() => {
+        blockElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        if (headerElement) {
+          headerElement.classList.add('shimmer');
+        }
+      }, 100);
+    }
+
+    setTimeout(() => {
+      headerElement.classList.remove('shimmer');
+    }, 8000);
+  };
 
   startSyncAcrossTabs = () => {
     this.addressChannel.onmessage = async (event) => {
@@ -215,6 +251,9 @@ export default class ProfilePage {
   createProfileTable = async (offset: number) => {
     this.props.orders = await AppOrderRequests.getUserOrders(ORDERS_PER_PAGE, offset);
 
+    if (!this.props.orders || !this.props.orders.orders.length) {
+      return;
+    }
     // Рендерим блок таблицы заказов
     const profileTableWrapper = this.self.querySelector(
       '.profile-orders__table__wrapper',
@@ -247,7 +286,11 @@ export default class ProfilePage {
         continue;
       }
 
-      const stringValue = storeValue.toString().slice(1);
+      let stringValue = storeValue.toString();
+
+      if (key === 'phone_number') {
+        stringValue = stringValue.slice(1);
+      }
 
       const inputValue = input.value;
 
@@ -285,11 +328,13 @@ export default class ProfilePage {
 
   private async refreshAddresses() {
     const wrapper: HTMLElement = this.self.querySelector('.profile-address__addresses__wrapper');
+    const noAddress: HTMLDivElement = this.parent.querySelector('#profile-address__no-result');
 
     try {
       const addresses = await AppUserRequests.GetAddresses();
 
       if (!Array.isArray(addresses)) {
+        noAddress.style.display = 'flex';
         for (const [id, comp] of this.previousAddressMap.entries()) {
           comp.close();
           this.previousAddressMap.delete(id);
@@ -297,6 +342,7 @@ export default class ProfilePage {
         return;
       }
 
+      noAddress.style.display = 'none';
       const currentAddressIds = new Set(addresses.map((a) => a.id));
 
       for (const [id, comp] of this.previousAddressMap.entries()) {
@@ -324,6 +370,7 @@ export default class ProfilePage {
         }
       });
     } catch (error) {
+      noAddress.style.display = 'flex';
       toasts.error(error.message);
     }
   }
@@ -353,15 +400,19 @@ export default class ProfilePage {
   }
 
   private async renderPromocodes() {
-    const promocodesElement: HTMLDivElement = this.parent.querySelector('.profile-promocodes');
     const promocodesBodyElement: HTMLDivElement = this.parent.querySelector(
       '.profile-promocodes__body',
     );
 
+    const noPromos: HTMLDivElement = this.parent.querySelector('#profile-promocodes__no-result');
+
     try {
       const promocodes = await AppPromocodeRequests.GetPromocodes();
 
-      if (!Array.isArray(promocodes) || promocodes.length === 0) return;
+      if (!Array.isArray(promocodes) || promocodes.length === 0) {
+        noPromos.style.display = 'flex';
+        return;
+      }
 
       promocodes.forEach((promocode) => {
         const promocodeCardComponent = new PromocodeCard(
@@ -372,9 +423,8 @@ export default class ProfilePage {
         promocodeCardComponent.render();
         this.promocodeCards.push(promocodeCardComponent);
       });
-
-      promocodesElement.style.display = 'flex';
     } catch (error) {
+      noPromos.style.display = 'flex';
       toasts.error(error.message);
     }
   }

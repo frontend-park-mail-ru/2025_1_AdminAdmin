@@ -9,6 +9,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 
   input {
     box-sizing: border-box;

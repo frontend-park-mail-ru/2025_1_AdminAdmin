@@ -70,7 +70,8 @@ export class PromocodeCard {
     const html = template({
       ...this.props,
       expires_at: formatDate(this.props.expires_at),
-      discount: this.props.discount * 100,
+      dark: this.props.discount < 0.2,
+      discount: Math.round(this.props.discount * 100),
     });
     this.parent.insertAdjacentHTML('beforeend', html);
 

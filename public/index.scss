@@ -1,4 +1,5 @@
 @use './reset.scss' as *;
+@use "sass:color";
 
 /* Импорт стилей компонентов */
 @use './src/components/logo/logo' as *;
@@ -11,6 +12,7 @@
 @use './src/components/categories/categoryHeader/categoryHeader' as *;
 @use './src/components/youMoneyForm/youMoneyForm' as *;
 @use './src/components/productCard/morePlaceholder/morePlaceholder' as *;
+@use './src/components/promotionCard/promotionCard' as *;
 
 /* Импорт сложных компонентов */
 @use './src/components/header/header' as *;
@@ -53,13 +55,14 @@
 @use './src/components/checkbox/checkbox' as *;
 
 @import '~@yandex/ymaps3-default-ui-theme/dist/esm/index.css';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
 /* Переменные */
 :root {
   --light-grey: #F2F2F2;
   --grey: #D9D9D9;
   --white: #FFFFFF;
-  --black: #000000;
+  --black: #151515;
   --dark-gray: #686868;
   --orange: #FF4D00;
   --dark-orange: #C23A00;
@@ -75,15 +78,22 @@
   --header-content-height: 45px;
   --real-header-height: 63px;
 
-  @media (max-width: 1000px) {
-    --real-header-height: 120px;
+  @media (max-width: 900px) {
+    --header-content-height: 50px;
+    --real-header-height: 130px;
   }
 }
 
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
-  font-family: Calibri, sans-serif;
-  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
   color: var(--black);
+  line-height: 1.2;
   margin: 0;
   background-color: var(--white);
 }
@@ -109,17 +119,20 @@ img {
   z-index: 10;
   background-color: var(--white);
   transition: box-shadow 0.3s ease;
-
-  &__logo {
-    grid-area: header__logo;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
 }
 
 main {
   padding-top: var(--real-header-height);
+}
+
+.enter {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.leave {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .form__line {
@@ -144,6 +157,12 @@ main {
   }
 }
 
+.form__input-head {
+  @media (max-width: 700px) {
+    justify-content: center;
+    gap: 20px;
+  }
+}
 .form__error {
   margin-top: 10px;
   font-size: 16px;
@@ -216,4 +235,57 @@ input[type='number'] {
     margin: 0;
   }
   -moz-appearance: textfield;
+}
+
+
+.shimmer {
+  color: rgba(255, 255, 255, 0.1);
+  background: -webkit-gradient(linear, left top, right top, from(#222), to(#222), color-stop(0.5, #FF4D00));
+  background: -moz-gradient(linear, left top, right top, from(#222), to(#222), color-stop(0.5, #FF4D00));
+  background: gradient(linear, left top, right top, from(#222), to(#222), color-stop(0.5, #FF4D00));
+  -webkit-background-size: 125px 100%;
+  -moz-background-size: 125px 100%;
+  background-size: 125px 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmer 8s;
+  background-repeat: no-repeat;
+  background-position: -100% 0;
+  background-color: #222;
+}
+
+@-moz-keyframes shimmer {
+  0% {
+    background-position: top left;
+  }
+  100% {
+    background-position: top right;
+  }
+}
+
+@-webkit-keyframes shimmer {
+  0% {
+    background-position: top left;
+  }
+  100% {
+    background-position: top right;
+  }
+}
+
+@-o-keyframes shimmer {
+  0% {
+    background-position: top left;
+  }
+  100% {
+    background-position: top right;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: top left;
+  }
+  100% {
+    background-position: top right;
+  }
 }
