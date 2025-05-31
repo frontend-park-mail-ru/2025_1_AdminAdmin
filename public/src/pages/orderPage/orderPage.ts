@@ -332,6 +332,17 @@ export default class OrderPage {
       return;
     }
 
+    const wine = {
+      id: '32b2c97d-d489-4c3f-b593-f9dad9449e4d',
+      name: 'Белое вино',
+      price: 950,
+      image_url: 'beloe_vino_khaus.png',
+      weight: 750,
+      amount: 0,
+    };
+
+    recommendedProducts.unshift(wine);
+
     recommendedProductsWrapper.style.display = 'block';
     this.recommendedProductsCarousel = new Carousel(
       '1',
