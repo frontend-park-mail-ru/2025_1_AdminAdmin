@@ -178,32 +178,31 @@ export default class ProfilePage {
 
       if (!this.props.orders.total) {
         noOrders.style.display = 'flex';
-        return;
-      }
+      } else {
+        const profileOrderWrapper: HTMLDivElement = this.parent.querySelector('.profile-orders');
 
-      const profileOrderWrapper: HTMLDivElement = this.parent.querySelector('.profile-orders');
+        if (this.props.orders.total > ORDERS_PER_PAGE) {
+          const profileTableWrapper = this.self.querySelector(
+            '.profile-orders__table__wrapper',
+          ) as HTMLElement;
 
-      if (this.props.orders.total > ORDERS_PER_PAGE) {
-        const profileTableWrapper = this.self.querySelector(
-          '.profile-orders__table__wrapper',
-        ) as HTMLElement;
+          profileTableWrapper.style.minHeight = `${80 * (ORDERS_PER_PAGE + 1)}px`;
 
-        profileTableWrapper.style.minHeight = `${80 * (ORDERS_PER_PAGE + 1)}px`;
+          this.components.pagination = new Pagination(
+            profileOrderWrapper,
+            Math.ceil(this.props.orders.total / ORDERS_PER_PAGE),
+            this.handleOrdersPageChange,
+          );
 
-        this.components.pagination = new Pagination(
-          profileOrderWrapper,
-          Math.ceil(this.props.orders.total / ORDERS_PER_PAGE),
-          this.handleOrdersPageChange,
-        );
-
-        this.components.pagination.render();
+          this.components.pagination.render();
+        }
       }
     } catch {
       noOrders.style.display = 'flex';
     }
 
     if (this.query) {
-      setTimeout(() => this.scrollToSection(this.query), 300);
+      this.scrollToSection(this.query);
     }
   }
 
