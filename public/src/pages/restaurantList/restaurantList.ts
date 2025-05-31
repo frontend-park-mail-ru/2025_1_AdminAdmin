@@ -193,8 +193,8 @@ export default class RestaurantList {
         const uniqueRestaurants = newRestaurants.filter((r) => !this.renderedIds.has(r.id));
         this.restaurantList.push(...uniqueRestaurants);
         uniqueRestaurants.forEach((r) => this.renderedIds.add(r.id));
-      } catch (err) {
-        console.error(err);
+      } catch {
+        /* intentionally empty */
       }
     }
 
