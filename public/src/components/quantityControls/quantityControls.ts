@@ -9,7 +9,7 @@ export class QuantityControls {
   private plusButton: QuantityButton;
   private input: HTMLInputElement;
   private minusButton: QuantityButton;
-  private readonly amount: number;
+  private amount: number;
   private readonly price: number;
   private onIncrement: () => void;
   private onDecrement: () => void;
@@ -62,14 +62,18 @@ export class QuantityControls {
   private handleInputBlur = (): void => {
     let newAmount = Number(this.input.value);
 
-    if (this.price * newAmount + cartStore.getState().total_sum > 100000) {
+    const oldTotal = cartStore.getState().total_sum;
+    const oldThisAmount = this.amount * this.price;
+    const newPossibleSumWithout = oldTotal - oldThisAmount;
+    if (this.price * newAmount + newPossibleSumWithout > 100000) {
       toasts.info('Сумма заказа не должна превышать 100 000 ₽');
-      newAmount = Math.floor((100000 - cartStore.getState().total_sum) / this.price);
+      newAmount = Math.floor((100000 - newPossibleSumWithout) / this.price);
 
       this.input.value = newAmount.toString();
     }
 
     if (newAmount !== this.amount) {
+      this.amount = newAmount;
       this.setProductAmount(newAmount);
     }
   };
